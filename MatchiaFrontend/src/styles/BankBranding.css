@@ -1,0 +1,136 @@
+@reference "./index.css";
+.branding-container {
+    @apply p-6 max-w-7xl mx-auto;
+}
+
+.branding-header {
+    @apply mb-6 flex items-center justify-between;
+}
+
+.branding-title {
+    @apply text-3xl font-bold mb-2;
+}
+
+.branding-subtitle {
+    @apply text-muted-foreground;
+}
+
+.branding-actions {
+    @apply flex gap-3;
+}
+
+.branding-main-grid {
+    @apply grid lg:grid-cols-3 gap-6;
+}
+
+.branding-content-col {
+    @apply lg:col-span-2 space-y-6;
+}
+
+.branding-form-spacing {
+    @apply space-y-4;
+}
+
+.branding-color-grid {
+    @apply grid md:grid-cols-2 gap-4;
+}
+
+.branding-label {
+    @apply block mb-2 text-sm;
+}
+
+.branding-color-input-group {
+    @apply flex gap-3;
+}
+
+.branding-color-picker {
+    @apply h-12 w-20 rounded-lg cursor-pointer;
+}
+
+.branding-color-text {
+    @apply flex-1;
+}
+
+.branding-presets-grid {
+    @apply grid grid-cols-2 md:grid-cols-4 gap-3;
+}
+
+.branding-preset-btn {
+    @apply h-12 rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors;
+}
+
+.branding-upload-area {
+    @apply border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors cursor-pointer;
+}
+
+.branding-upload-preview {
+    @apply h-16 mx-auto mb-3;
+}
+
+.branding-upload-icon {
+    @apply w-12 h-12 mx-auto mb-3 text-muted-foreground;
+}
+
+.branding-upload-title {
+    @apply font-medium mb-1;
+}
+
+.branding-upload-hint {
+    @apply text-sm text-muted-foreground;
+}
+
+.branding-upload-banner-preview {
+    @apply h-32 mx-auto mb-3 rounded-lg object-cover;
+}
+
+.branding-textarea {
+    @apply w-full px-4 py-2.5 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring resize-none;
+}
+
+.branding-sidebar-col {
+    @apply space-y-6;
+}
+
+.branding-preview-card {
+    @apply border border-border rounded-lg overflow-hidden;
+}
+
+.branding-preview-banner {
+    @apply h-32 bg-cover bg-center;
+}
+
+.branding-preview-content {
+    @apply p-4;
+}
+
+.branding-preview-header {
+    @apply flex items-center gap-3 mb-4;
+}
+
+.branding-preview-logo {
+    @apply w-12 h-12 rounded-lg object-cover;
+}
+
+.branding-preview-bank-name {
+    @apply font-bold text-lg;
+}
+
+.branding-preview-title {
+    @apply font-bold text-lg mb-2;
+}
+
+.branding-preview-desc {
+    @apply text-sm text-muted-foreground mb-4;
+}
+
+.branding-preview-btn {
+    @apply w-full py-2 rounded-lg text-white;
+}
+
+.branding-sidebar-actions {
+    @apply space-y-3;
+}
+
+.branding-full-width {
+    @apply w-full;
+}

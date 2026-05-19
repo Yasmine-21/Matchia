@@ -1,0 +1,26 @@
+@reference "./index.css";
+.login-container { @apply min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-background flex items-center justify-center p-4; }
+.login-wrapper { @apply w-full max-w-md; }
+.login-header { @apply text-center mb-8; }
+.login-logo-link { @apply inline-flex items-center gap-2 mb-6; }
+.login-logo-icon { @apply w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center; }
+.login-logo-letter { @apply text-white font-bold text-2xl; }
+.login-logo-text { @apply text-2xl font-bold; }
+.login-title { @apply text-3xl font-bold mb-2; }
+.login-subtitle { @apply text-muted-foreground; }
+.login-form-spacing { @apply space-y-4; }
+.login-error-alert { @apply p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3; }
+.login-error-icon { @apply w-5 h-5 text-destructive flex-shrink-0 mt-0.5; }
+.login-error-text { @apply text-sm text-destructive; }
+.login-forgot-link { @apply text-sm text-primary hover:underline block; }
+.login-actions { @apply flex flex-col gap-4; }
+.login-submit-btn { @apply w-full; }
+.login-register-text { @apply text-sm text-center text-muted-foreground; }
+.login-register-link { @apply text-primary hover:underline; }
+.login-demo-container { @apply mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg; }
+.login-demo-title { @apply text-sm font-semibold text-primary mb-3; }
+.login-demo-list { @apply space-y-2; }
+.login-demo-item { @apply text-sm; }
+.login-demo-email { @apply font-mono text-primary/80; }
+.login-demo-role { @apply text-xs text-primary/70; }
+.login-icon { @apply w-5 h-5; }

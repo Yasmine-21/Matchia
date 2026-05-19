@@ -1,0 +1,51 @@
+@reference "./index.css";
+.banks-container { @apply min-h-screen bg-background; }
+.banks-hero-section { @apply bg-gradient-to-br from-primary/5 to-accent/5 py-16; }
+.banks-wrapper { @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8; }
+.banks-header { @apply text-center mb-8; }
+.banks-title { @apply text-4xl md:text-5xl font-bold text-foreground mb-4; }
+.banks-subtitle { @apply text-xl text-muted-foreground max-w-2xl mx-auto; }
+.banks-search-container { @apply flex flex-col md:flex-row gap-4 max-w-4xl mx-auto; }
+.banks-search-input { @apply flex-1; }
+.banks-search-select { @apply md:w-48; }
+.banks-view-toggle { @apply flex gap-2 bg-white rounded-lg p-1 border border-border; }
+.banks-toggle-btn { @apply p-2 rounded transition-colors hover:bg-muted; }
+.banks-toggle-btn-active { @apply bg-primary text-white hover:bg-primary; }
+.banks-list-section { @apply py-12; }
+.banks-list-header { @apply mb-6 flex items-center justify-between; }
+.banks-results-count { @apply text-muted-foreground; }
+.banks-grid { @apply grid md:grid-cols-2 lg:grid-cols-3 gap-6; }
+.banks-card { @apply h-full flex flex-col; }
+.banks-card-header { @apply flex items-start gap-4 mb-3; }
+.banks-card-logo { @apply w-16 h-16 rounded-lg object-cover border border-border; }
+.banks-card-title { @apply mb-1; }
+.banks-card-location { @apply flex items-center gap-2 text-sm text-muted-foreground; }
+.banks-icon { @apply w-4 h-4; }
+.banks-card-stats { @apply flex items-center gap-2 mb-3; }
+.banks-card-rating { @apply flex items-center gap-1; }
+.banks-icon-warning { @apply w-4 h-4 fill-warning text-warning; }
+.banks-font-medium { @apply font-medium; }
+.banks-card-desc { @apply line-clamp-2; }
+.banks-card-metrics { @apply grid grid-cols-2 gap-3; }
+.banks-metric-box { @apply bg-muted/50 rounded-lg p-3; }
+.banks-metric-label { @apply flex items-center gap-2 text-muted-foreground mb-1; }
+.banks-text-xs { @apply text-xs; }
+.banks-font-semibold { @apply font-semibold; }
+.banks-full-width { @apply w-full; }
+.banks-list-view { @apply space-y-4; }
+.banks-list-card { @apply flex flex-col md:flex-row items-start md:items-center gap-4 p-6; }
+.banks-list-card-logo { @apply w-20 h-20 rounded-lg object-cover border border-border; }
+.banks-list-card-header { @apply flex items-start justify-between gap-4 mb-2; }
+.banks-list-card-title { @apply font-semibold text-lg mb-1; }
+.banks-list-card-stats { @apply flex items-center gap-4 text-sm text-muted-foreground; }
+.banks-list-card-desc { @apply text-muted-foreground mb-3; }
+.banks-list-card-footer { @apply flex items-center gap-6 text-sm; }
+.banks-icon-muted { @apply w-4 h-4 text-muted-foreground; }
+.banks-empty-state { @apply text-center py-12; }
+.banks-empty-icon-wrapper { @apply w-20 h-20 bg-muted rounded-full flex items-center justify-center mx-auto mb-4; }
+.banks-empty-icon { @apply w-10 h-10 text-muted-foreground; }
+.banks-empty-title { @apply text-xl font-semibold mb-2; }
+.banks-cta-section { @apply py-16 bg-muted/30; }
+.banks-cta-wrapper { @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center; }
+.banks-cta-title { @apply text-3xl font-bold mb-4; }
+.banks-cta-subtitle { @apply text-muted-foreground mb-6; }

@@ -1,0 +1,23 @@
+@reference "./index.css";
+.bank-dashboard-container { @apply p-6 max-w-7xl mx-auto; }
+.bank-dashboard-header { @apply mb-6; }
+.bank-dashboard-title { @apply text-3xl font-bold mb-2; }
+.bank-dashboard-subtitle { @apply text-muted-foreground; }
+.bank-stats-grid { @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6; }
+.bank-stat-header { @apply flex items-center justify-between mb-2; }
+.bank-stat-icon-wrapper { @apply w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary; }
+.bank-stat-value { @apply text-3xl font-bold mt-2; }
+.bank-charts-grid { @apply grid lg:grid-cols-2 gap-6 mb-6; }
+.bank-modules-list { @apply space-y-4; }
+.bank-module-item { @apply flex items-center gap-3; }
+.bank-module-info { @apply flex-1; }
+.bank-module-header { @apply flex items-center justify-between mb-1; }
+.bank-module-name { @apply font-medium; }
+.bank-module-usage { @apply text-sm text-muted-foreground; }
+.bank-module-progress-bar { @apply h-2 bg-muted rounded-full overflow-hidden; }
+.bank-module-progress { @apply h-full bg-primary; }
+.bank-module-trend { @apply w-5 h-5; }
+.bank-actions-grid { @apply grid md:grid-cols-3 gap-4; }
+.bank-action-card { @apply p-4 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all text-left; }
+.bank-action-title { @apply font-medium mb-1; }
+.bank-action-desc { @apply text-sm text-muted-foreground; }

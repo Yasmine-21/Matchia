@@ -1,0 +1,228 @@
+@reference "./index.css";
+
+.join-container {
+  @apply min-h-screen bg-background py-12;
+}
+
+.join-wrapper {
+  @apply max-w-5xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.join-header {
+  @apply mb-8 text-center;
+}
+
+.join-title {
+  @apply text-4xl font-bold mb-4;
+}
+
+.join-subtitle {
+  @apply text-xl text-muted-foreground;
+}
+
+.join-stepper-container {
+  @apply mb-12;
+}
+
+.join-stepper-wrapper {
+  @apply flex items-center justify-between relative;
+}
+
+.join-stepper-line {
+  @apply absolute top-5 left-0 right-0 h-0.5 bg-border;
+  z-index: 0;
+}
+
+.join-stepper-progress {
+  @apply absolute top-5 left-0 h-0.5 bg-primary transition-all duration-500;
+  z-index: 0;
+}
+
+.join-stepper-item {
+  @apply flex flex-col items-center relative;
+  z-index: 1;
+}
+
+.join-stepper-circle {
+  @apply w-10 h-10 rounded-full flex items-center justify-center font-semibold transition-all mb-2;
+}
+
+.join-stepper-completed {
+  @apply bg-primary text-white;
+}
+
+.join-stepper-current {
+  @apply bg-primary text-white ring-4 ring-primary/20;
+}
+
+.join-stepper-pending {
+  @apply bg-muted text-muted-foreground;
+}
+
+.join-stepper-text {
+  @apply text-sm font-medium text-center;
+}
+
+.join-stepper-text-current {
+  @apply text-foreground;
+}
+
+.join-stepper-text-pending {
+  @apply text-muted-foreground;
+}
+
+.join-form-spacing {
+  @apply space-y-4;
+}
+
+.join-form-grid {
+  @apply grid md:grid-cols-2 gap-4;
+}
+
+.join-label {
+  @apply block mb-2 text-sm font-medium;
+}
+
+.join-upload-area {
+  @apply border-2 border-dashed border-border rounded-xl p-8 text-center hover:border-primary transition-colors cursor-pointer;
+}
+
+.join-upload-content {
+  @apply space-y-2;
+}
+
+.join-upload-preview {
+  @apply w-20 h-20 bg-muted rounded-lg mx-auto flex items-center justify-center;
+}
+
+.join-upload-success-icon {
+  @apply w-10 h-10 text-success;
+}
+
+.join-upload-icon {
+  @apply w-12 h-12 mx-auto mb-3 text-muted-foreground;
+}
+
+.join-upload-title {
+  @apply font-medium mb-1;
+}
+
+.join-upload-hint {
+  @apply text-sm text-muted-foreground;
+}
+
+.join-success-container {
+  @apply min-h-screen bg-background flex items-center justify-center p-4;
+}
+
+.join-success-wrapper {
+  @apply max-w-2xl w-full text-center;
+}
+
+.join-success-icon-wrapper {
+  @apply w-20 h-20 bg-success rounded-full flex items-center justify-center mx-auto mb-6;
+}
+
+.join-success-icon {
+  @apply w-12 h-12 text-white;
+}
+
+.join-success-desc {
+  @apply text-xl text-muted-foreground mb-8;
+}
+
+.join-success-card {
+  @apply text-left mb-6;
+}
+
+.join-success-list {
+  @apply space-y-3;
+}
+
+.join-success-item {
+  @apply flex items-start gap-3;
+}
+
+.join-success-step {
+  @apply w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center flex-shrink-0 font-semibold text-sm;
+}
+
+.join-step-spacing {
+  @apply space-y-4;
+}
+
+.join-selection-card {
+  @apply border border-border rounded-2xl p-4 cursor-pointer transition-colors hover:border-primary/50;
+}
+
+.join-selection-card-active {
+  @apply border-primary bg-primary/5;
+}
+
+.join-selection-content {
+  @apply flex items-center gap-4;
+}
+
+.join-selection-icon-wrapper {
+  @apply w-14 h-14 bg-muted rounded-2xl flex items-center justify-center text-muted-foreground mb-4 transition-colors;
+}
+
+.join-selection-icon-wrapper-active {
+  @apply bg-primary/10 text-primary;
+}
+
+.join-selection-icon {
+  @apply w-6 h-6;
+}
+
+.join-selection-title {
+  @apply text-lg font-semibold mb-1;
+}
+
+.join-review-grid {
+  @apply grid gap-6 lg:grid-cols-2;
+}
+
+.join-review-title {
+  @apply text-lg font-semibold mb-4;
+}
+
+.join-review-list {
+  @apply space-y-3;
+}
+
+.join-review-item {
+  @apply flex items-center justify-between rounded-2xl border border-border p-4 bg-muted/50;
+}
+
+.join-review-label {
+  @apply text-sm text-muted-foreground;
+}
+
+.join-upload-filename {
+  @apply text-sm text-muted-foreground;
+}
+
+.join-summary-box {
+  @apply rounded-2xl border border-border p-4 bg-muted/50;
+}
+
+.join-summary-label {
+  @apply text-sm text-muted-foreground;
+}
+
+.join-summary-value {
+  @apply text-3xl font-bold mt-2;
+}
+
+.join-selection-tags {
+  @apply text-sm text-muted-foreground mt-3;
+}
+
+.join-actions {
+  @apply mt-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
+}
+
+.join-stepper-icon {
+  @apply w-5 h-5;
+}

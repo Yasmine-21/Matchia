@@ -1,0 +1,363 @@
+@reference "./index.css";
+.home-container {
+  @apply min-h-screen bg-background;
+}
+
+.home-hero-section {
+  @apply py-20 bg-muted/30;
+}
+
+.home-hero-wrapper {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.home-hero-grid {
+  @apply grid lg:grid-cols-2 gap-12 items-center;
+}
+
+.home-hero-badge {
+  @apply inline-flex items-center gap-2 px-4 py-2 bg-primary/10 text-primary rounded-full mb-6;
+}
+
+.home-hero-badge-icon {
+  @apply w-4 h-4;
+}
+
+.home-hero-badge-text {
+  @apply text-sm font-medium;
+}
+
+.home-hero-title {
+  @apply text-5xl md:text-6xl font-bold text-foreground mb-6 leading-tight;
+}
+
+.home-hero-description {
+  @apply text-xl text-muted-foreground mb-8 leading-relaxed;
+}
+
+.home-hero-actions {
+  @apply flex flex-wrap gap-4 mb-6;
+}
+
+.home-hero-action-icon {
+  @apply w-5 h-5;
+}
+
+.home-hero-features {
+  @apply flex items-center gap-6 text-sm text-muted-foreground;
+}
+
+.home-hero-feature-item {
+  @apply flex items-center gap-2;
+}
+
+.home-hero-feature-icon {
+  @apply w-4 h-4 text-success;
+}
+
+.home-hero-image-wrapper {
+  @apply relative rounded-2xl overflow-hidden shadow-2xl border border-border bg-muted;
+}
+
+.home-hero-image {
+  @apply w-full h-auto;
+}
+
+/* Section Qu'est-ce que Matchia */
+.home-about-section {
+  @apply py-20;
+}
+
+.home-about-wrapper {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.home-section-header {
+  @apply text-center mb-12;
+}
+
+.home-section-title {
+  @apply text-4xl font-bold text-foreground mb-4;
+}
+
+.home-section-subtitle {
+  @apply text-lg text-muted-foreground max-w-3xl mx-auto;
+}
+
+.home-about-grid {
+  @apply grid md:grid-cols-2 gap-8 max-w-4xl mx-auto;
+}
+
+.home-card-center {
+  @apply text-center;
+}
+
+.home-card-icon-wrapper {
+  @apply w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center mx-auto mb-4;
+}
+
+.home-card-icon {
+  @apply w-8 h-8 text-primary;
+}
+
+.home-card-title {
+  @apply text-2xl;
+}
+
+.home-card-description {
+  @apply text-muted-foreground;
+}
+
+/* Avantages de la plateforme */
+.home-benefits-section {
+  @apply py-20 bg-muted/30;
+}
+
+.home-benefits-wrapper {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.home-benefits-grid {
+  @apply grid md:grid-cols-2 lg:grid-cols-3 gap-6;
+}
+
+.home-benefit-card {
+  @apply h-full;
+}
+
+.home-benefit-icon-wrapper {
+  @apply w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary mb-4;
+}
+
+.home-benefit-icon {
+  @apply w-6 h-6;
+}
+
+/* Section Boutiques et modules */
+.home-stores-section {
+  @apply py-20;
+}
+
+.home-stores-wrapper {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.home-stores-grid {
+  @apply grid lg:grid-cols-2 gap-12;
+}
+
+.home-column-title {
+  @apply text-3xl font-bold mb-2;
+}
+
+.home-column-subtitle {
+  @apply text-muted-foreground mb-8;
+}
+
+.home-stores-list {
+  @apply space-y-4;
+}
+
+.home-store-card-header {
+  @apply flex items-start gap-4;
+}
+
+.home-store-card-icon-wrapper {
+  @apply w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center text-primary flex-shrink-0;
+}
+
+.home-store-card-icon {
+  @apply w-6 h-6;
+}
+
+.home-store-card-title {
+  @apply mb-2;
+}
+
+.home-modules-grid {
+  @apply grid gap-4;
+}
+
+.home-module-card {
+  @apply hover:border-primary transition-colors;
+}
+
+.home-module-card-header {
+  @apply pb-4;
+}
+
+.home-module-card-content {
+  @apply flex items-center gap-3;
+}
+
+.home-module-card-icon-wrapper {
+  @apply w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center text-accent;
+}
+
+.home-module-card-icon {
+  @apply w-5 h-5;
+}
+
+.home-module-card-title {
+  @apply text-base;
+}
+
+.home-module-card-description {
+  @apply text-sm;
+}
+
+/* Comment ça fonctionne */
+.home-steps-section {
+  @apply py-20 bg-muted/30;
+}
+
+.home-steps-wrapper {
+  @apply max-w-4xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.home-steps-list {
+  @apply space-y-6;
+}
+
+.home-step-header {
+  @apply flex items-start gap-4;
+}
+
+.home-step-number {
+  @apply w-12 h-12 bg-primary text-primary-foreground rounded-full flex items-center justify-center font-bold text-xl flex-shrink-0;
+}
+
+.home-step-content {
+  @apply flex-1;
+}
+
+.home-step-title {
+  @apply mb-2;
+}
+
+.home-step-description {
+  @apply text-base;
+}
+
+/* Témoignages */
+.home-testimonials-section {
+  @apply py-20;
+}
+
+.home-testimonials-wrapper {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.home-testimonials-grid {
+  @apply grid md:grid-cols-2 gap-8 max-w-5xl mx-auto;
+}
+
+.home-testimonial-content {
+  @apply pt-6;
+}
+
+.home-testimonial-quote {
+  @apply text-lg mb-6 italic text-foreground;
+}
+
+.home-testimonial-author {
+  @apply font-semibold;
+}
+
+.home-testimonial-role {
+  @apply text-sm text-muted-foreground;
+}
+
+/* Sécurité */
+.home-security-section {
+  @apply py-20 bg-muted/30;
+}
+
+.home-security-wrapper {
+  @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.home-security-grid {
+  @apply grid lg:grid-cols-2 gap-12 items-center;
+}
+
+.home-security-title {
+  @apply text-4xl font-bold mb-6;
+}
+
+.home-security-subtitle {
+  @apply text-lg text-muted-foreground mb-8;
+}
+
+.home-security-list {
+  @apply space-y-4;
+}
+
+.home-security-item {
+  @apply flex items-center gap-3;
+}
+
+.home-security-icon-wrapper {
+  @apply w-6 h-6 bg-success/10 rounded-full flex items-center justify-center flex-shrink-0;
+}
+
+.home-security-icon {
+  @apply w-4 h-4 text-success;
+}
+
+.home-security-text {
+  @apply text-foreground;
+}
+
+.home-security-image-wrapper {
+  @apply relative rounded-2xl overflow-hidden shadow-xl border border-border;
+}
+
+.home-security-image {
+  @apply w-full h-auto;
+}
+
+/* FAQ */
+.home-faq-section {
+  @apply py-20;
+}
+
+.home-faq-wrapper {
+  @apply max-w-3xl mx-auto px-4 sm:px-6 lg:px-8;
+}
+
+.home-faq-list {
+  @apply space-y-3;
+}
+
+.home-faq-card {
+  @apply overflow-hidden;
+}
+
+.home-faq-button {
+  @apply w-full text-left;
+}
+
+.home-faq-header {
+  @apply flex flex-row items-center justify-between space-y-0;
+}
+
+.home-faq-title {
+  @apply text-base;
+}
+
+.home-faq-icon {
+  @apply w-5 h-5 text-muted-foreground transition-transform;
+}
+
+.home-faq-icon-rotated {
+  @apply rotate-180;
+}
+
+.home-faq-content {
+  @apply pt-0;
+}
+
+.home-faq-text {
+  @apply text-muted-foreground;
+}
