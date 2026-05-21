@@ -33,8 +33,7 @@ export interface ModuleDto {
 }
 export interface ModuleParameter {
   id: number;
-  code: string;
-  label: string;
+  name: string;
   type: 'string' | 'number' | 'boolean' | 'date' | 'select';
   required: boolean;
   value?: string | number | boolean | null;

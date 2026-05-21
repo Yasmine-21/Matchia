@@ -85,7 +85,7 @@ public class ModuleStoreService {
                     .map(p -> {
                         ModuleStoreParameter param = new ModuleStoreParameter();
                         param.setCode(p.getCode());
-                        param.setLabel(p.getLabel());
+                        param.setName(p.getName());
                         param.setType(p.getType());
                         param.setRequired(p.getRequired());
 
@@ -177,14 +177,30 @@ public class ModuleStoreService {
         return ms.getParameters();
     }
 
-
-    // ============ UTILITAIRES ============
-
-    // Vérifier si un module est assigné à un store
-    @Transactional(readOnly = true)
-    public boolean isModuleAssigned(Long storeId, Long moduleId) {
-        return moduleStoreRepository.existsByStoreIdAndModuleId(storeId, moduleId);
+    // Modifier un paramètre spécifique
+    @Transactional
+    public ModuleStoreResponseDto updateParameter(Long parameterId, ModuleStoreParameter details) {
+        ModuleStoreParameter param = parameterRepository.findById(parameterId)
+                .orElseThrow(() -> new RuntimeException("Paramètre non trouvé avec l'id : " + parameterId));
+        param.setCode(details.getCode());
+        param.setName(details.getName());
+        param.setType(details.getType());
+        param.setRequired(details.getRequired());
+        parameterRepository.save(param);
+        return moduleStoreMapper.toDto(param.getModuleStore());
     }
+
+    // Supprimer un paramètre spécifique
+    @Transactional
+    public ModuleStoreResponseDto deleteParameter(Long parameterId) {
+        ModuleStoreParameter param = parameterRepository.findById(parameterId)
+                .orElseThrow(() -> new RuntimeException("Paramètre non trouvé avec l'id : " + parameterId));
+        ModuleStore ms = param.getModuleStore();
+        parameterRepository.delete(param);
+        ms.getParameters().remove(param);
+        return moduleStoreMapper.toDto(ms);
+    }
+
 
     // Compter le nombre de modules assignés à un store
     @Transactional(readOnly = true)

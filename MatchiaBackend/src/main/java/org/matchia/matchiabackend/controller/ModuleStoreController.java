@@ -117,19 +117,26 @@ public class ModuleStoreController {
         return ResponseEntity.ok(moduleStoreService.getParameters(moduleStoreId));
     }
 
+    // Modifier un paramètre spécifique
+    @PutMapping("/parameters/{parameterId}")
+    public ResponseEntity<ModuleStoreResponseDto> updateParameter(
+            @PathVariable Long parameterId,
+            @RequestBody ModuleStoreParameter parameter) {
+        return ResponseEntity.ok(moduleStoreService.updateParameter(parameterId, parameter));
+    }
 
+    // Supprimer un paramètre spécifique
+    @DeleteMapping("/parameters/{parameterId}")
+    public ResponseEntity<ModuleStoreResponseDto> deleteParameter(
+            @PathVariable Long parameterId) {
+        return ResponseEntity.ok(moduleStoreService.deleteParameter(parameterId));
+    }
 
 
     // ============ UTILITAIRES ============
 
     // Vérifier si un module est assigné à un store
-    @GetMapping("/store/{storeId}/module/{moduleId}/exists")
-    public ResponseEntity<Map<String, Boolean>> checkAssignment(
-            @PathVariable Long storeId,
-            @PathVariable Long moduleId) {
-        boolean exists = moduleStoreService.isModuleAssigned(storeId, moduleId);
-        return ResponseEntity.ok(Map.of("exists", exists));
-    }
+
 
     // Compter le nombre de modules assignés à un store
     @GetMapping("/store/{storeId}/count")

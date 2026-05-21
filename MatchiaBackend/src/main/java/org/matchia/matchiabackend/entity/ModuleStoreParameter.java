@@ -23,8 +23,8 @@ public class ModuleStoreParameter {
     @JsonIgnore
     private ModuleStore moduleStore;
 
+    private String name;
     private String code;
-    private String label;
     private String type;
     private Boolean required;
 }

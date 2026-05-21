@@ -4,21 +4,18 @@ import { StoreDto } from '../types/apiTypes';
 
 export const storeService = {
     
-    getAllStores: async () => {
-        return await apiClient.get<StoreDto[]>('/stores');
-    },
+     getAllStores: () =>
+        apiClient.get<StoreDto[]>('/stores'),
 
-    createStore: async (storeData: StoreDto) => {
-        return await apiClient.post<StoreDto>('/stores', storeData);
-    },
-    updateStore: async (id: number, storeData: StoreDto) => {
-        return await apiClient.put<StoreDto>(`/stores/${id}`, storeData);
-    },
-    patchStore: async (id: number, fields: Partial<StoreDto>) => {
-        return await apiClient.patch<StoreDto>(`/stores/${id}`, fields);
-    },
+    createStore: (storeData: StoreDto) =>
+        apiClient.post<StoreDto>('/stores', storeData),
 
-    deleteStore: async (id: number) => {
-        return await apiClient.delete(`/stores/${id}`);
-    }
+    updateStore: (id: number, storeData: StoreDto) =>
+        apiClient.put<StoreDto>(`/stores/${id}`, storeData),
+
+    patchStore: (id: number, fields: Partial<StoreDto>) =>
+        apiClient.patch<StoreDto>(`/stores/${id}`, fields),
+
+    deleteStore: (id: number) =>
+        apiClient.delete(`/stores/${id}`)
 };

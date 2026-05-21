@@ -10,7 +10,8 @@ export const moduleService = {
   updateModuleStatus: (id: number, status: string) =>
     apiClient.patch(`/modules/${id}/status`, { status }),
 
-
+  updateModule: (id: number, data: any) => 
+    apiClient.put(`/modules/${id}`, data),
 
   getStoreModulesWithConfig: (storeId: number): Promise<{ data: ModuleAssignment[] }> =>
     apiClient.get(`/modulestores/store/${storeId}`),
@@ -20,12 +21,12 @@ export const moduleService = {
     apiClient.post('/modulestores', { storeId, moduleId, ...config }),
 
   assignModuleToStoreFull: (payload: {
-    storeId: number;
-    moduleId: number;
+    store: { id: number };
+    module: { id: number };
     actif: boolean;
     ordre: number;
     parameters: Array<{
-      label: string;
+      name: string;
       code: string;
       type: string;
       required: boolean;
@@ -48,4 +49,14 @@ export const moduleService = {
   updateSingleParameter: (storeId: number, moduleId: number, parameterId: number, value: any) =>
     apiClient.patch(`/modulestores/store/${storeId}/module/${moduleId}/parameters/${parameterId}`, { value }),
 
+  addParameterToModuleStore: (moduleStoreId: number, param: any) =>
+    apiClient.post(`/modulestores/${moduleStoreId}/parameters`, param),
+
+  updateModuleStoreParameter: (parameterId: number, param: any) =>
+    apiClient.put(`/modulestores/parameters/${parameterId}`, param),
+
+  deleteModuleStoreParameter: (parameterId: number) =>
+    apiClient.delete(`/modulestores/parameters/${parameterId}`),
+
+  deleteModule: (id: number) => apiClient.delete(`/modules/${id}`)
 };

@@ -1,5 +1,7 @@
 package org.matchia.matchiabackend.service;
 
+import org.matchia.matchiabackend.dto.StoreDto;
+import org.matchia.matchiabackend.entity.Store;
 import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.ModuleDto;
@@ -41,23 +43,23 @@ public class ModuleService {
     }
 
     // METTRE À JOUR
-    @Transactional
-    public ModuleDto updateModule(Long id, ModuleDto dto) {
+    public ModuleDto updateModule(Long id, ModuleDto moduleDto) {
+        // 1. On vérifie si le store existe
         Module existingModule = moduleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Module non trouvé avec l'id : " + id));
+                .orElseThrow(() -> new RuntimeException("Module non trouvé"));
 
-        existingModule.setName(dto.getName());
-        existingModule.setStatus(dto.getStatus());
+        // 2. On met à jour les champs
+        existingModule.setName(moduleDto.getName());
+        existingModule.setCategory(moduleDto.getCategory());
+        existingModule.setIcon(moduleDto.getIcon());
+        existingModule.setStatus(moduleDto.getStatus());
 
+        // 3. On sauvegarde
         return moduleMapper.toDto(moduleRepository.save(existingModule));
     }
 
-    // SUPPRIMER
-    @Transactional
     public void deleteModule(Long id) {
-        if (!moduleRepository.existsById(id)) {
-            throw new RuntimeException("Impossible de supprimer : Module non trouvé");
-        }
+
         moduleRepository.deleteById(id);
     }
 }

@@ -18,7 +18,10 @@ public class StoreMapper {
         dto.setCreatedAt(store.getCreatedAt());
 
         if (store.getModuleStores() != null) {
-            dto.setModulesCount(store.getModuleStores().size());
+            long activeCount = store.getModuleStores().stream()
+                    .filter(ms -> Boolean.TRUE.equals(ms.getActif()))
+                    .count();
+            dto.setModulesCount((int) activeCount);
         } else {
             dto.setModulesCount(0);
         }

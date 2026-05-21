@@ -33,7 +33,7 @@ public class ModuleStoreMapper {
         if (entity.getParameters() != null) {
             dto.setParameters(entity.getParameters().stream()
                     .map(p -> new ModuleStoreParameterDto(
-                            p.getId(), p.getCode(), p.getLabel(), p.getType(), p.getRequired()
+                            p.getId(), p.getCode(), p.getName(), p.getType(), p.getRequired()
                     )).collect(Collectors.toList()));
         } else {
             dto.setParameters(new ArrayList<>());

@@ -9,8 +9,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class ModuleStoreParameterDto {
     private Long id;
+    private String name;
     private String code;
-    private String label;
     private String type;
     private boolean required;
 }
