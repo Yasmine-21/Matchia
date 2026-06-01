@@ -2,16 +2,13 @@ package org.matchia.matchiabackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.StoreDto;
-import org.matchia.matchiabackend.entity.Store;
-import org.matchia.matchiabackend.mapper.StoreMapper;
+import org.matchia.matchiabackend.entity.enums.StoreStatusEnum;
 import org.matchia.matchiabackend.service.StoreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
@@ -22,8 +19,10 @@ public class StoreController {
     private final StoreService storeService;
 
     @GetMapping
-    public ResponseEntity<List<StoreDto>> getAllStores() {
-        return ResponseEntity.ok(storeService.getAllStores());
+    public ResponseEntity<List<StoreDto>> getAllStores(
+            @RequestParam(value = "status", required = false) StoreStatusEnum status
+    ) {
+        return ResponseEntity.ok(storeService.getAllStores(status));
     }
 
     @PostMapping

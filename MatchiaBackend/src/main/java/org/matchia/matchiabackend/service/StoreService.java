@@ -3,7 +3,10 @@ package org.matchia.matchiabackend.service;
 import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.StoreDto;
 import org.matchia.matchiabackend.entity.Store;
+import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
+import org.matchia.matchiabackend.entity.enums.StoreStatusEnum;
 import org.matchia.matchiabackend.mapper.StoreMapper;
+import org.matchia.matchiabackend.repository.ModuleStoreRepository;
 import org.matchia.matchiabackend.repository.StoreRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -16,11 +19,24 @@ public class StoreService {
 
     private final StoreRepository storeRepository;
     private final StoreMapper storeMapper;
+    private final ModuleStoreRepository moduleStoreRepository;
 
     public List<StoreDto> getAllStores() {
-        return storeRepository.findAll()
-                .stream()
-                .map(storeMapper::toDto)
+        return getAllStores(null);
+    }
+
+    public List<StoreDto> getAllStores(StoreStatusEnum status) {
+        List<Store> stores = (status == null) ? storeRepository.findAll() : storeRepository.findByStatus(status);
+        return stores.stream()
+                .map(store -> {
+                    StoreDto dto = storeMapper.toDto(store);
+                    long activeCount = moduleStoreRepository
+                            .countByStoreIdAndActifTrueAndModuleStatus(
+                                    store.getId(), ModuleStatusEnum.active  // ← enum, pas String
+                            );
+                    dto.setModulesCount((int) activeCount);
+                    return dto;
+                })
                 .collect(Collectors.toList());
     }
 
@@ -38,6 +54,7 @@ public class StoreService {
         existingStore.setDescription(storeDto.getDescription());
         existingStore.setIcon(storeDto.getIcon());
         existingStore.setStatus(storeDto.getStatus());
+        existingStore.setPrice(storeDto.getPrice());
 
         // 3. On sauvegarde
         return storeMapper.toDto(storeRepository.save(existingStore));

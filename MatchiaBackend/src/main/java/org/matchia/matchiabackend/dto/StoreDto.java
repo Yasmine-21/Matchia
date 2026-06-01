@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.matchia.matchiabackend.entity.enums.*;
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Data
 @NoArgsConstructor
@@ -16,6 +17,7 @@ public class StoreDto {
     private String description;
     private String icon;
     private StoreStatusEnum status;
+    private BigDecimal price;
     private LocalDateTime createdAt;
     private Integer modulesCount;
 }

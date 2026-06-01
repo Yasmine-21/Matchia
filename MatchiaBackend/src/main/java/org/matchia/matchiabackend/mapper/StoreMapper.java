@@ -15,6 +15,7 @@ public class StoreMapper {
         dto.setDescription(store.getDescription());
         dto.setIcon(store.getIcon());
         dto.setStatus(store.getStatus());
+        dto.setPrice(store.getPrice());
         dto.setCreatedAt(store.getCreatedAt());
 
         if (store.getModuleStores() != null) {
@@ -38,6 +39,7 @@ public class StoreMapper {
         store.setDescription(dto.getDescription());
         store.setIcon(dto.getIcon());
         store.setStatus(dto.getStatus());
+        store.setPrice(dto.getPrice());
 
         return store;
     }

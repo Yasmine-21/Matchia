@@ -1,6 +1,7 @@
 package org.matchia.matchiabackend.repository;
 
 import org.matchia.matchiabackend.entity.ModuleStore;
+import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -18,6 +19,8 @@ public interface ModuleStoreRepository extends JpaRepository<ModuleStore, Long> 
     // Récupérer seulement les modules actifs d'un store
     List<ModuleStore> findByStoreIdAndActifTrueOrderByOrdreAsc(Long storeId);
 
+    List<ModuleStore> findByStoreIdAndActifTrueAndModuleStatusOrderByOrdreAsc(Long storeId, ModuleStatusEnum status);
+
     // Vérifier si une assignation existe
     boolean existsByStoreIdAndModuleId(Long storeId, Long moduleId);
 
@@ -26,4 +29,7 @@ public interface ModuleStoreRepository extends JpaRepository<ModuleStore, Long> 
 
     // Supprimer une assignation
     void deleteByStoreIdAndModuleId(Long storeId, Long moduleId);
+
+    long countByStoreIdAndActifTrueAndModuleStatus(Long storeId, ModuleStatusEnum status);
+
 }

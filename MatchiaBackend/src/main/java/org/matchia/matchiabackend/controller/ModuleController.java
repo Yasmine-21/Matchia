@@ -2,9 +2,7 @@ package org.matchia.matchiabackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.ModuleDto;
-import org.matchia.matchiabackend.dto.StoreDto;
-import org.matchia.matchiabackend.entity.Module;
-import org.matchia.matchiabackend.mapper.ModuleMapper;
+import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 import org.matchia.matchiabackend.service.ModuleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,8 +16,10 @@ public class ModuleController {
     private final ModuleService moduleService;
 
     @GetMapping
-    public ResponseEntity<List<ModuleDto>> getAll() {
-        return ResponseEntity.ok(moduleService.getAllModules());
+    public ResponseEntity<List<ModuleDto>> getAll(
+            @RequestParam(value = "status", required = false) ModuleStatusEnum status
+    ) {
+        return ResponseEntity.ok(moduleService.getAllModules(status));
     }
 
     @PostMapping

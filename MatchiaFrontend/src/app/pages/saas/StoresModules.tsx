@@ -1,4 +1,7 @@
+
 import { useState, useEffect, useRef } from 'react';
+
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
@@ -14,7 +17,7 @@ import { storeService } from '../../services/storeService';
 import { moduleService } from '../../services/moduleService';
 import { ModuleDto, StoreDto, ModuleAssignment, ModuleParameter } from '../../types/apiTypes';
 
-
+// storeIconMap
 const storeIconMap: Record<string, any> = {
   Car: Car,
   Smartphone: Smartphone,
@@ -27,7 +30,7 @@ const storeIconMap: Record<string, any> = {
   Business: Briefcase
 };
 
-
+// moduleIconMap
 const moduleIconMap: Record<string, any> = {
   Calculator: Calculator,
   GitCompare: GitCompare,
@@ -44,26 +47,7 @@ const moduleIconMap: Record<string, any> = {
   Globe: Globe
 };
 
-interface StoreUIDto extends StoreDto {
-  modules: number;
-  IconComponent: any;
-  iconName: string;
-}
-
-interface ModuleUIDto extends ModuleDto {
-  IconComponent: any;
-  iconName: string;
-}
-
-interface LocalModuleParameter {
-  label: string;
-  name: string;
-  code: string;
-  type: 'string' | 'number' | 'boolean' | 'date' | 'select'| 'image';
-  required: boolean;
-}
-
-// Palette de couleurs pour les icônes
+// colorPalette
 const colorPalette = [
   '#f97316', // orange
   '#3b82f6', // blue
@@ -74,11 +58,37 @@ const colorPalette = [
   '#6366f1'  // indigo
 ];
 
+// getIconColor()
 function getIconColor(index: number): string {
   return colorPalette[index % colorPalette.length];
 }
 
-// Menu déroulant personnalisé
+
+// ============ 3. INTERFACES & TYPES ============
+// StoreUIDto
+interface StoreUIDto extends StoreDto {
+  modules: number;
+  IconComponent: any;
+  iconName: string;
+}
+
+// ModuleUIDto
+interface ModuleUIDto extends ModuleDto {
+  IconComponent: any;
+  iconName: string;
+}
+
+// LocalModuleParameter
+interface LocalModuleParameter {
+  name: string;
+  code: string;
+  type: 'string' | 'number' | 'boolean' | 'date' | 'select'| 'image';
+  required: boolean;
+}
+
+
+// ============ 4. SOUS-COMPOSANTS ============
+// DropdownMenu
 function DropdownMenu({
   items,
   children
@@ -132,7 +142,7 @@ function DropdownMenu({
   );
 }
 
-// Composant pour l'affichage d'un module assigné
+// AssignedModuleItem
 function AssignedModuleItem({
   assignment,
   isExpanded,
@@ -141,6 +151,7 @@ function AssignedModuleItem({
   onAddParameter,
   onEditParameter,
   onDeleteParameter,
+  moduleGlobalStatus,
 }: {
   assignment: ModuleAssignment;
   isExpanded: boolean;
@@ -149,6 +160,7 @@ function AssignedModuleItem({
   onAddParameter: (moduleStoreId: number) => void;
   onEditParameter: (moduleStoreId: number, param: ModuleParameter) => void;
   onDeleteParameter: (moduleStoreId: number, paramId: number) => void;
+  moduleGlobalStatus?: 'active' | 'inactive';
 }) {
   const Icon = moduleIconMap[assignment.module.icon || 'BookOpen'] || BookOpen;
 
@@ -176,6 +188,11 @@ function AssignedModuleItem({
             </div>
           </div>
           <div className="flex items-center gap-3">
+             {moduleGlobalStatus === 'inactive' ? (
+               <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs">
+                Global inactif
+               </Badge>
+              ) : (
             <Badge
               variant={assignment.actif ? 'success' : 'default'}
               className={
@@ -186,12 +203,20 @@ function AssignedModuleItem({
             >
               {assignment.actif ? 'Actif' : 'Inactif'}
             </Badge>
-            <label className="relative inline-flex items-center cursor-pointer">
+              )}
+            <label className={`relative inline-flex items-center ${
+                  moduleGlobalStatus === 'inactive' ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                 }`}>
               <input
                 type="checkbox"
                 className="sr-only peer"
-                checked={assignment.actif}
-                onChange={() => onToggleModule(assignment.module.id, assignment.actif)}
+                checked={assignment.actif && moduleGlobalStatus !== 'inactive'}
+                onChange={() => {
+                  if (moduleGlobalStatus !== 'inactive') {
+                   onToggleModule(assignment.module.id, assignment.actif);
+                   }
+                }}
+              disabled={moduleGlobalStatus === 'inactive'}
               />
               <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
             </label>
@@ -209,7 +234,8 @@ function AssignedModuleItem({
         </div>
       </div>
 
-      {isExpanded && assignment.actif && (
+      {/* Bloc paramètres — visible uniquement si actif localement ET globalement */}
+      {isExpanded && assignment.actif && moduleGlobalStatus !== 'inactive' && (
         <div className="p-4 pt-0 border-t border-gray-200 dark:border-gray-700">
           <div className="pt-4">
             <div className="flex items-center justify-between mb-3">
@@ -292,12 +318,16 @@ function AssignedModuleItem({
           </div>
         </div>
       )}
-      
-      {isExpanded && !assignment.actif && (
+
+      {isExpanded && (!assignment.actif || moduleGlobalStatus === 'inactive') && (
         <div className="p-4 pt-0">
           <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
             <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
-            <p className="text-sm text-gray-500 dark:text-gray-400">Ce module est désactivé. Activez-le pour voir ses paramètres.</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              {moduleGlobalStatus === 'inactive'
+                ? 'Ce module est désactivé globalement. Réactivez-le dans la section Modules pour le configurer.'
+                : 'Ce module est désactivé. Activez-le pour voir ses paramètres.'}
+            </p>
           </div>
         </div>
       )}
@@ -305,7 +335,7 @@ function AssignedModuleItem({
   );
 }
 
-// Composant enfant pour une carte de store
+// StoreCard
 function StoreCard({ 
   store, 
   index,
@@ -325,8 +355,8 @@ function StoreCard({
   const iconColor = getIconColor(index);
   
   return (
-    <Card className={store.status === 'inactive' ? 'opacity-80' : ''}>
-      <CardHeader>
+    <Card className={`h-full flex flex-col ${store.status === 'inactive' ? 'opacity-80' : ''}`}>
+      <CardHeader className="flex-1">
         <div className="flex items-start justify-between mb-3">
           <div
             className="w-14 h-14 rounded-xl flex items-center justify-center"
@@ -359,19 +389,19 @@ function StoreCard({
         </div>
 
         <div className="flex gap-2">
-       <Button
-  className={`flex-1 ${
-    store.status === 'active'
-      ? 'border-none text-white bg-blue-500 hover:bg-blue-600 rounded-full px-4 py-2'
-      : 'border-gray-300 text-gray-400 cursor-not-allowed opacity-50 rounded-full'
-  }`}
-  icon={<Edit className="w-4 h-4" />}
-  onClick={() => store.status === 'active' && onConfigure(store)}
-  disabled={store.status !== 'active'}
-  title={store.status !== 'active' ? "Store inactif - configuration impossible" : ""}
->
-  Configurer
-</Button>
+          <Button
+            className={`flex-1 ${
+              store.status === 'active'
+                ? 'border-none text-white bg-blue-500 hover:bg-blue-600 rounded-full px-4 py-2'
+                : 'border-gray-300 text-gray-400 cursor-not-allowed opacity-50 rounded-full'
+            }`}
+            icon={<Edit className="w-4 h-4" />}
+            onClick={() => store.status === 'active' && onConfigure(store)}
+            disabled={store.status !== 'active'}
+            title={store.status !== 'active' ? "Store inactif - configuration impossible" : ""}
+          >
+            Configurer
+          </Button>
 
           <Button
             size="sm"
@@ -391,7 +421,7 @@ function StoreCard({
   );
 }
 
-// Composant enfant pour une carte de module
+// ModuleCard
 function ModuleCard({ 
   module, 
   index,
@@ -409,7 +439,7 @@ function ModuleCard({
   const iconColor = getIconColor(index);
   
   return (
-    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white dark:bg-gray-900 rounded-xl border border-gray-200 dark:border-gray-700 p-6 shadow-sm hover:shadow-md transition-shadow h-full flex flex-col">
       <div className="flex items-start justify-between mb-4">
         <div
           className="w-12 h-12 rounded-lg flex items-center justify-center"
@@ -431,21 +461,27 @@ function ModuleCard({
           </DropdownMenu>
         </div>
       </div>
-      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-        {module.label || module.name}
-      </h3>
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-        Module disponible pour assignment
-      </p>
-      <Badge 
-        variant={module.status === 'active' ? 'success' : 'default'}
-        className={module.status === 'active' 
-          ? 'mb-4 bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
-          : 'mb-4 bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
-        }
-      >
-        {module.status === 'active' ? 'Global Actif' : 'Global Inactif'}
-      </Badge>
+      
+      <div className="flex-1 flex flex-col">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          {module.label || module.name}
+        </h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400 mb-4 flex-1">
+          {module.description || '—'}
+        </p>
+        <div className="mb-4">
+          <Badge 
+            variant={module.status === 'active' ? 'success' : 'default'}
+            className={module.status === 'active' 
+              ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+              : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+            }
+          >
+            {module.status === 'active' ? 'Global Actif' : 'Global Inactif'}
+          </Badge>
+        </div>
+      </div>
+
       <Button
         size="sm"
         variant="outline"
@@ -464,37 +500,61 @@ function ModuleCard({
   );
 }
 
+
+// ============ 5. COMPOSANT PRINCIPAL : SaaSStoresModules ============
 export function SaaSStoresModules() {
-  // Store creation state
+  //   5.1 — States (groupés par catégorie avec commentaires)
+  
+  // Creation Store
   const [newStoreName, setNewStoreName] = useState('');
   const [newStoreIcon, setNewStoreIcon] = useState('Smartphone');
   const [newStoreDescription, setNewStoreDescription] = useState('');
   const [newStoreIsActive, setNewStoreIsActive] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
-  
-  // Store edit state
+
+  // Edition Store
   const [editStoreName, setEditStoreName] = useState('');
   const [editStoreIcon, setEditStoreIcon] = useState('Smartphone');
   const [editStoreDescription, setEditStoreDescription] = useState('');
   const [editStoreIsActive, setEditStoreIsActive] = useState(true);
+  const [editStoreLoading, setEditStoreLoading] = useState(false);
 
-  // Tab & UI state
+  // Creation Module
+  const [newModuleName, setNewModuleName] = useState('');
+  const [newModuleCategory, setNewModuleCategory] = useState('');
+  const [newModuleDescription, setNewModuleDescription] = useState('');
+  const [newModuleIcon, setNewModuleIcon] = useState('Calculator');
+  const [newModuleIsActive, setNewModuleIsActive] = useState(true);
+  const [isCreatingModule, setIsCreatingModule] = useState(false);
+
+  // Edition Module
+  const [editModuleName, setEditModuleName] = useState('');
+  const [editModuleCategory, setEditModuleCategory] = useState('');
+  const [editModuleDescription, setEditModuleDescription] = useState('');
+  const [editModuleIcon, setEditModuleIcon] = useState('Calculator');
+  const [editModuleIsActive, setEditModuleIsActive] = useState(true);
+  const [editModuleLoading, setEditModuleLoading] = useState(false);
+
+  // UI / Navigation
   const [activeTab, setActiveTab] = useState('stores');
+  const [storeStatusFilter, setStoreStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
+  const [moduleStatusFilter, setModuleStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [showDrawer, setShowDrawer] = useState(false);
   const [expandedModuleId, setExpandedModuleId] = useState<number | null>(null);
   const [togglingModuleId, setTogglingModuleId] = useState<number | null>(null);
 
-  // Data state
+  // Data
   const [stores, setStores] = useState<StoreUIDto[]>([]);
   const [modulesList, setModulesList] = useState<ModuleUIDto[]>([]);
   const [assignedModules, setAssignedModules] = useState<ModuleAssignment[]>([]);
+  const [selectedStore, setSelectedStore] = useState<StoreUIDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [loading, setLoading] = useState(true);
   const [isLoadingModules, setIsLoadingModules] = useState(false);
 
-  // Modal state
-  const [suspendLoading, setSuspendLoading] = useState(false);
+  // Modals
   const [showSuspendModal, setShowSuspendModal] = useState(false);
+  const [suspendLoading, setSuspendLoading] = useState(false);
   const [storeToSuspend, setStoreToSuspend] = useState<StoreUIDto | null>(null);
   const [showDeleteStoreModal, setShowDeleteStoreModal] = useState(false);
   const [storeToDelete, setStoreToDelete] = useState<StoreUIDto | null>(null);
@@ -505,14 +565,15 @@ export function SaaSStoresModules() {
   const [showEditModuleModal, setShowEditModuleModal] = useState(false);
   const [moduleToEdit, setModuleToEdit] = useState<ModuleUIDto | null>(null);
   const [deleteLoading, setDeleteLoading] = useState(false);
-  const [editModuleLoading, setEditModuleLoading] = useState(false);
-  const [editStoreLoading, setEditStoreLoading] = useState(false);
+  const [showCreateStoreModal, setShowCreateStoreModal] = useState(false);
+  const [showCreateModuleModal, setShowCreateModuleModal] = useState(false);
+
+  // Assign Module
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [moduleToAssign, setModuleToAssign] = useState<ModuleDto | null>(null);
   const [assignTargetStore, setAssignTargetStore] = useState<StoreUIDto | null>(null);
   const [currentParameters, setCurrentParameters] = useState<LocalModuleParameter[]>([]);
   const [currentParameterForm, setCurrentParameterForm] = useState<LocalModuleParameter>({
-    label: '',
     name: '',
     code: '',
     type: 'string',
@@ -521,10 +582,8 @@ export function SaaSStoresModules() {
   const [showParameterForm, setShowParameterForm] = useState(false);
   const [isAssigningModule, setIsAssigningModule] = useState(false);
   const [isAlreadyAssigned, setIsAlreadyAssigned] = useState(false);
-  const [showCreateStoreModal, setShowCreateStoreModal] = useState(false);
-  const [showCreateModuleModal, setShowCreateModuleModal] = useState(false);
 
-  // States pour la gestion dynamique des paramètres des modules assignés
+  // Param Management
   const [showParamManageModal, setShowParamManageModal] = useState(false);
   const [paramManageMode, setParamManageMode] = useState<'create' | 'edit'>('create');
   const [paramTargetModuleStoreId, setParamTargetModuleStoreId] = useState<number | null>(null);
@@ -542,27 +601,44 @@ export function SaaSStoresModules() {
   });
   const [saveParamLoading, setSaveParamLoading] = useState(false);
 
-  // Module creation state
-  const [newModuleName, setNewModuleName] = useState('');
-  const [newModuleCategory, setNewModuleCategory] = useState('');
-  const [newModuleIcon, setNewModuleIcon] = useState('Calculator');
-  const [newModuleIsActive, setNewModuleIsActive] = useState(true);
-  const [isCreatingModule, setIsCreatingModule] = useState(false);
-  
-  // Module edit state
-  const [editModuleName, setEditModuleName] = useState('');
-  const [editModuleCategory, setEditModuleCategory] = useState('');
-  const [editModuleIcon, setEditModuleIcon] = useState('Calculator');
-  const [editModuleIsActive, setEditModuleIsActive] = useState(true);
-  
-  // Selected store for drawer
-  const [selectedStore, setSelectedStore] = useState<StoreUIDto | null>(null);
+  const filteredStores = stores.filter((store) =>
+    storeStatusFilter === 'all' ? true : store.status === storeStatusFilter
+  );
 
+  const filteredModules = modulesList.filter((module) =>
+    moduleStatusFilter === 'all' ? true : module.status === moduleStatusFilter
+  );
+
+
+  //   5.2 — useEffect
   useEffect(() => {
     fetchStores();
     loadModules();
   }, []);
 
+  // Recalcule pour tous les stores quand modulesList change
+  useEffect(() => {
+    if (modulesList.length === 0 || !selectedStore || assignedModules.length === 0) return;
+
+    // Recalcule le compteur du store actuellement ouvert dans le drawer
+    const activeCount = assignedModules.filter(a => {
+      const globalModule = modulesList.find(m => m.id === a.module.id);
+      return a.actif && globalModule?.status !== 'inactive';
+    }).length;
+
+    setStores(prev =>
+      prev.map(store =>
+        store.id === selectedStore.id
+          ? { ...store, modules: activeCount }
+          : store
+      )
+    );
+  }, [modulesList, assignedModules, selectedStore]);
+
+
+  //   5.3 — Fonctions (groupées avec commentaires)
+
+  // Fetch & Load
   const fetchStores = async () => {
     setLoading(true);
     try {
@@ -604,9 +680,16 @@ export function SaaSStoresModules() {
     setIsLoadingModules(true);
     try {
       const response = await moduleService.getStoreModulesWithConfig(storeId);
-      console.log('Paramètres reçus de l\'API:', response.data);
       const data = response.data || [];
       setAssignedModules(data);
+      const activeCount = data.filter((a: ModuleAssignment) => {
+        const globalModule = modulesList.find(m => m.id === a.module.id);
+        return a.actif && globalModule?.status !== 'inactive';
+      }).length;
+
+      setStores(prev =>
+        prev.map(s => s.id === storeId ? { ...s, modules: activeCount } : s)
+      );
       return data;
     } catch (error) {
       console.error('Erreur lors du chargement des modules assignés:', error);
@@ -617,6 +700,7 @@ export function SaaSStoresModules() {
     }
   };
 
+  // Store handlers
   const handleCreateStore = async () => {
     if (!newStoreName.trim()) {
       alert('Le nom du store est requis');
@@ -650,14 +734,12 @@ export function SaaSStoresModules() {
     }
   };
 
-  // Ouvre le drawer de configuration (bouton Configurer)
   const handleConfigureStore = async (store: StoreUIDto) => {
     setSelectedStore(store);
     await loadAssignedModulesForStore(store.id);
     setShowDrawer(true);
   };
 
-  // Ouvre la modale d'édition du store (menu Modifier)
   const handleOpenEditStoreModal = (store: StoreUIDto) => {
     setStoreToEdit(store);
     setEditStoreName(store.name);
@@ -766,6 +848,122 @@ export function SaaSStoresModules() {
     }
   };
 
+  // Module handlers
+  const handleCreateModule = async () => {
+    if (!newModuleName.trim()) {
+      alert('Le nom du module est requis');
+      return;
+    }
+    setIsCreatingModule(true);
+    try {
+      const payload = {
+        name: newModuleName.toLowerCase(),
+        label: newModuleName,
+        category: newModuleCategory || null,
+        description: newModuleDescription,
+        icon: newModuleIcon,
+        status: newModuleIsActive ? 'active' as const : 'inactive' as const,
+      };
+      
+      const response = await moduleService.createModule(payload);
+      
+      const newModuleWithUI: ModuleUIDto = {
+        ...response.data,
+        IconComponent: response.data.icon ? moduleIconMap[response.data.icon] : moduleIconMap['BookOpen'],
+        iconName: response.data.icon || 'BookOpen'
+      };
+
+      setModulesList((prev) => [...prev, newModuleWithUI]);
+
+      setNewModuleName('');
+      setNewModuleCategory('');
+      setNewModuleDescription('');
+      setNewModuleIcon('Calculator');
+      setNewModuleIsActive(true);
+      setShowCreateModuleModal(false);
+    } catch (error) {
+      console.error('Erreur lors de la création du module:', error);
+      alert('Erreur lors de la création du module');
+    } finally {
+      setIsCreatingModule(false);
+    }
+  };
+
+  const handleEditModule = (module: ModuleUIDto) => {
+    setModuleToEdit(module);
+    setEditModuleName(module.label || module.name);
+    setEditModuleCategory(module.category || '');
+    setEditModuleDescription(module.description || '');
+    setEditModuleIcon(module.iconName || 'Calculator');
+    setEditModuleIsActive(module.status === 'active');
+    setShowEditModuleModal(true);
+  };
+
+  const confirmEditModule = async () => {
+    if (!moduleToEdit || !editModuleName.trim()) {
+      alert('Le nom du module est requis');
+      return;
+    }
+    setEditModuleLoading(true);
+    try {
+      const payload = {
+        name: editModuleName.toLowerCase(),
+        label: editModuleName,
+        category: editModuleCategory || null,
+        description: editModuleDescription,
+        icon: editModuleIcon,
+        status: editModuleIsActive ? 'active' as const : 'inactive' as const,
+      };
+
+      await moduleService.updateModule(moduleToEdit.id, payload);
+
+      const updatedModulesList = modulesList.map(m =>
+        m.id === moduleToEdit.id
+          ? {
+              ...m,
+              label: editModuleName,
+              name: editModuleName.toLowerCase(),
+              category: editModuleCategory || '',
+              description: editModuleDescription,
+              icon: editModuleIcon,
+              status: editModuleIsActive ? 'active' : 'inactive',
+              iconName: editModuleIcon,
+              IconComponent: editModuleIcon && moduleIconMap[editModuleIcon]
+                ? moduleIconMap[editModuleIcon]
+                : moduleIconMap['BookOpen'],
+            }
+          : m
+      );
+
+      setModulesList(updatedModulesList);
+
+      if (selectedStore && assignedModules.length > 0) {
+        const activeCount = assignedModules.filter(a => {
+          const globalModule = updatedModulesList.find(m => m.id === a.module.id);
+          return a.actif && globalModule?.status !== 'inactive';
+        }).length;
+
+        setStores(prev =>
+          prev.map(s =>
+            s.id === selectedStore.id
+              ? { ...s, modules: activeCount }
+              : s
+          )
+        );
+      }
+
+      await fetchStores();
+
+      setShowEditModuleModal(false);
+      setModuleToEdit(null);
+    } catch (error) {
+      console.error('Erreur lors de la modification du module:', error);
+      alert('Erreur lors de la modification du module');
+    } finally {
+      setEditModuleLoading(false);
+    }
+  };
+
   const handleDeleteModule = (module: ModuleUIDto) => {
     setModuleToDelete(module);
     setShowDeleteModuleModal(true);
@@ -787,59 +985,173 @@ export function SaaSStoresModules() {
     }
   };
 
-  const handleEditModule = (module: ModuleUIDto) => {
-    setModuleToEdit(module);
-    setEditModuleName(module.label || module.name);
-    setEditModuleCategory(module.category || '');
-    setEditModuleIcon(module.iconName || 'Calculator');
-    setEditModuleIsActive(module.status === 'active');
-    setShowEditModuleModal(true);
+  // Assign handlers
+  const handleAssignModule = (module: ModuleDto) => {
+    setModuleToAssign(module);
+    setShowAssignModal(true);
+    resetAssignState();
   };
 
-  const confirmEditModule = async () => {
-    if (!moduleToEdit || !editModuleName.trim()) {
-      alert('Le nom du module est requis');
+  const resetAssignState = () => {
+    setAssignTargetStore(null);
+    setCurrentParameters([]);
+    setCurrentParameterForm({
+      
+      name: '',
+      code: '',
+      type: 'string',
+      required: false,
+    });
+    setShowParameterForm(false);
+    setIsAssigningModule(false);
+    setIsAlreadyAssigned(false);
+  };
+
+  const handleSelectTargetStore = async (store: StoreUIDto) => {
+    setAssignTargetStore(store);
+    setCurrentParameters([]);
+    setCurrentParameterForm({
+      name: '',
+      code: '',
+      type: 'string',
+      required: false,
+    });
+    setShowParameterForm(false);
+    setIsAlreadyAssigned(false);
+    
+    const assigned = await loadAssignedModulesForStore(store.id);
+    if (moduleToAssign) {
+      const exists = assigned.some((assignment) => assignment.module.id === moduleToAssign.id);
+      if (exists) {
+        setIsAlreadyAssigned(true);
+        alert("Ce module est déjà assigné à ce store.");
+      }
+    }
+  };
+
+  const confirmAssignModule = async (storeId: number) => {
+    if (!moduleToAssign || !assignTargetStore) return;
+
+    const exists = assignedModules.some((assignment) => assignment.module.id === moduleToAssign.id);
+    if (exists) {
+      alert("Ce module est déjà assigné à ce store.");
       return;
     }
-    setEditModuleLoading(true);
+
+    if (currentParameters.length === 0) {
+      alert('Ajoutez au moins un paramètre avant de confirmer l\'assignation.');
+      return;
+    }
+
+    setIsAssigningModule(true);
     try {
-      const payload = {
-        name: editModuleName.toLowerCase(),
-        label: editModuleName,
-        category: editModuleCategory || null,
-        icon: editModuleIcon,
-        status: editModuleIsActive ? 'active' as const : 'inactive' as const,
-      };
+      await moduleService.assignModuleToStoreFull({
+        store: { id: storeId },
+        module: { id: moduleToAssign.id },
+        actif: true,
+        ordre: assignTargetStore.modules + 1,
+        parameters: currentParameters.map((param) => ({
+          name: param.name,
+          code: param.code || param.name,
+          type: param.type,
+          required: param.required,
+        })),
+      });
 
-      await moduleService.updateModule(moduleToEdit.id, payload);
-
-      setModulesList((prev) =>
-        prev.map((m) =>
-          m.id === moduleToEdit.id
-            ? {
-                ...m,
-                label: editModuleName,
-                name: editModuleName.toLowerCase(),
-                category: editModuleCategory || '',
-                icon: editModuleIcon,
-                status: editModuleIsActive ? 'active' : 'inactive',
-                iconName: editModuleIcon,
-                IconComponent: editModuleIcon && moduleIconMap[editModuleIcon] 
-                  ? moduleIconMap[editModuleIcon] 
-                  : moduleIconMap['BookOpen'],
-              }
-            : m
+      setStores((prev) =>
+        prev.map((s) =>
+          s.id === storeId ? { ...s, modules: s.modules + 1 } : s
         )
       );
-
-      setShowEditModuleModal(false);
-      setModuleToEdit(null);
+      if (selectedStore?.id === storeId) {
+        await loadAssignedModulesForStore(storeId);
+      }
+      setShowAssignModal(false);
+      setModuleToAssign(null);
+      resetAssignState();
     } catch (error) {
-      console.error('Erreur lors de la modification du module:', error);
-      alert('Erreur lors de la modification du module');
+      console.error('Failed to assign module:', error);
+      alert('Erreur lors de l\'assignation du module');
     } finally {
-      setEditModuleLoading(false);
+      setIsAssigningModule(false);
     }
+  };
+
+  const handleToggleModule = async (storeId: number, moduleId: number, currentStatus: boolean) => {
+    setTogglingModuleId(moduleId);
+    try {
+      await moduleService.toggleModuleForStore(storeId, moduleId, !currentStatus);
+      
+      setAssignedModules(prev => {
+        const updated = prev.map(item =>
+          item.module.id === moduleId
+            ? { ...item, actif: !currentStatus }
+            : item
+        );
+        
+        const activeCount = updated.filter(item => {
+          const globalModule = modulesList.find(m => m.id === item.module.id);
+          return item.actif && globalModule?.status !== 'inactive';
+        }).length;
+        
+        setStores(prevStores =>
+          prevStores.map(s =>
+            s.id === storeId ? { ...s, modules: activeCount } : s
+          )
+        );
+        
+        return updated;
+      });
+      
+      if (currentStatus) {
+        setExpandedModuleId(null);
+      }
+    } finally {
+      setTogglingModuleId(null);
+    }
+  };
+
+  const toggleExpand = (moduleId: number) => {
+    setExpandedModuleId(expandedModuleId === moduleId ? null : moduleId);
+  };
+
+  // Parameter handlers
+  const handleAddParameter = () => {
+    setShowParameterForm(true);
+    setCurrentParameterForm({
+    
+      name: '',
+      code: '',
+      type: 'string',
+      required: false,
+    });
+  };
+
+  const handleConfirmParameter = () => {
+    if (!currentParameterForm.name.trim() || !currentParameterForm.code.trim()) {
+      alert('Le nom et le code du paramètre sont requis.');
+      return;
+    }
+
+    setCurrentParameters((prev) => [
+      ...prev,
+      {
+        ...currentParameterForm,
+        code: currentParameterForm.code.trim(),
+      },
+    ]);
+    setCurrentParameterForm({
+    
+      name: '',
+      code: '',
+      type: 'string',
+      required: false,
+    });
+    setShowParameterForm(false);
+  };
+
+  const handleDeleteParameter = (index: number) => {
+    setCurrentParameters((prev) => prev.filter((_, idx) => idx !== index));
   };
 
   const handleOpenAddParamModal = (moduleStoreId: number) => {
@@ -933,217 +1245,11 @@ export function SaaSStoresModules() {
     }
   };
 
-  const resetAssignState = () => {
-    setAssignTargetStore(null);
-    setCurrentParameters([]);
-    setCurrentParameterForm({
-      label: '',
-      name: '',
-      code: '',
-      type: 'string',
-      required: false,
-    });
-    setShowParameterForm(false);
-    setIsAssigningModule(false);
-    setIsAlreadyAssigned(false);
-  };
 
-  const handleAssignModule = (module: ModuleDto) => {
-    setModuleToAssign(module);
-    setShowAssignModal(true);
-    resetAssignState();
-  };
-
-  const handleSelectTargetStore = async (store: StoreUIDto) => {
-    setAssignTargetStore(store);
-    setCurrentParameters([]);
-    setCurrentParameterForm({
-      label: '',
-      name: '',
-      code: '',
-      type: 'string',
-      required: false,
-    });
-    setShowParameterForm(false);
-    setIsAlreadyAssigned(false);
-    
-    const assigned = await loadAssignedModulesForStore(store.id);
-    if (moduleToAssign) {
-      const exists = assigned.some((assignment) => assignment.module.id === moduleToAssign.id);
-      if (exists) {
-        setIsAlreadyAssigned(true);
-        alert("Ce module est déjà assigné à ce store.");
-      }
-    }
-  };
-
-  const handleAddParameter = () => {
-    setShowParameterForm(true);
-    setCurrentParameterForm({
-      label: '',
-      name: '',
-      code: '',
-      type: 'string',
-      required: false,
-    });
-  };
-
-  const handleConfirmParameter = () => {
-    if (!currentParameterForm.label.trim() || !currentParameterForm.code.trim()) {
-      alert('Le libellé et le code du paramètre sont requis.');
-      return;
-    }
-
-    setCurrentParameters((prev) => [
-      ...prev,
-      {
-        ...currentParameterForm,
-        code: currentParameterForm.code.trim(),
-      },
-    ]);
-    setCurrentParameterForm({
-      label: '',
-      name: '',
-      code: '',
-      type: 'string',
-      required: false,
-    });
-    setShowParameterForm(false);
-  };
-
-  const handleDeleteParameter = (index: number) => {
-    setCurrentParameters((prev) => prev.filter((_, idx) => idx !== index));
-  };
-
-  const confirmAssignModule = async (storeId: number) => {
-    if (!moduleToAssign || !assignTargetStore) return;
-
-    const exists = assignedModules.some((assignment) => assignment.module.id === moduleToAssign.id);
-    if (exists) {
-      alert("Ce module est déjà assigné à ce store.");
-      return;
-    }
-
-    if (currentParameters.length === 0) {
-      alert('Ajoutez au moins un paramètre avant de confirmer l\'assignation.');
-      return;
-    }
-
-    setIsAssigningModule(true);
-    try {
-      await moduleService.assignModuleToStoreFull({
-        store: { id: storeId },
-        module: { id: moduleToAssign.id },
-        actif: true,
-        ordre: assignTargetStore.modules + 1,
-        parameters: currentParameters.map((param) => ({
-          name: param.name,
-          code: param.code || param.name,
-          type: param.type,
-          required: param.required,
-        })),
-      });
-
-      setStores((prev) =>
-        prev.map((s) =>
-          s.id === storeId ? { ...s, modules: s.modules + 1 } : s
-        )
-      );
-      if (selectedStore?.id === storeId) {
-        await loadAssignedModulesForStore(storeId);
-      }
-      setShowAssignModal(false);
-      setModuleToAssign(null);
-      resetAssignState();
-    } catch (error) {
-      console.error('Failed to assign module:', error);
-      alert('Erreur lors de l\'assignation du module');
-    } finally {
-      setIsAssigningModule(false);
-    }
-  };
-
-  const handleToggleModule = async (storeId: number, moduleId: number, currentStatus: boolean) => {
-    setTogglingModuleId(moduleId);
-    try {
-      await moduleService.toggleModuleForStore(storeId, moduleId, !currentStatus);
-      
-      setAssignedModules(prev => {
-        const updated = prev.map(item =>
-          item.module.id === moduleId
-            ? { ...item, actif: !currentStatus }
-            : item
-        );
-        
-        // Recalculate the count of active modules
-        const activeCount = updated.filter(item => item.actif).length;
-        
-        // Update the store's modules count in the state
-        setStores(prevStores =>
-          prevStores.map(s =>
-            s.id === storeId ? { ...s, modules: activeCount } : s
-          )
-        );
-        
-        return updated;
-      });
-      
-      if (currentStatus) {
-        setExpandedModuleId(null);
-      }
-    } catch (error) {
-      console.error('Erreur lors du toggle du module:', error);
-      alert('Erreur lors de la modification du statut du module');
-    } finally {
-      setTogglingModuleId(null);
-    }
-  };
-
-  const handleCreateModule = async () => {
-    if (!newModuleName.trim()) {
-      alert('Le nom du module est requis');
-      return;
-    }
-    setIsCreatingModule(true);
-    try {
-      const payload = {
-        name: newModuleName.toLowerCase(),
-        label: newModuleName,
-        category: newModuleCategory || null,
-        icon: newModuleIcon,
-        status: newModuleIsActive ? 'active' as const : 'inactive' as const,
-      };
-      
-      const response = await moduleService.createModule(payload);
-      
-      const newModuleWithUI: ModuleUIDto = {
-        ...response.data,
-        IconComponent: response.data.icon ? moduleIconMap[response.data.icon] : moduleIconMap['BookOpen'],
-        iconName: response.data.icon || 'BookOpen'
-      };
-
-      setModulesList((prev) => [...prev, newModuleWithUI]);
-
-      setNewModuleName('');
-      setNewModuleCategory('');
-      setNewModuleIcon('Calculator');
-      setNewModuleIsActive(true);
-      setShowCreateModuleModal(false);
-    } catch (error) {
-      console.error('Erreur lors de la création du module:', error);
-      alert('Erreur lors de la création du module');
-    } finally {
-      setIsCreatingModule(false);
-    }
-  };
-
-  const toggleExpand = (moduleId: number) => {
-    setExpandedModuleId(expandedModuleId === moduleId ? null : moduleId);
-  };
-
+  //   5.4 — return JSX
   return (
     <div className="space-y-6">
-      {/* Header with Tabs */}
+      {/* Tabs header */}
       <div className="border-b border-gray-200 dark:border-gray-700">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Stores et Modules</h2>
@@ -1179,25 +1285,36 @@ export function SaaSStoresModules() {
         </div>
       )}
 
-      {/* STORES TAB */}
+      {/* Stores tab */}
       {!loading && activeTab === 'stores' && (
         <>
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-lg text-gray-500 dark:text-gray-400">
-                Gérez les stores disponibles sur la plateforme
+                Gerez les stores disponibles sur la plateforme
               </p>
             </div>
-            <Button onClick={() => setShowCreateStoreModal(true)} 
-             className="bg-gradient-to-br from-primary to-accent hover:opacity-90 border-none text-white rounded-xl"
->
-              <Plus className="w-4 h-4" />
-              Créer un Store
-            </Button>
+            <div className="flex flex-wrap items-center gap-3">
+              <select
+                value={storeStatusFilter}
+                onChange={(event) => setStoreStatusFilter(event.target.value as 'all' | 'active' | 'inactive')}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+              >
+                <option value="all">Tous les stores</option>
+                <option value="active">Actifs</option>
+                <option value="inactive">Inactifs</option>
+              </select>
+              <Button onClick={() => setShowCreateStoreModal(true)} 
+               className="bg-gradient-to-br from-primary to-accent hover:opacity-90 border-none text-white rounded-xl"
+              >
+                <Plus className="w-4 h-4" />
+                Creer un Store
+              </Button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {stores.map((store, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+            {filteredStores.map((store, index) => (
               <StoreCard
                 key={store.id}
                 store={store}
@@ -1208,23 +1325,39 @@ export function SaaSStoresModules() {
                 onDelete={handleDeleteStore}
               />
             ))}
+            {filteredStores.length === 0 && (
+              <div className="col-span-3 text-center py-12 text-gray-500 dark:text-gray-400">
+                Aucun store ne correspond a ce filtre.
+              </div>
+            )}
           </div>
         </>
       )}
 
-      {/* MODULES TAB */}
+      {/* Modules tab */}
       {activeTab === 'modules' && (
         <>
-          <div className="mb-6 flex items-center justify-between">
+          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
               <p className="text-lg text-gray-500 dark:text-gray-400">
-                Gérez les modules disponibles sur la plateforme
+                Gerez les modules disponibles sur la plateforme
               </p>
             </div>
-            <Button onClick={() => setShowCreateModuleModal(true)} className="bg-orange-500 hover:bg-orange-600">
-              <Plus className="w-4 h-4" />
-              Créer un Module
-            </Button>
+            <div className="flex flex-wrap items-center gap-3">
+              <select
+                value={moduleStatusFilter}
+                onChange={(event) => setModuleStatusFilter(event.target.value as 'all' | 'active' | 'inactive')}
+                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
+              >
+                <option value="all">Tous les modules</option>
+                <option value="active">Actifs</option>
+                <option value="inactive">Inactifs</option>
+              </select>
+              <Button onClick={() => setShowCreateModuleModal(true)} className="bg-orange-500 hover:bg-orange-600">
+                <Plus className="w-4 h-4" />
+                Creer un Module
+              </Button>
+            </div>
           </div>
 
           {isLoading ? (
@@ -1232,8 +1365,8 @@ export function SaaSStoresModules() {
               <Loader2 className="animate-spin text-orange-500 w-8 h-8" />
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {modulesList.map((module, index) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+              {filteredModules.map((module, index) => (
                 <ModuleCard
                   key={module.id}
                   module={module}
@@ -1244,9 +1377,9 @@ export function SaaSStoresModules() {
                 />
               ))}
 
-              {modulesList.length === 0 && (
+              {filteredModules.length === 0 && (
                 <div className="col-span-3 text-center py-12 text-gray-500 dark:text-gray-400">
-                  Aucun module disponible.
+                  Aucun module ne correspond a ce filtre.
                 </div>
               )}
             </div>
@@ -1254,7 +1387,7 @@ export function SaaSStoresModules() {
         </>
       )}
 
-      {/* STORE DETAIL DRAWER */}
+      {/* Drawer */}
       {showDrawer && selectedStore && (
         <div className="fixed inset-0 z-50">
           <div
@@ -1264,8 +1397,8 @@ export function SaaSStoresModules() {
               setExpandedModuleId(null);
             }}
           />
-          <div className="absolute right-0 top-0 h-full w-full max-w-4xl bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10">
+          <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 h-[90vh] w-full max-w-4xl bg-white dark:bg-gray-900 shadow-2xl overflow-y-auto rounded-xl">
+            <div className="sticky top-0 bg-white dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between z-10 rounded-t-xl">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
                   {selectedStore.IconComponent && <selectedStore.IconComponent className="w-5 h-5 text-orange-500" />}
@@ -1275,7 +1408,7 @@ export function SaaSStoresModules() {
                     Configuration {selectedStore.name}
                   </h3>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    Activez/Désactivez les modules et consultez leurs paramètres
+                    Activez/Desactivez les modules et consultez leurs parametres
                   </p>
                 </div>
               </div>
@@ -1294,10 +1427,13 @@ export function SaaSStoresModules() {
               <div>
                 <div className="flex items-center justify-between mb-4">
                   <h4 className="font-semibold text-gray-900 dark:text-white text-lg">
-                    Modules assignés
+                    Modules assignes
                   </h4>
                   <Badge variant="secondary" className="bg-gray-100 dark:bg-gray-800">
-                    {assignedModules.length} module(s)
+                    {assignedModules.filter(a => {
+                      const globalModule = modulesList.find(m => m.id === a.module.id);
+                      return a.actif && globalModule?.status !== 'inactive';
+                     }).length} module(s)
                   </Badge>
                 </div>
 
@@ -1308,7 +1444,7 @@ export function SaaSStoresModules() {
                 ) : assignedModules.length === 0 ? (
                   <div className="text-center py-12 bg-gray-50 dark:bg-gray-800/50 rounded-xl">
                     <p className="text-gray-500 dark:text-gray-400">
-                      Aucun module assigné à ce store
+                      Aucun module assigne a ce store
                     </p>
                     <Button 
                       variant="outline" 
@@ -1323,7 +1459,9 @@ export function SaaSStoresModules() {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {assignedModules.map((assignment) => (
+                    {assignedModules.map((assignment) => {
+                      const globalModule = modulesList.find(m => m.id === assignment.module.id);
+                      return (
                       <AssignedModuleItem
                         key={assignment.module.id}
                         assignment={assignment}
@@ -1335,8 +1473,10 @@ export function SaaSStoresModules() {
                         onAddParameter={(moduleStoreId) => handleOpenAddParamModal(moduleStoreId)}
                         onEditParameter={(moduleStoreId, param) => handleOpenEditParamModal(moduleStoreId, param)}
                         onDeleteParameter={(moduleStoreId, paramId) => handleDeleteParam(moduleStoreId, paramId)}
+                        moduleGlobalStatus={globalModule?.status}
                       />
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -1357,7 +1497,9 @@ export function SaaSStoresModules() {
         </div>
       )}
 
-      {/* SUSPEND MODAL */}
+      {/*   5.5 — Modals (dans l'ordre) */}
+
+      {/* Suspend Store */}
       <Modal
         isOpen={showSuspendModal}
         onClose={() => setShowSuspendModal(false)}
@@ -1373,13 +1515,13 @@ export function SaaSStoresModules() {
                 <div>
                   <p className="text-sm font-medium text-amber-900 dark:text-amber-100 mb-1">Attention</p>
                   <p className="text-sm text-amber-700 dark:text-amber-300">
-                    La suspension du store <strong>{storeToSuspend?.name}</strong> désactivera
-                    tous ses modules et empêchera les utilisateurs d'y accéder.
+                    La suspension du store <strong>{storeToSuspend?.name}</strong> desactivera
+                    tous ses modules et empechera les utilisateurs d'y acceder.
                   </p>
                 </div>
               </div>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                Les données du store seront conservées et vous pourrez le réactiver à tout moment.
+                Les donnees du store seront conservees et vous pourrez le reactiver a tout moment.
               </p>
             </>
           ) : (
@@ -1388,7 +1530,7 @@ export function SaaSStoresModules() {
                 Voulez-vous activer le store <strong>{storeToSuspend?.name}</strong> ?
               </p>
               <p className="text-sm text-gray-500 dark:text-gray-400">
-                L'activation permettra aux utilisateurs d'accéder au store et à ses modules.
+                L'activation permettra aux utilisateurs d'acceder au store et a ses modules.
               </p>
             </>
           )}
@@ -1417,18 +1559,18 @@ export function SaaSStoresModules() {
         </div>
       </Modal>
 
-      {/* ASSIGN MODULE MODAL */}
+      {/* Assign Module */}
       <Modal
         isOpen={showAssignModal}
         onClose={() => {
           setShowAssignModal(false);
           resetAssignState();
         }}
-        title={`Assigner ${moduleToAssign?.name} à un Store`}
+        title={`Assigner ${moduleToAssign?.name} a un Store`}
       >
         <div className="space-y-4">
           <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-            Sélectionnez un store, puis configurez les paramètres pour l'assignation du module{' '}
+            Selectionnez un store, puis configurez les parametres pour l'assignation du module{' '}
             <strong>{moduleToAssign?.name}</strong>.
           </p>
 
@@ -1471,9 +1613,9 @@ export function SaaSStoresModules() {
                 <AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" />
               </div>
               <div>
-                <p className="text-sm font-medium text-red-900 dark:text-red-100 mb-1">Déjà assigné</p>
+                <p className="text-sm font-medium text-red-900 dark:text-red-100 mb-1">Deja assigne</p>
                 <p className="text-sm text-red-700 dark:text-red-300">
-                  Le module <strong>{moduleToAssign?.label || moduleToAssign?.name}</strong> est déjà assigné au store <strong>{assignTargetStore.name}</strong>.
+                  Le module <strong>{moduleToAssign?.label || moduleToAssign?.name}</strong> est deja assigne au store <strong>{assignTargetStore.name}</strong>.
                 </p>
               </div>
             </div>
@@ -1483,7 +1625,7 @@ export function SaaSStoresModules() {
             <div className="rounded-3xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/80 p-4">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
                 <div>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">Store sélectionné</p>
+                  <p className="text-sm text-gray-500 dark:text-gray-400">Store selectionne</p>
                   <p className="text-lg font-semibold text-gray-900 dark:text-white">{assignTargetStore.name}</p>
                 </div>
                 <Badge variant={assignTargetStore.status === 'active' ? 'success' : 'default'}>
@@ -1497,11 +1639,11 @@ export function SaaSStoresModules() {
                   className="bg-orange-500 hover:bg-orange-600"
                   onClick={handleAddParameter}
                 >
-                  Ajouter un paramètre
+                  Ajouter un parametre
                 </Button>
                 {currentParameters.length > 0 && (
                   <p className="text-sm text-gray-600 dark:text-gray-400">
-                    {currentParameters.length} paramètre(s) configuré(s)
+                    {currentParameters.length} parametre(s) configure(s)
                   </p>
                 )}
               </div>
@@ -1511,34 +1653,25 @@ export function SaaSStoresModules() {
           {showParameterForm && assignTargetStore && !isAlreadyAssigned && (
             <div className="rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
               <div className="mb-4">
-                <h4 className="text-base font-semibold text-gray-900 dark:text-white">Ajouter un paramètre</h4>
+                <h4 className="text-base font-semibold text-gray-900 dark:text-white">Ajouter un parametre</h4>
                 <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Remplissez les informations du paramètre à envoyer au store.
+                  Remplissez les informations du parametre a envoyer au store.
                 </p>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                  <span>Label</span>
-                  <input
-                    type="text"
-                    value={currentParameterForm.label}
-                    onChange={(e) => setCurrentParameterForm((prev) => ({ ...prev, label: e.target.value }))}
-                    className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    placeholder="Ex: Taux, Durée..."
-                  />
-                </label>
-
-                <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-                  <span>Nom interne</span>
+                  <span>Nom</span>
                   <input
                     type="text"
                     value={currentParameterForm.name}
                     onChange={(e) => setCurrentParameterForm((prev) => ({ ...prev, name: e.target.value }))}
                     className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-                    placeholder="Ex: interestRate"
+                    placeholder="Ex: Taux, Duree..."
                   />
                 </label>
+
+                
 
                 <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
                   <span>Code</span>
@@ -1560,9 +1693,9 @@ export function SaaSStoresModules() {
                   >
                     <option value="string">Texte</option>
                     <option value="number">Nombre</option>
-                    <option value="boolean">Booléen</option>
+                    <option value="boolean">Booleen</option>
                     <option value="date">Date</option>
-                    <option value="select">Sélection</option>
+                    <option value="select">Selection</option>
                   </select>
                 </label>
 
@@ -1580,8 +1713,8 @@ export function SaaSStoresModules() {
               </div>
 
               <div className="flex flex-col sm:flex-row items-center justify-end gap-3 pt-4">
-                <Button variant="outline" onClick={() => { setShowParameterForm(false); setCurrentParameterForm({ label: '', name: '', code: '', type: 'string', required: false }); }}>Annuler</Button>
-                <Button onClick={handleConfirmParameter} disabled={!currentParameterForm.label.trim() || !currentParameterForm.code.trim()} className="bg-orange-500 hover:bg-orange-600">Confirmer paramètre</Button>
+                <Button variant="outline" onClick={() => { setShowParameterForm(false); setCurrentParameterForm({ name: '', code: '', type: 'string', required: false }); }}>Annuler</Button>
+                <Button onClick={handleConfirmParameter} disabled={!currentParameterForm.name.trim() || !currentParameterForm.code.trim()} className="bg-orange-500 hover:bg-orange-600">Confirmer parametre</Button>
               </div>
             </div>
           )}
@@ -1589,7 +1722,7 @@ export function SaaSStoresModules() {
           {currentParameters.length > 0 && !isAlreadyAssigned && (
             <div className="rounded-3xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-4">
               <div className="flex items-center justify-between mb-4">
-                <h4 className="text-base font-semibold text-gray-900 dark:text-white">Paramètres ajoutés</h4>
+                <h4 className="text-base font-semibold text-gray-900 dark:text-white">Parametres ajoutes</h4>
               </div>
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -1611,9 +1744,9 @@ export function SaaSStoresModules() {
                           <Badge variant="secondary" className="text-xs bg-gray-100 dark:bg-gray-800">
                             {param.type === 'string' && 'Texte'}
                             {param.type === 'number' && 'Nombre'}
-                            {param.type === 'boolean' && 'Booléen'}
+                            {param.type === 'boolean' && 'Booleen'}
                             {param.type === 'date' && 'Date'}
-                            {param.type === 'select' && 'Sélection'}
+                            {param.type === 'select' && 'Selection'}
                           </Badge>
                         </td>
                         <td className="px-4 py-3 text-sm">
@@ -1641,15 +1774,15 @@ export function SaaSStoresModules() {
         </div>
       </Modal>
 
-      {/* CREATE STORE MODAL */}
-      <Modal isOpen={showCreateStoreModal} onClose={() => setShowCreateStoreModal(false)} title="Créer un Store">
+      {/* Create Store */}
+      <Modal isOpen={showCreateStoreModal} onClose={() => setShowCreateStoreModal(false)} title="Creer un Store">
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Nom du Store</label>
-            <input type="text" value={newStoreName} onChange={(e) => setNewStoreName(e.target.value)} placeholder="Ex: Éducation, Voyage, etc." className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            <input type="text" value={newStoreName} onChange={(e) => setNewStoreName(e.target.value)} placeholder="Ex: Education, Voyage, etc." className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Icône</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Icone</label>
             <select value={newStoreIcon} onChange={(e) => setNewStoreIcon(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
               <option value="Smartphone">📱 Smartphone</option>
               <option value="Home">🏠 Home</option>
@@ -1667,17 +1800,17 @@ export function SaaSStoresModules() {
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" checked={newStoreIsActive} onChange={(e) => setNewStoreIsActive(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
-            <span className="text-sm font-medium text-gray-900 dark:text-white">Activer immédiatement</span>
+            <span className="text-sm font-medium text-gray-900 dark:text-white">Activer immediatement</span>
           </div>
           <div className="flex justify-end gap-3 pt-4">
             <Button variant="outline" onClick={() => setShowCreateStoreModal(false)} disabled={isCreating}>Annuler</Button>
-            <Button onClick={handleCreateStore} disabled={isCreating || !newStoreName.trim()} className="bg-orange-500 hover:bg-orange-600">{isCreating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> En cours...</> : 'Créer le store'}</Button>
+            <Button onClick={handleCreateStore} disabled={isCreating || !newStoreName.trim()} className="bg-orange-500 hover:bg-orange-600">{isCreating ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> En cours...</> : 'Creer le store'}</Button>
           </div>
         </div>
       </Modal>
 
-      {/* CREATE MODULE MODAL */}
-      <Modal isOpen={showCreateModuleModal} onClose={() => { setShowCreateModuleModal(false); setNewModuleName(''); setNewModuleCategory(''); setNewModuleIcon('Calculator'); setNewModuleIsActive(true); }} title="Créer un Module">
+      {/* Create Module */}
+      <Modal isOpen={showCreateModuleModal} onClose={() => { setShowCreateModuleModal(false); setNewModuleName(''); setNewModuleCategory(''); setNewModuleDescription(''); setNewModuleIcon('Calculator'); setNewModuleIsActive(true); }} title="Creer un Module">
         <div className="space-y-4">
           <div>
             <div className="mb-4">
@@ -1685,39 +1818,43 @@ export function SaaSStoresModules() {
               <input type="text" placeholder="Ex: Simulateur, Comparateur, etc." value={newModuleName} onChange={(e) => setNewModuleName(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
             </div>
             <div className="mb-4">
-              <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Catégorie</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Categorie</label>
               <input type="text" placeholder="Ex: Calcul, Analyse, Contenu, etc." value={newModuleCategory} onChange={(e) => setNewModuleCategory(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
             </div>
             <div className="mb-4">
-              <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Icône</label>
+              <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Description</label>
+              <textarea rows={3} placeholder="Ex: Module de simulation de credit..." value={newModuleDescription} onChange={(e) => setNewModuleDescription(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
+            </div>
+            <div className="mb-4">
+              <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Icone</label>
               <select value={newModuleIcon} onChange={(e) => setNewModuleIcon(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
                 <option value="Calculator">🧮 Calculatrice (Simulateur)</option>
                 <option value="GitCompare">🔀 Comparateur</option>
                 <option value="BookOpen">📖 Blog / Contenu</option>
                 <option value="Bot">🤖 Bot / IA</option>
-                <option value="ImageIcon">🖼️ Bannière / Image</option>
+                <option value="ImageIcon">🖼️ Banniere / Image</option>
                 <option value="BarChart">📊 Graphique / Analyse</option>
                 <option value="Bell">🔔 Notification</option>
-                <option value="Shield">🛡️ Sécurité</option>
+                <option value="Shield">🛡️ Securite</option>
                 <option value="Mail">✉️ Email</option>
-                <option value="Settings">⚙️ Paramètres</option>
+                <option value="Settings">⚙️ Parametres</option>
                 <option value="Users">👥 Utilisateurs</option>
                 <option value="Globe">🌐 Web</option>
               </select>
             </div>
             <div className="flex items-center gap-2">
               <input type="checkbox" checked={newModuleIsActive} onChange={(e) => setNewModuleIsActive(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
-              <span className="text-sm font-medium text-gray-900 dark:text-white">Activer immédiatement</span>
+              <span className="text-sm font-medium text-gray-900 dark:text-white">Activer immediatement</span>
             </div>
           </div>
           <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => { setShowCreateModuleModal(false); setNewModuleName(''); setNewModuleCategory(''); setNewModuleIcon('Calculator'); setNewModuleIsActive(true); }}>Annuler</Button>
-            <Button onClick={handleCreateModule} disabled={isCreatingModule || !newModuleName.trim()} className="bg-orange-500 hover:bg-orange-600">{isCreatingModule ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> En cours...</> : 'Créer le Module'}</Button>
+            <Button variant="outline" onClick={() => { setShowCreateModuleModal(false); setNewModuleName(''); setNewModuleCategory(''); setNewModuleDescription(''); setNewModuleIcon('Calculator'); setNewModuleIsActive(true); }}>Annuler</Button>
+            <Button onClick={handleCreateModule} disabled={isCreatingModule || !newModuleName.trim()} className="bg-orange-500 hover:bg-orange-600">{isCreatingModule ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> En cours...</> : 'Creer le Module'}</Button>
           </div>
         </div>
       </Modal>
 
-      {/* EDIT STORE MODAL */}
+      {/* Edit Store */}
       <Modal isOpen={showEditStoreModal} onClose={() => setShowEditStoreModal(false)} title={`Modifier le store ${storeToEdit?.name}`}>
         <div className="space-y-4">
           <div>
@@ -1725,7 +1862,7 @@ export function SaaSStoresModules() {
             <input type="text" value={editStoreName} onChange={(e) => setEditStoreName(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Icône</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Icone</label>
             <select value={editStoreIcon} onChange={(e) => setEditStoreIcon(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
               <option value="Smartphone">📱 Smartphone</option>
               <option value="Home">🏠 Home</option>
@@ -1752,35 +1889,7 @@ export function SaaSStoresModules() {
         </div>
       </Modal>
 
-      {/* DELETE STORE MODAL */}
-      <Modal isOpen={showDeleteStoreModal} onClose={() => setShowDeleteStoreModal(false)} title="Supprimer le Store">
-        <div className="space-y-4">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
-            <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center flex-shrink-0"><AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" /></div>
-            <div><p className="text-sm font-medium text-red-900 dark:text-red-100 mb-1">Attention</p><p className="text-sm text-red-700 dark:text-red-300">Vous êtes sur le point de supprimer le store <strong>{storeToDelete?.name}</strong>. Cette action est irréversible et supprimera tous les modules associés.</p></div>
-          </div>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setShowDeleteStoreModal(false)} disabled={deleteLoading}>Annuler</Button>
-            <Button variant="danger" onClick={confirmDeleteStore} disabled={deleteLoading} className="bg-red-500 hover:bg-red-600">{deleteLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Suppression...</> : 'Confirmer la suppression'}</Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* DELETE MODULE MODAL */}
-      <Modal isOpen={showDeleteModuleModal} onClose={() => setShowDeleteModuleModal(false)} title="Supprimer le Module">
-        <div className="space-y-4">
-          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
-            <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center flex-shrink-0"><AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" /></div>
-            <div><p className="text-sm font-medium text-red-900 dark:text-red-100 mb-1">Attention</p><p className="text-sm text-red-700 dark:text-red-300">Vous êtes sur le point de supprimer le module <strong>{moduleToDelete?.label || moduleToDelete?.name}</strong>. Cette action est irréversible.</p></div>
-          </div>
-          <div className="flex justify-end gap-3 pt-4">
-            <Button variant="outline" onClick={() => setShowDeleteModuleModal(false)} disabled={deleteLoading}>Annuler</Button>
-            <Button variant="danger" onClick={confirmDeleteModule} disabled={deleteLoading} className="bg-red-500 hover:bg-red-600">{deleteLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Suppression...</> : 'Confirmer la suppression'}</Button>
-          </div>
-        </div>
-      </Modal>
-
-      {/* EDIT MODULE MODAL */}
+      {/* Edit Module */}
       <Modal isOpen={showEditModuleModal} onClose={() => setShowEditModuleModal(false)} title={`Modifier le module ${moduleToEdit?.label || moduleToEdit?.name}`}>
         <div className="space-y-4">
           <div>
@@ -1788,22 +1897,26 @@ export function SaaSStoresModules() {
             <input type="text" value={editModuleName} onChange={(e) => setEditModuleName(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Catégorie</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Categorie</label>
             <input type="text" value={editModuleCategory} onChange={(e) => setEditModuleCategory(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Icône</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Description</label>
+            <textarea rows={3} placeholder="Ex: Module de simulation de credit..." value={editModuleDescription} onChange={(e) => setEditModuleDescription(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Icone</label>
             <select value={editModuleIcon} onChange={(e) => setEditModuleIcon(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500">
               <option value="Calculator">🧮 Calculatrice (Simulateur)</option>
               <option value="GitCompare">🔀 Comparateur</option>
               <option value="BookOpen">📖 Blog / Contenu</option>
               <option value="Bot">🤖 Bot / IA</option>
-              <option value="ImageIcon">🖼️ Bannière / Image</option>
+              <option value="ImageIcon">🖼️ Banniere / Image</option>
               <option value="BarChart">📊 Graphique / Analyse</option>
               <option value="Bell">🔔 Notification</option>
-              <option value="Shield">🛡️ Sécurité</option>
+              <option value="Shield">🛡️ Securite</option>
               <option value="Mail">✉️ Email</option>
-              <option value="Settings">⚙️ Paramètres</option>
+              <option value="Settings">⚙️ Parametres</option>
               <option value="Users">👥 Utilisateurs</option>
               <option value="Globe">🌐 Web</option>
             </select>
@@ -1818,96 +1931,125 @@ export function SaaSStoresModules() {
           </div>
         </div>
       </Modal>
-      {/* PARAM MANAGE MODAL */}
-<Modal
-  isOpen={showParamManageModal}
-  onClose={() => setShowParamManageModal(false)}
-  title={paramManageMode === 'create' ? 'Ajouter un paramètre' : 'Modifier le paramètre'}
->
-  <div className="space-y-4">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300 col-span-2">
-        <span>Nom</span>
-        <input
-          type="text"
-          value={paramForm.name}
-          onChange={(e) => setParamForm((prev) => ({ ...prev, name: e.target.value }))}
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-          placeholder="Ex: Taux d'intérêt, Durée..."
-        />
-      </label>
 
-      <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300 col-span-2">
-        <span>Code</span>
-        <input
-          type="text"
-          value={paramForm.code}
-          onChange={(e) => setParamForm((prev) => ({ ...prev, code: e.target.value }))}
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-          placeholder="Ex: interest_rate"
-        />
-      </label>
+      {/* Delete Store */}
+      <Modal isOpen={showDeleteStoreModal} onClose={() => setShowDeleteStoreModal(false)} title="Supprimer le Store">
+        <div className="space-y-4">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
+            <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center flex-shrink-0"><AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" /></div>
+            <div><p className="text-sm font-medium text-red-900 dark:text-red-100 mb-1">Attention</p><p className="text-sm text-red-700 dark:text-red-300">Vous etes sur le point de supprimer le store <strong>{storeToDelete?.name}</strong>. Cette action est irreversible et supprimera tous les modules associes.</p></div>
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setShowDeleteStoreModal(false)} disabled={deleteLoading}>Annuler</Button>
+            <Button variant="danger" onClick={confirmDeleteStore} disabled={deleteLoading} className="bg-red-500 hover:bg-red-600">{deleteLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Suppression...</> : 'Confirmer la suppression'}</Button>
+          </div>
+        </div>
+      </Modal>
 
-      <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
-        <span>Type</span>
-        <select
-          value={paramForm.type}
-          onChange={(e) =>
-            setParamForm((prev) => ({
-              ...prev,
-              type: e.target.value as 'string' | 'number' | 'boolean' | 'date' | 'select',
-            }))
-          }
-          className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
-        >
-          <option value="string">Texte</option>
-          <option value="number">Nombre</option>
-          <option value="boolean">Booléen</option>
-          <option value="date">Date</option>
-          <option value="select">Sélection</option>
-        </select>
-      </label>
+      {/* Delete Module */}
+      <Modal isOpen={showDeleteModuleModal} onClose={() => setShowDeleteModuleModal(false)} title="Supprimer le Module">
+        <div className="space-y-4">
+          <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
+            <div className="w-10 h-10 bg-red-100 dark:bg-red-900/40 rounded-lg flex items-center justify-center flex-shrink-0"><AlertTriangle className="w-5 h-5 text-red-600 dark:text-red-400" /></div>
+            <div><p className="text-sm font-medium text-red-900 dark:text-red-100 mb-1">Attention</p><p className="text-sm text-red-700 dark:text-red-300">Vous etes sur le point de supprimer le module <strong>{moduleToDelete?.label || moduleToDelete?.name}</strong>. Cette action est irreversible.</p></div>
+          </div>
+          <div className="flex justify-end gap-3 pt-4">
+            <Button variant="outline" onClick={() => setShowDeleteModuleModal(false)} disabled={deleteLoading}>Annuler</Button>
+            <Button variant="danger" onClick={confirmDeleteModule} disabled={deleteLoading} className="bg-red-500 hover:bg-red-600">{deleteLoading ? <><Loader2 className="w-4 h-4 animate-spin" /> Suppression...</> : 'Confirmer la suppression'}</Button>
+          </div>
+        </div>
+      </Modal>
 
-      <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 self-end pb-2">
-        <label className="inline-flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={paramForm.required}
-            onChange={(e) => setParamForm((prev) => ({ ...prev, required: e.target.checked }))}
-            className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
-          />
-          Requis
-        </label>
-      </div>
-    </div>
-
-    <div className="flex justify-end gap-3 pt-4">
-      <Button
-        variant="outline"
-        onClick={() => setShowParamManageModal(false)}
-        disabled={saveParamLoading}
+      {/* Param Manage */}
+      <Modal
+        isOpen={showParamManageModal}
+        onClose={() => setShowParamManageModal(false)}
+        title={paramManageMode === 'create' ? 'Ajouter un parametre' : 'Modifier le parametre'}
       >
-        Annuler
-      </Button>
-      <Button
-        onClick={handleSaveParam}
-        disabled={saveParamLoading || !paramForm.name.trim() || !paramForm.code.trim()}
-        className="bg-orange-500 hover:bg-orange-600"
-      >
-        {saveParamLoading ? (
-          <>
-            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-            En cours...
-          </>
-        ) : paramManageMode === 'create' ? (
-          'Ajouter le paramètre'
-        ) : (
-          'Enregistrer les modifications'
-        )}
-      </Button>
-    </div>
-  </div>
-</Modal>
+        <div className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300 col-span-2">
+              <span>Nom</span>
+              <input
+                type="text"
+                value={paramForm.name}
+                onChange={(e) => setParamForm((prev) => ({ ...prev, name: e.target.value }))}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Ex: Taux d'interet, Duree..."
+              />
+            </label>
+
+            <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300 col-span-2">
+              <span>Code</span>
+              <input
+                type="text"
+                value={paramForm.code}
+                onChange={(e) => setParamForm((prev) => ({ ...prev, code: e.target.value }))}
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                placeholder="Ex: interest_rate"
+              />
+            </label>
+
+            <label className="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <span>Type</span>
+              <select
+                value={paramForm.type}
+                onChange={(e) =>
+                  setParamForm((prev) => ({
+                    ...prev,
+                    type: e.target.value as 'string' | 'number' | 'boolean' | 'date' | 'select',
+                  }))
+                }
+                className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+              >
+                <option value="string">Texte</option>
+                <option value="number">Nombre</option>
+                <option value="boolean">Booleen</option>
+                <option value="date">Date</option>
+                <option value="select">Selection</option>
+              </select>
+            </label>
+
+            <div className="flex items-center gap-3 text-sm text-gray-700 dark:text-gray-300 self-end pb-2">
+              <label className="inline-flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={paramForm.required}
+                  onChange={(e) => setParamForm((prev) => ({ ...prev, required: e.target.checked }))}
+                  className="h-4 w-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500"
+                />
+                Requis
+              </label>
+            </div>
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => setShowParamManageModal(false)}
+              disabled={saveParamLoading}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={handleSaveParam}
+              disabled={saveParamLoading || !paramForm.name.trim() || !paramForm.code.trim()}
+              className="bg-orange-500 hover:bg-orange-600"
+            >
+              {saveParamLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  En cours...
+                </>
+              ) : paramManageMode === 'create' ? (
+                'Ajouter le parametre'
+              ) : (
+                'Enregistrer les modifications'
+              )}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

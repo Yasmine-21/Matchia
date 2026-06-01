@@ -7,6 +7,9 @@ export const storeService = {
      getAllStores: () =>
         apiClient.get<StoreDto[]>('/stores'),
 
+    getStoresByStatus: (status: 'active' | 'inactive') =>
+        apiClient.get<StoreDto[]>('/stores', { params: { status } }),
+
     createStore: (storeData: StoreDto) =>
         apiClient.post<StoreDto>('/stores', storeData),
 

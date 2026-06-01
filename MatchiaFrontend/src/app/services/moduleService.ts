@@ -4,6 +4,9 @@ import { ModuleAssignment, ModuleParameter, ModuleDto } from '../types/apiTypes'
 export const moduleService = {
   getAllModules: () => apiClient.get<ModuleDto[]>('/modules'),
 
+  getModulesByStatus: (status: 'active' | 'inactive') =>
+    apiClient.get<ModuleDto[]>('/modules', { params: { status } }),
+
   createModule: (moduleData: Omit<ModuleDto, 'id' | 'createdAt'>) =>
     apiClient.post<ModuleDto>('/modules', moduleData),
 
@@ -15,6 +18,9 @@ export const moduleService = {
 
   getStoreModulesWithConfig: (storeId: number): Promise<{ data: ModuleAssignment[] }> =>
     apiClient.get(`/modulestores/store/${storeId}`),
+
+  getActiveStoreModulesWithConfig: (storeId: number): Promise<{ data: ModuleAssignment[] }> =>
+    apiClient.get(`/modulestores/store/${storeId}/active`),
 
   // Assigner un module à un store
   assignModuleToStore: (storeId: number, moduleId: number, config?: { ordre?: number }) =>

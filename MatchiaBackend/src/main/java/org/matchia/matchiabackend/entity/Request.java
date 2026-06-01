@@ -1,15 +1,14 @@
 package org.matchia.matchiabackend.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.matchia.matchiabackend.entity.enums.RequestStatusEnum;
 import org.matchia.matchiabackend.entity.enums.RequestTypeEnum;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -18,6 +17,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Table(name = "request")
 public class Request {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -34,8 +34,42 @@ public class Request {
 
     private String priority;
     private String createdBy;
+    private String bankName;
+    private String bankEmail;
+    private String logoUrl;
+    private String country;
+    private String website;
+    private String contactName;
+    private String contactEmail;
+    private String contactPhone;
+
+
+    private String description;
+
+
+    private String selectedStores;
+
+   
+    private String selectedModules;
+
+    private Double totalAmount;
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "request_store",
+            joinColumns = @JoinColumn(name = "request_id"),
+            inverseJoinColumns = @JoinColumn(name = "store_id")
+    )
+    private List<Store> stores = new ArrayList<>();
+
+    @ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "request_module",
+            joinColumns = @JoinColumn(name = "request_id"),
+            inverseJoinColumns = @JoinColumn(name = "module_id")
+    )
+    private List<Module> modules = new ArrayList<>();
 
     @CreationTimestamp
     private LocalDateTime createdAt;
-
 }

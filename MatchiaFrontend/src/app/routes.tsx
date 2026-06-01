@@ -12,7 +12,7 @@ import { LoginPage } from './pages/public/LoginPage';
 // Imports SaaS
 import { SaaSDashboard } from './pages/saas/Dashboard';
 import { SaaSBanks } from './pages/saas/Banks';
-import { SaaSRequests } from './pages/saas/Requests';
+import { Requests } from './pages/saas/Requests';
 import { Marketplaces } from './pages/saas/Marketplaces';
 import { SaaSUsers } from './pages/saas/Users';
 import { SaaSSettings } from './pages/saas/Settings';
@@ -58,7 +58,7 @@ export const saasRouter = createBrowserRouter([
     children: [
       { path: 'dashboard', element: <SaaSDashboard /> },
       { path: 'banques', element: <SaaSBanks /> },
-      { path: 'demandes', element: <SaaSRequests /> },
+      { path: 'demandes', element: <Requests /> },
       { path: 'storesmodules', element: <SaaSStoresModules /> },
       { path: 'marketplaces', element: <Marketplaces /> },
       { path: 'certificates', element: <Certificates /> },

@@ -8,6 +8,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.matchia.matchiabackend.entity.enums.StoreStatusEnum;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,8 @@ public class Store {
     private String name;
     private String description;
     private String icon;
+    @Column(precision = 12, scale = 2)
+    private BigDecimal price;
 
     @Enumerated(EnumType.STRING)
     private StoreStatusEnum status;

@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router';
 import { AdminSidebar } from '../components/layout/AdminSidebar';
 import { Bell, Search, User } from 'lucide-react';
+import { Chatbot } from '../components/Chatbot';
 
 interface AdminLayoutProps {
   type: 'saas' | 'bank';
@@ -44,6 +45,7 @@ export function AdminLayout({ type }: AdminLayoutProps) {
           <Outlet />
         </main>
       </div>
+      {type === 'saas' && <Chatbot />}
     </div>
   );
 }

@@ -10,6 +10,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 
 import java.time.LocalDateTime;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,8 +34,12 @@ public class Module {
     private List<ModuleStore> moduleStores = new ArrayList<>();
 
     private String name;
+    private String description;
     private String icon;
     private String category;
+    @Column(precision = 12, scale = 2)
+    private BigDecimal price;
+
     @Enumerated(EnumType.STRING)
     private ModuleStatusEnum status;
 

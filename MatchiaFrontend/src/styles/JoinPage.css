@@ -219,6 +219,47 @@
   @apply text-sm text-muted-foreground mt-3;
 }
 
+.join-price-line {
+  @apply mt-2 text-sm font-semibold text-primary;
+}
+
+.join-module-card {
+  @apply border border-border rounded-2xl p-4 cursor-pointer transition-colors hover:border-primary/50;
+}
+
+.join-module-card-active {
+  @apply border-primary bg-primary/5;
+}
+
+.join-module-icon-wrapper {
+  @apply w-10 h-10 bg-muted rounded-xl flex items-center justify-center text-muted-foreground flex-shrink-0 transition-colors;
+}
+
+.join-module-icon-wrapper-active {
+  @apply bg-primary/10 text-primary;
+}
+
+.join-total-row {
+  @apply flex items-center justify-between rounded-2xl border border-border bg-muted/50 p-4 text-lg;
+}
+
+.join-recap-list {
+  @apply space-y-4;
+}
+
+.join-recap-item {
+  @apply rounded-2xl border border-border bg-muted/50 p-4;
+}
+
+.join-recap-header,
+.join-recap-module {
+  @apply flex items-center justify-between gap-4;
+}
+
+.join-recap-modules {
+  @apply mt-3 space-y-2 text-sm text-muted-foreground;
+}
+
 .join-actions {
   @apply mt-8 flex flex-col gap-3 md:flex-row md:items-center md:justify-between;
 }

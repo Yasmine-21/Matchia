@@ -13,6 +13,7 @@ import org.matchia.matchiabackend.repository.ModuleStoreRepository;
 import org.matchia.matchiabackend.repository.ModuleStoreParameterRepository;
 import org.matchia.matchiabackend.repository.StoreRepository;
 import org.matchia.matchiabackend.repository.ModuleRepository;
+import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -41,7 +42,7 @@ public class ModuleStoreService {
     // Récupérer seulement les modules ACTIFS d'un store
     @Transactional(readOnly = true)
     public List<ModuleStoreResponseDto> getActiveModulesByStore(Long storeId) {
-        return moduleStoreRepository.findByStoreIdAndActifTrueOrderByOrdreAsc(storeId)
+        return moduleStoreRepository.findByStoreIdAndActifTrueAndModuleStatusOrderByOrdreAsc(storeId, ModuleStatusEnum.active)
                 .stream()
                 .map(moduleStoreMapper::toDto)
                 .collect(Collectors.toList());
