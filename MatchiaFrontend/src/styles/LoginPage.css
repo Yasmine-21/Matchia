@@ -1,26 +1,108 @@
 @reference "./index.css";
-.login-container { @apply min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-background flex items-center justify-center p-4; }
-.login-wrapper { @apply w-full max-w-md; }
-.login-header { @apply text-center mb-8; }
-.login-logo-link { @apply inline-flex items-center gap-2 mb-6; }
-.login-logo-icon { @apply w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center; }
-.login-logo-letter { @apply text-white font-bold text-2xl; }
-.login-logo-text { @apply text-2xl font-bold; }
-.login-title { @apply text-3xl font-bold mb-2; }
-.login-subtitle { @apply text-muted-foreground; }
-.login-form-spacing { @apply space-y-4; }
-.login-error-alert { @apply p-3 bg-destructive/10 border border-destructive/30 rounded-lg flex items-start gap-3; }
-.login-error-icon { @apply w-5 h-5 text-destructive flex-shrink-0 mt-0.5; }
-.login-error-text { @apply text-sm text-destructive; }
-.login-forgot-link { @apply text-sm text-primary hover:underline block; }
-.login-actions { @apply flex flex-col gap-4; }
-.login-submit-btn { @apply w-full; }
-.login-register-text { @apply text-sm text-center text-muted-foreground; }
-.login-register-link { @apply text-primary hover:underline; }
-.login-demo-container { @apply mt-6 p-4 bg-primary/5 border border-primary/20 rounded-lg; }
-.login-demo-title { @apply text-sm font-semibold text-primary mb-3; }
-.login-demo-list { @apply space-y-2; }
-.login-demo-item { @apply text-sm; }
-.login-demo-email { @apply font-mono text-primary/80; }
-.login-demo-role { @apply text-xs text-primary/70; }
-.login-icon { @apply w-5 h-5; }
+
+/* ─────────────────────────────────────────────────────────────
+   LOGIN PAGE — Split Screen Design (Image Match)
+   ───────────────────────────────────────────────────────────── */
+
+.login-page-body {
+    @apply min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-background flex items-center justify-center p-4 sm:p-8;
+    font-family: 'Inter', system-ui, sans-serif;
+}
+
+.login-split-wrapper {
+    @apply w-full bg-white overflow-hidden relative;
+    max-width: 420px;
+    border-radius: 24px;
+    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.15);
+    /* Medium soft shadow */
+}
+
+/* ── FORM SECTION ────────────────────────────────────────────── */
+.login-split-right {
+    @apply p-6 sm:p-8;
+    background-color: white;
+}
+
+.login-form-wrapper {
+    max-width: 360px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.login-form-title {
+    @apply text-2xl font-bold text-center mb-3;
+    color: #2563eb;
+    /* Blue primary */
+}
+
+.login-form-subtitle {
+    @apply text-[10px] text-center text-slate-400 mb-8 leading-relaxed;
+}
+
+.login-input-group {
+    @apply mb-4 relative;
+}
+
+.login-custom-input {
+    @apply w-full bg-[#f8f9fa] text-sm text-slate-700 outline-none transition-all border border-transparent;
+    height: 3rem;
+    padding: 0 1.5rem;
+    border-radius: 9999px;
+}
+
+.login-custom-input::placeholder {
+    color: #adb5bd;
+}
+
+.login-custom-input:focus {
+    background-color: #f1f3f5;
+    border-color: #2563eb;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.login-form-options {
+    @apply flex items-center justify-between mt-6 mb-8 text-xs;
+}
+
+.login-checkbox-wrapper {
+    @apply flex items-center gap-2 cursor-pointer text-slate-500 hover:text-slate-700;
+}
+
+.login-checkbox {
+    @apply w-3.5 h-3.5 text-[#2563eb] border-slate-300 rounded-sm focus:ring-[#2563eb];
+}
+
+.login-link-alt {
+    @apply text-[#2563eb] font-medium hover:underline;
+}
+
+.login-submit-btn {
+    @apply text-white font-bold tracking-wider text-xs transition-all block;
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+    height: 2.5rem;
+    background-color: #004ffa;
+    border-radius: 9999px;
+    /* Pill shape */
+}
+
+.login-submit-btn:hover {
+    background-color: #1d4ed8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
+    /* Blue glow */
+}
+
+/* Demo accounts overlay - positioned bottom right or integrated nicely */
+.login-demo-toggle {
+    @apply mt-6 text-center text-xs text-slate-400 hover:text-slate-600 cursor-pointer;
+}
+
+.login-demo-panel {
+    @apply mt-4 p-3 bg-[#f8f9fa] rounded-lg text-xs border border-slate-200;
+}
+
+.login-demo-item {
+    @apply flex justify-between items-center py-1.5 border-b border-slate-200 last:border-0 cursor-pointer hover:text-[#2563eb];
+}

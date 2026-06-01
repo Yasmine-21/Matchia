@@ -35,8 +35,8 @@ export function PublicHeader() {
               <Button size="sm" variant="secondary">Rejoindre Matchia</Button>
             </Link>
             <Link to="/connexion">
-              {/* Modification ici : Fond bleu #2563EB et texte blanc */}
-              <Button size="sm" className="w-32 bg-[#2563EB] text-white hover:opacity-90 font-bold border-none">
+              {/* Modification ici : Bouton style "pilule" bleu massif */}
+              <Button size="sm" className="w-32 bg-[#2563EB] text-white hover:bg-blue-700 font-bold border-none rounded-full shadow-md transition-all">
                 Connexion
               </Button>
             </Link>
@@ -74,7 +74,7 @@ export function PublicHeader() {
                 </Link>
                 <Link to="/connexion" className="block">
                   {/* Modification ici aussi pour le menu mobile */}
-                  <Button className="w-full bg-[#2563EB] text-white hover:opacity-90 font-bold border-none">
+                  <Button className="w-full bg-[#2563EB] text-white hover:bg-blue-700 font-bold border-none rounded-full shadow-md transition-all">
                     Connexion
                   </Button>
                 </Link>

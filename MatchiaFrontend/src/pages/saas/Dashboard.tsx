@@ -1,16 +1,26 @@
-import '../../../styles/SaaSDashboard.css';
+import '../../styles/SaaSDashboard.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Building2, Users, Store, Box, TrendingUp, ArrowUp, ArrowDown, FileText, Loader2 } from 'lucide-react';
+import { Building2, Users, Store, Box, TrendingUp, ArrowUp, ArrowDown, FileText, Loader2, LogOut } from 'lucide-react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
 import { banks, stores, modules, requests } from '../../data/mockData';
 import { bankService } from '../../services/bankService';
 import { Bank } from '../../types';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useApp } from '../../context/AppContext';
 
 export function SaaSDashboard() {
   const [realBanks, setRealBanks] = useState<Bank[]>([]);
   const [isLoadingBanks, setIsLoadingBanks] = useState(true);
+  const { logout } = useApp();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   useEffect(() => {
     const fetchRealBanks = async () => {
@@ -69,9 +79,15 @@ export function SaaSDashboard() {
 
   return (
     <div className="saas-dashboard-container">
-      <div className="saas-dashboard-header">
-        <h1 className="saas-dashboard-title">Tableau de bord SaaS</h1>
-        <p className="saas-dashboard-subtitle">Vue d'ensemble de la plateforme Matchia</p>
+      <div className="saas-dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div>
+          <h1 className="saas-dashboard-title">Tableau de bord SaaS</h1>
+          <p className="saas-dashboard-subtitle">Vue d'ensemble de la plateforme Matchia</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+          <LogOut className="w-4 h-4" />
+          Déconnexion
+        </Button>
       </div>
 
       <div className="saas-stats-grid">

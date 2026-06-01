@@ -1,4 +1,4 @@
-import '../../../styles/BanksPage.css';
+import '../../styles/BanksPage.css';
 import { useState, useEffect } from 'react'; 
 import { Link } from 'react-router';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/Card';

@@ -8,6 +8,7 @@ import { HomePage } from './pages/public/HomePage';
 import { BanksPage } from './pages/public/BanksPage';
 import { JoinPage } from './pages/public/JoinPage';
 import { LoginPage } from './pages/public/LoginPage';
+import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
 
 // Imports SaaS
 import { SaaSDashboard } from './pages/saas/Dashboard';
@@ -50,6 +51,11 @@ export const saasRouter = createBrowserRouter([
       { path: 'rejoindre', element: <JoinPage /> },
       { path: 'connexion', element: <LoginPage /> },
     ],
+  },
+  {
+    // Standalone route for forgot password (no header/footer)
+    path: '/mot-de-passe-oublie',
+    element: <ForgotPasswordPage />
   },
   {
     // Accès: http://lvh.me:5173/saas

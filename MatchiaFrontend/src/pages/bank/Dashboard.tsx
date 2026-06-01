@@ -1,4 +1,4 @@
-import '../../../styles/BankDashboard.css';
+import '../../styles/BankDashboard.css';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Users, Store, Box, Eye, TrendingUp } from 'lucide-react';
 import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';

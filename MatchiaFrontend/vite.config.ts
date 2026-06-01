@@ -25,10 +25,10 @@ export default defineConfig({
   },
   assetsInclude: ['**/*.svg', '**/*.csv'],
   server: {
-    host: true, 
+    host: true,
     allowedHosts: [
-      'lvh.me', 
+      'lvh.me',
       '.lvh.me'
     ]
   }
-})
+})
