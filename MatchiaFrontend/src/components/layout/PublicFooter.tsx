@@ -1,5 +1,6 @@
 import { Link } from 'react-router';
 import { Facebook, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { MatchiaLogo } from '../brand/MatchiaLogo';
 
 export function PublicFooter() {
   return (
@@ -7,12 +8,7 @@ export function PublicFooter() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-xl">M</span>
-              </div>
-              <span className="text-xl font-bold">Matchia</span>
-            </div>
+            <MatchiaLogo className="mb-4" textClassName="text-xl font-bold text-white" />
             <p className="text-slate-300 mb-4">
               The multi-tenant SaaS platform for modern banking marketplaces.
             </p>

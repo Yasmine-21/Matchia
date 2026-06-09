@@ -25,7 +25,7 @@ public class Store {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<BankStore> bankStores = new ArrayList<>();
+    private List<MarketplaceStore> marketplaceStores = new ArrayList<>();
 
     @OneToMany(mappedBy = "store", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
@@ -34,6 +34,8 @@ public class Store {
     private String name;
     private String description;
     private String icon;
+    @Column(name = "banniere_url")
+    private String banniereUrl;
     @Column(precision = 12, scale = 2)
     private BigDecimal price;
 

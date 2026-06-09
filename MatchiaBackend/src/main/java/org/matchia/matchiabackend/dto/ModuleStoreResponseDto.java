@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -15,4 +16,5 @@ public class ModuleStoreResponseDto {
     private List<ModuleStoreParameterDto> parameters;
     private Boolean actif;
     private Integer ordre;
+    private BigDecimal price;
 }

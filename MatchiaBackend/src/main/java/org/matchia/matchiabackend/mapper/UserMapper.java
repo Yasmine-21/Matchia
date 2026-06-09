@@ -14,6 +14,7 @@ public class UserMapper {
             entity.getFullName(),
             entity.getEmail(),
             entity.getPhone(),
+            entity.getContactImageUrl(),
             entity.getRole(),
             entity.getStatus(),
             entity.getPassword(),
@@ -27,6 +28,7 @@ public class UserMapper {
         entity.setFullName(dto.getFullName());
         entity.setEmail(dto.getEmail());
         entity.setPhone(dto.getPhone());
+        entity.setContactImageUrl(dto.getContactImageUrl());
         entity.setRole(dto.getRole());
         entity.setStatus(dto.getStatus());
         entity.setPassword(dto.getPassword());

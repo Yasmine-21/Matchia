@@ -27,7 +27,7 @@ public class Module {
     private Long id;
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<BankStoreModule> bankStoreModules = new ArrayList<>();
+    private List<MarketplaceStoreModule> marketplaceStoreModules = new ArrayList<>();
 
     @OneToMany(mappedBy = "module", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore

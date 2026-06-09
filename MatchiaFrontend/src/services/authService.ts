@@ -55,7 +55,7 @@ export const authService = {
         name: data.name || data.email,
         email: data.email,
         role: data.role as any,
-        bank_id: data.bankSlug === 'zitouna' ? '1' : (data.bankSlug === 'bh' ? '2' : undefined),
+        bank_id: data.bankId || (data.bankSlug === 'zitouna' ? '1' : (data.bankSlug === 'bh' ? '2' : undefined)),
         status: 'active',
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),

@@ -31,6 +31,7 @@ export const moduleService = {
     module: { id: number };
     actif: boolean;
     ordre: number;
+    price: number;
     parameters: Array<{
       name: string;
       code: string;
@@ -63,6 +64,9 @@ export const moduleService = {
 
   deleteModuleStoreParameter: (parameterId: number) =>
     apiClient.delete(`/modulestores/parameters/${parameterId}`),
+
+  updateModuleStorePrice: (moduleStoreId: number, price: number) =>
+    apiClient.patch(`/modulestores/${moduleStoreId}/price`, { price }),
 
   deleteModule: (id: number) => apiClient.delete(`/modules/${id}`)
 };

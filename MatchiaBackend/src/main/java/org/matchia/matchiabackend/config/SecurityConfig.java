@@ -24,7 +24,19 @@ public class SecurityConfig {
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
     }
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                .cors(Customizer.withDefaults())
+                .csrf(csrf -> csrf.disable())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/payments/**").permitAll()
+                        .anyRequest().permitAll()
+                );
 
+        return http.build();
+    }
+    /*
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -39,7 +51,7 @@ public class SecurityConfig {
 
         return http.build();
     }
-
+    */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -49,6 +61,9 @@ public class SecurityConfig {
                 "http://localhost:5173",
                 "http://lvh.me:5173",
                 "http://192.168.100.15:5173"
+        ));
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "http://*.lvh.me:5173"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));

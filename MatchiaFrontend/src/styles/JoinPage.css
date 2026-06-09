@@ -156,7 +156,8 @@
 }
 
 .join-selection-card-active {
-  @apply border-primary bg-primary/5;
+  border-color: var(--marketplace-primary, hsl(var(--primary)));
+  background: color-mix(in srgb, var(--marketplace-primary, #f97316) 8%, white);
 }
 
 .join-selection-content {
@@ -168,7 +169,8 @@
 }
 
 .join-selection-icon-wrapper-active {
-  @apply bg-primary/10 text-primary;
+  background: color-mix(in srgb, var(--marketplace-primary, #f97316) 14%, white);
+  color: var(--marketplace-primary, hsl(var(--primary)));
 }
 
 .join-selection-icon {
@@ -228,7 +230,8 @@
 }
 
 .join-module-card-active {
-  @apply border-primary bg-primary/5;
+  border-color: var(--marketplace-primary, hsl(var(--primary)));
+  background: color-mix(in srgb, var(--marketplace-primary, #f97316) 8%, white);
 }
 
 .join-module-icon-wrapper {
@@ -236,7 +239,8 @@
 }
 
 .join-module-icon-wrapper-active {
-  @apply bg-primary/10 text-primary;
+  background: color-mix(in srgb, var(--marketplace-primary, #f97316) 14%, white);
+  color: var(--marketplace-primary, hsl(var(--primary)));
 }
 
 .join-total-row {
@@ -266,4 +270,82 @@
 
 .join-stepper-icon {
   @apply w-5 h-5;
+}
+
+.join-error-text {
+  @apply mt-2 text-sm text-destructive;
+}
+
+.join-textarea {
+  @apply min-h-28 w-full rounded-md border border-input bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50;
+}
+
+.join-field-footer {
+  @apply mt-2 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground;
+}
+
+.join-color-grid {
+  @apply grid gap-4 md:grid-cols-2;
+}
+
+.join-custom-color-picker {
+  @apply space-y-3;
+}
+
+.join-color-area {
+  @apply relative h-32 w-full overflow-hidden rounded-md border border-border shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring;
+  background:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, hsl(var(--picker-hue), 100%, 50%));
+}
+
+.join-color-area-marker {
+  @apply absolute h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow;
+  box-shadow: 0 0 0 1px #111827;
+}
+
+.join-color-controls {
+  @apply flex items-center gap-3;
+}
+
+.join-color-current {
+  @apply h-9 w-9 rounded-full border border-border shadow-sm;
+}
+
+.join-hue-slider {
+  @apply h-3 flex-1 cursor-pointer appearance-none rounded-full border border-border;
+  background: linear-gradient(to right, red, yellow, lime, cyan, blue, magenta, red);
+}
+
+.join-hue-slider::-webkit-slider-thumb {
+  @apply h-5 w-5 appearance-none rounded-full border-2 border-white shadow;
+  background: currentColor;
+  color: hsl(var(--picker-hue, 24), 100%, 50%);
+}
+
+.join-hue-slider::-moz-range-thumb {
+  @apply h-5 w-5 rounded-full border-2 border-white shadow;
+  background: currentColor;
+  color: hsl(var(--picker-hue, 24), 100%, 50%);
+}
+
+.join-selected-badge {
+  @apply inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold;
+}
+
+.join-selected-badge {
+  color: var(--marketplace-secondary, #2563eb);
+  background: color-mix(in srgb, var(--marketplace-secondary, #2563eb) 12%, white);
+}
+
+.join-selection-title-row {
+  @apply flex flex-wrap items-center gap-2;
+}
+
+.join-color-review {
+  @apply inline-flex items-center gap-2 text-sm font-medium;
+}
+
+.join-color-review span {
+  @apply h-4 w-4 rounded-full border border-border;
 }

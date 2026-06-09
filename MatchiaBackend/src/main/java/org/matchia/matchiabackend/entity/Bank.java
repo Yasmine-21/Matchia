@@ -24,25 +24,21 @@ public class Bank {
     private Long id;
 
     @OneToOne(mappedBy = "bank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private BankBranding branding;
-
-    @OneToOne(mappedBy = "bank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private BankSetting settings;
+    private Marketplace marketplace;
 
     @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<User> users = new ArrayList<>();
-
-    @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private List<BankStore> bankStores = new ArrayList<>();
 
     @OneToMany(mappedBy = "bank", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<Request> requests = new ArrayList<>();
 
     private String name;
     private String slug;
+    private String email;
     private String logoText;
     private String logoUrl;
     private String country;
+    @Column(length = 1000)
     private String description;
     private String websiteUrl;
     private Integer establishedYear;

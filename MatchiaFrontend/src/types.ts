@@ -1,7 +1,7 @@
 // Types for Matchia SaaS Platform
 
 export interface Bank {
-  id: string;
+  id: number;
   name: string;
   slug: string;
   logo_url: string;
@@ -9,11 +9,19 @@ export interface Bank {
   description: string;
   website_url: string;
   established_year: number;
-  status: 'active' | 'pending' | 'suspended';
+  status: 'active' | 'inactive' | 'pending' | 'suspended' | 'rejected';
   total_users: number;
   rating: number;
   created_at: string;
   updated_at: string;
+  email?: string | null;
+  logoUrl: string;
+  websiteUrl: string;
+  establishedYear: number;
+  establishmentYear: number;
+  totalUsers: number;
+  assignedStoresCount?: number | null;
+  createdAt?: string;
 }
 
 export interface BankBranding {

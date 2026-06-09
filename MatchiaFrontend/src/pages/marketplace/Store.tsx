@@ -1,40 +1,47 @@
 import { useParams, Link, useOutletContext } from 'react-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
 import { ArrowRight, Calculator, BarChart3, FileText, Bot } from 'lucide-react';
 
 export function MarketplaceStore() {
-  const { bankSlug, storeSlug } = useParams();
+  const { storeSlug } = useParams();
   const { bankData, branding } = useOutletContext<any>();
 
   const store = bankData.stores.find((s: any) => s.name === storeSlug);
+  const storeBannerUrl = store?.banniere_url || branding.banner_image_url;
 
   if (!store) {
     return <div className="p-6">Store non trouvé</div>;
   }
 
   const moduleIcons: Record<string, any> = {
-    'simulator': Calculator,
-    'comparator': BarChart3,
-    'blog': FileText,
-    'bot': Bot
+    simulator: Calculator,
+    comparator: BarChart3,
+    blog: FileText,
+    bot: Bot,
   };
 
   return (
     <div className="min-h-screen bg-background">
-      <section className="bg-gradient-to-br from-primary/5 to-accent/5 py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-4">
-            <Link to={`/marketplace/${bankSlug}`} className="hover:text-primary">Accueil</Link>
+      <section
+        className="relative bg-cover bg-center py-20"
+        style={storeBannerUrl
+          ? { backgroundImage: `url(${storeBannerUrl})` }
+          : { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
+        }
+      >
+        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-white">
+          <div className="flex items-center gap-2 text-sm text-white/80 mb-4">
+            <Link to="/" className="hover:text-white">Accueil</Link>
             <span>/</span>
             <span>{store.label}</span>
           </div>
-          <h1 className="text-4xl font-bold mb-4" style={{ color: branding.primary_color }}>
+          <h1 className="text-4xl font-bold mb-4">
             Financement {store.label}
           </h1>
-          <p className="text-xl text-muted-foreground max-w-2xl">
-            Découvrez nos solutions de financement {store.label.toLowerCase()} adaptées à vos besoins
+          <p className="text-xl max-w-2xl text-white/90">
+            {store.description || `Découvrez nos solutions de financement ${store.label.toLowerCase()} adaptées à vos besoins`}
           </p>
         </div>
       </section>
@@ -45,9 +52,10 @@ export function MarketplaceStore() {
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
             {store.modules.map((module: any) => {
               const Icon = moduleIcons[module.name] || Calculator;
-              const modulePath = module.name === 'simulator' ? 'simulator' :
-                                module.name === 'comparator' ? 'comparator' :
-                                module.name === 'blog' ? 'blog' : module.name;
+              const modulePath = module.name === 'simulator' ? 'simulator'
+                : module.name === 'comparator' ? 'comparator'
+                : module.name === 'blog' ? 'blog'
+                : module.name;
 
               return (
                 <Card key={module.id} hover>
@@ -65,7 +73,7 @@ export function MarketplaceStore() {
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <Link to={`/marketplace/${bankSlug}/store/${storeSlug}/${modulePath}`}>
+                    <Link to={`/store/${storeSlug}/${modulePath}`}>
                       <Button className="w-full" icon={<ArrowRight className="w-4 h-4" />}>
                         Utiliser
                       </Button>
@@ -74,39 +82,6 @@ export function MarketplaceStore() {
                 </Card>
               );
             })}
-          </div>
-        </div>
-      </section>
-
-      <section className="py-12 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold mb-6">Offres populaires</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[1, 2, 3].map((i) => (
-              <Card key={i}>
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge style={{ backgroundColor: `${branding.primary_color}20`, color: branding.primary_color }}>
-                      Populaire
-                    </Badge>
-                    <span className="text-sm text-muted-foreground">Taux variable</span>
-                  </div>
-                  <CardTitle>Offre Premium {i}</CardTitle>
-                  <CardDescription>Jusqu'à 60 mois</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="mb-4">
-                    <div className="text-3xl font-bold" style={{ color: branding.primary_color }}>
-                      {(5 + i * 0.5).toFixed(1)}%
-                    </div>
-                    <div className="text-sm text-muted-foreground">Taux annuel</div>
-                  </div>
-                  <Button variant="outline" className="w-full">
-                    En savoir plus
-                  </Button>
-                </CardContent>
-              </Card>
-            ))}
           </div>
         </div>
       </section>

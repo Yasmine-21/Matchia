@@ -1,5 +1,6 @@
 import '../../styles/JoinPage.css';
-import { useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, type MouseEvent, useEffect, useMemo, useState } from 'react';
+import axios from 'axios';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -10,9 +11,31 @@ import { storeService } from '../../services/storeService';
 import { moduleService } from '../../services/moduleService';
 import { requestService } from '../../services/requestService';
 import { ModuleAssignment, StoreDto } from '../../types/apiTypes';
+import { toast } from 'sonner';
 
 const STORE_BASE_PRICE = 120;
 const MODULE_BASE_PRICE = 35;
+const SLUG_PATTERN = /^[a-z0-9-]+$/;
+const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+
+const hsvToHex = (hue: number, saturation: number, value: number) => {
+  const chroma = value * saturation;
+  const x = chroma * (1 - Math.abs((hue / 60) % 2 - 1));
+  const match = value - chroma;
+  const [r, g, b] =
+    hue < 60 ? [chroma, x, 0] :
+    hue < 120 ? [x, chroma, 0] :
+    hue < 180 ? [0, chroma, x] :
+    hue < 240 ? [0, x, chroma] :
+    hue < 300 ? [x, 0, chroma] :
+    [chroma, 0, x];
+
+  return [r, g, b]
+    .map((channel) => Math.round((channel + match) * 255).toString(16).padStart(2, '0'))
+    .join('')
+    .toUpperCase()
+    .replace(/^/, '#');
+};
 
 const formatTnd = (amount: number) =>
   new Intl.NumberFormat('fr-TN', {
@@ -22,7 +45,7 @@ const formatTnd = (amount: number) =>
   }).format(amount);
 
 const getStorePrice = (store: StoreDto) => store.price ?? STORE_BASE_PRICE;
-const getModulePrice = (assignment: ModuleAssignment) => assignment.module.price ?? MODULE_BASE_PRICE;
+const getModulePrice = (assignment: ModuleAssignment) => assignment.price ?? assignment.module.price ?? MODULE_BASE_PRICE;
 
 export function JoinPage() {
   const [step, setStep] = useState(1);
@@ -38,12 +61,25 @@ export function JoinPage() {
     bankEmail: '',
     country: 'Tunisie',
     website: '',
+    bankDescription: '',
+    establishmentYear: '',
     logo: null as File | null,
     contactName: '',
     email: '',
     phone: '',
+    contactImage: null as File | null,
+    marketplaceSlug: '',
+    marketplaceDescription: '',
+    primaryColor: '#F97316',
+    secondaryColor: '#2563EB',
+    banniere: null as File | null,
     selectedStores: [] as number[],
     selectedModulesByStore: {} as Record<number, number[]>,
+  });
+  const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [colorPickers, setColorPickers] = useState({
+    primaryColor: { hue: 24, saturation: 0.91, value: 0.97 },
+    secondaryColor: { hue: 221, saturation: 0.83, value: 0.92 },
   });
 
   const totalSteps = 4;
@@ -110,6 +146,124 @@ export function JoinPage() {
     return storesTotal + modulesTotal;
   }, [selectedStores, modulesByStore, formData.selectedModulesByStore]);
 
+  const selectedStoreDetails = useMemo(() => (
+    selectedStores.map((store) => {
+      const selectedForStore = formData.selectedModulesByStore[store.id] || [];
+      const selectedAssignments = (modulesByStore[store.id] || [])
+        .filter((assignment) => selectedForStore.includes(assignment.module.id));
+
+      return {
+        storeId: store.id,
+        storeName: store.name,
+        storeDescription: store.description,
+        storePrice: getStorePrice(store),
+        modules: selectedAssignments.map((assignment) => ({
+          moduleId: assignment.module.id,
+          moduleName: assignment.module.label || assignment.module.name,
+          moduleDescription: assignment.module.description || '',
+          modulePrice: getModulePrice(assignment),
+          parameters: assignment.parameters?.length ? JSON.stringify(assignment.parameters) : null,
+        })),
+      };
+    })
+  ), [selectedStores, modulesByStore, formData.selectedModulesByStore]);
+
+  const marketplaceStyle: CSSProperties & Record<string, string> = {
+    '--marketplace-primary': formData.primaryColor,
+    '--marketplace-secondary': formData.secondaryColor,
+  };
+
+  const updateMarketplaceSlug = (value: string) => {
+    const normalized = value.toLowerCase().replace(/\s+/g, '-');
+    setFormData((prev) => ({ ...prev, marketplaceSlug: normalized }));
+    setFormErrors((prev) => ({ ...prev, marketplaceSlug: '' }));
+  };
+
+  const updateColor = (field: 'primaryColor' | 'secondaryColor', value: string) => {
+    const normalized = value.toUpperCase();
+    setFormData((prev) => ({ ...prev, [field]: normalized }));
+    setFormErrors((prev) => ({ ...prev, [field]: '' }));
+  };
+
+  const updatePaletteColor = (
+    field: 'primaryColor' | 'secondaryColor',
+    nextPicker: { hue: number; saturation: number; value: number },
+  ) => {
+    setColorPickers((prev) => ({ ...prev, [field]: nextPicker }));
+    updateColor(field, hsvToHex(nextPicker.hue, nextPicker.saturation, nextPicker.value));
+  };
+
+  const selectPalettePoint = (
+    field: 'primaryColor' | 'secondaryColor',
+    event: MouseEvent<HTMLButtonElement>,
+  ) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = Math.min(Math.max(event.clientX - rect.left, 0), rect.width);
+    const y = Math.min(Math.max(event.clientY - rect.top, 0), rect.height);
+    const current = colorPickers[field];
+
+    updatePaletteColor(field, {
+      ...current,
+      saturation: x / rect.width,
+      value: 1 - y / rect.height,
+    });
+  };
+
+  const validateMarketplaceConfig = () => {
+    const errors: Record<string, string> = {};
+    const slug = formData.marketplaceSlug.trim();
+    const marketplaceDescription = formData.marketplaceDescription.trim();
+
+    if (!slug) {
+      errors.marketplaceSlug = 'Le slug marketplace est obligatoire.';
+    } else if (!SLUG_PATTERN.test(slug)) {
+      errors.marketplaceSlug = 'Utilisez uniquement des minuscules, chiffres et tirets.';
+    }
+
+    if (marketplaceDescription.length > 500) {
+      errors.marketplaceDescription = 'La description ne doit pas depasser 500 caracteres.';
+    }
+
+    if (!formData.primaryColor || !HEX_COLOR_PATTERN.test(formData.primaryColor)) {
+      errors.primaryColor = 'Choisissez une couleur primaire valide.';
+    }
+
+    if (!formData.secondaryColor || !HEX_COLOR_PATTERN.test(formData.secondaryColor)) {
+      errors.secondaryColor = 'Choisissez une couleur secondaire valide.';
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const validateBankInfo = () => {
+    const errors: Record<string, string> = {};
+    const currentYear = new Date().getFullYear();
+    const year = formData.establishmentYear ? Number(formData.establishmentYear) : null;
+
+    if (!formData.bankName.trim()) {
+      errors.bankName = 'Le nom de la banque est obligatoire.';
+    }
+    if (!formData.bankEmail.trim()) {
+      errors.bankEmail = "L'email de la banque est obligatoire.";
+    }
+    if (formData.bankDescription.length > 1000) {
+      errors.bankDescription = 'La description ne doit pas depasser 1000 caracteres.';
+    }
+    if (year !== null && (Number.isNaN(year) || year < 1800 || year > currentYear)) {
+      errors.establishmentYear = `L'annee doit etre entre 1800 et ${currentYear}.`;
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+  const goToNextStep = () => {
+    if (step === 1 && !validateBankInfo()) return;
+    if (step === 3 && !validateMarketplaceConfig()) return;
+    setStep(step + 1);
+  };
+
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
@@ -121,6 +275,32 @@ export function JoinPage() {
     }
 
     setFormData((prev) => ({ ...prev, logo: file }));
+  };
+
+  const handleBanniereChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 5 * 1024 * 1024) {
+      alert('La banniere ne doit pas depasser 5 Mo.');
+      event.target.value = '';
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, banniere: file }));
+  };
+
+  const handleContactImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      alert("L'image du contact ne doit pas depasser 2 Mo.");
+      event.target.value = '';
+      return;
+    }
+
+    setFormData((prev) => ({ ...prev, contactImage: file }));
   };
 
   const toggleStore = async (storeId: number) => {
@@ -169,6 +349,11 @@ export function JoinPage() {
   };
 
   const handleSubmit = async () => {
+    if (!validateMarketplaceConfig()) {
+      setStep(3);
+      return;
+    }
+
     setIsSubmitting(true);
     try {
       await requestService.createRequest({
@@ -176,18 +361,31 @@ export function JoinPage() {
         bankEmail: formData.bankEmail,
         country: formData.country,
         website: formData.website,
+        description: formData.bankDescription.trim(),
+        bankDescription: formData.bankDescription.trim(),
+        establishmentYear: formData.establishmentYear ? Number(formData.establishmentYear) : undefined,
         logo: formData.logo,
         contactName: formData.contactName,
         contactEmail: formData.email,
         contactPhone: formData.phone,
+        contactImage: formData.contactImage,
+        marketplaceSlug: formData.marketplaceSlug.trim(),
+        marketplaceDescription: formData.marketplaceDescription.trim(),
+        primaryColor: formData.primaryColor,
+        secondaryColor: formData.secondaryColor,
+        banniere: formData.banniere,
         storeIds: formData.selectedStores,
         moduleIds: Array.from(new Set(selectedModuleIds)),
+        selectedStores: selectedStoreDetails,
         totalAmount,
+        totalMonthlyPrice: totalAmount,
       });
+      toast.success("Votre demande a ete envoyee avec succes. Elle sera examinee dans un delai maximum de 2 jours.");
       setSubmitted(true);
     } catch (error) {
       console.error('Failed to submit SaaS request:', error);
-      alert("Impossible de soumettre la demande. Verifiez les champs et reessayez.");
+      const message = axios.isAxiosError(error) ? error.response?.data?.message : null;
+      alert(message || "Impossible de soumettre la demande. Verifiez les champs et reessayez.");
     } finally {
       setIsSubmitting(false);
     }
@@ -202,7 +400,7 @@ export function JoinPage() {
           </div>
           <h1 className="join-title">Demande soumise avec succes !</h1>
           <p className="join-success-desc">
-            Merci pour votre demande. Notre equipe l'examinera et vous contactera dans les 48 heures.
+            Votre demande a ete envoyee avec succes. Elle sera examinee dans un delai maximum de 2 jours.
           </p>
           <Button onClick={() => window.location.href = '/'}>Retour a l'accueil</Button>
         </motion.div>
@@ -249,8 +447,20 @@ export function JoinPage() {
                 <CardDescription>Parlez-nous de votre institution</CardDescription>
               </CardHeader>
               <CardContent className="join-form-spacing">
-                <Input label="Nom de la banque" placeholder="Entrez le nom de votre banque" value={formData.bankName} onChange={(e) => setFormData((prev) => ({ ...prev, bankName: e.target.value }))} />
-                <Input label="Email de la banque" type="email" placeholder="contact@banque.tn" value={formData.bankEmail} onChange={(e) => setFormData((prev) => ({ ...prev, bankEmail: e.target.value }))} />
+                <div>
+                  <Input label="Nom de la banque" placeholder="Entrez le nom de votre banque" value={formData.bankName} onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, bankName: e.target.value }));
+                    setFormErrors((prev) => ({ ...prev, bankName: '' }));
+                  }} />
+                  {formErrors.bankName && <p className="join-error-text">{formErrors.bankName}</p>}
+                </div>
+                <div>
+                  <Input label="Email de la banque" type="email" placeholder="contact@banque.tn" value={formData.bankEmail} onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, bankEmail: e.target.value }));
+                    setFormErrors((prev) => ({ ...prev, bankEmail: '' }));
+                  }} />
+                  {formErrors.bankEmail && <p className="join-error-text">{formErrors.bankEmail}</p>}
+                </div>
                 <div className="join-form-grid">
                   <Select
                     label="Pays"
@@ -265,6 +475,41 @@ export function JoinPage() {
                     ]}
                   />
                   <Input label="URL du site web" type="url" placeholder="https://www.exemple.com" value={formData.website} onChange={(e) => setFormData((prev) => ({ ...prev, website: e.target.value }))} />
+                </div>
+                <div className="join-form-grid">
+                  <div>
+                    <label className="join-label" htmlFor="bank-description">Description de la banque</label>
+                    <textarea
+                      id="bank-description"
+                      className="join-textarea"
+                      maxLength={1000}
+                      placeholder="Decrivez brievement votre institution"
+                      value={formData.bankDescription}
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, bankDescription: e.target.value }));
+                        setFormErrors((prev) => ({ ...prev, bankDescription: '' }));
+                      }}
+                    />
+                    <div className="join-field-footer">
+                      <span>{formData.bankDescription.length}/1000</span>
+                      {formErrors.bankDescription && <span className="join-error-text">{formErrors.bankDescription}</span>}
+                    </div>
+                  </div>
+                  <div>
+                    <Input
+                      label="Annee d'etablissement"
+                      type="number"
+                      min="1800"
+                      max={new Date().getFullYear()}
+                      placeholder="Ex: 1984"
+                      value={formData.establishmentYear}
+                      onChange={(e) => {
+                        setFormData((prev) => ({ ...prev, establishmentYear: e.target.value }));
+                        setFormErrors((prev) => ({ ...prev, establishmentYear: '' }));
+                      }}
+                    />
+                    {formErrors.establishmentYear && <p className="join-error-text">{formErrors.establishmentYear}</p>}
+                  </div>
                 </div>
                 <div>
                   <label className="join-label" htmlFor="bank-logo">Logo de la banque</label>
@@ -305,12 +550,181 @@ export function JoinPage() {
                 <Input label="Nom complet" placeholder="Jean Dupont" value={formData.contactName} onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))} />
                 <Input label="Adresse e-mail" type="email" placeholder="jean.dupont@exemple.com" value={formData.email} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} />
                 <Input label="Numero de telephone" type="tel" placeholder="+216 55 123 456" value={formData.phone} onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} />
+                <div>
+                  <label className="join-label" htmlFor="contact-image">Image du contact principal</label>
+                  <label className="join-upload-area block" htmlFor="contact-image">
+                    <input id="contact-image" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={handleContactImageChange} />
+                    {formData.contactImage ? (
+                      <div className="join-upload-content">
+                        <div className="join-upload-preview">
+                          <CheckCircle className="join-upload-success-icon" />
+                        </div>
+                        <p className="join-upload-filename">{formData.contactImage.name}</p>
+                      </div>
+                    ) : (
+                      <>
+                        <Upload className="join-upload-icon" />
+                        <p className="join-upload-title">Cliquez pour telecharger l'image du contact</p>
+                        <p className="join-upload-hint">PNG, JPG, WEBP ou SVG (max. 2 Mo)</p>
+                      </>
+                    )}
+                  </label>
+                  {formData.contactImage && (
+                    <Button size="sm" variant="ghost" className="mt-2" onClick={() => setFormData((prev) => ({ ...prev, contactImage: null }))}>
+                      Supprimer
+                    </Button>
+                  )}
+                </div>
               </CardContent>
             </Card>
           )}
 
           {step === 3 && (
             <div className="join-step-spacing">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Configuration marketplace</CardTitle>
+                  <CardDescription>Definissez l'identifiant et l'identite visuelle de votre marketplace</CardDescription>
+                </CardHeader>
+                <CardContent className="join-step-spacing">
+                  <div className="join-form-grid">
+                    <div>
+                      <Input
+                        label="Slug marketplace"
+                        placeholder="matchia-bank"
+                        value={formData.marketplaceSlug}
+                        onChange={(e) => updateMarketplaceSlug(e.target.value)}
+                      />
+                      <p className="join-upload-hint mt-2">Minuscules, chiffres et tirets uniquement.</p>
+                      {formErrors.marketplaceSlug && <p className="join-error-text">{formErrors.marketplaceSlug}</p>}
+                    </div>
+                    <div>
+                      <label className="join-label" htmlFor="marketplace-description">Description marketplace</label>
+                      <textarea
+                        id="marketplace-description"
+                        className="join-textarea"
+                        maxLength={500}
+                        placeholder="Decrivez l'experience proposee aux clients de votre banque"
+                        value={formData.marketplaceDescription}
+                        onChange={(e) => {
+                          setFormData((prev) => ({ ...prev, marketplaceDescription: e.target.value }));
+                          setFormErrors((prev) => ({ ...prev, marketplaceDescription: '' }));
+                        }}
+                      />
+                      <div className="join-field-footer">
+                        <span>{formData.marketplaceDescription.length}/500</span>
+                        {formErrors.marketplaceDescription && <span className="join-error-text">{formErrors.marketplaceDescription}</span>}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="join-color-grid">
+                    <div>
+                      <label className="join-label">Primary color</label>
+                      <div className="join-custom-color-picker">
+                        <button
+                          type="button"
+                          className="join-color-area"
+                          aria-label="Palette primary color"
+                          style={{ '--picker-hue': colorPickers.primaryColor.hue } as CSSProperties}
+                          onClick={(e) => selectPalettePoint('primaryColor', e)}
+                        >
+                          <span
+                            className="join-color-area-marker"
+                            style={{
+                              left: `${colorPickers.primaryColor.saturation * 100}%`,
+                              top: `${(1 - colorPickers.primaryColor.value) * 100}%`,
+                            }}
+                          />
+                        </button>
+                        <div className="join-color-controls">
+                          <span className="join-color-current" style={{ backgroundColor: formData.primaryColor }} />
+                          <input
+                            className="join-hue-slider"
+                            type="range"
+                            min="0"
+                            max="360"
+                            value={colorPickers.primaryColor.hue}
+                            style={{ '--picker-hue': colorPickers.primaryColor.hue } as CSSProperties}
+                            aria-label="Teinte primary color"
+                            onChange={(e) => updatePaletteColor('primaryColor', {
+                              ...colorPickers.primaryColor,
+                              hue: Number(e.target.value),
+                            })}
+                          />
+                        </div>
+                      </div>
+                      {formErrors.primaryColor && <p className="join-error-text">{formErrors.primaryColor}</p>}
+                    </div>
+
+                    <div>
+                      <label className="join-label">Secondary color</label>
+                      <div className="join-custom-color-picker">
+                        <button
+                          type="button"
+                          className="join-color-area"
+                          aria-label="Palette secondary color"
+                          style={{ '--picker-hue': colorPickers.secondaryColor.hue } as CSSProperties}
+                          onClick={(e) => selectPalettePoint('secondaryColor', e)}
+                        >
+                          <span
+                            className="join-color-area-marker"
+                            style={{
+                              left: `${colorPickers.secondaryColor.saturation * 100}%`,
+                              top: `${(1 - colorPickers.secondaryColor.value) * 100}%`,
+                            }}
+                          />
+                        </button>
+                        <div className="join-color-controls">
+                          <span className="join-color-current" style={{ backgroundColor: formData.secondaryColor }} />
+                          <input
+                            className="join-hue-slider"
+                            type="range"
+                            min="0"
+                            max="360"
+                            value={colorPickers.secondaryColor.hue}
+                            style={{ '--picker-hue': colorPickers.secondaryColor.hue } as CSSProperties}
+                            aria-label="Teinte secondary color"
+                            onChange={(e) => updatePaletteColor('secondaryColor', {
+                              ...colorPickers.secondaryColor,
+                              hue: Number(e.target.value),
+                            })}
+                          />
+                        </div>
+                      </div>
+                      {formErrors.secondaryColor && <p className="join-error-text">{formErrors.secondaryColor}</p>}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="join-label" htmlFor="marketplace-banniere">Banniere marketplace</label>
+                    <label className="join-upload-area block" htmlFor="marketplace-banniere">
+                      <input id="marketplace-banniere" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={handleBanniereChange} />
+                      {formData.banniere ? (
+                        <div className="join-upload-content">
+                          <div className="join-upload-preview">
+                            <CheckCircle className="join-upload-success-icon" />
+                          </div>
+                          <p className="join-upload-filename">{formData.banniere.name}</p>
+                        </div>
+                      ) : (
+                        <>
+                          <Upload className="join-upload-icon" />
+                          <p className="join-upload-title">Cliquez pour telecharger une banniere</p>
+                          <p className="join-upload-hint">PNG, JPG, WEBP ou SVG (max. 5 Mo)</p>
+                        </>
+                      )}
+                    </label>
+                    {formData.banniere && (
+                      <Button size="sm" variant="ghost" className="mt-2" onClick={() => setFormData((prev) => ({ ...prev, banniere: null }))}>
+                        Supprimer
+                      </Button>
+                    )}
+                  </div>
+
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle>Selectionner les boutiques</CardTitle>
@@ -328,13 +742,16 @@ export function JoinPage() {
                       {stores.map((store) => {
                         const isSelected = formData.selectedStores.includes(store.id);
                         return (
-                          <button key={store.id} type="button" onClick={() => toggleStore(store.id)} className={`join-selection-card text-left ${isSelected ? 'join-selection-card-active' : ''}`}>
+                          <button key={store.id} type="button" onClick={() => toggleStore(store.id)} className={`join-selection-card text-left ${isSelected ? 'join-selection-card-active' : ''}`} style={marketplaceStyle}>
                             <div className="join-selection-content">
                               <div className={`join-selection-icon-wrapper ${isSelected ? 'join-selection-icon-wrapper-active' : ''}`}>
                                 {isSelected ? <CheckCircle className="join-selection-icon" /> : <StoreIcon className="join-selection-icon" />}
                               </div>
                               <div>
-                                <h4 className="join-selection-title">{store.name}</h4>
+                                <div className="join-selection-title-row">
+                                  <h4 className="join-selection-title">{store.name}</h4>
+                                  {isSelected && <span className="join-selected-badge">Selectionne</span>}
+                                </div>
                                 <p className="join-upload-hint">{store.description || 'Store bancaire'}</p>
                                 <p className="join-price-line">{formatTnd(getStorePrice(store))} / mois</p>
                               </div>
@@ -369,13 +786,16 @@ export function JoinPage() {
                           {storeModules.map((assignment) => {
                             const isSelected = selectedForStore.includes(assignment.module.id);
                             return (
-                              <button key={assignment.id} type="button" onClick={() => toggleModule(store.id, assignment.module.id)} className={`join-module-card text-left ${isSelected ? 'join-module-card-active' : ''}`}>
+                              <button key={assignment.id} type="button" onClick={() => toggleModule(store.id, assignment.module.id)} className={`join-module-card text-left ${isSelected ? 'join-module-card-active' : ''}`} style={marketplaceStyle}>
                                 <div className="join-success-item">
                                   <div className={`join-module-icon-wrapper ${isSelected ? 'join-module-icon-wrapper-active' : ''}`}>
                                     {isSelected ? <Check className="join-stepper-icon" /> : <Wrench className="join-stepper-icon" />}
                                   </div>
                                   <div>
-                                    <h4 className="font-semibold mb-1">{assignment.module.label || assignment.module.name}</h4>
+                                    <div className="join-selection-title-row">
+                                      <h4 className="font-semibold mb-1">{assignment.module.label || assignment.module.name}</h4>
+                                      {isSelected && <span className="join-selected-badge">Selectionne</span>}
+                                    </div>
                                     <p className="join-upload-hint">{assignment.module.description || 'Module configurable'}</p>
                                     <p className="join-price-line">{formatTnd(getModulePrice(assignment))} / mois</p>
                                   </div>
@@ -414,6 +834,8 @@ export function JoinPage() {
                       <div className="join-review-item"><span className="join-review-label">Email banque :</span><span className="join-upload-filename">{formData.bankEmail || '-'}</span></div>
                       <div className="join-review-item"><span className="join-review-label">Pays :</span><span className="join-upload-filename">{formData.country}</span></div>
                       <div className="join-review-item"><span className="join-review-label">Site web :</span><span className="join-upload-filename">{formData.website || '-'}</span></div>
+                      <div className="join-review-item"><span className="join-review-label">Annee :</span><span className="join-upload-filename">{formData.establishmentYear || '-'}</span></div>
+                      <div className="join-review-item"><span className="join-review-label">Description :</span><span className="join-upload-filename">{formData.bankDescription || '-'}</span></div>
                     </div>
                   </div>
                   <div>
@@ -422,7 +844,19 @@ export function JoinPage() {
                       <div className="join-review-item"><span className="join-review-label">Nom :</span><span className="join-upload-filename">{formData.contactName || '-'}</span></div>
                       <div className="join-review-item"><span className="join-review-label">E-mail :</span><span className="join-upload-filename">{formData.email || '-'}</span></div>
                       <div className="join-review-item"><span className="join-review-label">Telephone :</span><span className="join-upload-filename">{formData.phone || '-'}</span></div>
+                      <div className="join-review-item"><span className="join-review-label">Image :</span><span className="join-upload-filename">{formData.contactImage?.name || '-'}</span></div>
                     </div>
+                  </div>
+                </div>
+
+                <div>
+                  <h3 className="join-review-title">Marketplace</h3>
+                  <div className="join-review-list">
+                    <div className="join-review-item"><span className="join-review-label">Slug :</span><span className="join-upload-filename">{formData.marketplaceSlug || '-'}</span></div>
+                    <div className="join-review-item"><span className="join-review-label">Primary color :</span><span className="join-color-review"><span style={{ backgroundColor: formData.primaryColor }} />{formData.primaryColor}</span></div>
+                    <div className="join-review-item"><span className="join-review-label">Secondary color :</span><span className="join-color-review"><span style={{ backgroundColor: formData.secondaryColor }} />{formData.secondaryColor}</span></div>
+                    <div className="join-review-item"><span className="join-review-label">Banniere :</span><span className="join-upload-filename">{formData.banniere?.name || '-'}</span></div>
+                    <div className="join-review-item"><span className="join-review-label">Description :</span><span className="join-upload-filename">{formData.marketplaceDescription || '-'}</span></div>
                   </div>
                 </div>
 
@@ -472,7 +906,7 @@ export function JoinPage() {
           </Button>
 
           {step < totalSteps ? (
-            <Button onClick={() => setStep(step + 1)} className="!bg-primary hover:!bg-primary-hover !text-primary-foreground font-medium px-6">
+            <Button onClick={goToNextStep} className="!bg-primary hover:!bg-primary-hover !text-primary-foreground font-medium px-6">
               Suivant <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (

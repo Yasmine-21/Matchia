@@ -6,12 +6,48 @@ import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
-import { Search, MapPin, Star, Store, Users, Grid, List, ExternalLink, Loader2 } from 'lucide-react';
+import { Search, MapPin, Store, Grid, List, ExternalLink, Loader2, Building2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
 
 import { bankService } from '../../services/bankService';
 import { Bank } from '../../types';
+import apiClient from '../../api/apiClient';
+
+const getLogoUrl = (logoUrl?: string | null) => {
+  if (!logoUrl) return null;
+  if (logoUrl.startsWith('http') || logoUrl.startsWith('data:')) return logoUrl;
+
+  const baseUrl = (apiClient.defaults.baseURL || 'http://localhost:8081').replace(/\/$/, '');
+  return `${baseUrl}${logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}`;
+};
+
+const BankLogo = ({ bank, variant = 'card' }: { bank: Bank; variant?: 'card' | 'list' }) => {
+  const [hasError, setHasError] = useState(false);
+  const logoSrc = !hasError ? getLogoUrl(bank.logoUrl) : null;
+  const className = variant === 'list' ? 'banks-list-card-logo' : 'banks-card-logo';
+
+  useEffect(() => {
+    setHasError(false);
+  }, [bank.logoUrl]);
+
+  if (!logoSrc) {
+    return (
+      <div className={`${className} banks-logo-fallback`}>
+        <Building2 className="banks-logo-fallback-icon" />
+      </div>
+    );
+  }
+
+  return (
+    <img
+      src={logoSrc}
+      alt={bank.name}
+      className={className}
+      onError={() => setHasError(true)}
+    />
+  );
+};
 
 export function BanksPage() {
   
@@ -124,11 +160,7 @@ export function BanksPage() {
                   <Card hover className="banks-card">
                     <CardHeader>
                       <div className="banks-card-header">
-                        <img
-                          src={bank.logoUrl} 
-                          alt={bank.name}
-                          className="banks-card-logo"
-                        />
+                        <BankLogo bank={bank} />
                         <div className="banks-search-input">
                           <CardTitle className="banks-card-title">{bank.name}</CardTitle>
                           <div className="banks-card-location">
@@ -138,7 +170,7 @@ export function BanksPage() {
                         </div>
                       </div>
                       <div className="mt-2">
-                        <Badge variant={bank.status === 'active' ? 'success' : bank.status === 'pending' ? 'warning' : 'destructive'}>
+                        <Badge variant={bank.status === 'active' ? 'success' : bank.status === 'pending' ? 'warning' : 'danger'}>
                           {bank.status === 'active' ? 'Actif' : bank.status === 'pending' ? 'En attente' : 'Suspendu'}
                         </Badge>
                       </div>
@@ -178,11 +210,7 @@ export function BanksPage() {
                   transition={{ delay: index * 0.05 }}
                 >
                   <Card hover className="banks-list-card">
-                    <img
-                      src={bank.logoUrl}
-                      alt={bank.name}
-                      className="banks-list-card-logo"
-                    />
+                    <BankLogo bank={bank} variant="list" />
                     <div className="banks-search-input">
                       <div className="banks-list-card-header">
                         <div>

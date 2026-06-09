@@ -3,6 +3,7 @@ package org.matchia.matchiabackend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.matchia.matchiabackend.entity.enums.RequestStatusEnum;
 import org.matchia.matchiabackend.entity.enums.RequestTypeEnum;
 
@@ -42,10 +43,27 @@ public class Request {
     private String contactName;
     private String contactEmail;
     private String contactPhone;
+    private String contactImageUrl;
 
 
     private String description;
+    @Column(length = 1000)
+    private String bankDescription;
+    private Integer establishmentYear;
 
+    @Column(unique = true)
+    private String marketplaceSlug;
+
+    @Column(length = 500)
+    private String marketplaceDescription;
+
+    @Column(length = 7)
+    private String primaryColor;
+
+    @Column(length = 7)
+    private String secondaryColor;
+
+    private String banniereUrl;
 
     private String selectedStores;
 
@@ -53,6 +71,9 @@ public class Request {
     private String selectedModules;
 
     private Double totalAmount;
+
+    @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<RequestStoreSelection> selectedStoreDetails = new ArrayList<>();
 
     @ManyToMany(fetch = FetchType.LAZY)
     @JoinTable(
@@ -72,4 +93,7 @@ public class Request {
 
     @CreationTimestamp
     private LocalDateTime createdAt;
+
+    @UpdateTimestamp
+    private LocalDateTime updatedAt;
 }

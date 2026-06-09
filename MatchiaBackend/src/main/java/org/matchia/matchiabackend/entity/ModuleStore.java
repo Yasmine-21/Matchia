@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,6 +44,9 @@ private List<ModuleStoreParameter> parameters = new ArrayList<>();
 
     private Boolean actif;
     private Integer ordre;
+
+    @Column(precision = 12, scale = 2)
+    private BigDecimal price;
 
 
 }

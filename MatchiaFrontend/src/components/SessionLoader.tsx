@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { useApp } from '../context/AppContext';
 import { motion } from 'motion/react';
+import { MatchiaLogo } from './brand/MatchiaLogo';
 
 interface SessionLoaderProps {
   children: ReactNode;
@@ -21,9 +22,7 @@ export function SessionLoader({ children }: SessionLoaderProps) {
           transition={{ duration: 2, repeat: Infinity }}
           className="flex flex-col items-center gap-4"
         >
-          <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">M</span>
-          </div>
+          <MatchiaLogo variant="icon" showText={false} markClassName="w-12 h-12" />
           <p className="text-muted-foreground">Chargement...</p>
         </motion.div>
       </div>

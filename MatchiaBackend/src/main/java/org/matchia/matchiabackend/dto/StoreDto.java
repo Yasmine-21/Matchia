@@ -16,6 +16,7 @@ public class StoreDto {
     private String name;
     private String description;
     private String icon;
+    private String banniereUrl;
     private StoreStatusEnum status;
     private BigDecimal price;
     private LocalDateTime createdAt;

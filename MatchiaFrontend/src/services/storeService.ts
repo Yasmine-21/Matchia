@@ -10,10 +10,10 @@ export const storeService = {
     getStoresByStatus: (status: 'active' | 'inactive') =>
         apiClient.get<StoreDto[]>('/stores', { params: { status } }),
 
-    createStore: (storeData: StoreDto) =>
+    createStore: (storeData: Omit<StoreDto, 'id' | 'createdAt'>) =>
         apiClient.post<StoreDto>('/stores', storeData),
 
-    updateStore: (id: number, storeData: StoreDto) =>
+    updateStore: (id: number, storeData: Partial<StoreDto>) =>
         apiClient.put<StoreDto>(`/stores/${id}`, storeData),
 
     patchStore: (id: number, fields: Partial<StoreDto>) =>

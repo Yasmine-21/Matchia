@@ -1,19 +1,43 @@
 import '../../styles/SaaSDashboard.css';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Building2, Users, Store, Box, TrendingUp, ArrowUp, ArrowDown, FileText, Loader2, LogOut } from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { ArrowDown, ArrowUp, Building2, FileText, Loader2, LogOut, Store, Users } from 'lucide-react';
+
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { banks, stores, modules, requests } from '../../data/mockData';
-import { bankService } from '../../services/bankService';
-import { Bank } from '../../types';
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { useApp } from '../../context/AppContext';
+import { bankService } from '../../services/bankService';
+import { requestService } from '../../services/requestService';
+import { storeService } from '../../services/storeService';
+import { Bank } from '../../types';
+import { RequestDto, StoreDto } from '../../types/apiTypes';
+
+const getBackendAssetUrl = (url?: string | null) => {
+  if (!url) return null;
+  if (url.startsWith('http')) return url;
+  return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
+};
+
+const getRequestTypeLabel = (requestType: RequestDto['requestType']) => {
+  switch (requestType) {
+    case 'join':
+      return "Demande d'adhésion";
+    case 'store':
+      return 'Demande de store';
+    case 'module':
+      return 'Demande de module';
+    default:
+      return 'Demande';
+  }
+};
 
 export function SaaSDashboard() {
   const [realBanks, setRealBanks] = useState<Bank[]>([]);
-  const [isLoadingBanks, setIsLoadingBanks] = useState(true);
+  const [realStores, setRealStores] = useState<StoreDto[]>([]);
+  const [realRequests, setRealRequests] = useState<RequestDto[]>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
   const { logout } = useApp();
   const navigate = useNavigate();
 
@@ -23,59 +47,88 @@ export function SaaSDashboard() {
   };
 
   useEffect(() => {
-    const fetchRealBanks = async () => {
+    const fetchDashboardData = async () => {
       try {
-        const data = await bankService.getAllBanks();
-        setRealBanks(data);
+        const [banksData, storesResponse, requestsResponse] = await Promise.all([
+          bankService.getAllBanks(),
+          storeService.getAllStores(),
+          requestService.getRequests(),
+        ]);
+
+        setRealBanks(banksData);
+        setRealStores(storesResponse.data);
+        setRealRequests(requestsResponse.data);
       } catch (error) {
-        console.error("Erreur lors de la récupération des banques réelles:", error);
+        console.error('Erreur lors de la récupération des données du dashboard:', error);
       } finally {
-        setIsLoadingBanks(false);
+        setIsLoadingData(false);
       }
     };
-    fetchRealBanks();
+
+    fetchDashboardData();
   }, []);
+
+  const activeBanksCount = useMemo(
+    () => realBanks.filter((bank) => bank.status === 'active').length,
+    [realBanks],
+  );
+  const pendingRequestsCount = useMemo(
+    () => realRequests.filter((request) => request.status === 'pending').length,
+    [realRequests],
+  );
+  const totalUsersCount = useMemo(
+    () => realBanks.reduce((sum, bank) => sum + (bank.totalUsers ?? 0), 0),
+    [realBanks],
+  );
+  const activeStoresCount = useMemo(
+    () => realStores.filter((store) => store.status === 'active').length,
+    [realStores],
+  );
 
   const stats = [
     {
       label: 'Banques actives',
-      value: banks.filter(b => b.status === 'active').length,
-      total: banks.length,
+      value: activeBanksCount,
       icon: <Building2 className="w-5 h-5" />,
-      change: '+12%',
-      trend: 'up'
+      change: isLoadingData ? '...' : `${activeBanksCount}`,
+      trend: 'up' as const,
     },
     {
       label: 'Demandes en attente',
-      value: requests.filter(r => r.status === 'pending').length,
+      value: pendingRequestsCount,
       icon: <FileText className="w-5 h-5" />,
-      change: '+3',
-      trend: 'up'
+      change: isLoadingData ? '...' : `${pendingRequestsCount}`,
+      trend: 'up' as const,
     },
     {
       label: 'Utilisateurs total',
-      value: banks.reduce((sum, b) => sum + b.total_users, 0),
+      value: totalUsersCount,
       icon: <Users className="w-5 h-5" />,
-      change: '+8.5%',
-      trend: 'up'
+      change: isLoadingData ? '...' : `${totalUsersCount}`,
+      trend: 'up' as const,
     },
     {
       label: 'Stores actifs',
-      value: stores.filter(s => s.status === 'active').length,
+      value: activeStoresCount,
       icon: <Store className="w-5 h-5" />,
-      change: '0',
-      trend: 'neutral'
-    }
+      change: isLoadingData ? '...' : `${activeStoresCount}`,
+      trend: 'neutral' as const,
+    },
   ];
 
   const monthlyData = [
     { month: 'Jan', banks: 15, users: 45000 },
     { month: 'Fév', banks: 18, users: 52000 },
     { month: 'Mar', banks: 22, users: 61000 },
-    { month: 'Avr', banks: 28, users: 75000 }
+    { month: 'Avr', banks: 28, users: 75000 },
   ];
 
-  const storeUsage = stores.map(s => ({ name: s.label, usage: s.usage_count }));
+  const storeUsage = realStores.map((store) => ({
+    name: store.name,
+    usage: store.modulesCount ?? 0,
+  }));
+
+  const pendingRequests = realRequests.filter((request) => request.status === 'pending');
 
   return (
     <div className="saas-dashboard-container">
@@ -158,13 +211,22 @@ export function SaaSDashboard() {
           </CardHeader>
           <CardContent>
             <div className="saas-list-container">
-              {isLoadingBanks ? (
+              {isLoadingData ? (
                 <div className="flex justify-center p-4"><Loader2 className="animate-spin" /></div>
               ) : (
-                // On affiche les 5 dernières banques de la liste réelle
                 realBanks.slice(-5).reverse().map((bank) => (
                   <div key={bank.id} className="saas-bank-item">
-                    <img src={bank.logoUrl || '/logos/default.png'} alt="" className="saas-bank-logo object-contain" />
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
+                      {getBackendAssetUrl(bank.logoUrl) ? (
+                        <img
+                          src={getBackendAssetUrl(bank.logoUrl) || ''}
+                          alt={bank.name}
+                          className="h-full w-full object-contain p-1"
+                        />
+                      ) : (
+                        <Building2 className="h-5 w-5 text-slate-400" />
+                      )}
+                    </div>
                     <div className="saas-bank-info">
                       <div className="saas-bank-name">{bank.name}</div>
                       <div className="saas-bank-country text-xs text-muted-foreground">{bank.country}</div>
@@ -186,19 +248,17 @@ export function SaaSDashboard() {
           </CardHeader>
           <CardContent>
             <div className="saas-list-container">
-              {requests.filter(r => r.status === 'pending').map((request) => (
+              {pendingRequests.map((request) => (
                 <div key={request.id} className="saas-request-item">
                   <div className="saas-request-header">
                     <div className="saas-bank-name">
-                      {request.request_type === 'join' ? 'Demande d\'adhésion' :
-                        request.request_type === 'store' ? 'Demande de store' :
-                          'Demande de module'}
+                      {getRequestTypeLabel(request.requestType)}
+                      <span className="ml-1 text-slate-500">- {request.bankName}</span>
                     </div>
                     <Badge variant="warning">En attente</Badge>
                   </div>
-                  <p className="saas-request-notes">{request.notes}</p>
                   <div className="saas-request-date">
-                    Créée le {new Date(request.created_at).toLocaleDateString('fr-FR')}
+                    Créée le {new Date(request.createdAt || '').toLocaleDateString('fr-FR')}
                   </div>
                 </div>
               ))}

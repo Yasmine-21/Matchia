@@ -9,6 +9,7 @@ import org.matchia.matchiabackend.mapper.StoreMapper;
 import org.matchia.matchiabackend.repository.ModuleStoreRepository;
 import org.matchia.matchiabackend.repository.StoreRepository;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -41,6 +42,7 @@ public class StoreService {
     }
 
     public StoreDto createStore(StoreDto storeDto) {
+        validateStorePrice(storeDto.getPrice());
         Store store = storeMapper.toEntity(storeDto);
         return storeMapper.toDto(storeRepository.save(store));
     }
@@ -53,8 +55,12 @@ public class StoreService {
         existingStore.setName(storeDto.getName());
         existingStore.setDescription(storeDto.getDescription());
         existingStore.setIcon(storeDto.getIcon());
+        existingStore.setBanniereUrl(storeDto.getBanniereUrl());
         existingStore.setStatus(storeDto.getStatus());
-        existingStore.setPrice(storeDto.getPrice());
+        if (storeDto.getPrice() != null) {
+            validateStorePrice(storeDto.getPrice());
+            existingStore.setPrice(storeDto.getPrice());
+        }
 
         // 3. On sauvegarde
         return storeMapper.toDto(storeRepository.save(existingStore));
@@ -62,5 +68,11 @@ public class StoreService {
 
     public void deleteStore(Long id) {
         storeRepository.deleteById(id);
+    }
+
+    private void validateStorePrice(BigDecimal price) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException("Le prix du store est requis et doit etre superieur ou egal a 0.");
+        }
     }
 }

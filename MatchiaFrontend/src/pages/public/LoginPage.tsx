@@ -1,11 +1,8 @@
 import '../../styles/LoginPage.css';
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Button } from '../../components/ui/Button';
-import { Input } from '../../components/ui/Input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Eye, Lock, Mail, UserRound } from 'lucide-react';
+import { MatchiaLogo } from '../../components/brand/MatchiaLogo';
 import { useApp } from '../../context/AppContext';
 import { authService } from '../../services/authService';
 
@@ -50,38 +47,44 @@ export function LoginPage() {
         navigate(redirectUrl, { replace: true });
 
       } else {
-        setError('Identifiants invalides. Utilisez l\'un des comptes de démonstration (mdp: admin123).');
+        setError('Identifiants invalides. Utilisez l\'un des comptes de demonstration (mdp: admin123).');
         setLoading(false);
       }
-    } catch (err) {
+    } catch {
       setError('Une erreur s\'est produite lors de la connexion.');
       setLoading(false);
     }
   };
 
-  const [showDemoPanel, setShowDemoPanel] = useState(false);
-
   return (
     <div className="login-page-body">
+      <div className="login-background-orb login-background-orb-top" />
+      <div className="login-background-orb login-background-orb-bottom" />
+      <div className="login-dot-grid login-dot-grid-left" />
+      <div className="login-dot-grid login-dot-grid-right" />
+      <div className="login-dot-grid login-dot-grid-bottom" />
+
       <div className="login-split-wrapper">
-        
-        {/* Centered Form */}
         <div className="login-split-right">
           <div className="login-form-wrapper">
-            
+            <div className="login-logo-wrap">
+              <MatchiaLogo variant="icon" showText={false} markClassName="login-logo-mark" />
+            </div>
+
             <h2 className="login-form-title">Connexion</h2>
             <p className="login-form-subtitle">
-              Saisissez vos identifiants pour accéder à la plateforme. En cas de problème de connexion, veuillez contacter le support administrateur.
+              Saisissez vos identifiants pour acceder a la plateforme.
             </p>
 
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleLogin} className="login-form">
               {error && (
-                <div className="p-3 mb-4 bg-red-50 text-red-600 text-xs rounded-md border border-red-200">
+                <div className="login-error-message">
                   {error}
                 </div>
               )}
 
               <div className="login-input-group">
+                <Mail className="login-input-icon" />
                 <input
                   type="email"
                   className="login-custom-input"
@@ -94,23 +97,26 @@ export function LoginPage() {
               </div>
 
               <div className="login-input-group">
+                <Lock className="login-input-icon" />
                 <input
                   type="password"
-                  className="login-custom-input"
+                  className="login-custom-input login-password-input"
                   placeholder="Mot de passe"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   required
                   disabled={loading}
                 />
+                <Eye className="login-password-icon" />
               </div>
 
               <div className="login-form-options">
-                <Link to="/mot-de-passe-oublie" className="text-slate-500 hover:text-[#2563eb] transition-colors">
-                  Mot de passe oublié ?
-                </Link>
-                <Link to="/inscription" className="login-link-alt">
-                  Créer un compte
+                <label className="login-checkbox-wrapper">
+                  <input type="checkbox" className="login-checkbox" defaultChecked />
+                  <span>Se souvenir de moi</span>
+                </label>
+                <Link to="/mot-de-passe-oublie" className="login-forgot-link">
+                  Mot de passe oublie ?
                 </Link>
               </div>
 
@@ -119,14 +125,22 @@ export function LoginPage() {
                 className="login-submit-btn"
                 disabled={loading}
               >
-                {loading ? 'CONNEXION EN COURS...' : 'CONNEXION'}
+                {loading ? 'CONNEXION EN COURS...' : 'Se connecter'}
               </button>
             </form>
 
-            {/* Demo Accounts Panel */}
+            <div className="login-divider">
+              <span>ou</span>
+            </div>
+
+            <Link to="/inscription" className="login-create-account">
+              <UserRound className="login-create-icon" />
+              Creer un compte
+            </Link>
+
             <div className="login-demo-panel">
-              <div className="text-xs text-slate-400 mb-2 font-semibold uppercase tracking-wider">
-                Comptes de démonstration
+              <div className="login-demo-title">
+                Comptes de demonstration
               </div>
               {Object.entries(DEMO_ACCOUNTS_LIST).map(([demoEmail, config]) => (
                 <div 
@@ -138,8 +152,11 @@ export function LoginPage() {
                   }}
                   title="Cliquez pour utiliser ce compte"
                 >
-                  <span className="font-mono text-[11px]">{demoEmail}</span>
-                  <span className="text-[10px] bg-slate-100 px-1.5 py-0.5 rounded text-slate-500 font-semibold">
+                  <div className="login-demo-user">
+                    <UserRound className="login-demo-icon" />
+                    <span className="login-demo-email">{demoEmail}</span>
+                  </div>
+                  <span className="login-demo-badge">
                     {config.role === 'SUPER_ADMIN' ? 'SaaS' : 'Banque'}
                   </span>
                 </div>

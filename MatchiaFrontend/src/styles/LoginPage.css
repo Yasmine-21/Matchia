@@ -1,108 +1,303 @@
 @reference "./index.css";
 
-/* ─────────────────────────────────────────────────────────────
-   LOGIN PAGE — Split Screen Design (Image Match)
-   ───────────────────────────────────────────────────────────── */
-
 .login-page-body {
-    @apply min-h-screen bg-gradient-to-br from-primary/5 via-accent/5 to-background flex items-center justify-center p-4 sm:p-8;
+    @apply relative min-h-screen overflow-hidden flex items-center justify-center px-4 py-10 sm:px-6;
     font-family: 'Inter', system-ui, sans-serif;
+    background:
+        radial-gradient(circle at 18% 76%, rgba(163, 126, 255, 0.24), transparent 28%),
+        radial-gradient(circle at 82% 9%, rgba(37, 99, 235, 0.16), transparent 22%),
+        linear-gradient(135deg, #fbf9ff 0%, #eef4ff 45%, #f8fbff 100%);
+}
+
+.login-background-orb {
+    position: absolute;
+    border-radius: 9999px;
+    pointer-events: none;
+}
+
+.login-background-orb-top {
+    width: 210px;
+    height: 210px;
+    right: -36px;
+    top: -42px;
+    border: 56px solid rgba(37, 99, 235, 0.12);
+}
+
+.login-background-orb-bottom {
+    width: 360px;
+    height: 360px;
+    left: -186px;
+    bottom: -150px;
+    border: 80px solid rgba(124, 58, 237, 0.08);
+}
+
+.login-dot-grid {
+    position: absolute;
+    width: 78px;
+    height: 78px;
+    opacity: 0.42;
+    pointer-events: none;
+    background-image: radial-gradient(circle, rgba(124, 58, 237, 0.28) 2px, transparent 2.5px);
+    background-size: 14px 14px;
+}
+
+.login-dot-grid-left {
+    left: 66px;
+    top: 104px;
+}
+
+.login-dot-grid-right {
+    right: 62px;
+    top: 330px;
+    background-image: radial-gradient(circle, rgba(255, 255, 255, 0.95) 2px, transparent 2.5px);
+}
+
+.login-dot-grid-bottom {
+    right: 64px;
+    bottom: 88px;
+    background-image: radial-gradient(circle, rgba(37, 99, 235, 0.18) 2px, transparent 2.5px);
 }
 
 .login-split-wrapper {
-    @apply w-full bg-white overflow-hidden relative;
-    max-width: 420px;
-    border-radius: 24px;
-    box-shadow: 0 10px 25px -5px rgba(37, 99, 235, 0.15);
-    /* Medium soft shadow */
+    @apply relative z-10 w-full overflow-hidden bg-white/80 backdrop-blur-xl;
+    max-width: 520px;
+    border-radius: 28px;
+    border: 1px solid rgba(255, 255, 255, 0.88);
+    box-shadow: 0 34px 80px rgba(50, 72, 143, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
-/* ── FORM SECTION ────────────────────────────────────────────── */
+.login-split-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.54));
+    pointer-events: none;
+}
+
 .login-split-right {
-    @apply p-6 sm:p-8;
-    background-color: white;
+    @apply relative z-10 p-8 sm:p-10;
 }
 
 .login-form-wrapper {
-    max-width: 360px;
-    margin: 0 auto;
-    width: 100%;
+    @apply mx-auto w-full;
+    max-width: 410px;
+}
+
+.login-logo-wrap {
+    @apply mx-auto mb-5 flex items-center justify-center rounded-full;
+    width: 72px;
+    height: 72px;
+    background: linear-gradient(145deg, rgba(239, 244, 255, 0.92), rgba(255, 255, 255, 0.78));
+    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.12);
+}
+
+.login-logo-mark {
+    width: 56px;
+    height: 56px;
 }
 
 .login-form-title {
-    @apply text-2xl font-bold text-center mb-3;
-    color: #2563eb;
-    /* Blue primary */
+    @apply mb-2 text-center text-3xl font-extrabold;
+    color: #0f1f52;
 }
 
 .login-form-subtitle {
-    @apply text-[10px] text-center text-slate-400 mb-8 leading-relaxed;
+    @apply mx-auto mb-9 max-w-sm text-center text-xs font-semibold leading-relaxed;
+    color: #8a96b4;
+}
+
+.login-form {
+    @apply space-y-4;
+}
+
+.login-error-message {
+    @apply rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-xs font-semibold leading-relaxed text-red-600;
 }
 
 .login-input-group {
-    @apply mb-4 relative;
+    @apply relative;
+}
+
+.login-input-icon {
+    @apply absolute left-6 top-1/2 h-5 w-5 -translate-y-1/2;
+    color: #5b5fff;
+}
+
+.login-password-icon {
+    @apply absolute right-6 top-1/2 h-5 w-5 -translate-y-1/2;
+    color: #75819f;
 }
 
 .login-custom-input {
-    @apply w-full bg-[#f8f9fa] text-sm text-slate-700 outline-none transition-all border border-transparent;
-    height: 3rem;
-    padding: 0 1.5rem;
-    border-radius: 9999px;
+    @apply w-full bg-white/85 text-sm font-semibold outline-none transition-all;
+    height: 56px;
+    padding: 0 58px;
+    border: 1px solid #dce5f5;
+    border-radius: 16px;
+    color: #17234d;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 8px 22px rgba(37, 99, 235, 0.04);
+}
+
+.login-password-input {
+    padding-right: 58px;
 }
 
 .login-custom-input::placeholder {
-    color: #adb5bd;
+    color: #9aa8c5;
 }
 
 .login-custom-input:focus {
-    background-color: #f1f3f5;
-    border-color: #2563eb;
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    border-color: #7c3cff;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(124, 58, 237, 0.10), 0 12px 26px rgba(37, 99, 235, 0.08);
+}
+
+.login-custom-input:disabled {
+    @apply cursor-not-allowed opacity-70;
 }
 
 .login-form-options {
-    @apply flex items-center justify-between mt-6 mb-8 text-xs;
+    @apply flex items-center justify-between gap-4 pt-1 text-xs font-semibold;
 }
 
 .login-checkbox-wrapper {
-    @apply flex items-center gap-2 cursor-pointer text-slate-500 hover:text-slate-700;
+    @apply flex min-w-0 items-center gap-2 text-slate-500;
 }
 
 .login-checkbox {
-    @apply w-3.5 h-3.5 text-[#2563eb] border-slate-300 rounded-sm focus:ring-[#2563eb];
+    @apply h-4 w-4 shrink-0 rounded border-slate-300;
+    accent-color: #2563ff;
 }
 
-.login-link-alt {
-    @apply text-[#2563eb] font-medium hover:underline;
+.login-forgot-link {
+    @apply shrink-0 font-bold transition hover:underline;
+    color: #6837ff;
 }
 
 .login-submit-btn {
-    @apply text-white font-bold tracking-wider text-xs transition-all block;
-    width: 100%;
-    max-width: 220px;
-    margin: 0 auto;
-    height: 2.5rem;
-    background-color: #004ffa;
-    border-radius: 9999px;
-    /* Pill shape */
+    @apply flex w-full items-center justify-center text-sm font-extrabold text-white transition-all;
+    height: 56px;
+    border-radius: 18px;
+    background: linear-gradient(90deg, #0058ff 0%, #3d50ff 47%, #a116ff 100%);
+    box-shadow: 0 18px 34px rgba(78, 63, 255, 0.28);
 }
 
-.login-submit-btn:hover {
-    background-color: #1d4ed8;
+.login-submit-btn:hover:not(:disabled) {
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px rgba(37, 99, 235, 0.35);
-    /* Blue glow */
+    box-shadow: 0 22px 42px rgba(78, 63, 255, 0.34);
 }
 
-/* Demo accounts overlay - positioned bottom right or integrated nicely */
-.login-demo-toggle {
-    @apply mt-6 text-center text-xs text-slate-400 hover:text-slate-600 cursor-pointer;
+.login-submit-btn:disabled {
+    @apply cursor-not-allowed opacity-70;
+}
+
+.login-divider {
+    @apply my-5 flex items-center text-xs font-bold;
+    color: #9aa8c5;
+}
+
+.login-divider::before,
+.login-divider::after {
+    content: '';
+    @apply h-px flex-1;
+    background: #dce5f5;
+}
+
+.login-divider span {
+    @apply rounded-full bg-white px-4 py-1;
+    border: 1px solid #dce5f5;
+}
+
+.login-create-account {
+    @apply flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-white text-sm font-extrabold transition hover:bg-blue-50;
+    color: #3152ff;
+    border: 1px solid #dce5f5;
+}
+
+.login-create-icon {
+    @apply h-4 w-4;
 }
 
 .login-demo-panel {
-    @apply mt-4 p-3 bg-[#f8f9fa] rounded-lg text-xs border border-slate-200;
+    @apply mt-5 rounded-2xl p-5;
+    background: rgba(248, 249, 255, 0.78);
+    border: 1px solid #e5e9f7;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.login-demo-title {
+    @apply mb-3 text-xs font-extrabold uppercase;
+    color: #7d879d;
 }
 
 .login-demo-item {
-    @apply flex justify-between items-center py-1.5 border-b border-slate-200 last:border-0 cursor-pointer hover:text-[#2563eb];
+    @apply flex cursor-pointer items-center justify-between gap-3 rounded-xl px-1 py-2 transition;
+}
+
+.login-demo-item:hover {
+    background: rgba(255, 255, 255, 0.72);
+}
+
+.login-demo-user {
+    @apply flex min-w-0 items-center gap-3;
+}
+
+.login-demo-icon {
+    @apply h-4 w-4 shrink-0;
+    color: #3152ff;
+}
+
+.login-demo-email {
+    @apply truncate text-sm font-bold;
+    color: #14204b;
+}
+
+.login-demo-badge {
+    @apply shrink-0 rounded-full px-3 py-1 text-xs font-extrabold;
+    color: #3152ff;
+    background: #e9edff;
+}
+
+.login-demo-item:last-child .login-demo-badge {
+    color: #991bff;
+    background: #f0e4ff;
+}
+
+@media (max-width: 640px) {
+    .login-page-body {
+        @apply px-3 py-6;
+    }
+
+    .login-split-wrapper {
+        border-radius: 24px;
+    }
+
+    .login-split-right {
+        @apply p-6;
+    }
+
+    .login-form-title {
+        @apply text-2xl;
+    }
+
+    .login-form-options {
+        @apply items-start;
+    }
+
+    .login-checkbox-wrapper {
+        @apply text-[11px];
+    }
+
+    .login-forgot-link {
+        @apply text-[11px];
+    }
+
+    .login-dot-grid-left {
+        left: 18px;
+        top: 34px;
+    }
+
+    .login-dot-grid-right {
+        display: none;
+    }
 }

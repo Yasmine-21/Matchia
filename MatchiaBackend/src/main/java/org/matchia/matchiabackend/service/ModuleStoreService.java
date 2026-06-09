@@ -15,12 +15,16 @@ import org.matchia.matchiabackend.repository.StoreRepository;
 import org.matchia.matchiabackend.repository.ModuleRepository;
 import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 import org.springframework.stereotype.Service;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ModuleStoreService {
+
+    private static final Set<String> PARAMETER_TYPES = Set.of("string", "number", "boolean", "date", "select", "image");
 
     private final ModuleStoreRepository moduleStoreRepository;
     private final ModuleStoreParameterRepository parameterRepository;
@@ -77,6 +81,7 @@ public class ModuleStoreService {
         moduleStore.setModule(module);
         moduleStore.setActif(request.getActif() != null ? request.getActif() : true);
         moduleStore.setOrdre(request.getOrdre() != null ? request.getOrdre() : 0);
+        moduleStore.setPrice(validatePrice(request.getPrice(), "Le prix du module est requis et doit etre superieur ou egal a 0."));
 
         // 4. gérer paramètres
         if (request.getParameters() != null && !request.getParameters().isEmpty()) {
@@ -134,6 +139,17 @@ public class ModuleStoreService {
                 .orElseThrow(() -> new RuntimeException("ModuleStore non trouvé avec l'id : " + id));
         ms.setActif(details.getActif());
         ms.setOrdre(details.getOrdre());
+        if (details.getPrice() != null) {
+            ms.setPrice(validatePrice(details.getPrice(), "Le prix du module doit etre superieur ou egal a 0."));
+        }
+        return moduleStoreMapper.toDto(moduleStoreRepository.save(ms));
+    }
+
+    @Transactional
+    public ModuleStoreResponseDto updateModuleStorePrice(Long moduleStoreId, BigDecimal price) {
+        ModuleStore ms = moduleStoreRepository.findById(moduleStoreId)
+                .orElseThrow(() -> new RuntimeException("ModuleStore non trouve avec l'id : " + moduleStoreId));
+        ms.setPrice(validatePrice(price, "Le prix du module est requis et doit etre superieur ou egal a 0."));
         return moduleStoreMapper.toDto(moduleStoreRepository.save(ms));
     }
 
@@ -164,8 +180,10 @@ public class ModuleStoreService {
     public ModuleStoreResponseDto addParameterToModule(Long moduleStoreId, ModuleStoreParameter param) {
         ModuleStore ms = moduleStoreRepository.findById(moduleStoreId)
                 .orElseThrow(() -> new RuntimeException("ModuleStore non trouvé avec l'id : " + moduleStoreId));
+        validateParameter(param);
         param.setModuleStore(ms);
-        parameterRepository.save(param);
+        ModuleStoreParameter savedParam = parameterRepository.save(param);
+        ms.getParameters().add(savedParam);
         return moduleStoreMapper.toDto(ms);
     }
 
@@ -183,8 +201,10 @@ public class ModuleStoreService {
     public ModuleStoreResponseDto updateParameter(Long parameterId, ModuleStoreParameter details) {
         ModuleStoreParameter param = parameterRepository.findById(parameterId)
                 .orElseThrow(() -> new RuntimeException("Paramètre non trouvé avec l'id : " + parameterId));
-        param.setCode(details.getCode());
+        validateParameter(details);
+
         param.setName(details.getName());
+        param.setCode(details.getCode());
         param.setType(details.getType());
         param.setRequired(details.getRequired());
         parameterRepository.save(param);
@@ -207,5 +227,25 @@ public class ModuleStoreService {
     @Transactional(readOnly = true)
     public long countModulesByStore(Long storeId) {
         return moduleStoreRepository.countByStoreId(storeId);
+    }
+
+    private BigDecimal validatePrice(BigDecimal price, String message) {
+        if (price == null || price.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(message);
+        }
+        return price;
+    }
+
+    private void validateParameter(ModuleStoreParameter parameter) {
+        if (parameter == null || !hasText(parameter.getName()) || !hasText(parameter.getCode())) {
+            throw new IllegalArgumentException("Le nom et le code du parametre sont obligatoires.");
+        }
+        if (!hasText(parameter.getType()) || !PARAMETER_TYPES.contains(parameter.getType())) {
+            throw new IllegalArgumentException("Le type du parametre est invalide.");
+        }
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 }

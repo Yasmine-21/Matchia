@@ -1,0 +1,27 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="matchia-a" x1="16" y1="12" x2="80" y2="84" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#10D7FF"/>
+      <stop offset="0.45" stop-color="#2563FF"/>
+      <stop offset="1" stop-color="#A020FF"/>
+    </linearGradient>
+    <linearGradient id="matchia-b" x1="26" y1="76" x2="76" y2="18" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#7C2DFF"/>
+      <stop offset="0.55" stop-color="#1C7CFF"/>
+      <stop offset="1" stop-color="#04D5FF"/>
+    </linearGradient>
+    <filter id="matchia-shadow" x="7" y="10" width="82" height="78" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+      <feOffset dy="5"/>
+      <feGaussianBlur stdDeviation="5"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.144 0 0 0 0 0.388 0 0 0 0 1 0 0 0 0.28 0"/>
+      <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
+    </filter>
+  </defs>
+  <g filter="url(#matchia-shadow)">
+    <path d="M18 71V27C18 21.7 24.5 19.1 28.2 22.9L48 43.4L67.8 22.9C71.5 19.1 78 21.7 78 27V71C78 74.9 74.9 78 71 78C67.1 78 64 74.9 64 71V44.8L53.1 56C50.3 58.9 45.7 58.9 42.9 56L32 44.8V71C32 74.9 28.9 78 25 78C21.1 78 18 74.9 18 71Z" fill="url(#matchia-a)"/>
+    <path d="M32 44.8L42.9 56C45.7 58.9 50.3 58.9 53.1 56L64 44.8V71C64 74.9 67.1 78 71 78C74.9 78 78 74.9 78 71V27C78 21.7 71.5 19.1 67.8 22.9L48 43.4L28.2 22.9C24.5 19.1 18 21.7 18 27V71C18 74.9 21.1 78 25 78C28.9 78 32 74.9 32 71V44.8Z" fill="url(#matchia-b)" fill-opacity="0.72"/>
+  </g>
+</svg>

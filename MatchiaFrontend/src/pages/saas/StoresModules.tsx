@@ -11,7 +11,7 @@ import {
   GraduationCap, Plane, ShoppingCart, Briefcase, BookOpen, Bot,
   Image as ImageIcon, Settings as SettingsIcon, X, AlertTriangle,
   BarChart, Bell, Shield, Mail, Users, Globe,
-  Plus, Edit, Loader2, ChevronDown, ChevronUp, MoreVertical, Trash2
+  Plus, Edit, Loader2, ChevronDown, ChevronUp, MoreVertical, Trash2, Filter
 } from 'lucide-react';
 import { storeService } from '../../services/storeService';
 import { moduleService } from '../../services/moduleService';
@@ -61,6 +61,17 @@ const colorPalette = [
 // getIconColor()
 function getIconColor(index: number): string {
   return colorPalette[index % colorPalette.length];
+}
+
+function formatMonthlyPrice(price?: number | null): string {
+  const value = typeof price === 'number' && Number.isFinite(price) ? price : 0;
+  return `${value} DT / mois`;
+}
+
+function parseRequiredPrice(value: string): number | null {
+  if (value.trim() === '') return null;
+  const price = Number(value);
+  return Number.isFinite(price) && price >= 0 ? price : null;
 }
 
 
@@ -142,6 +153,72 @@ function DropdownMenu({
   );
 }
 
+function FilterDropdown({
+  value,
+  options,
+  onChange,
+}: {
+  value: 'all' | 'active' | 'inactive';
+  options: { value: 'all' | 'active' | 'inactive'; label: string }[];
+  onChange: (value: 'all' | 'active' | 'inactive') => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const filterRef = useRef<HTMLDivElement>(null);
+  const selectedOption = options.find((option) => option.value === value) || options[0];
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (filterRef.current && !filterRef.current.contains(event.target as Node)) {
+        setIsOpen(false);
+      }
+    }
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  return (
+    <div ref={filterRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setIsOpen((current) => !current)}
+        className="flex h-11 min-w-[230px] items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm text-gray-900 shadow-sm transition-colors hover:bg-gray-50 focus:border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-100 dark:border-gray-700 dark:bg-gray-900 dark:text-white dark:hover:bg-gray-800"
+      >
+        <Filter className="h-4 w-4 shrink-0 text-gray-700 dark:text-gray-300" />
+        <span className="shrink-0 font-semibold">Filtrer par :</span>
+        <span className="min-w-0 flex-1 truncate text-left font-bold">{selectedOption.label}</span>
+        <ChevronDown className={`h-4 w-4 shrink-0 text-gray-700 transition-transform dark:text-gray-300 ${isOpen ? 'rotate-180' : ''}`} />
+      </button>
+
+      {isOpen && (
+        <div className="absolute right-0 z-40 mt-2 w-full overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-xl shadow-blue-950/10 dark:border-gray-700 dark:bg-gray-900">
+          {options.map((option) => {
+            const isSelected = option.value === value;
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => {
+                  onChange(option.value);
+                  setIsOpen(false);
+                }}
+                className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left text-sm font-semibold transition-colors ${
+                  isSelected
+                    ? 'bg-blue-50 text-blue-600 dark:bg-blue-950/40 dark:text-blue-300'
+                    : 'text-gray-700 hover:bg-gray-50 dark:text-gray-200 dark:hover:bg-gray-800'
+                }`}
+              >
+                <span>{option.label}</span>
+                {isSelected && <span className="h-2 w-2 rounded-full bg-blue-500" />}
+              </button>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 // AssignedModuleItem
 function AssignedModuleItem({
   assignment,
@@ -151,6 +228,7 @@ function AssignedModuleItem({
   onAddParameter,
   onEditParameter,
   onDeleteParameter,
+  onEditPrice,
   moduleGlobalStatus,
 }: {
   assignment: ModuleAssignment;
@@ -160,35 +238,57 @@ function AssignedModuleItem({
   onAddParameter: (moduleStoreId: number) => void;
   onEditParameter: (moduleStoreId: number, param: ModuleParameter) => void;
   onDeleteParameter: (moduleStoreId: number, paramId: number) => void;
+  onEditPrice: (assignment: ModuleAssignment) => void;
   moduleGlobalStatus?: 'active' | 'inactive';
 }) {
   const Icon = moduleIconMap[assignment.module.icon || 'BookOpen'] || BookOpen;
+  const isGlobalInactive = moduleGlobalStatus === 'inactive';
+  const isDisabled = !assignment.actif || isGlobalInactive;
 
   return (
     <div
-      className={`bg-gray-50 dark:bg-gray-800/50 rounded-xl border transition-all ${
-        assignment.actif 
-          ? 'border-gray-200 dark:border-gray-700' 
-          : 'border-gray-200 dark:border-gray-700 opacity-60'
+      className={`rounded-xl border transition-all ${
+        isDisabled
+          ? 'border-gray-200 bg-gray-100/80 opacity-60 dark:border-gray-700 dark:bg-gray-800/40'
+          : 'border-gray-200 bg-gray-50 dark:border-gray-700 dark:bg-gray-800/50'
       }`}
     >
       <div className="p-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-orange-100 dark:bg-orange-900/30 rounded-lg flex items-center justify-center">
-              <Icon className="w-5 h-5 text-orange-500" />
+            <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${
+              isDisabled ? 'bg-gray-100 dark:bg-gray-800' : 'bg-orange-100 dark:bg-orange-900/30'
+            }`}>
+              <Icon className={`w-5 h-5 ${isDisabled ? 'text-gray-400 dark:text-gray-500' : 'text-orange-500'}`} />
             </div>
             <div>
-              <h5 className="font-medium text-gray-900 dark:text-white">
+              <h5 className={`font-medium ${isDisabled ? 'text-gray-600 dark:text-gray-300' : 'text-gray-900 dark:text-white'}`}>
                 {assignment.module.label || assignment.module.name}
               </h5>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 {assignment.module.category || 'Module'}
               </p>
+              <p className={`mt-1 text-xs font-semibold ${
+                isDisabled ? 'text-gray-500 dark:text-gray-400' : 'text-orange-600 dark:text-orange-400'
+              }`}>
+                {formatMonthlyPrice(assignment.price)}
+                <button
+                  type="button"
+                  onClick={() => onEditPrice(assignment)}
+                  disabled={isGlobalInactive}
+                  className={`ml-2 text-xs font-semibold ${
+                    isGlobalInactive
+                      ? 'cursor-not-allowed text-gray-400 dark:text-gray-500'
+                      : 'text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300'
+                  }`}
+                >
+                  Modifier prix
+                </button>
+              </p>
             </div>
           </div>
           <div className="flex items-center gap-3">
-             {moduleGlobalStatus === 'inactive' ? (
+             {isGlobalInactive ? (
                <Badge className="bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400 text-xs">
                 Global inactif
                </Badge>
@@ -205,18 +305,18 @@ function AssignedModuleItem({
             </Badge>
               )}
             <label className={`relative inline-flex items-center ${
-                  moduleGlobalStatus === 'inactive' ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
+                  isGlobalInactive ? 'cursor-not-allowed opacity-40' : 'cursor-pointer'
                  }`}>
               <input
                 type="checkbox"
                 className="sr-only peer"
-                checked={assignment.actif && moduleGlobalStatus !== 'inactive'}
+                checked={assignment.actif && !isGlobalInactive}
                 onChange={() => {
-                  if (moduleGlobalStatus !== 'inactive') {
+                  if (!isGlobalInactive) {
                    onToggleModule(assignment.module.id, assignment.actif);
                    }
                 }}
-              disabled={moduleGlobalStatus === 'inactive'}
+              disabled={isGlobalInactive}
               />
               <div className="w-11 h-6 bg-gray-300 dark:bg-gray-600 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-orange-300 dark:peer-focus:ring-orange-800 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-orange-500"></div>
             </label>
@@ -235,7 +335,7 @@ function AssignedModuleItem({
       </div>
 
       {/* Bloc paramètres — visible uniquement si actif localement ET globalement */}
-      {isExpanded && assignment.actif && moduleGlobalStatus !== 'inactive' && (
+      {isExpanded && assignment.actif && !isGlobalInactive && (
         <div className="p-4 pt-0 border-t border-gray-200 dark:border-gray-700">
           <div className="pt-4">
             <div className="flex items-center justify-between mb-3">
@@ -319,12 +419,12 @@ function AssignedModuleItem({
         </div>
       )}
 
-      {isExpanded && (!assignment.actif || moduleGlobalStatus === 'inactive') && (
+      {isExpanded && (!assignment.actif || isGlobalInactive) && (
         <div className="p-4 pt-0">
           <div className="p-4 bg-gray-100 dark:bg-gray-800 rounded-lg text-center">
             <AlertTriangle className="w-8 h-8 text-amber-500 mx-auto mb-2" />
             <p className="text-sm text-gray-500 dark:text-gray-400">
-              {moduleGlobalStatus === 'inactive'
+              {isGlobalInactive
                 ? 'Ce module est désactivé globalement. Réactivez-le dans la section Modules pour le configurer.'
                 : 'Ce module est désactivé. Activez-le pour voir ses paramètres.'}
             </p>
@@ -387,15 +487,17 @@ function StoreCard({
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Modules actifs</div>
           <p className="text-sm font-medium text-gray-900 dark:text-white">{store.modules}</p>
         </div>
+        <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
+          <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Prix du store</div>
+          <p className="text-sm font-semibold text-orange-600 dark:text-orange-400">{formatMonthlyPrice(store.price)}</p>
+        </div>
 
         <div className="flex gap-2">
           <Button
-            className={`flex-1 ${
-              store.status === 'active'
-                ? 'border-none text-white bg-blue-500 hover:bg-blue-600 rounded-full px-4 py-2'
-                : 'border-gray-300 text-gray-400 cursor-not-allowed opacity-50 rounded-full'
-            }`}
-            icon={<Edit className="w-4 h-4" />}
+            className={`flex-1 rounded-lg border border-gray-300 dark:border-gray-600 !bg-gray-100 dark:!bg-gray-800 !text-gray-600 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-gray-700 text-sm font-medium shadow-none ${
+    store.status !== 'active' ? 'opacity-50 cursor-not-allowed' : ''
+  }`}
+            icon={<Edit className="w-4 h-4 !text-gray-500" />}
             onClick={() => store.status === 'active' && onConfigure(store)}
             disabled={store.status !== 'active'}
             title={store.status !== 'active' ? "Store inactif - configuration impossible" : ""}
@@ -509,6 +611,7 @@ export function SaaSStoresModules() {
   const [newStoreName, setNewStoreName] = useState('');
   const [newStoreIcon, setNewStoreIcon] = useState('Smartphone');
   const [newStoreDescription, setNewStoreDescription] = useState('');
+  const [newStorePrice, setNewStorePrice] = useState('');
   const [newStoreIsActive, setNewStoreIsActive] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
 
@@ -516,6 +619,7 @@ export function SaaSStoresModules() {
   const [editStoreName, setEditStoreName] = useState('');
   const [editStoreIcon, setEditStoreIcon] = useState('Smartphone');
   const [editStoreDescription, setEditStoreDescription] = useState('');
+  const [editStorePrice, setEditStorePrice] = useState('');
   const [editStoreIsActive, setEditStoreIsActive] = useState(true);
   const [editStoreLoading, setEditStoreLoading] = useState(false);
 
@@ -564,6 +668,10 @@ export function SaaSStoresModules() {
   const [moduleToDelete, setModuleToDelete] = useState<ModuleUIDto | null>(null);
   const [showEditModuleModal, setShowEditModuleModal] = useState(false);
   const [moduleToEdit, setModuleToEdit] = useState<ModuleUIDto | null>(null);
+  const [showEditModuleStorePriceModal, setShowEditModuleStorePriceModal] = useState(false);
+  const [moduleStoreToEditPrice, setModuleStoreToEditPrice] = useState<ModuleAssignment | null>(null);
+  const [editModuleStorePrice, setEditModuleStorePrice] = useState('');
+  const [editModuleStorePriceLoading, setEditModuleStorePriceLoading] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showCreateStoreModal, setShowCreateStoreModal] = useState(false);
   const [showCreateModuleModal, setShowCreateModuleModal] = useState(false);
@@ -572,6 +680,7 @@ export function SaaSStoresModules() {
   const [showAssignModal, setShowAssignModal] = useState(false);
   const [moduleToAssign, setModuleToAssign] = useState<ModuleDto | null>(null);
   const [assignTargetStore, setAssignTargetStore] = useState<StoreUIDto | null>(null);
+  const [assignmentPrice, setAssignmentPrice] = useState('');
   const [currentParameters, setCurrentParameters] = useState<LocalModuleParameter[]>([]);
   const [currentParameterForm, setCurrentParameterForm] = useState<LocalModuleParameter>({
     name: '',
@@ -591,7 +700,7 @@ export function SaaSStoresModules() {
   const [paramForm, setParamForm] = useState<{
     name: string;
     code: string;
-    type: 'string' | 'number' | 'boolean' | 'date' | 'select';
+    type: 'string' | 'number' | 'boolean' | 'date' | 'select' | 'image';
     required: boolean;
   }>({
     name: '',
@@ -608,6 +717,11 @@ export function SaaSStoresModules() {
   const filteredModules = modulesList.filter((module) =>
     moduleStatusFilter === 'all' ? true : module.status === moduleStatusFilter
   );
+
+  const isAssignmentModuleGloballyInactive = (assignment: ModuleAssignment) => {
+    const globalModule = modulesList.find((module) => module.id === assignment.module.id);
+    return (globalModule?.status ?? assignment.module.status) === 'inactive';
+  };
 
 
   //   5.2 — useEffect
@@ -706,11 +820,17 @@ export function SaaSStoresModules() {
       alert('Le nom du store est requis');
       return;
     }
+    const parsedPrice = parseRequiredPrice(newStorePrice);
+    if (parsedPrice === null) {
+      alert('Le prix du store est requis et doit être supérieur ou égal à 0.');
+      return;
+    }
     setIsCreating(true);
     const payload: any = {
       name: newStoreName.toLowerCase(),
       icon: newStoreIcon,
       description: newStoreDescription,
+      price: parsedPrice,
       status: newStoreIsActive ? 'active' : 'inactive',
     };
     try {
@@ -728,6 +848,7 @@ export function SaaSStoresModules() {
       setNewStoreName('');
       setNewStoreIcon('Smartphone');
       setNewStoreDescription('');
+      setNewStorePrice('');
       setNewStoreIsActive(true);
       setShowCreateStoreModal(false);
       setIsCreating(false);
@@ -745,6 +866,7 @@ export function SaaSStoresModules() {
     setEditStoreName(store.name);
     setEditStoreIcon(store.iconName);
     setEditStoreDescription(store.description);
+    setEditStorePrice(store.price?.toString() || '');
     setEditStoreIsActive(store.status === 'active');
     setShowEditStoreModal(true);
   };
@@ -754,12 +876,18 @@ export function SaaSStoresModules() {
       alert('Le nom du store est requis');
       return;
     }
+    const parsedPrice = parseRequiredPrice(editStorePrice);
+    if (parsedPrice === null) {
+      alert('Le prix du store est requis et doit être supérieur ou égal à 0.');
+      return;
+    }
     setEditStoreLoading(true);
     try {
       const payload = {
         name: editStoreName.toLowerCase(),
         icon: editStoreIcon,
         description: editStoreDescription,
+        price: parsedPrice,
         status: editStoreIsActive ? 'active' : 'inactive',
       };
 
@@ -772,6 +900,7 @@ export function SaaSStoresModules() {
                 ...s,
                 name: editStoreName.toLowerCase(),
                 description: editStoreDescription,
+                price: parsedPrice,
                 status: editStoreIsActive ? 'active' : 'inactive',
                 iconName: editStoreIcon,
                 IconComponent: storeIconMap[editStoreIcon] || storeIconMap['Car'],
@@ -1002,6 +1131,7 @@ export function SaaSStoresModules() {
       type: 'string',
       required: false,
     });
+    setAssignmentPrice('');
     setShowParameterForm(false);
     setIsAssigningModule(false);
     setIsAlreadyAssigned(false);
@@ -1010,6 +1140,7 @@ export function SaaSStoresModules() {
   const handleSelectTargetStore = async (store: StoreUIDto) => {
     setAssignTargetStore(store);
     setCurrentParameters([]);
+    setAssignmentPrice('');
     setCurrentParameterForm({
       name: '',
       code: '',
@@ -1042,6 +1173,11 @@ export function SaaSStoresModules() {
       alert('Ajoutez au moins un paramètre avant de confirmer l\'assignation.');
       return;
     }
+    const parsedAssignmentPrice = parseRequiredPrice(assignmentPrice);
+    if (parsedAssignmentPrice === null) {
+      alert('Le prix du module est requis et doit être supérieur ou égal à 0.');
+      return;
+    }
 
     setIsAssigningModule(true);
     try {
@@ -1050,6 +1186,7 @@ export function SaaSStoresModules() {
         module: { id: moduleToAssign.id },
         actif: true,
         ordre: assignTargetStore.modules + 1,
+        price: parsedAssignmentPrice,
         parameters: currentParameters.map((param) => ({
           name: param.name,
           code: param.code || param.name,
@@ -1074,6 +1211,49 @@ export function SaaSStoresModules() {
       alert('Erreur lors de l\'assignation du module');
     } finally {
       setIsAssigningModule(false);
+    }
+  };
+
+  const handleOpenEditModuleStorePriceModal = (assignment: ModuleAssignment) => {
+    if (isAssignmentModuleGloballyInactive(assignment)) {
+      return;
+    }
+
+    setModuleStoreToEditPrice(assignment);
+    setEditModuleStorePrice(assignment.price?.toString() || '');
+    setShowEditModuleStorePriceModal(true);
+  };
+
+  const confirmEditModuleStorePrice = async () => {
+    if (!moduleStoreToEditPrice) return;
+    if (isAssignmentModuleGloballyInactive(moduleStoreToEditPrice)) {
+      return;
+    }
+
+    const parsedPrice = parseRequiredPrice(editModuleStorePrice);
+    if (parsedPrice === null) {
+      alert('Le prix du module est requis et doit être supérieur ou égal à 0.');
+      return;
+    }
+
+    setEditModuleStorePriceLoading(true);
+    try {
+      const response = await moduleService.updateModuleStorePrice(moduleStoreToEditPrice.id, parsedPrice);
+      setAssignedModules((prev) =>
+        prev.map((assignment) =>
+          assignment.id === moduleStoreToEditPrice.id
+            ? { ...assignment, price: response.data.price ?? parsedPrice }
+            : assignment
+        )
+      );
+      setShowEditModuleStorePriceModal(false);
+      setModuleStoreToEditPrice(null);
+      setEditModuleStorePrice('');
+    } catch (error) {
+      console.error('Failed to update module store price:', error);
+      alert('Erreur lors de la modification du prix du module.');
+    } finally {
+      setEditModuleStorePriceLoading(false);
     }
   };
 
@@ -1295,17 +1475,17 @@ export function SaaSStoresModules() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <select
+              <FilterDropdown
                 value={storeStatusFilter}
-                onChange={(event) => setStoreStatusFilter(event.target.value as 'all' | 'active' | 'inactive')}
-                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-              >
-                <option value="all">Tous les stores</option>
-                <option value="active">Actifs</option>
-                <option value="inactive">Inactifs</option>
-              </select>
+                onChange={setStoreStatusFilter}
+                options={[
+                  { value: 'all', label: 'Tous les stores' },
+                  { value: 'active', label: 'Actifs' },
+                  { value: 'inactive', label: 'Inactifs' },
+                ]}
+              />
               <Button onClick={() => setShowCreateStoreModal(true)} 
-               className="bg-gradient-to-br from-primary to-accent hover:opacity-90 border-none text-white rounded-xl"
+               className="bg-primary hover:bg-primary-hover border-none text-white rounded-xl shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 Creer un Store
@@ -1344,15 +1524,15 @@ export function SaaSStoresModules() {
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <select
+              <FilterDropdown
                 value={moduleStatusFilter}
-                onChange={(event) => setModuleStatusFilter(event.target.value as 'all' | 'active' | 'inactive')}
-                className="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:bg-gray-900 dark:text-white"
-              >
-                <option value="all">Tous les modules</option>
-                <option value="active">Actifs</option>
-                <option value="inactive">Inactifs</option>
-              </select>
+                onChange={setModuleStatusFilter}
+                options={[
+                  { value: 'all', label: 'Tous les modules' },
+                  { value: 'active', label: 'Actifs' },
+                  { value: 'inactive', label: 'Inactifs' },
+                ]}
+              />
               <Button onClick={() => setShowCreateModuleModal(true)} className="bg-orange-500 hover:bg-orange-600">
                 <Plus className="w-4 h-4" />
                 Creer un Module
@@ -1473,6 +1653,7 @@ export function SaaSStoresModules() {
                         onAddParameter={(moduleStoreId) => handleOpenAddParamModal(moduleStoreId)}
                         onEditParameter={(moduleStoreId, param) => handleOpenEditParamModal(moduleStoreId, param)}
                         onDeleteParameter={(moduleStoreId, paramId) => handleDeleteParam(moduleStoreId, paramId)}
+                        onEditPrice={handleOpenEditModuleStorePriceModal}
                         moduleGlobalStatus={globalModule?.status}
                       />
                       );
@@ -1631,6 +1812,19 @@ export function SaaSStoresModules() {
                 <Badge variant={assignTargetStore.status === 'active' ? 'success' : 'default'}>
                   {assignTargetStore.status === 'active' ? 'Actif' : 'Inactif'}
                 </Badge>
+              </div>
+
+              <div className="mt-4">
+                <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du module (DT / mois)</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={assignmentPrice}
+                  onChange={(e) => setAssignmentPrice(e.target.value)}
+                  placeholder="Ex: 50"
+                  className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                />
               </div>
 
               <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
@@ -1798,6 +1992,10 @@ export function SaaSStoresModules() {
             <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Description</label>
             <textarea rows={3} value={newStoreDescription} onChange={(e) => setNewStoreDescription(e.target.value)} placeholder="Description du store..." className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
+          <div>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du store (DT / mois)</label>
+            <input type="number" min="0" step="0.01" value={newStorePrice} onChange={(e) => setNewStorePrice(e.target.value)} placeholder="Ex: 120" className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
+          </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" checked={newStoreIsActive} onChange={(e) => setNewStoreIsActive(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
             <span className="text-sm font-medium text-gray-900 dark:text-white">Activer immediatement</span>
@@ -1877,6 +2075,10 @@ export function SaaSStoresModules() {
           <div>
             <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Description</label>
             <textarea rows={3} value={editStoreDescription} onChange={(e) => setEditStoreDescription(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du store (DT / mois)</label>
+            <input type="number" min="0" step="0.01" value={editStorePrice} onChange={(e) => setEditStorePrice(e.target.value)} placeholder="Ex: 120" className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div className="flex items-center gap-2">
             <input type="checkbox" checked={editStoreIsActive} onChange={(e) => setEditStoreIsActive(e.target.checked)} className="w-4 h-4 rounded border-gray-300 text-orange-500 focus:ring-orange-500" />
@@ -1960,6 +2162,62 @@ export function SaaSStoresModules() {
         </div>
       </Modal>
 
+      {/* Edit Module Store Price */}
+      <Modal
+        isOpen={showEditModuleStorePriceModal}
+        onClose={() => {
+          if (!editModuleStorePriceLoading) {
+            setShowEditModuleStorePriceModal(false);
+            setModuleStoreToEditPrice(null);
+            setEditModuleStorePrice('');
+          }
+        }}
+        title={`Modifier le prix ${moduleStoreToEditPrice?.module.label || moduleStoreToEditPrice?.module.name || ''}`}
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du module (DT / mois)</label>
+            <input
+              type="number"
+              min="0"
+              step="0.01"
+              value={editModuleStorePrice}
+              onChange={(e) => setEditModuleStorePrice(e.target.value)}
+              placeholder="Ex: 50"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowEditModuleStorePriceModal(false);
+                setModuleStoreToEditPrice(null);
+                setEditModuleStorePrice('');
+              }}
+              disabled={editModuleStorePriceLoading}
+            >
+              Annuler
+            </Button>
+            <Button
+              onClick={confirmEditModuleStorePrice}
+              disabled={editModuleStorePriceLoading}
+              className="bg-orange-500 hover:bg-orange-600"
+            >
+              {editModuleStorePriceLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  En cours...
+                </>
+              ) : (
+                'Enregistrer'
+              )}
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
       {/* Param Manage */}
       <Modal
         isOpen={showParamManageModal}
@@ -1997,7 +2255,7 @@ export function SaaSStoresModules() {
                 onChange={(e) =>
                   setParamForm((prev) => ({
                     ...prev,
-                    type: e.target.value as 'string' | 'number' | 'boolean' | 'date' | 'select',
+                    type: e.target.value as 'string' | 'number' | 'boolean' | 'date' | 'select' | 'image',
                   }))
                 }
                 className="w-full rounded-lg border border-gray-300 dark:border-gray-700 bg-white dark:bg-gray-900 px-3 py-2 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500"
@@ -2007,6 +2265,7 @@ export function SaaSStoresModules() {
                 <option value="boolean">Booleen</option>
                 <option value="date">Date</option>
                 <option value="select">Selection</option>
+                <option value="image">Image</option>
               </select>
             </label>
 

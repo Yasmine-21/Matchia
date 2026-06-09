@@ -20,6 +20,6 @@ public class BankWithStoresDto {
     private Integer totalUsers;
     private String createdAt;
     private String updatedAt;
-    private BankBrandingDto branding;
+    private MarketplaceDto branding;
 
 }

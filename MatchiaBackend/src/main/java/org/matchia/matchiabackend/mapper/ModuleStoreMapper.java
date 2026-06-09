@@ -17,6 +17,7 @@ public class ModuleStoreMapper {
         dto.setId(entity.getId());
         dto.setActif(entity.getActif());
         dto.setOrdre(entity.getOrdre());
+        dto.setPrice(entity.getPrice());
 
 
         // 2. Mapping du Module
@@ -24,6 +25,10 @@ public class ModuleStoreMapper {
             ModuleDto mDto = new ModuleDto();
             mDto.setId(entity.getModule().getId());
             mDto.setName(entity.getModule().getName());
+            mDto.setDescription(entity.getModule().getDescription());
+            mDto.setIcon(entity.getModule().getIcon());
+            mDto.setCategory(entity.getModule().getCategory());
+            mDto.setPrice(entity.getModule().getPrice());
             mDto.setStatus(entity.getModule().getStatus());
             mDto.setCreatedAt(entity.getModule().getCreatedAt());
             dto.setModule(mDto);
@@ -33,7 +38,7 @@ public class ModuleStoreMapper {
         if (entity.getParameters() != null) {
             dto.setParameters(entity.getParameters().stream()
                     .map(p -> new ModuleStoreParameterDto(
-                            p.getId(), p.getCode(), p.getName(), p.getType(), p.getRequired()
+                            p.getId(),p.getName(), p.getCode(), p.getType(), p.getRequired()
                     )).collect(Collectors.toList()));
         } else {
             dto.setParameters(new ArrayList<>());
@@ -49,7 +54,9 @@ public class ModuleStoreMapper {
         dto.setName(store.getName());
         dto.setDescription(store.getDescription());
         dto.setIcon(store.getIcon());
+        dto.setBanniereUrl(store.getBanniereUrl());
         dto.setStatus(store.getStatus());
+        dto.setPrice(store.getPrice());
         dto.setCreatedAt(store.getCreatedAt());
 
         return dto;

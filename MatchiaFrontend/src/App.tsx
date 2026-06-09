@@ -2,6 +2,8 @@ import { RouterProvider } from 'react-router';
 import { saasRouter, tenantRouter } from './routes';
 import { AppProvider } from './context/AppContext';
 import { SessionLoader } from './components/SessionLoader';
+import { Toaster } from './components/ui/sonner';
+import { AppAlertProvider } from './components/ui/AppAlertProvider';
 
 // Utilitaire pour détecter le sous-domaine (ignore les adresses IP et localhost)
 const getSubdomain = () => {
@@ -30,9 +32,12 @@ export default function App() {
 
   return (
     <AppProvider>
-      <SessionLoader>
-        <RouterProvider router={activeRouter} />
-      </SessionLoader>
+      <AppAlertProvider>
+        <SessionLoader>
+          <RouterProvider router={activeRouter} />
+          <Toaster />
+        </SessionLoader>
+      </AppAlertProvider>
     </AppProvider>
   );
 }

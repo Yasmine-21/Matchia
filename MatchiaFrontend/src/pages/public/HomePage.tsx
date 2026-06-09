@@ -43,13 +43,7 @@ const fadeIn = {
   visible: (i = 0) => ({ opacity: 1, scale: 1, transition: { duration: 0.5, delay: i * 0.08, ease: 'easeOut' } }),
 };
 
-/* ── Stats data ──────────────────────────────────────────── */
-const STATS = [
-  { value: '50+', label: 'Banques partenaires', icon: Building2 },
-  { value: '3 sem', label: 'Délai de lancement', icon: Clock },
-  { value: '99.9%', label: 'Disponibilité SLA', icon: Globe },
-  { value: '4.9★', label: 'Satisfaction client', icon: Award },
-];
+
 
 export function HomePage() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -64,10 +58,7 @@ export function HomePage() {
 
             {/* Left column */}
             <motion.div variants={fadeUp} initial="hidden" animate="visible">
-              <motion.div className="home-hero-badge" variants={fadeUp} custom={0}>
-                <Zap className="home-hero-badge-icon" />
-                <span className="home-hero-badge-text">La plateforme de marketplace bancaire n°1</span>
-              </motion.div>
+              
 
               <motion.h1 className="home-hero-title" variants={fadeUp} custom={1}>
                 Lancez votre marketplace bancaire en quelques jours
@@ -99,15 +90,7 @@ export function HomePage() {
                 ))}
               </motion.div>
 
-              {/* Stats row */}
-              <motion.div className="home-stats-row" variants={fadeUp} custom={5}>
-                {STATS.map(({ value, label, icon: Icon }) => (
-                  <div key={label} className="home-stat-item">
-                    <div className="home-stat-value">{value}</div>
-                    <div className="home-stat-label">{label}</div>
-                  </div>
-                ))}
-              </motion.div>
+              
             </motion.div>
 
             {/* Right column — image */}
@@ -314,33 +297,7 @@ export function HomePage() {
         </div>
       </section>
 
-      {/* ── Témoignages ─────────────────────────────────────── */}
-      <section className="home-about-section">
-        <div className="home-hero-wrapper">
-          <motion.div className="home-section-header" variants={fadeUp} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-            <h2 className="home-section-title">Approuvé par les grandes banques</h2>
-          </motion.div>
-
-          <div className="home-testimonials-grid">
-            {[
-              { quote: '"Matchia nous a permis de lancer notre marketplace numérique en seulement 3 semaines. La plateforme est robuste, sécurisée et nos clients adorent la nouvelle expérience."', author: 'Ahmed Ben Ali', role: 'Directeur du numérique, Banque Zitouna' },
-              { quote: '"La flexibilité et les options de personnalisation sont remarquables. Nous pouvons vraiment la rendre nôtre tout en bénéficiant d\'une infrastructure de qualité bancaire."', author: 'Fatma Gharbi', role: 'PDG, BH Bank' },
-            ].map((t, i) => (
-              <motion.div key={t.author} variants={fadeIn} custom={i} initial="hidden" whileInView="visible" viewport={{ once: true }}>
-                <Card style={{ height: '100%' }}>
-                  <CardContent className="home-testimonial-content">
-                    <p className="home-testimonial-quote">{t.quote}</p>
-                    <div>
-                      <div className="home-testimonial-author">{t.author}</div>
-                      <div className="home-testimonial-role">{t.role}</div>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+      
 
       {/* ── Sécurité ────────────────────────────────────────── */}
       <section className="home-hero-section">

@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -47,10 +48,14 @@ public class ModuleStoreController {
     @PostMapping("/assign-full")
     public ResponseEntity<ModuleStoreResponseDto> assignFull(@RequestBody ModuleStoreRequest request) {
 
-        return new ResponseEntity<>(
-                moduleStoreService.assignFullModuleToStore(request),
-                HttpStatus.CREATED
-        );
+        try {
+            return new ResponseEntity<>(
+                    moduleStoreService.assignFullModuleToStore(request),
+                    HttpStatus.CREATED
+            );
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // ============ MISE À JOUR ============
@@ -80,7 +85,24 @@ public class ModuleStoreController {
     public ResponseEntity<ModuleStoreResponseDto> updateModuleStore(
             @PathVariable Long id,
             @RequestBody ModuleStore details) {
-        return ResponseEntity.ok(moduleStoreService.updateModuleStore(id, details));
+        try {
+            return ResponseEntity.ok(moduleStoreService.updateModuleStore(id, details));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PatchMapping("/{moduleStoreId}/price")
+    public ResponseEntity<ModuleStoreResponseDto> updateModuleStorePrice(
+            @PathVariable Long moduleStoreId,
+            @RequestBody Map<String, BigDecimal> payload) {
+        try {
+            return ResponseEntity.ok(moduleStoreService.updateModuleStorePrice(moduleStoreId, payload.get("price")));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // ============ SUPPRESSION ============
@@ -108,7 +130,13 @@ public class ModuleStoreController {
     public ResponseEntity<ModuleStoreResponseDto> addParameter(
             @PathVariable Long moduleStoreId,
             @RequestBody ModuleStoreParameter parameter) {
-        return ResponseEntity.ok(moduleStoreService.addParameterToModule(moduleStoreId, parameter));
+        try {
+            return ResponseEntity.ok(moduleStoreService.addParameterToModule(moduleStoreId, parameter));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Récupérer les paramètres d'un module assigné
@@ -122,14 +150,24 @@ public class ModuleStoreController {
     public ResponseEntity<ModuleStoreResponseDto> updateParameter(
             @PathVariable Long parameterId,
             @RequestBody ModuleStoreParameter parameter) {
-        return ResponseEntity.ok(moduleStoreService.updateParameter(parameterId, parameter));
+        try {
+            return ResponseEntity.ok(moduleStoreService.updateParameter(parameterId, parameter));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     // Supprimer un paramètre spécifique
     @DeleteMapping("/parameters/{parameterId}")
     public ResponseEntity<ModuleStoreResponseDto> deleteParameter(
             @PathVariable Long parameterId) {
-        return ResponseEntity.ok(moduleStoreService.deleteParameter(parameterId));
+        try {
+            return ResponseEntity.ok(moduleStoreService.deleteParameter(parameterId));
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 

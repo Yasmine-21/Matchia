@@ -8,5 +8,6 @@ public class AuthResponse {
     private String email;
     private String role;
     private String bankSlug;
+    private String bankId;
     private String name;
 }

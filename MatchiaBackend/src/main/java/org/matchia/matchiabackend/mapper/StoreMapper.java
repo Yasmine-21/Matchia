@@ -14,6 +14,7 @@ public class StoreMapper {
         dto.setName(store.getName());
         dto.setDescription(store.getDescription());
         dto.setIcon(store.getIcon());
+        dto.setBanniereUrl(store.getBanniereUrl());
         dto.setStatus(store.getStatus());
         dto.setPrice(store.getPrice());
         dto.setCreatedAt(store.getCreatedAt());
@@ -38,6 +39,7 @@ public class StoreMapper {
         store.setName(dto.getName());
         store.setDescription(dto.getDescription());
         store.setIcon(dto.getIcon());
+        store.setBanniereUrl(dto.getBanniereUrl());
         store.setStatus(dto.getStatus());
         store.setPrice(dto.getPrice());
 
