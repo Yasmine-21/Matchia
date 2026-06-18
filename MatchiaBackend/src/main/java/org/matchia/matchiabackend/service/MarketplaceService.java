@@ -1,6 +1,8 @@
 package org.matchia.matchiabackend.service;
 
 import org.matchia.matchiabackend.dto.MarketplaceConfigDto;
+import org.matchia.matchiabackend.dto.MarketplaceBrandingDto;
+import org.matchia.matchiabackend.dto.MarketplaceDto;
 import org.matchia.matchiabackend.entity.Bank;
 import org.matchia.matchiabackend.entity.MarketplaceStore;
 import org.matchia.matchiabackend.entity.MarketplaceStoreModule;
@@ -8,11 +10,13 @@ import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.Store;
 import org.matchia.matchiabackend.entity.Module;
 import org.matchia.matchiabackend.entity.enums.MarketplaceStatusEnum;
+import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 import org.matchia.matchiabackend.repository.BankRepository;
 import org.matchia.matchiabackend.repository.MarketplaceStoreModuleRepository;
 import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
 import org.matchia.matchiabackend.repository.MarketplaceRepository;
 import org.matchia.matchiabackend.repository.ModuleRepository;
+import org.matchia.matchiabackend.mapper.MarketplaceMapper;
 import org.matchia.matchiabackend.repository.StoreRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,20 +28,21 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.Normalizer;
+import java.util.Locale;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 @Service
 public class MarketplaceService {
 
-    private static final Pattern MARKETPLACE_SLUG_PATTERN = Pattern.compile("^[a-z0-9-]+$");
-    private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("^#[0-9A-Fa-f]{6}$");
+    private static final String DEFAULT_PRIMARY_COLOR = "#2563eb";
+    private static final String DEFAULT_SECONDARY_COLOR = "#f97316";
 
     private final MarketplaceRepository marketplaceRepository;
     private final BankRepository bankRepository;
@@ -45,6 +50,7 @@ public class MarketplaceService {
     private final ModuleRepository moduleRepository;
     private final MarketplaceStoreRepository marketplaceStoreRepository;
     private final MarketplaceStoreModuleRepository marketplaceStoreModuleRepository;
+    private final MarketplaceMapper marketplaceMapper;
 
     @Value("${app.upload.dir:uploads/logos}")
     private String uploadDir;
@@ -55,7 +61,8 @@ public class MarketplaceService {
             StoreRepository storeRepository,
             ModuleRepository moduleRepository,
             MarketplaceStoreRepository marketplaceStoreRepository,
-            MarketplaceStoreModuleRepository marketplaceStoreModuleRepository
+            MarketplaceStoreModuleRepository marketplaceStoreModuleRepository,
+            MarketplaceMapper marketplaceMapper
     ) {
         this.marketplaceRepository = marketplaceRepository;
         this.bankRepository = bankRepository;
@@ -63,6 +70,7 @@ public class MarketplaceService {
         this.moduleRepository = moduleRepository;
         this.marketplaceStoreRepository = marketplaceStoreRepository;
         this.marketplaceStoreModuleRepository = marketplaceStoreModuleRepository;
+        this.marketplaceMapper = marketplaceMapper;
     }
 
     /**
@@ -88,6 +96,26 @@ public class MarketplaceService {
             Files.createDirectories(dir);
         }
         Files.copy(banniere.getInputStream(), dir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
+
+        return "/uploads/logos/" + filename;
+    }
+
+    public String saveLogo(MultipartFile logo) throws IOException {
+        if (logo == null || logo.isEmpty()) {
+            throw new IllegalArgumentException("Le logo est obligatoire.");
+        }
+
+        String original = logo.getOriginalFilename();
+        String extension = original != null && original.contains(".")
+                ? original.substring(original.lastIndexOf("."))
+                : "";
+        String filename = UUID.randomUUID() + extension;
+
+        Path dir = Paths.get(uploadDir);
+        if (!Files.exists(dir)) {
+            Files.createDirectories(dir);
+        }
+        Files.copy(logo.getInputStream(), dir.resolve(filename), StandardCopyOption.REPLACE_EXISTING);
 
         return "/uploads/logos/" + filename;
     }
@@ -122,6 +150,30 @@ public class MarketplaceService {
         return marketplace;
     }
 
+    @Transactional(readOnly = true)
+    public Optional<MarketplaceDto.MarketplaceStoreDetailDto> findPublicStoreByIdentifier(String marketplaceSlug, String storeIdentifier) {
+        if (!hasText(marketplaceSlug) || !hasText(storeIdentifier)) {
+            return Optional.empty();
+        }
+
+        Optional<Marketplace> marketplace = marketplaceRepository.findByBank_Slug(marketplaceSlug.trim().toLowerCase());
+        if (marketplace.isEmpty() || marketplace.get().getId() == null) {
+            return Optional.empty();
+        }
+
+        Long marketplaceId = marketplace.get().getId();
+        Map<Long, List<MarketplaceDto.MarketplaceModuleDetailDto>> requestedModulesByStore =
+                marketplaceMapper.resolveRequestedModulesByStore(marketplaceSlug);
+        return marketplaceStoreRepository.findByMarketplace_Id(marketplaceId).stream()
+                .filter(this::isActiveStoreAssignment)
+                .filter((marketplaceStore) -> matchesStoreIdentifier(marketplaceStore, storeIdentifier))
+                .findFirst()
+                .map((marketplaceStore) -> marketplaceMapper.toPublicStoreDetailDto(
+                        marketplaceStore,
+                        requestedModulesByStore.get(marketplaceStore.getStore().getId())
+                ));
+    }
+
     private void initializeMarketplaceDetails(Marketplace marketplace) {
         if (marketplace.getId() == null) {
             return;
@@ -145,6 +197,100 @@ public class MarketplaceService {
         });
     }
 
+    private MarketplaceDto.MarketplaceStoreDetailDto toPublicStoreDetailDto(MarketplaceStore marketplaceStore) {
+        if (marketplaceStore == null) {
+            return null;
+        }
+
+        List<MarketplaceDto.MarketplaceModuleDetailDto> modules = marketplaceStore.getMarketplaceStoreModules() == null
+                ? List.of()
+                : marketplaceStore.getMarketplaceStoreModules().stream()
+                .filter(this::isActiveModuleAssignment)
+                .map(this::toPublicModuleDetailDto)
+                .filter(java.util.Objects::nonNull)
+                .toList();
+
+        return new MarketplaceDto.MarketplaceStoreDetailDto(
+                marketplaceStore.getId(),
+                marketplaceStore.getStore() != null ? marketplaceStore.getStore().getId() : null,
+                marketplaceStore.getStore() != null ? marketplaceStore.getStore().getName() : null,
+                marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
+                marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
+                marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
+                marketplaceStore.getEnabled(),
+                marketplaceStore.getVisible(),
+                modules
+        );
+    }
+
+    private MarketplaceDto.MarketplaceModuleDetailDto toPublicModuleDetailDto(MarketplaceStoreModule marketplaceStoreModule) {
+        if (marketplaceStoreModule == null || marketplaceStoreModule.getModule() == null) {
+            return null;
+        }
+
+        Module module = marketplaceStoreModule.getModule();
+        return new MarketplaceDto.MarketplaceModuleDetailDto(
+                marketplaceStoreModule.getId(),
+                module.getId(),
+                module.getName(),
+                module.getCategory(),
+                module.getPrice(),
+                marketplaceStoreModule.getEnabled(),
+                marketplaceStoreModule.getVisible()
+        );
+    }
+
+    private boolean matchesStoreIdentifier(MarketplaceStore marketplaceStore, String storeIdentifier) {
+        if (marketplaceStore == null || !hasText(storeIdentifier)) {
+            return false;
+        }
+
+        String normalizedIdentifier = normalizeSlug(storeIdentifier);
+        if (marketplaceStore.getStore() == null) {
+            return false;
+        }
+
+        Long storeId = marketplaceStore.getStore().getId();
+        if (storeId != null && storeIdentifier.trim().equals(String.valueOf(storeId))) {
+            return true;
+        }
+
+        String storeName = marketplaceStore.getStore().getName();
+        if (!hasText(storeName)) {
+            return false;
+        }
+        return normalizeSlug(storeName).equals(normalizedIdentifier);
+    }
+
+    private boolean isActiveStoreAssignment(MarketplaceStore marketplaceStore) {
+        return marketplaceStore != null
+                && Boolean.TRUE.equals(marketplaceStore.getEnabled())
+                && Boolean.TRUE.equals(marketplaceStore.getVisible())
+                && marketplaceStore.getStore() != null;
+    }
+
+    private boolean isActiveModuleAssignment(MarketplaceStoreModule marketplaceStoreModule) {
+        return marketplaceStoreModule != null
+                && Boolean.TRUE.equals(marketplaceStoreModule.getEnabled())
+                && Boolean.TRUE.equals(marketplaceStoreModule.getVisible())
+                && marketplaceStoreModule.getModule() != null
+                && marketplaceStoreModule.getModule().getStatus() == ModuleStatusEnum.active;
+    }
+
+    private String normalizeSlug(String value) {
+        if (!hasText(value)) {
+            return "";
+        }
+
+        String normalized = Normalizer.normalize(value, Normalizer.Form.NFD)
+                .replaceAll("\\p{M}", "")
+                .toLowerCase(Locale.ROOT)
+                .trim();
+
+        return normalized.replaceAll("[^a-z0-9]+", "-")
+                .replaceAll("^-+|-+$", "");
+    }
+
     @Transactional
     public Marketplace configureMarketplace(MarketplaceConfigDto dto) {
         validateMarketplaceConfig(dto);
@@ -166,17 +312,35 @@ public class MarketplaceService {
         Marketplace marketplace = marketplaceRepository.findByBankId(savedBank.getId())
                 .orElseGet(Marketplace::new);
         marketplace.setBank(savedBank);
-        marketplace.setPrimaryColor(dto.getPrimaryColor().trim().toUpperCase());
-        marketplace.setSecondaryColor(dto.getSecondaryColor().trim().toUpperCase());
-        marketplace.setHomepageTitle("Bienvenue sur la marketplace de " + savedBank.getName());
-        marketplace.setWelcomeText(hasText(dto.getMarketplaceDescription())
-                ? dto.getMarketplaceDescription()
-                : "Decouvrez nos produits de financement en quelques clics.");
-        if (dto.getBanniereUrl() != null || dto.getBannerImageUrl() != null) {
-            marketplace.setBanniereUrl(resolveBanniereUrl(dto));
+        marketplace.setPrimaryColor(resolveText(dto.getPrimaryColor(), marketplace.getPrimaryColor(), DEFAULT_PRIMARY_COLOR));
+        marketplace.setSecondaryColor(resolveText(dto.getSecondaryColor(), marketplace.getSecondaryColor(), DEFAULT_SECONDARY_COLOR));
+        marketplace.setHomepageTitle(resolveText(
+                dto.getHomepageTitle(),
+                marketplace.getHomepageTitle(),
+                "Bienvenue sur la marketplace de " + savedBank.getName()
+        ));
+        marketplace.setWelcomeText(resolveText(
+                dto.getWelcomeText(),
+                marketplace.getWelcomeText(),
+                hasText(dto.getMarketplaceDescription())
+                        ? dto.getMarketplaceDescription()
+                        : "Decouvrez nos produits de financement en quelques clics."
+        ));
+        if (hasText(dto.getBanniereUrl()) || hasText(dto.getBannerImageUrl())) {
+            marketplace.setBanniereUrl(resolveBanniereUrl(dto.getBanniereUrl(), dto.getBannerImageUrl()));
+        } else if (marketplace.getBanniereUrl() == null) {
+            marketplace.setBanniereUrl(null);
         }
-        marketplace.setLogoImageUrl(savedBank.getLogoUrl());
-        marketplace.setFooterText("(c) 2026 " + savedBank.getName() + ". Tous droits reserves.");
+        marketplace.setLogoImageUrl(resolveText(
+                dto.getLogoImageUrl(),
+                marketplace.getLogoImageUrl(),
+                savedBank.getLogoUrl()
+        ));
+        marketplace.setFooterText(resolveText(
+                dto.getFooterText(),
+                marketplace.getFooterText(),
+                "(c) 2026 " + savedBank.getName() + ". Tous droits reserves."
+        ));
         marketplace.setTotalMonthlyPrice(dto.getTotalMonthlyPrice());
         if (marketplace.getStatus() == null) {
             marketplace.setStatus(MarketplaceStatusEnum.active);
@@ -197,6 +361,51 @@ public class MarketplaceService {
         }
         dto.setBankId(existingMarketplace.getBank() != null ? existingMarketplace.getBank().getId() : dto.getBankId());
         Marketplace savedMarketplace = configureMarketplace(dto);
+        initializeMarketplaceDetails(savedMarketplace);
+        return savedMarketplace;
+    }
+
+    @Transactional
+    public Marketplace updateMarketplaceBranding(Long id, MarketplaceBrandingDto dto) {
+        Marketplace marketplace = marketplaceRepository.findById(id)
+                .orElseThrow(() -> new NoSuchElementException("Marketplace non trouvee : " + id));
+
+        Bank bank = marketplace.getBank();
+        if (bank == null) {
+            throw new IllegalArgumentException("La marketplace ne reference aucune banque.");
+        }
+
+        if (dto == null) {
+            throw new IllegalArgumentException("Les donnees branding sont obligatoires.");
+        }
+
+        marketplace.setPrimaryColor(resolveText(dto.getPrimaryColor(), marketplace.getPrimaryColor(), DEFAULT_PRIMARY_COLOR));
+        marketplace.setSecondaryColor(resolveText(dto.getSecondaryColor(), marketplace.getSecondaryColor(), DEFAULT_SECONDARY_COLOR));
+        marketplace.setHomepageTitle(resolveText(
+                dto.getHomepageTitle(),
+                marketplace.getHomepageTitle(),
+                "Bienvenue sur la marketplace de " + bank.getName()
+        ));
+        marketplace.setWelcomeText(resolveText(
+                dto.getWelcomeText(),
+                marketplace.getWelcomeText(),
+                bank.getDescription() != null ? bank.getDescription() : "Decouvrez nos solutions de financement."
+        ));
+        marketplace.setFooterText(resolveText(
+                dto.getFooterText(),
+                marketplace.getFooterText(),
+                "(c) 2026 " + bank.getName() + ". Tous droits reserves."
+        ));
+        marketplace.setLogoImageUrl(resolveText(
+                dto.getLogoImageUrl(),
+                marketplace.getLogoImageUrl(),
+                bank.getLogoUrl()
+        ));
+        if (hasText(dto.getBanniereUrl()) || hasText(dto.getBannerImageUrl())) {
+            marketplace.setBanniereUrl(resolveBanniereUrl(dto.getBanniereUrl(), dto.getBannerImageUrl()));
+        }
+
+        Marketplace savedMarketplace = marketplaceRepository.save(marketplace);
         initializeMarketplaceDetails(savedMarketplace);
         return savedMarketplace;
     }
@@ -233,17 +442,17 @@ public class MarketplaceService {
         if (!hasText(dto.getMarketplaceSlug())) {
             throw new IllegalArgumentException("Le slug marketplace est obligatoire.");
         }
-        if (!MARKETPLACE_SLUG_PATTERN.matcher(dto.getMarketplaceSlug().trim()).matches()) {
+        if (!dto.getMarketplaceSlug().trim().matches("^[a-z0-9-]+$")) {
             throw new IllegalArgumentException("Le slug marketplace doit contenir uniquement des minuscules, chiffres et tirets.");
         }
         if (dto.getMarketplaceDescription() != null && dto.getMarketplaceDescription().length() > 500) {
             throw new IllegalArgumentException("La description marketplace ne doit pas depasser 500 caracteres.");
         }
-        if (!hasText(dto.getPrimaryColor()) || !HEX_COLOR_PATTERN.matcher(dto.getPrimaryColor().trim()).matches()) {
-            throw new IllegalArgumentException("La couleur primaire doit etre une couleur hex valide.");
+        if (!hasText(dto.getPrimaryColor())) {
+            throw new IllegalArgumentException("La couleur primaire est obligatoire.");
         }
-        if (!hasText(dto.getSecondaryColor()) || !HEX_COLOR_PATTERN.matcher(dto.getSecondaryColor().trim()).matches()) {
-            throw new IllegalArgumentException("La couleur secondaire doit etre une couleur hex valide.");
+        if (!hasText(dto.getSecondaryColor())) {
+            throw new IllegalArgumentException("La couleur secondaire est obligatoire.");
         }
         if (dto.getStoreIds() == null || dto.getStoreIds().isEmpty()) {
             throw new IllegalArgumentException("Selectionnez au moins un store.");
@@ -282,8 +491,8 @@ public class MarketplaceService {
                 marketplaceStore = marketplaceStoreRepository.save(marketplaceStore);
             }
 
-            List<Long> moduleIdsForStore = selectedModulesByStore != null && selectedModulesByStore.containsKey(storeId)
-                    ? selectedModulesByStore.get(storeId)
+            List<Long> moduleIdsForStore = selectedModulesByStore != null
+                    ? selectedModulesByStore.getOrDefault(storeId, List.of())
                     : moduleIds;
 
             if (moduleIdsForStore == null) {
@@ -362,13 +571,20 @@ public class MarketplaceService {
         return value != null && !value.isBlank();
     }
 
-    private String resolveBanniereUrl(MarketplaceConfigDto dto) {
-        if (dto == null) {
-            return null;
+    private String resolveBanniereUrl(String banniereUrl, String bannerImageUrl) {
+        if (hasText(banniereUrl)) {
+            return banniereUrl.trim();
         }
-        if (hasText(dto.getBanniereUrl())) {
-            return dto.getBanniereUrl().trim();
+        return hasText(bannerImageUrl) ? bannerImageUrl.trim() : null;
+    }
+
+    private String resolveText(String candidate, String currentValue, String fallback) {
+        if (hasText(candidate)) {
+            return candidate.trim();
         }
-        return hasText(dto.getBannerImageUrl()) ? dto.getBannerImageUrl().trim() : null;
+        if (hasText(currentValue)) {
+            return currentValue.trim();
+        }
+        return fallback;
     }
 }

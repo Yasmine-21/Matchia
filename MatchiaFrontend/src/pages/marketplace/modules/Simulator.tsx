@@ -7,7 +7,7 @@ import { Select } from '../../../components/ui/Select';
 import { Calculator } from 'lucide-react';
 
 export function SimulatorModule() {
-  const { bankSlug } = useParams();
+  useParams();
   const { branding } = useOutletContext<any>();
 
   const [amount, setAmount] = useState('50000');

@@ -21,6 +21,21 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 // localStorage keys
 const USER_STORAGE_KEY = 'matchia_user';
 const BANK_STORAGE_KEY = 'matchia_bank';
+const normalizeRole = (role?: string | null): User['role'] => {
+  if (role === 'ADMIN_SAAS' || role === 'ADMIN_BANK' || role === 'CLIENT') {
+    return role;
+  }
+
+  if (role === 'SUPER_ADMIN') {
+    return 'ADMIN_SAAS';
+  }
+
+  if (role === 'ADMIN' || role === 'BANK_ADMIN' || role === 'MANAGER' || role === 'USER') {
+    return 'ADMIN_BANK';
+  }
+
+  return (role ?? 'CLIENT') as User['role'];
+};
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -34,7 +49,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
       const storedBank = localStorage.getItem(BANK_STORAGE_KEY);
       
       if (storedUser) {
-        setCurrentUser(JSON.parse(storedUser));
+        const parsedUser = JSON.parse(storedUser);
+        setCurrentUser({ ...parsedUser, role: normalizeRole(parsedUser.role) as User['role'] });
       }
       if (storedBank) {
         setCurrentBankState(JSON.parse(storedBank));
@@ -47,8 +63,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = (user: User) => {
-    setCurrentUser(user);
-    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(user));
+    const normalizedUser = { ...user, role: normalizeRole(user.role) as User['role'] };
+    setCurrentUser(normalizedUser);
+    localStorage.setItem(USER_STORAGE_KEY, JSON.stringify(normalizedUser));
   };
 
   const logout = () => {
@@ -56,6 +73,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setCurrentBankState(null);
     localStorage.removeItem(USER_STORAGE_KEY);
     localStorage.removeItem(BANK_STORAGE_KEY);
+    localStorage.removeItem('matchia_token');
   };
 
   const setCurrentBank = (bank: Bank | null) => {
@@ -68,19 +86,19 @@ export function AppProvider({ children }: { children: ReactNode }) {
   };
 
   // Multi-tenant access control
-  const isSaaSAdmin = () => currentUser?.role === 'SUPER_ADMIN';
+  const isSaaSAdmin = () => normalizeRole(currentUser?.role) === 'ADMIN_SAAS';
   
   const isBankAdmin = () => 
-    currentUser?.role === 'ADMIN' || currentUser?.role === 'MANAGER';
+    normalizeRole(currentUser?.role) === 'ADMIN_BANK';
   
   const canAccessBank = (bankId: string): boolean => {
     if (!currentUser) return false;
-    if (currentUser.role === 'SUPER_ADMIN') return true;
+    if (normalizeRole(currentUser.role) === 'ADMIN_SAAS') return true;
     return currentUser.bank_id === bankId;
   };
   
   const canAccessAllBanks = (): boolean => {
-    return currentUser?.role === 'SUPER_ADMIN' ?? false;
+    return normalizeRole(currentUser?.role) === 'ADMIN_SAAS';
   };
 
   return (

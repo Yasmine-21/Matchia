@@ -3,6 +3,7 @@ package org.matchia.matchiabackend.service;
 import org.matchia.matchiabackend.dto.MarketplaceStoreDto;
 import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.MarketplaceStore;
+import org.matchia.matchiabackend.entity.MarketplaceStoreModule;
 import org.matchia.matchiabackend.entity.Store;
 import org.matchia.matchiabackend.repository.MarketplaceRepository;
 import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
@@ -52,7 +53,17 @@ public class MarketplaceStoreService {
         MarketplaceStore marketplaceStore = marketplaceStoreRepository.findById(id)
                 .orElseThrow(() -> new NoSuchElementException("Marketplace store introuvable : " + id));
         applyDto(dto, marketplaceStore, false);
-        return marketplaceStoreRepository.save(marketplaceStore);
+        MarketplaceStore saved = marketplaceStoreRepository.save(marketplaceStore);
+
+        boolean active = Boolean.TRUE.equals(saved.getEnabled()) && Boolean.TRUE.equals(saved.getVisible());
+        for (MarketplaceStoreModule moduleAssignment : saved.getMarketplaceStoreModules()) {
+            moduleAssignment.setEnabled(active);
+            moduleAssignment.setVisible(active);
+        }
+
+        marketplaceStoreRepository.save(saved);
+
+        return saved;
     }
 
     /**

@@ -1,7 +1,10 @@
 import { defineConfig } from 'vite'
-import path from 'path'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
+
+const srcDir = fileURLToPath(new URL('./src', import.meta.url))
 
 export default defineConfig({
   plugins: [
@@ -20,7 +23,7 @@ export default defineConfig({
   ],
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(srcDir),
     },
   },
   assetsInclude: ['**/*.svg', '**/*.csv'],
@@ -31,4 +34,4 @@ export default defineConfig({
       '.lvh.me'
     ]
   }
-})
+})

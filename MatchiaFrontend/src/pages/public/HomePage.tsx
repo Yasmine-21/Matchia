@@ -8,14 +8,10 @@ import {
   Store,
   Shield,
   TrendingUp,
-  Users,
-  Zap,
   CheckCircle,
-  Lock,
   BarChart3,
   Palette,
   Rocket,
-  Settings,
   Calculator,
   FileText,
   Target,
@@ -25,20 +21,17 @@ import {
   Heart,
   ChevronDown,
   Check,
-  Globe,
-  Award,
-  Clock
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
+import { motion, AnimatePresence, type Variants } from 'motion/react';
 import { useState } from 'react';
 
 /* ── Reusable animation variants ─────────────────────────── */
-const fadeUp = {
+const fadeUp: Variants = {
   hidden: { opacity: 0, y: 28 },
-  visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.55, delay: i * 0.1, ease: [0.22, 1, 0.36, 1] } }),
+  visible: (i = 0) => ({ opacity: 1, y: 0, transition: { duration: 0.55, delay: i * 0.1, ease: 'easeOut' } }),
 };
 
-const fadeIn = {
+const fadeIn: Variants = {
   hidden: { opacity: 0, scale: 0.96 },
   visible: (i = 0) => ({ opacity: 1, scale: 1, transition: { duration: 0.5, delay: i * 0.08, ease: 'easeOut' } }),
 };
@@ -97,7 +90,7 @@ export function HomePage() {
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.7, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
               className="relative"
             >
               <div className="home-hero-image-wrapper">
@@ -328,7 +321,7 @@ export function HomePage() {
             <motion.div
               initial={{ opacity: 0, x: 30 }}
               whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ duration: 0.6, ease: 'easeOut' }}
               viewport={{ once: true }}
               className="home-security-image-wrapper"
             >
@@ -375,7 +368,7 @@ export function HomePage() {
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.3, ease: 'easeOut' }}
                         style={{ overflow: 'hidden' }}
                       >
                         <CardContent className="home-faq-content">

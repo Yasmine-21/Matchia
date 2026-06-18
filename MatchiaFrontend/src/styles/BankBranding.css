@@ -1,6 +1,6 @@
 @reference "./index.css";
 .branding-container {
-    @apply p-6 max-w-7xl mx-auto;
+    @apply w-full space-y-6;
 }
 
 .branding-header {
@@ -39,24 +39,67 @@
     @apply block mb-2 text-sm;
 }
 
-.branding-color-input-group {
-    @apply flex gap-3;
+.branding-picker-card {
+    @apply space-y-4 rounded-2xl border border-border bg-card p-4 shadow-sm;
 }
 
-.branding-color-picker {
-    @apply h-12 w-20 rounded-lg cursor-pointer;
+.branding-picker-header {
+    @apply flex items-start justify-between gap-4;
 }
 
-.branding-color-text {
-    @apply flex-1;
+.branding-picker-label {
+    @apply text-sm font-medium text-muted-foreground;
 }
 
-.branding-presets-grid {
-    @apply grid grid-cols-2 md:grid-cols-4 gap-3;
+.branding-picker-value {
+    @apply mt-1 text-sm font-semibold break-all;
 }
 
-.branding-preset-btn {
-    @apply h-12 rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors;
+.branding-picker-preview {
+    @apply h-5 w-5 shrink-0 rounded-full border border-border shadow-sm;
+}
+
+.branding-picker-canvas {
+    @apply relative h-44 overflow-hidden rounded-2xl border border-border shadow-inner cursor-crosshair;
+    touch-action: none;
+}
+
+.branding-picker-cursor {
+    @apply pointer-events-none absolute h-5 w-5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white shadow-lg;
+    box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.2);
+}
+
+.branding-picker-hue-row {
+    @apply flex items-center gap-3;
+}
+
+.branding-picker-hue-dot {
+    @apply h-9 w-9 shrink-0 rounded-full border border-border shadow-sm;
+}
+
+.branding-picker-hue-slider {
+    @apply h-3 w-full cursor-pointer appearance-none rounded-full border border-border;
+    background: linear-gradient(90deg, #ff0000 0%, #ffff00 17%, #00ff00 33%, #00ffff 50%, #0000ff 67%, #ff00ff 83%, #ff0000 100%);
+}
+
+.branding-picker-hue-slider::-webkit-slider-thumb {
+    @apply h-5 w-5 appearance-none rounded-full border-2 border-white bg-white shadow-md;
+}
+
+.branding-picker-hue-slider::-moz-range-thumb {
+    @apply h-5 w-5 rounded-full border-2 border-white bg-white shadow-md;
+}
+
+.branding-picker-help {
+    @apply text-sm text-muted-foreground leading-6;
+}
+
+.branding-upload-actions {
+    @apply mt-4 flex flex-wrap items-center justify-center gap-3;
+}
+
+.branding-file-name {
+    @apply mt-3 text-sm text-muted-foreground break-words;
 }
 
 .branding-upload-area {

@@ -79,8 +79,8 @@ export interface User {
   id: string;
   name: string;
   email: string;
-  role: 'SUPER_ADMIN' | 'ADMIN' | 'MANAGER' | 'USER';
-  bank_id?: string; // null for SUPER_ADMIN
+  role: 'ADMIN_SAAS' | 'ADMIN_BANK' | 'CLIENT';
+  bank_id?: string; // null for ADMIN_SAAS
   status: 'active' | 'inactive';
   created_at: string;
   updated_at?: string;

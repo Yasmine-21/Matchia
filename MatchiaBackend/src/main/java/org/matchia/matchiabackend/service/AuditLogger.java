@@ -9,6 +9,7 @@ import org.matchia.matchiabackend.dto.AuditStatsDto;
 import org.matchia.matchiabackend.entity.AuditLog;
 import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
 import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
+import org.matchia.matchiabackend.mapper.AuditLogMapper;
 import org.matchia.matchiabackend.repository.AuditLogRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -26,18 +27,19 @@ import java.util.List;
 public class AuditLogger {
 
     private final AuditLogRepository auditLogRepository;
+    private final AuditLogMapper auditLogMapper;
 
     @Async
     public void logAsync(AuditLogRequest request) {
         try {
-            auditLogRepository.save(toEntity(request));
+            auditLogRepository.save(auditLogMapper.toEntity(request));
         } catch (Exception error) {
             log.warn("Audit log ignored: {}", error.getMessage());
         }
     }
 
     public AuditLog log(AuditLogRequest request) {
-        return auditLogRepository.save(toEntity(request));
+        return auditLogRepository.save(auditLogMapper.toEntity(request));
     }
 
     public Page<AuditLogDto> search(
@@ -54,11 +56,11 @@ public class AuditLogger {
             String tenantId
     ) {
         return auditLogRepository.findAll(specification(category, action, actorId, resourceType, resourceId, status, startDate, endDate, search, tenantId), pageable)
-                .map(this::toDto);
+                .map(auditLogMapper::toDto);
     }
 
     public AuditLogDto findById(Long id) {
-        return auditLogRepository.findById(id).map(this::toDto).orElse(null);
+        return auditLogRepository.findById(id).map(auditLogMapper::toDto).orElse(null);
     }
 
     public AuditStatsDto stats() {
@@ -123,48 +125,6 @@ public class AuditLogger {
             }
             return cb.and(predicates.toArray(new Predicate[0]));
         };
-    }
-
-    private AuditLog toEntity(AuditLogRequest request) {
-        AuditLog log = new AuditLog();
-        log.setTenantId(defaultText(request.getTenantId(), "saas"));
-        log.setActorId(request.getActorId());
-        log.setActorName(defaultText(request.getActorName(), "system"));
-        log.setActorRole(defaultText(request.getActorRole(), "system"));
-        log.setAction(defaultText(request.getAction(), "system.event"));
-        log.setCategory(request.getCategory() != null ? request.getCategory() : AuditCategoryEnum.core);
-        log.setResourceType(request.getResourceType());
-        log.setResourceId(request.getResourceId());
-        log.setStatus(request.getStatus() != null ? request.getStatus() : AuditStatusEnum.success);
-        log.setIpAddress(request.getIpAddress());
-        log.setUserAgent(request.getUserAgent());
-        log.setDiff(request.getDiff());
-        log.setMetadata(request.getMetadata());
-        return log;
-    }
-
-    private AuditLogDto toDto(AuditLog log) {
-        return new AuditLogDto(
-                log.getId(),
-                log.getTenantId(),
-                log.getActorId(),
-                log.getActorName(),
-                log.getActorRole(),
-                log.getAction(),
-                log.getCategory(),
-                log.getResourceType(),
-                log.getResourceId(),
-                log.getStatus(),
-                log.getIpAddress(),
-                log.getUserAgent(),
-                log.getDiff(),
-                log.getMetadata(),
-                log.getCreatedAt()
-        );
-    }
-
-    private String defaultText(String value, String fallback) {
-        return hasText(value) ? value : fallback;
     }
 
     private boolean hasText(String value) {

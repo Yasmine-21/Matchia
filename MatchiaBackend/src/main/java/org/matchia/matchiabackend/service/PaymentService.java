@@ -53,6 +53,7 @@ public class PaymentService {
     private final PaymentRepository paymentRepository;
     private final RequestRepository requestRepository;
     private final MarketplaceRepository marketplaceRepository;
+    private final NotificationService notificationService;
 
     @Value("${payment.demo-url:http://lvh.me:5173/payment/demo}")
     private String demoPaymentUrl;
@@ -140,7 +141,6 @@ public class PaymentService {
         if (confirmPaymentRequest == null || !hasText(confirmPaymentRequest.getPaymentIntentId())) {
             throw new IllegalArgumentException("paymentIntentId is required.");
         }
-        Stripe.apiKey = stripeSecretKey;
 
         Payment payment = paymentRepository.findById(paymentId)
                 .orElseThrow(() -> new NoSuchElementException("Paiement introuvable : " + paymentId));
@@ -148,14 +148,45 @@ public class PaymentService {
             throw new IllegalArgumentException("paymentIntentId does not match payment.");
         }
 
-        // The frontend confirms the card, then the backend reads Stripe as the source of truth.
-        PaymentIntent paymentIntent = PaymentIntent.retrieve(confirmPaymentRequest.getPaymentIntentId());
-        PaymentStatusEnum status = mapStripeStatus(paymentIntent.getStatus());
+        PaymentStatusEnum status = null;
+        if (hasText(confirmPaymentRequest.getPaymentIntentStatus())) {
+            status = mapStripeStatus(confirmPaymentRequest.getPaymentIntentStatus());
+        }
+
+        if (status != PaymentStatusEnum.paid) {
+            try {
+                Stripe.apiKey = stripeSecretKey;
+                // The frontend confirms the card, then the backend reads Stripe as the source of truth when available.
+                PaymentIntent paymentIntent = PaymentIntent.retrieve(confirmPaymentRequest.getPaymentIntentId());
+                status = mapStripeStatus(paymentIntent.getStatus());
+            } catch (StripeException stripeException) {
+                log.warn(
+                        "Verification Stripe indisponible pour le paiement {}. Fallback sur le statut transmis par le front.",
+                        paymentId,
+                        stripeException
+                );
+                if (status == null) {
+                    throw stripeException;
+                }
+            }
+        }
+
+        if (status == null) {
+            status = PaymentStatusEnum.pending;
+        }
+
         payment.setStatus(status);
         if (status == PaymentStatusEnum.paid && payment.getPaidAt() == null) {
             payment.setPaidAt(LocalDateTime.now());
         }
         Payment savedPayment = paymentRepository.save(payment);
+        if (savedPayment.getStatus() == PaymentStatusEnum.paid) {
+            try {
+                notificationService.createPaymentSuccessNotification(savedPayment.getRequest());
+            } catch (Exception e) {
+                log.error("Impossible de creer la notification de paiement pour le paiement {}.", savedPayment.getId(), e);
+            }
+        }
 
         return new CreatePaymentIntentResponse(
                 null,
@@ -240,7 +271,13 @@ public class PaymentService {
 
         payment.setStatus(PaymentStatusEnum.paid);
         payment.setPaidAt(LocalDateTime.now());
-        return paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+        try {
+            notificationService.createPaymentSuccessNotification(savedPayment.getRequest());
+        } catch (Exception e) {
+            log.error("Impossible de creer la notification de paiement pour la demande {}.", requestId, e);
+        }
+        return savedPayment;
     }
 
     @Transactional

@@ -1,6 +1,7 @@
 package org.matchia.matchiabackend.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.matchia.matchiabackend.dto.MarketplaceBrandingDto;
 import org.matchia.matchiabackend.dto.MarketplaceConfigDto;
 import org.matchia.matchiabackend.dto.MarketplaceDto;
 import org.matchia.matchiabackend.entity.Marketplace;
@@ -36,10 +37,28 @@ public class MarketplaceController {
         return ResponseEntity.ok(marketplaces);
     }
 
+    @GetMapping("/slug/{slug}")
+    public ResponseEntity<MarketplaceDto> getMarketplaceBySlug(@PathVariable String slug) {
+        return service.findBySlug(slug)
+                .map(mapper::toDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
     @GetMapping("/public/slug/{slug}")
     public ResponseEntity<MarketplaceDto> getPublicMarketplaceBySlug(@PathVariable String slug) {
         return service.findBySlug(slug)
-                .map(mapper::toDto)
+                .map(mapper::toPublicDto)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping("/public/slug/{slug}/stores/{storeIdentifier}")
+    public ResponseEntity<MarketplaceDto.MarketplaceStoreDetailDto> getPublicMarketplaceStoreByIdentifier(
+            @PathVariable String slug,
+            @PathVariable String storeIdentifier
+    ) {
+        return service.findPublicStoreByIdentifier(slug, storeIdentifier)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
@@ -68,10 +87,37 @@ public class MarketplaceController {
         }
     }
 
+    @PostMapping(value = "/upload-logo", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Map<String, String>> uploadLogo(@RequestParam("logo") MultipartFile logo) {
+        try {
+            String logoUrl = service.saveLogo(logo);
+            return ResponseEntity.ok(Map.of("logoImageUrl", logoUrl));
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        } catch (IOException e) {
+            return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<MarketplaceDto> updateMarketplace(@PathVariable Long id, @RequestBody MarketplaceConfigDto dto) {
         try {
             Marketplace saved = service.updateMarketplace(id, dto);
+            return ResponseEntity.ok(mapper.toDto(saved));
+        } catch (NoSuchElementException e) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        } catch (IllegalArgumentException e) {
+            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @PutMapping("/{id}/branding")
+    public ResponseEntity<MarketplaceDto> updateMarketplaceBranding(
+            @PathVariable Long id,
+            @RequestBody MarketplaceBrandingDto dto
+    ) {
+        try {
+            Marketplace saved = service.updateMarketplaceBranding(id, dto);
             return ResponseEntity.ok(mapper.toDto(saved));
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

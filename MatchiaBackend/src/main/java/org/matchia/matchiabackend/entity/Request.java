@@ -34,6 +34,8 @@ public class Request {
     private RequestStatusEnum status;
 
     private String priority;
+    @Column(length = 1000)
+    private String rejectionReason;
     private String createdBy;
     private String bankName;
     private String bankEmail;
@@ -51,7 +53,6 @@ public class Request {
     private String bankDescription;
     private Integer establishmentYear;
 
-    @Column(unique = true)
     private String marketplaceSlug;
 
     @Column(length = 500)

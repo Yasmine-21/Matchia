@@ -1,172 +1,302 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router';
+import { toast } from 'sonner';
+import { AlertTriangle, Loader2, Store, Wrench } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { Select } from '../../components/ui/Select';
-import { Modal } from '../../components/ui/Modal';
-import { Plus } from 'lucide-react';
+import { KpiCard } from '../../components/ui/KpiCard';
+import { useBankTenant } from '../../hooks/useBankTenant';
+import { bankTenantService } from '../../services/bankTenantService';
+import type { MarketplacePublicDto, ModuleAssignment } from '../../types/apiTypes';
+
+const getStoreKey = (store: { storeId?: number | null; id: number }) => String(store.storeId ?? store.id);
+const getStoreNumericId = (store: { storeId?: number | null; id: number }) => store.storeId ?? store.id;
 
 export function BankModules() {
-  const [selectedStore, setSelectedStore] = useState('vehicle');
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [requestStore, setRequestStore] = useState('');
-  const [selectedModules, setSelectedModules] = useState<string[]>([]);
-  const [description, setDescription] = useState('');
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { stores, modulesByStore, marketplace, isLoading, error, refresh } = useBankTenant();
+  const [updatingModuleId, setUpdatingModuleId] = useState<number | null>(null);
+  const [publicMarketplace, setPublicMarketplace] = useState<MarketplacePublicDto | null>(null);
 
-  const storeModules = {
-    vehicle: [
-      { id: '1', name: 'Simulator', description: 'Interactive loan calculator for monthly payments' },
-      { id: '2', name: 'Comparator', description: 'Side-by-side product comparison tool' },
-      { id: '3', name: 'Blog', description: 'Educational articles and financing guides' },
-      { id: '5', name: 'Matchia Bot', description: '24/7 AI-powered customer support assistant' },
-    ],
-    mobile: [
-      { id: '1', name: 'Simulator', description: 'Interactive loan calculator for monthly payments' },
-      { id: '2', name: 'Comparator', description: 'Side-by-side product comparison tool' },
-      { id: '5', name: 'Matchia Bot', description: '24/7 AI-powered customer support assistant' },
-    ],
-    medical: [
-      { id: '1', name: 'Simulator', description: 'Interactive loan calculator for monthly payments' },
-      { id: '3', name: 'Blog', description: 'Educational articles and financing guides' },
-      { id: '5', name: 'Matchia Bot', description: '24/7 AI-powered customer support assistant' },
-    ],
-  };
+  const selectedStoreId = useMemo(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('store') || getStoreKey(stores[0] || { id: 0 });
+  }, [location.search, stores]);
 
-  const currentModules = storeModules[selectedStore as keyof typeof storeModules] || [];
+  const selectedStore = stores.find((store) => getStoreKey(store) === selectedStoreId) || stores[0];
+  const selectedStoreNumericId = selectedStore ? getStoreNumericId(selectedStore) : null;
+  const isSelectedStoreInactive =
+    selectedStore ? selectedStore.enabled === false || selectedStore.visible === false : false;
 
-  const availableModules = [
-    { value: 'ads', label: 'Promotional Ads' },
-    { value: 'analytics', label: 'Analytics Dashboard' },
-    { value: 'chat', label: 'Live Chat' },
-  ];
+  const selectedStoreAssignments = useMemo(() => {
+    if (selectedStoreNumericId == null) return [];
 
-  const toggleModule = (moduleValue: string) => {
-    setSelectedModules(prev =>
-      prev.includes(moduleValue)
-        ? prev.filter(m => m !== moduleValue)
-        : [...prev, moduleValue]
+    const assignments = modulesByStore[selectedStoreNumericId] || [];
+    const publicStore = (publicMarketplace?.stores || []).find(
+      (store) => (store.storeId ?? store.id) === selectedStoreNumericId,
     );
-  };
 
-  const handleRequestModule = () => {
-    // Handle request submission
-    setIsModalOpen(false);
-    setRequestStore('');
-    setSelectedModules([]);
-    setDescription('');
+    if (!publicStore) {
+      return assignments;
+    }
+
+    const publicModuleIds = new Set(
+      (publicStore.modules || [])
+        .map((module) => module.moduleId ?? module.id)
+        .filter((moduleId): moduleId is number => typeof moduleId === 'number'),
+    );
+
+    return assignments.filter((assignment) => {
+      const moduleId = assignment.module?.id;
+      return moduleId != null && publicModuleIds.has(moduleId);
+    });
+  }, [modulesByStore, publicMarketplace, selectedStoreNumericId]);
+
+  const selectedStoreModules = useMemo(() => {
+    if (isSelectedStoreInactive) {
+      return selectedStoreAssignments;
+    }
+
+    return selectedStoreAssignments.filter((assignment) => assignment.actif !== false);
+  }, [isSelectedStoreInactive, selectedStoreAssignments]);
+
+  const visibleStoresCount = useMemo(
+    () => stores.filter((store) => store.enabled !== false && store.visible !== false).length,
+    [stores],
+  );
+
+  useEffect(() => {
+    const slug = marketplace?.bankSlug;
+    if (!slug) {
+      setPublicMarketplace(null);
+      return;
+    }
+
+    let mounted = true;
+
+    const loadPublicMarketplace = async () => {
+      try {
+        const response = await bankTenantService.getPublicMarketplaceBySlug(slug);
+        if (mounted) {
+          setPublicMarketplace(response);
+        }
+      } catch (loadError) {
+        console.error('Failed to load public marketplace for modules page:', loadError);
+        if (mounted) {
+          setPublicMarketplace(null);
+        }
+      }
+    };
+
+    void loadPublicMarketplace();
+
+    return () => {
+      mounted = false;
+    };
+  }, [marketplace?.bankSlug]);
+
+  const toggleModuleStatus = async (assignment: ModuleAssignment, currentEnabled?: boolean | null) => {
+    const nextEnabled = !(currentEnabled !== false);
+    setUpdatingModuleId(assignment.id);
+    try {
+      await bankTenantService.updateMarketplaceStoreModuleStatus(assignment.id, nextEnabled);
+      toast.success(
+        `${assignment.module.label || assignment.module.name || 'Le module'} a été ${
+          nextEnabled ? 'activé' : 'désactivé'
+        }.`,
+      );
+      refresh();
+    } catch (updateError) {
+      console.error('Failed to update module status:', updateError);
+      toast.error("Impossible de mettre à jour le statut du module.");
+    } finally {
+      setUpdatingModuleId(null);
+    }
   };
 
   return (
-    <div className="p-6 max-w-7xl mx-auto">
-      <div className="mb-6 flex items-center justify-between">
+    <div className="w-full space-y-6">
+      <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Assigned Modules</h1>
-          <p className="text-muted-foreground">Manage modules for your stores</p>
-        </div>
-        <Button icon={<Plus className="w-5 h-5" />} onClick={() => setIsModalOpen(true)}>
-          Request New Module
-        </Button>
-      </div>
-
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Select a Store</CardTitle>
-          <CardDescription>Choose a store to view its assigned modules</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Select
-            value={selectedStore}
-            onChange={(e) => setSelectedStore(e.target.value)}
-            options={[
-              { value: 'vehicle', label: 'Vehicle Store' },
-              { value: 'mobile', label: 'Mobile Store' },
-              { value: 'medical', label: 'Medical Store' },
-            ]}
-          />
-        </CardContent>
-      </Card>
-
-      <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 mb-6">
-        <p className="text-sm">
-          <strong>Note:</strong> Only modules assigned by the SaaS administrator for this store appear here.
-          You can request additional modules using the "Request New Module" button.
-        </p>
-      </div>
-
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {currentModules.map((module) => (
-          <Card key={module.id}>
-            <CardHeader>
-              <div className="w-14 h-14 bg-accent/10 rounded-xl flex items-center justify-center text-accent mb-4">
-                <span className="text-2xl">🔧</span>
-              </div>
-              <CardTitle>{module.name}</CardTitle>
-              <CardDescription>{module.description}</CardDescription>
-            </CardHeader>
-          </Card>
-        ))}
-      </div>
-
-      <Modal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        title="Request New Module"
-        size="md"
-      >
-        <div className="space-y-4">
+          <h1 className="mb-2 text-3xl font-bold">Modules assignés</h1>
           <p className="text-muted-foreground">
-            Select a store and the modules you want to request. Your request will be reviewed by the SaaS administrator.
+            {marketplace?.bankName ? `Modules de ${marketplace.bankName}` : 'Modules de la marketplace active'}
           </p>
-          <Select
-            label="Select Store"
-            value={requestStore}
-            onChange={(e) => setRequestStore(e.target.value)}
-            options={[
-              { value: '', label: 'Choose a store...' },
-              { value: 'vehicle', label: 'Vehicle Store' },
-              { value: 'mobile', label: 'Mobile Store' },
-              { value: 'medical', label: 'Medical Store' },
-            ]}
-          />
-
-          {requestStore && (
-            <div>
-              <label className="block mb-2 text-sm font-medium">Select Modules (Multiple)</label>
-              <div className="space-y-2">
-                {availableModules.map((module) => (
-                  <label key={module.value} className="flex items-center gap-2 p-3 border border-border rounded-lg hover:bg-muted cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={selectedModules.includes(module.value)}
-                      onChange={() => toggleModule(module.value)}
-                      className="w-4 h-4"
-                    />
-                    <span>{module.label}</span>
-                  </label>
-                ))}
-              </div>
-            </div>
-          )}
-
-          <div>
-            <label className="block mb-2 text-sm font-medium">Description / Justification</label>
-            <textarea
-              className="w-full px-4 py-2.5 bg-input-background border border-input rounded-lg focus:outline-none focus:ring-2 focus:ring-ring resize-none"
-              rows={4}
-              placeholder="Explain why you need these modules..."
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-            />
-          </div>
-          <div className="flex gap-3 pt-4">
-            <Button className="flex-1" onClick={handleRequestModule} disabled={!requestStore || selectedModules.length === 0}>
-              Submit Request
-            </Button>
-            <Button variant="outline" className="flex-1" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-          </div>
         </div>
-      </Modal>
+      </div>
+
+      {error && <p className="text-sm text-destructive">{error}</p>}
+
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+        <KpiCard
+          label="Stores visibles"
+          value={visibleStoresCount}
+          icon={<Store className="h-5 w-5" />}
+          tone="primary"
+          badge={`${visibleStoresCount} stores`}
+        />
+        <KpiCard
+          label="Modules assignés"
+          value={selectedStoreModules.length}
+          icon={<Wrench className="h-5 w-5" />}
+          tone="success"
+          badge={`${selectedStoreModules.length} modules`}
+        />
+        <KpiCard
+          label="Store sélectionné"
+          value={selectedStore?.name || '-'}
+          icon={<Store className="h-5 w-5" />}
+          tone="danger"
+          badge={selectedStore ? (selectedStore.enabled === false || selectedStore.visible === false ? 'Inactif' : 'Actif') : 'Aucun'}
+        />
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)] xl:grid-cols-[360px_minmax(0,1fr)]">
+        <Card className="h-fit">
+          <CardHeader>
+            <CardTitle>Sélection du store</CardTitle>
+            <CardDescription>Chaque store affiche uniquement ses modules assignés pour cette marketplace</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {stores.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-6 text-center text-muted-foreground">
+                Aucun store assigné à cette marketplace.
+              </div>
+            ) : (
+              stores.map((store) => {
+                const key = getStoreKey(store);
+                const isActive = key === selectedStoreId;
+                return (
+                  <button
+                    key={store.id}
+                    type="button"
+                    onClick={() => navigate(`/bank/modules?store=${key}`)}
+                    className={`flex w-full items-center justify-between rounded-2xl border px-4 py-3 text-left text-sm transition-all ${
+                      isActive
+                        ? 'border-primary bg-primary/10 text-primary'
+                        : 'border-border bg-background hover:border-primary/50'
+                    }`}
+                  >
+                    <span className="truncate font-medium">{store.name || `Store ${store.id}`}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {store.enabled === false || store.visible === false ? 'Inactif' : 'Actif'}
+                    </span>
+                  </button>
+                );
+              })
+            )}
+          </CardContent>
+        </Card>
+
+        <div className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Modules du store {selectedStore?.name || selectedStore?.id || '-'}</CardTitle>
+              <CardDescription>{selectedStoreModules.length} module(s) actif(s)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isSelectedStoreInactive && (
+                <div className="mb-4 flex items-start gap-3 rounded-2xl border border-warning/30 bg-warning/5 px-4 py-3 text-warning">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <div className="text-sm">
+                    Le store sélectionné est inactif. Ses modules sont affichés en lecture seule jusqu’à réactivation.
+                  </div>
+                </div>
+              )}
+              {isLoading ? (
+                <div className="flex items-center justify-center py-10 text-muted-foreground">
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+                  Chargement...
+                </div>
+              ) : selectedStoreModules.length === 0 ? (
+                <div className="rounded-lg border border-dashed border-border p-6 text-center text-muted-foreground">
+                  Aucun module assigné à ce store.
+                </div>
+              ) : (
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                  {selectedStoreModules.map((assignment) => (
+                    <div
+                      key={assignment.id}
+                      className={`rounded-2xl border p-4 transition-all ${
+                        isSelectedStoreInactive || assignment.actif === false
+                          ? 'border-warning/30 bg-warning/5 opacity-80'
+                          : 'border-border'
+                      }`}
+                    >
+                      <div className="mb-3 flex items-center gap-3">
+                        <div
+                          className={`flex h-12 w-12 items-center justify-center rounded-xl ${
+                            isSelectedStoreInactive || assignment.actif === false
+                              ? 'bg-warning/10 text-warning'
+                              : 'bg-accent/10 text-accent'
+                          }`}
+                        >
+                          <Wrench className="h-5 w-5" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate font-semibold">
+                            {assignment.module.label || assignment.module.name || `Module ${assignment.module.id}`}
+                          </div>
+                          <div className="text-xs text-muted-foreground">
+                            {assignment.module.category || 'Catégorie non précisée'}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-between gap-3">
+                        <Badge variant={assignment.actif === false ? 'warning' : 'success'}>
+                          {assignment.actif === false ? 'Désactivé' : 'Actif'}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {isSelectedStoreInactive ? 'Store inactif' : `Store: ${selectedStore?.name || selectedStore?.id}`}
+                        </span>
+                      </div>
+
+                      <div className="mt-4 rounded-xl border border-border bg-background p-4">
+                        <div className="mb-3 text-sm font-medium text-foreground">Paramètres du module</div>
+                        {assignment.parameters?.length ? (
+                          <div className="flex flex-wrap gap-2">
+                            {assignment.parameters.map((parameter) => (
+                              <span
+                                key={parameter.id}
+                                className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-foreground"
+                              >
+                                {parameter.name}
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="text-sm text-muted-foreground">
+                            Aucun paramètre configuré pour ce module.
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-4 flex justify-end">
+                        <Button
+                          size="sm"
+                          variant={assignment.actif === false ? 'success' : 'danger'}
+                          loading={updatingModuleId === assignment.id}
+                          disabled={isSelectedStoreInactive}
+                          onClick={() => toggleModuleStatus(assignment, assignment.actif)}
+                        >
+                          {isSelectedStoreInactive
+                            ? 'Store inactif'
+                            : assignment.actif === false
+                              ? 'Activer'
+                              : 'Désactiver'}
+                        </Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      </div>
     </div>
   );
 }

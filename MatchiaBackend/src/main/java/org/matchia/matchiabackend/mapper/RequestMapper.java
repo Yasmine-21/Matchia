@@ -9,6 +9,9 @@ import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.RequestModuleSelection;
 import org.matchia.matchiabackend.entity.RequestStoreSelection;
 import org.matchia.matchiabackend.entity.Store;
+import org.matchia.matchiabackend.entity.User;
+import org.matchia.matchiabackend.entity.enums.RoleEnum;
+import org.matchia.matchiabackend.repository.UserRepository;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
@@ -16,7 +19,10 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Component
+@lombok.RequiredArgsConstructor
 public class RequestMapper {
+
+    private final UserRepository userRepository;
 
     public RequestDto toDto(Request entity) {
         if (entity == null) return null;
@@ -27,6 +33,7 @@ public class RequestMapper {
         dto.setRequestType(entity.getRequestType());
         dto.setStatus(entity.getStatus());
         dto.setPriority(entity.getPriority());
+        dto.setRejectionReason(entity.getRejectionReason());
         dto.setCreatedBy(entity.getCreatedBy());
         dto.setBankName(entity.getBankName());
         dto.setBankEmail(entity.getBankEmail());
@@ -37,6 +44,7 @@ public class RequestMapper {
         dto.setContactEmail(entity.getContactEmail());
         dto.setContactPhone(entity.getContactPhone());
         dto.setContactImageUrl(entity.getContactImageUrl());
+        populateAdminContact(entity, dto);
         dto.setDescription(entity.getDescription());
         dto.setBankDescription(entity.getBankDescription());
         dto.setEstablishmentYear(entity.getEstablishmentYear());
@@ -77,6 +85,7 @@ public class RequestMapper {
         entity.setRequestType(dto.getRequestType());
         entity.setStatus(dto.getStatus());
         entity.setPriority(dto.getPriority());
+        entity.setRejectionReason(dto.getRejectionReason());
         entity.setCreatedBy(dto.getCreatedBy());
         entity.setBankName(dto.getBankName());
         entity.setBankEmail(dto.getBankEmail());
@@ -145,5 +154,32 @@ public class RequestMapper {
             }
         }
         return ids;
+    }
+
+    private void populateAdminContact(Request entity, RequestDto dto) {
+        Long bankId = entity.getBank() != null ? entity.getBank().getId() : null;
+        if (bankId == null) {
+            dto.setAdminContactName(entity.getContactName());
+            dto.setAdminContactEmail(entity.getContactEmail());
+            dto.setAdminContactPhone(entity.getContactPhone());
+            return;
+        }
+
+        List<User> bankUsers = userRepository.findByBank_IdOrderByCreatedAtAsc(bankId);
+        User adminUser = bankUsers.stream()
+                .filter(user -> user.getRole() == RoleEnum.ADMIN_BANK)
+                .findFirst()
+                .orElse(bankUsers.stream().findFirst().orElse(null));
+
+        if (adminUser == null) {
+            dto.setAdminContactName(entity.getContactName());
+            dto.setAdminContactEmail(entity.getContactEmail());
+            dto.setAdminContactPhone(entity.getContactPhone());
+            return;
+        }
+
+        dto.setAdminContactName(adminUser.getFullName());
+        dto.setAdminContactEmail(adminUser.getEmail());
+        dto.setAdminContactPhone(adminUser.getPhone());
     }
 }

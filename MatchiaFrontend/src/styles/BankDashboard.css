@@ -1,5 +1,5 @@
 @reference "./index.css";
-.bank-dashboard-container { @apply p-6 max-w-7xl mx-auto; }
+.bank-dashboard-container { @apply w-full space-y-6; }
 .bank-dashboard-header { @apply mb-6; }
 .bank-dashboard-title { @apply text-3xl font-bold mb-2; }
 .bank-dashboard-subtitle { @apply text-muted-foreground; }

@@ -164,6 +164,7 @@ function EmbeddedPaymentForm({
       // Stripe is confirmed in the browser, then the backend verifies the PaymentIntent server-side.
       const confirmation = await apiClient.post<PaymentIntentResponse>(`/api/payments/${paymentId}/confirm`, {
         paymentIntentId: result.paymentIntent.id,
+        paymentIntentStatus: result.paymentIntent.status,
       });
 
       if (confirmation.data.status !== 'paid') {

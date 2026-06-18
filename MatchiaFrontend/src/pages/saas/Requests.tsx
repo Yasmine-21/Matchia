@@ -1,16 +1,33 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
+import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { KpiCard } from '../../components/ui/KpiCard';
 import { Modal } from '../../components/ui/Modal';
 import { Tabs } from '../../components/ui/Tabs';
-import { CheckCircle, X, Clock, Loader2, Eye, Building2, Mail, Globe, Palette, Store, Package } from 'lucide-react';
+import {
+  CheckCircle2,
+  CheckCircle,
+  Clock3,
+  Eye,
+  Building2,
+  Mail,
+  Globe,
+  Palette,
+  Store,
+  Package,
+  XCircle,
+  X,
+  Loader2,
+} from 'lucide-react';
 import { requestService } from '../../services/requestService';
 import { notifyNotificationsUpdated } from '../../services/notificationService';
 import { RequestDto, RequestStatus, RequestType } from '../../types/apiTypes';
 
 const requestTypeLabel: Record<RequestType, string> = {
-  join: "Demande d'adhesion",
+  join: "Demande d'inscription",
   store: 'Demande de store',
   module: 'Demande de module',
 };
@@ -39,6 +56,18 @@ const formatTnd = (amount?: number) =>
 const getRequestTotal = (request: RequestDto) => request.totalMonthlyPrice ?? request.totalAmount;
 
 const getBankDescription = (request: RequestDto) => request.bankDescription || request.description || null;
+
+const getRejectModalTitle = (request?: RequestDto | null) => {
+  switch (request?.requestType) {
+    case 'store':
+      return 'Rejeter la demande de store';
+    case 'module':
+      return 'Rejeter la demande de module';
+    case 'join':
+    default:
+      return "Rejeter la demande d'inscription";
+  }
+};
 
 const parseIds = (value?: string | null) => {
   if (!value) return [];
@@ -116,6 +145,10 @@ export function Requests() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  const [isRejectModalOpen, setIsRejectModalOpen] = useState(false);
+  const [rejectionReason, setRejectionReason] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+  const openedRequestFromQueryRef = useRef<number | null>(null);
 
   const loadRequests = async () => {
     setIsLoading(true);
@@ -135,6 +168,36 @@ export function Requests() {
     loadRequests();
   }, []);
 
+  useEffect(() => {
+    const requestIdParam = searchParams.get('requestId');
+    if (!requestIdParam) {
+      openedRequestFromQueryRef.current = null;
+      return;
+    }
+
+    const requestId = Number(requestIdParam);
+    if (!Number.isFinite(requestId) || openedRequestFromQueryRef.current === requestId || requests.length === 0) {
+      return;
+    }
+
+    openedRequestFromQueryRef.current = requestId;
+    const matchingRequest = requests.find((request) => request.id === requestId);
+
+    if (matchingRequest) {
+      void openDetails(matchingRequest);
+      return;
+    }
+
+    void requestService.getRequestById(requestId)
+      .then((response) => {
+        setSelectedRequest(response.data);
+        setIsModalOpen(true);
+      })
+      .catch((detailError) => {
+        console.error('Failed to load request from notification:', detailError);
+      });
+  }, [requests, searchParams]);
+
   const openDetails = async (request: RequestDto) => {
     setSelectedRequest(request);
     setIsModalOpen(true);
@@ -148,36 +211,78 @@ export function Requests() {
     }
   };
 
+  const closeDetails = () => {
+    setIsModalOpen(false);
+    setIsRejectModalOpen(false);
+    setRejectionReason('');
+
+    if (searchParams.has('requestId')) {
+      const nextParams = new URLSearchParams(searchParams);
+      nextParams.delete('requestId');
+      setSearchParams(nextParams, { replace: true });
+    }
+  };
+
   const groupedRequests = useMemo(() => ({
     pending: requests.filter((request) => request.status === 'pending'),
     approved: requests.filter((request) => request.status === 'approved'),
     rejected: requests.filter((request) => request.status === 'rejected'),
   }), [requests]);
 
-  const runAction = async (request: RequestDto, action: 'approve' | 'reject') => {
+  const openRejectModal = (request: RequestDto) => {
+    setSelectedRequest(request);
+    setRejectionReason(request.rejectionReason || '');
+    setIsRejectModalOpen(true);
+  };
+
+  const closeRejectModal = () => {
+    setIsRejectModalOpen(false);
+    setRejectionReason('');
+  };
+
+  const submitRejection = async () => {
+    if (!selectedRequest?.id) return;
+    setActionLoadingId(selectedRequest.id);
+    setError('');
+
+    try {
+      const response = await requestService.rejectRequest(selectedRequest.id, {
+        rejectionReason: rejectionReason.trim() || undefined,
+      });
+
+      setRequests((prev) => prev.map((item) => item.id === selectedRequest.id ? response.data : item));
+      setSelectedRequest(response.data);
+      closeRejectModal();
+      setIsModalOpen(false);
+      notifyNotificationsUpdated();
+      await loadRequests();
+      toast.success('Demande rejetee. Un email de rejet a ete envoye au demandeur.');
+    } catch (actionError) {
+      console.error('Failed to reject request:', actionError);
+      setError("Le rejet de la demande a echoue.");
+      toast.error("Le rejet de la demande a echoue.");
+    } finally {
+      setActionLoadingId(null);
+    }
+  };
+
+  const runAction = async (request: RequestDto) => {
     if (!request.id) return;
     setActionLoadingId(request.id);
     setError('');
     try {
-      const response = action === 'approve'
-        ? await requestService.approveRequest(request.id)
-        : await requestService.rejectRequest(request.id);
+      const response = await requestService.approveRequest(request.id);
 
       setRequests((prev) => prev.map((item) => item.id === request.id ? response.data : item));
       setSelectedRequest(response.data);
       setIsModalOpen(false);
       notifyNotificationsUpdated();
       await loadRequests();
-      alert(action === 'approve'
-        ? 'Demande approuvee. La banque, la marketplace et le compte utilisateur ont ete crees, puis le lien de paiement a ete envoye.'
-        : 'Demande rejetee. Un email de rejet a ete envoye au demandeur.'
-      );
+      toast.success('Demande approuvee. La banque, la marketplace et le compte utilisateur ont ete crees, puis le lien de paiement a ete envoye.');
     } catch (actionError) {
-      console.error(`Failed to ${action} request:`, actionError);
-      setError(action === 'approve'
-        ? "L'approbation a echoue. Verifiez les informations de la demande puis reessayez."
-        : "Le rejet de la demande a echoue."
-      );
+      console.error('Failed to approve request:', actionError);
+      setError("L'approbation a echoue. Verifiez les informations de la demande puis reessayez.");
+      toast.error("L'approbation a echoue. Verifiez les informations de la demande puis reessayez.");
     } finally {
       setActionLoadingId(null);
     }
@@ -262,46 +367,28 @@ export function Requests() {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-warning/10 rounded-lg flex items-center justify-center text-warning">
-                <Clock className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{groupedRequests.pending.length}</div>
-                <div className="text-sm text-muted-foreground">En attente</div>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-success/10 rounded-lg flex items-center justify-center text-success">
-                <CheckCircle className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{groupedRequests.approved.length}</div>
-                <div className="text-sm text-muted-foreground">Approuvees</div>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-        <Card>
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="w-12 h-12 bg-destructive/10 rounded-lg flex items-center justify-center text-destructive">
-                <X className="w-6 h-6" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">{groupedRequests.rejected.length}</div>
-                <div className="text-sm text-muted-foreground">Rejetees</div>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
+      <div className="grid gap-4 md:grid-cols-3">
+        <KpiCard
+          label="En attente"
+          value={groupedRequests.pending.length}
+          icon={<Clock3 className="h-5 w-5" />}
+          tone="warning"
+          badge={`${groupedRequests.pending.length} demandes`}
+        />
+        <KpiCard
+          label="Approuvées"
+          value={groupedRequests.approved.length}
+          icon={<CheckCircle2 className="h-5 w-5" />}
+          tone="success"
+          badge={`${groupedRequests.approved.length} demandes`}
+        />
+        <KpiCard
+          label="Rejetées"
+          value={groupedRequests.rejected.length}
+          icon={<XCircle className="h-5 w-5" />}
+          tone="danger"
+          badge={`${groupedRequests.rejected.length} demandes`}
+        />
       </div>
 
       <Tabs
@@ -317,6 +404,11 @@ export function Requests() {
             content: renderGrid(groupedRequests.approved),
           },
           {
+            id: 'rejected',
+            label: `Rejetees (${groupedRequests.rejected.length})`,
+            content: renderGrid(groupedRequests.rejected),
+          },
+          {
             id: 'all',
             label: 'Toutes',
             content: renderGrid(requests),
@@ -326,7 +418,7 @@ export function Requests() {
 
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={closeDetails}
         title="Details de la demande"
         size="lg"
       >
@@ -337,10 +429,13 @@ export function Requests() {
                 <Badge variant={statusVariant(selectedRequest.status)}>
                   {statusLabel[selectedRequest.status]}
                 </Badge>
-                {selectedRequest.priority && (
-                  <Badge variant="secondary">Priorite: {selectedRequest.priority}</Badge>
-                )}
               </div>
+              {selectedRequest.rejectionReason && (
+                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
+                  <div className="font-medium">Motif de rejet</div>
+                  <div className="mt-1">{selectedRequest.rejectionReason}</div>
+                </div>
+              )}
 
               <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
                 <div className="mb-4 flex items-center gap-3">
@@ -367,9 +462,24 @@ export function Requests() {
                   <Mail className="h-4 w-4 text-orange-500" /> Coordonnees
                 </h3>
                 <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
-                  <div><span className="text-muted-foreground">Contact</span><div className="font-medium">{selectedRequest.contactName || '-'}</div></div>
-                  <div><span className="text-muted-foreground">Email</span><div className="font-medium">{selectedRequest.contactEmail || '-'}</div></div>
-                  <div><span className="text-muted-foreground">Telephone</span><div className="font-medium">{selectedRequest.contactPhone || '-'}</div></div>
+                  <div>
+                    <span className="text-muted-foreground">Contact</span>
+                    <div className="font-medium">
+                      {selectedRequest.adminContactName || selectedRequest.contactName || '-'}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Email</span>
+                    <div className="font-medium">
+                      {selectedRequest.adminContactEmail || selectedRequest.contactEmail || '-'}
+                    </div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Telephone</span>
+                    <div className="font-medium">
+                      {selectedRequest.adminContactPhone || selectedRequest.contactPhone || '-'}
+                    </div>
+                  </div>
                 </div>
               </section>
 
@@ -440,7 +550,7 @@ export function Requests() {
                   variant="success"
                   className="flex-1"
                   icon={actionLoadingId === selectedRequest.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
-                  onClick={() => runAction(selectedRequest, 'approve')}
+                  onClick={() => runAction(selectedRequest)}
                   disabled={actionLoadingId === selectedRequest.id}
                 >
                   Approuver
@@ -449,7 +559,7 @@ export function Requests() {
                   variant="danger"
                   className="flex-1"
                   icon={actionLoadingId === selectedRequest.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
-                  onClick={() => runAction(selectedRequest, 'reject')}
+                  onClick={() => openRejectModal(selectedRequest)}
                   disabled={actionLoadingId === selectedRequest.id}
                 >
                   Rejeter
@@ -458,6 +568,46 @@ export function Requests() {
             )}
           </div>
         )}
+      </Modal>
+
+      <Modal
+        isOpen={isRejectModalOpen}
+        onClose={closeRejectModal}
+        title={getRejectModalTitle(selectedRequest)}
+        size="md"
+      >
+        <div className="space-y-4">
+          <div>
+            <label className="mb-2 block text-sm font-medium">Motif de rejet (optionnel)</label>
+            <textarea
+              className="w-full rounded-lg border border-input bg-input-background px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-ring resize-none"
+              rows={4}
+              value={rejectionReason}
+              onChange={(event) => setRejectionReason(event.target.value)}
+              placeholder="Expliquez brièvement la raison du rejet..."
+            />
+          </div>
+
+          <div className="flex gap-3 pt-2">
+            <Button
+              variant="danger"
+              className="flex-1"
+              onClick={submitRejection}
+              disabled={actionLoadingId === selectedRequest?.id}
+              icon={actionLoadingId === selectedRequest?.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
+            >
+              Confirmer le rejet
+            </Button>
+            <Button
+              variant="outline"
+              className="flex-1"
+              onClick={closeRejectModal}
+              disabled={actionLoadingId === selectedRequest?.id}
+            >
+              Annuler
+            </Button>
+          </div>
+        </div>
       </Modal>
     </div>
   );

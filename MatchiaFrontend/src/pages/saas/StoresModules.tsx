@@ -646,6 +646,7 @@ export function SaaSStoresModules() {
   const [showDrawer, setShowDrawer] = useState(false);
   const [expandedModuleId, setExpandedModuleId] = useState<number | null>(null);
   const [togglingModuleId, setTogglingModuleId] = useState<number | null>(null);
+  void togglingModuleId;
 
   // Data
   const [stores, setStores] = useState<StoreUIDto[]>([]);
@@ -831,7 +832,7 @@ export function SaaSStoresModules() {
       icon: newStoreIcon,
       description: newStoreDescription,
       price: parsedPrice,
-      status: newStoreIsActive ? 'active' : 'inactive',
+      status: newStoreIsActive ? 'active' as const : 'inactive' as const,
     };
     try {
       const response = await storeService.createStore(payload);
@@ -883,12 +884,13 @@ export function SaaSStoresModules() {
     }
     setEditStoreLoading(true);
     try {
+      const status = editStoreIsActive ? 'active' as const : 'inactive' as const;
       const payload = {
         name: editStoreName.toLowerCase(),
         icon: editStoreIcon,
         description: editStoreDescription,
         price: parsedPrice,
-        status: editStoreIsActive ? 'active' : 'inactive',
+        status,
       };
 
       await storeService.updateStore(storeToEdit.id, payload);
@@ -1055,7 +1057,7 @@ export function SaaSStoresModules() {
               category: editModuleCategory || '',
               description: editModuleDescription,
               icon: editModuleIcon,
-              status: editModuleIsActive ? 'active' : 'inactive',
+              status: editModuleIsActive ? 'active' as const : 'inactive' as const,
               iconName: editModuleIcon,
               IconComponent: editModuleIcon && moduleIconMap[editModuleIcon]
                 ? moduleIconMap[editModuleIcon]
@@ -1064,7 +1066,7 @@ export function SaaSStoresModules() {
           : m
       );
 
-      setModulesList(updatedModulesList);
+      setModulesList(updatedModulesList as ModuleUIDto[]);
 
       if (selectedStore && assignedModules.length > 0) {
         const activeCount = assignedModules.filter(a => {

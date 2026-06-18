@@ -66,6 +66,11 @@
     box-shadow: 0 34px 80px rgba(50, 72, 143, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
+.login-theme-strip {
+    height: 6px;
+    background: linear-gradient(90deg, var(--login-primary, #2563eb), var(--login-secondary, #f97316));
+}
+
 .login-split-wrapper::before {
     content: '';
     position: absolute;
@@ -96,9 +101,15 @@
     height: 56px;
 }
 
+.login-logo-image {
+    width: 52px;
+    height: 52px;
+    object-fit: contain;
+}
+
 .login-form-title {
     @apply mb-2 text-center text-3xl font-extrabold;
-    color: #0f1f52;
+    color: var(--login-primary, #0f1f52);
 }
 
 .login-form-subtitle {
@@ -120,7 +131,7 @@
 
 .login-input-icon {
     @apply absolute left-6 top-1/2 h-5 w-5 -translate-y-1/2;
-    color: #5b5fff;
+    color: var(--login-primary, #5b5fff);
 }
 
 .login-password-icon {
@@ -171,14 +182,14 @@
 
 .login-forgot-link {
     @apply shrink-0 font-bold transition hover:underline;
-    color: #6837ff;
+    color: var(--login-secondary, #6837ff);
 }
 
 .login-submit-btn {
     @apply flex w-full items-center justify-center text-sm font-extrabold text-white transition-all;
     height: 56px;
     border-radius: 18px;
-    background: linear-gradient(90deg, #0058ff 0%, #3d50ff 47%, #a116ff 100%);
+    background: linear-gradient(90deg, var(--login-primary, #0058ff) 0%, var(--login-secondary, #3d50ff) 47%, color-mix(in srgb, var(--login-secondary, #3d50ff) 70%, black) 100%);
     box-shadow: 0 18px 34px rgba(78, 63, 255, 0.28);
 }
 
@@ -210,7 +221,7 @@
 
 .login-create-account {
     @apply flex h-12 w-full items-center justify-center gap-2 rounded-2xl bg-white text-sm font-extrabold transition hover:bg-blue-50;
-    color: #3152ff;
+    color: var(--login-primary, #3152ff);
     border: 1px solid #dce5f5;
 }
 
@@ -244,7 +255,7 @@
 
 .login-demo-icon {
     @apply h-4 w-4 shrink-0;
-    color: #3152ff;
+    color: var(--login-primary, #3152ff);
 }
 
 .login-demo-email {
@@ -254,8 +265,8 @@
 
 .login-demo-badge {
     @apply shrink-0 rounded-full px-3 py-1 text-xs font-extrabold;
-    color: #3152ff;
-    background: #e9edff;
+    color: var(--login-primary, #3152ff);
+    background: var(--login-primary-soft, #e9edff);
 }
 
 .login-demo-item:last-child .login-demo-badge {

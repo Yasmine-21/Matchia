@@ -3,8 +3,24 @@ import { ChangeEvent, CSSProperties, FormEvent, useEffect, useMemo, useState } f
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
+import { KpiCard } from '../../components/ui/KpiCard';
 import { Modal } from '../../components/ui/Modal';
-import { Building2, Check, CheckCircle, DollarSign, Eye, Loader2, Pencil, Plus, Save, Store as StoreIcon, Trash2, Upload, Wrench } from 'lucide-react';
+import {
+  AlertCircle,
+  Building2,
+  Check,
+  CheckCircle,
+  DollarSign,
+  Eye,
+  Loader2,
+  Pencil,
+  Plus,
+  Save,
+  Store as StoreIcon,
+  Trash2,
+  Upload,
+  Wrench,
+} from 'lucide-react';
 import { bankService } from '../../services/bankService';
 import { requestService } from '../../services/requestService';
 import { storeService } from '../../services/storeService';
@@ -298,7 +314,7 @@ export function Marketplaces() {
   };
   const marketplaceList = Object.values(marketplacesByBank);
   const activeMarketplaces = marketplaceList.filter((marketplace) => marketplace.status === 'active').length;
-  const uniqueBanks = new Set(banks.map((bank) => bank.id)).size;
+  const inactiveMarketplaces = marketplaceList.filter((marketplace) => marketplace.status !== 'active').length;
   const monthlyRevenue = banks
     .filter((bank) => marketplacesByBank[bank.id]?.status === 'active')
     .reduce((sum, bank) => {
@@ -530,6 +546,8 @@ export function Marketplaces() {
       const nextModulesByStore = { ...prev.selectedModulesByStore };
       if (isSelected) {
         delete nextModulesByStore[storeId];
+      } else if (!Object.prototype.hasOwnProperty.call(nextModulesByStore, storeId)) {
+        nextModulesByStore[storeId] = [];
       }
 
       return {
@@ -641,40 +659,28 @@ export function Marketplaces() {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        <Card className="rounded-xl border border-slate-200 bg-white shadow-none">
-          <CardContent className="p-7">
-            <div className="flex items-start justify-between">
-              <div className="font-semibold text-slate-600">Marketplaces Actives</div>
-              <StoreIcon className="h-6 w-6 text-slate-400" />
-            </div>
-            <div className="mt-10 text-3xl font-bold text-gray-950">{activeMarketplaces}</div>
-            <div className="mt-2 text-sm text-slate-600">Sur {marketplaceList.length} total</div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-xl border border-slate-200 bg-white shadow-none">
-          <CardContent className="p-7">
-            <div className="flex items-start justify-between">
-              <div className="font-semibold text-slate-600">Revenus Mensuels</div>
-              <DollarSign className="h-6 w-6 text-slate-400" />
-            </div>
-            <div className="mt-10 text-3xl font-bold text-gray-950">{monthlyRevenue} DT</div>
-            <div className="mt-2 text-sm text-green-600">Marketplaces actives</div>
-          </CardContent>
-        </Card>
-
-        <Card className="rounded-xl border border-slate-200 bg-white shadow-none">
-          <CardContent className="p-7">
-            <div className="flex items-start justify-between">
-              <div className="font-semibold text-slate-600">Banques Partenaires</div>
-              <Building2 className="h-6 w-6 text-slate-400" />
-            </div>
-            <div className="mt-10 text-3xl font-bold text-gray-950">{uniqueBanks}</div>
-            <div className="mt-2 text-sm text-slate-600">Banques uniques</div>
-          </CardContent>
-        </Card>
-
+      <div className="grid gap-4 md:grid-cols-3">
+        <KpiCard
+          label="Marketplaces actives"
+          value={activeMarketplaces}
+          icon={<StoreIcon className="h-5 w-5" />}
+          tone="warning"
+          badge={`${activeMarketplaces} marketplaces`}
+        />
+        <KpiCard
+          label="Revenus mensuels"
+          value={`${monthlyRevenue} DT`}
+          icon={<DollarSign className="h-5 w-5" />}
+          tone="success"
+          badge="CA estimé"
+        />
+        <KpiCard
+          label="Marketplace inactive"
+          value={inactiveMarketplaces}
+          icon={<AlertCircle className="h-5 w-5" />}
+          tone="danger"
+          badge={`${inactiveMarketplaces} marketplaces`}
+        />
       </div>
 
       <Card className="rounded-2xl border border-slate-200 bg-white shadow-none">
@@ -911,7 +917,7 @@ export function Marketplaces() {
                                     ? module.moduleDescription && (
                                       <div className="mt-0.5 text-xs text-slate-500">{module.moduleDescription}</div>
                                     )
-                                    : module.category && (
+                                    : 'category' in module && module.category && (
                                       <div className="mt-0.5 text-xs text-slate-500">{module.category}</div>
                                     )}
                                 </div>

@@ -1,5 +1,35 @@
 import apiClient from '../api/apiClient';
-import { RequestDto, RequestPayload } from '../types/apiTypes';
+import { RequestDto, RequestPayload, RequestStoreSelectionDto } from '../types/apiTypes';
+
+export interface RequestRejectionPayload {
+  rejectionReason?: string;
+}
+
+export interface BankStoreRequestPayload {
+  bankId: number;
+  requestType: RequestDto['requestType'];
+  bankName: string;
+  bankEmail: string;
+  country: string;
+  website?: string;
+  contactName: string;
+  contactEmail: string;
+  contactPhone?: string;
+  description?: string;
+  bankDescription?: string;
+  establishmentYear?: number;
+  marketplaceSlug: string;
+  marketplaceDescription?: string;
+  primaryColor: string;
+  secondaryColor: string;
+  storeIds: number[];
+  moduleIds?: number[];
+  selectedStoreDetails?: RequestStoreSelectionDto[];
+  totalAmount: number;
+  totalMonthlyPrice?: number;
+  priority?: string;
+  createdBy?: string;
+}
 
 const toFormData = (payload: RequestPayload) => {
   const formData = new FormData();
@@ -48,7 +78,16 @@ export const requestService = {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
 
+  createBankStoreRequest: (payload: BankStoreRequestPayload) =>
+    apiClient.post<RequestDto>('/api/requests', payload),
+
   getRequests: () => apiClient.get<RequestDto[]>('/api/admin/join-requests'),
+
+  getBankRequests: (bankId: number) =>
+    apiClient.get<RequestDto[]>(`/api/requests/bank/${bankId}`),
+
+  getBankRequestById: (id: number) =>
+    apiClient.get<RequestDto>(`/api/requests/${id}`),
 
   getRequestById: (id: number) => apiClient.get<RequestDto>(`/api/admin/join-requests/${id}`),
 
@@ -59,5 +98,6 @@ export const requestService = {
 
   approveRequest: (id: number) => apiClient.put<RequestDto>(`/api/admin/join-requests/${id}/approve`),
 
-  rejectRequest: (id: number) => apiClient.put<RequestDto>(`/api/admin/join-requests/${id}/reject`),
+  rejectRequest: (id: number, payload: RequestRejectionPayload = {}) =>
+    apiClient.put<RequestDto>(`/api/admin/join-requests/${id}/reject`, payload),
 };

@@ -3,6 +3,7 @@ package org.matchia.matchiabackend.entity;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.matchia.matchiabackend.entity.converter.RoleEnumConverter;
 import org.matchia.matchiabackend.entity.enums.RoleEnum;
 import org.matchia.matchiabackend.entity.enums.UserStatusEnum;
 import java.time.LocalDateTime;

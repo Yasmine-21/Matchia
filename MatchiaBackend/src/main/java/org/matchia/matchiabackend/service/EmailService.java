@@ -2,6 +2,9 @@ package org.matchia.matchiabackend.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.entity.Request;
+import org.matchia.matchiabackend.entity.User;
+import org.matchia.matchiabackend.entity.enums.RoleEnum;
+import org.matchia.matchiabackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
@@ -15,6 +18,9 @@ public class EmailService {
     @Autowired(required = false)
     private JavaMailSender mailSender;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Value("${spring.mail.host:}")
     private String mailHost;
 
@@ -22,7 +28,11 @@ public class EmailService {
     private String mailUsername;
 
     public boolean sendMarketplaceRequestConfirmationEmail(Request request) {
-        String recipient = hasText(request.getContactEmail()) ? request.getContactEmail() : request.getBankEmail();
+        String recipient = resolveContactRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer la confirmation de demande: email de contact manquant.");
+            return false;
+        }
         String subject = "Demande d'activation marketplace recue";
         String body = """
                 Bonjour,
@@ -60,7 +70,11 @@ public class EmailService {
     }
 
     public boolean sendPaymentInstructions(Request request, String paymentLink) {
-        String recipient = hasText(request.getContactEmail()) ? request.getContactEmail() : request.getBankEmail();
+        String recipient = resolveContactRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer les instructions de paiement: email de contact manquant.");
+            return false;
+        }
         String subject = "Felicitations ! Votre demande d'adhesion a Matchia a ete approuvee";
         String body = """
                 Bonjour %s,
@@ -101,8 +115,7 @@ public class EmailService {
         log.info("=========================================================================");
         log.info("ENVOI D'EMAIL SIMULE - ADHESION MATCHIA");
         log.info("=========================================================================");
-        log.info("Destinataire (Admin Banque) : {}", recipient);
-        log.info("Destinataire Institution (Banque) : {}", request.getBankEmail());
+        log.info("Destinataire (Coordonnees) : {}", recipient);
         log.info("Sujet : {}", subject);
         log.info("-------------------------------------------------------------------------");
         log.info("{}", body);
@@ -112,22 +125,46 @@ public class EmailService {
     }
 
     public boolean sendRequestRejectedEmail(Request request) {
-        String recipient = hasText(request.getContactEmail()) ? request.getContactEmail() : request.getBankEmail();
-        String subject = "Votre demande d'adhesion a Matchia a ete rejetee";
-        String body = """
-                Bonjour %s,
+        return sendJoinRequestRejectedEmail(request, null);
+    }
 
-                Nous vous informons que votre demande d'adhesion pour la banque "%s" a ete rejetee par l'equipe SaaS.
+    public boolean sendJoinRequestRejectedEmail(Request request, String rejectionReason) {
+        String recipient = resolveJoinRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer le rejet de demande join: email du contact manquant.");
+            return false;
+        }
 
-                Vous pouvez contacter l'equipe Matchia pour plus d'informations.
+        String subject = "Votre demande d'inscription a Matchia a ete rejetee";
+        String body = buildJoinRequestRejectedBody(request, rejectionReason);
+        return sendMail(recipient, subject, body, "rejet demande join", "REJET DEMANDE JOIN");
+    }
 
-                Merci,
-                L'equipe Matchia
-                """.formatted(
-                hasText(request.getContactName()) ? request.getContactName() : "Admin",
-                request.getBankName()
-        );
+    public boolean sendStoreRequestRejectedEmail(Request request, String rejectionReason) {
+        String recipient = resolveBankRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer le rejet de demande store: email de la banque manquant.");
+            return false;
+        }
 
+        String subject = "Votre demande de nouveau store a ete rejetee";
+        String body = buildStoreRequestRejectedBody(request, rejectionReason);
+        return sendMail(recipient, subject, body, "rejet demande store", "REJET DEMANDE STORE");
+    }
+
+    public boolean sendModuleRequestRejectedEmail(Request request, String rejectionReason) {
+        String recipient = resolveBankRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer le rejet de demande module: email de la banque manquant.");
+            return false;
+        }
+
+        String subject = "Votre demande de nouveau module a ete rejetee";
+        String body = buildModuleRequestRejectedBody(request, rejectionReason);
+        return sendMail(recipient, subject, body, "rejet demande module", "REJET DEMANDE MODULE");
+    }
+
+    private boolean sendMail(String recipient, String subject, String body, String logLabel, String simulatedLabel) {
         if (mailSender != null && hasText(mailHost)) {
             try {
                 SimpleMailMessage message = new SimpleMailMessage();
@@ -138,19 +175,91 @@ public class EmailService {
                 message.setSubject(subject);
                 message.setText(body);
                 mailSender.send(message);
-                log.info("Email rejet demande envoye a {}", recipient);
+                log.info("Email {} envoye a {}", logLabel, recipient);
                 return true;
             } catch (Exception e) {
-                log.error("Erreur lors de l'envoi de l'email rejet : {}", e.getMessage(), e);
+                log.error("Erreur lors de l'envoi de l'email {} : {}", logLabel, e.getMessage(), e);
                 return false;
             }
         }
 
-        log.info("ENVOI D'EMAIL SIMULE - REJET DEMANDE MATCHIA");
+        log.info("ENVOI D'EMAIL SIMULE - {}", simulatedLabel);
         log.info("Destinataire : {}", recipient);
         log.info("Sujet : {}", subject);
         log.info("Body : {}", body);
         return false;
+    }
+
+    private String buildJoinRequestRejectedBody(Request request, String rejectionReason) {
+        String contactName = hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin";
+        String bankName = hasText(request != null ? request.getBankName() : null) ? request.getBankName() : "votre organisation";
+        return buildRejectedBody(
+                contactName,
+                "Votre demande d'inscription pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
+                rejectionReason
+        );
+    }
+
+    private String buildStoreRequestRejectedBody(Request request, String rejectionReason) {
+        String contactName = hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin";
+        String bankName = hasText(request != null ? request.getBankName() : null) ? request.getBankName() : "votre banque";
+        return buildRejectedBody(
+                contactName,
+                "Votre demande d'ajout de store pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
+                rejectionReason
+        );
+    }
+
+    private String buildModuleRequestRejectedBody(Request request, String rejectionReason) {
+        String contactName = hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin";
+        String bankName = hasText(request != null ? request.getBankName() : null) ? request.getBankName() : "votre banque";
+        return buildRejectedBody(
+                contactName,
+                "Votre demande d'ajout de module pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
+                rejectionReason
+        );
+    }
+
+    private String buildRejectedBody(String recipientName, String baseSentence, String rejectionReason) {
+        StringBuilder body = new StringBuilder()
+                .append("Bonjour ").append(recipientName).append(",\n\n")
+                .append(baseSentence).append('\n');
+
+        if (hasText(rejectionReason)) {
+            body.append("\nMotif du rejet : ").append(rejectionReason.trim()).append('\n');
+        }
+
+        body.append("\nMerci,\nL'equipe Matchia\n");
+        return body.toString();
+    }
+
+    private String resolveJoinRecipient(Request request) {
+        return hasText(request != null ? request.getContactEmail() : null)
+                ? request.getContactEmail()
+                : null;
+    }
+
+    private String resolveContactRecipient(Request request) {
+        return resolveJoinRecipient(request);
+    }
+
+    private String resolveBankRecipient(Request request) {
+        if (request == null) {
+            return null;
+        }
+        if (request.getBank() != null && request.getBank().getId() != null) {
+            User adminUser = userRepository.findByBank_IdOrderByCreatedAtAsc(request.getBank().getId()).stream()
+                    .filter(user -> user.getRole() == RoleEnum.ADMIN_BANK)
+                    .findFirst()
+                    .orElse(null);
+            if (adminUser != null && hasText(adminUser.getEmail())) {
+                return adminUser.getEmail();
+            }
+            if (hasText(request.getBank().getEmail())) {
+                return request.getBank().getEmail();
+            }
+        }
+        return hasText(request.getBankEmail()) ? request.getBankEmail() : null;
     }
 
     private boolean hasText(String value) {

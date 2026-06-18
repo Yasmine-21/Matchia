@@ -52,7 +52,7 @@ public class ModuleController {
         AuditLogRequest audit = new AuditLogRequest();
         audit.setTenantId("saas");
         audit.setActorName("Admin");
-        audit.setActorRole("SUPER_ADMIN");
+        audit.setActorRole("ADMIN_SAAS");
         audit.setAction(action);
         audit.setCategory(AuditCategoryEnum.data_config);
         audit.setResourceType("module");

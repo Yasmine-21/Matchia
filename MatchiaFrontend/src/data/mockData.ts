@@ -17,47 +17,64 @@ export const modules: Module[] = [
 
 export const banks: Bank[] = [
   {
-    id: '1',
+    id: 1,
     name: 'Banque Zitouna',
     slug: 'zitouna',
     logo_url: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200&h=200&fit=crop',
+    logoUrl: 'https://images.unsplash.com/photo-1560179707-f14e90ef3623?w=200&h=200&fit=crop',
     country: 'Tunisie',
     description: 'Premier établissement bancaire islamique en Tunisie, offrant des solutions de financement conformes à la Charia.',
     website_url: 'https://www.banquezitouna.com',
+    websiteUrl: 'https://www.banquezitouna.com',
     established_year: 2010,
+    establishedYear: 2010,
+    establishmentYear: 2010,
     status: 'active',
-    
-  
+    total_users: 12450,
+    totalUsers: 12450,
+    rating: 4.8,
     created_at: '2024-01-15',
-    
+    updated_at: '2026-04-15',
   },
   {
-    id: '2',
+    id: 2,
     name: 'BH Bank',
     slug: 'bh',
     logo_url: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=200&h=200&fit=crop',
+    logoUrl: 'https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=200&h=200&fit=crop',
     country: 'Tunisie',
-    description: 'Banque d\'affaires et de financement spécialisée dans l\'accompagnement des entreprises et des particuliers.',
+    description: "Banque d'affaires et de financement spécialisée dans l'accompagnement des entreprises et des particuliers.",
     website_url: 'https://www.bhbank.com.tn',
+    websiteUrl: 'https://www.bhbank.com.tn',
     established_year: 2005,
+    establishedYear: 2005,
+    establishmentYear: 2005,
     status: 'active',
-   
+    total_users: 9800,
+    totalUsers: 9800,
+    rating: 4.6,
     created_at: '2024-02-20',
-   
+    updated_at: '2026-04-10',
   },
   {
-    id: '3',
+    id: 3,
     name: 'Wifak Bank',
     slug: 'wifak',
     logo_url: 'https://images.unsplash.com/photo-1541354329998-f4d9a9f9297f?w=200&h=200&fit=crop',
+    logoUrl: 'https://images.unsplash.com/photo-1541354329998-f4d9a9f9297f?w=200&h=200&fit=crop',
     country: 'Tunisie',
     description: 'Banque participative proposant des solutions de financement innovantes et éthiques.',
     website_url: 'https://www.wifakbank.com.tn',
+    websiteUrl: 'https://www.wifakbank.com.tn',
     established_year: 2017,
+    establishedYear: 2017,
+    establishmentYear: 2017,
     status: 'active',
-    
+    total_users: 7200,
+    totalUsers: 7200,
+    rating: 4.7,
     created_at: '2024-03-10',
-    
+    updated_at: '2026-04-12',
   },
 ];
 
@@ -91,22 +108,15 @@ export const bankBrandings: BankBranding[] = [
 ];
 
 export const users: User[] = [
-  // SUPER_ADMIN (SaaS Platform)
-  { id: '1', name: 'Mariem Trabelsi', email: 'admin@matchia.com', role: 'SUPER_ADMIN', status: 'active', created_at: '2024-01-01', updated_at: '2026-04-15' },
-  
-  // Banque Zitouna Admins
-  { id: '2', name: 'Ahmed Ben Ali', email: 'ahmed.benali@zitouna.com', role: 'ADMIN', bank_id: '1', status: 'active', created_at: '2024-01-15', updated_at: '2026-04-15' },
-  { id: '3', name: 'Leila Mansour', email: 'leila.mansour@zitouna.com', role: 'ADMIN', bank_id: '1', status: 'active', created_at: '2024-01-20', updated_at: '2026-04-10' },
-  { id: '4', name: 'Mohamed Souissi', email: 'mohamed.souissi@zitouna.com', role: 'MANAGER', bank_id: '1', status: 'active', created_at: '2024-02-01', updated_at: '2026-04-12' },
-  
-  // BH Bank Admins
-  { id: '5', name: 'Fatma Gharbi', email: 'fatma.gharbi@bhbank.com.tn', role: 'ADMIN', bank_id: '2', status: 'active', created_at: '2024-02-20', updated_at: '2026-04-15' },
-  { id: '6', name: 'Riadh Kacem', email: 'riadh.kacem@bhbank.com.tn', role: 'MANAGER', bank_id: '2', status: 'active', created_at: '2024-02-25', updated_at: '2026-04-14' },
-  { id: '7', name: 'Nadia Ben Hamad', email: 'nadia.benhamad@bhbank.com.tn', role: 'MANAGER', bank_id: '2', status: 'inactive', created_at: '2024-03-01', updated_at: '2026-03-20' },
-  
-  // Wifak Bank Admins
-  { id: '8', name: 'Sami Bouassida', email: 'sami.bouassida@wifakbank.com.tn', role: 'ADMIN', bank_id: '3', status: 'active', created_at: '2024-03-10', updated_at: '2026-04-13' },
-  { id: '9', name: 'Hana Khatri', email: 'hana.khatri@wifakbank.com.tn', role: 'MANAGER', bank_id: '3', status: 'active', created_at: '2024-03-15', updated_at: '2026-04-15' },
+  { id: '1', name: 'Mariem Trabelsi', email: 'admin@matchia.com', role: 'ADMIN_SAAS', status: 'active', created_at: '2024-01-01', updated_at: '2026-04-15' },
+  { id: '2', name: 'Ahmed Ben Ali', email: 'ahmed.benali@zitouna.com', role: 'ADMIN_BANK', bank_id: '1', status: 'active', created_at: '2024-01-15', updated_at: '2026-04-15' },
+  { id: '3', name: 'Leila Mansour', email: 'leila.mansour@zitouna.com', role: 'ADMIN_BANK', bank_id: '1', status: 'active', created_at: '2024-01-20', updated_at: '2026-04-10' },
+  { id: '4', name: 'Mohamed Souissi', email: 'mohamed.souissi@zitouna.com', role: 'CLIENT', bank_id: '1', status: 'active', created_at: '2024-02-01', updated_at: '2026-04-12' },
+  { id: '5', name: 'Fatma Gharbi', email: 'fatma.gharbi@bhbank.com.tn', role: 'ADMIN_BANK', bank_id: '2', status: 'active', created_at: '2024-02-20', updated_at: '2026-04-15' },
+  { id: '6', name: 'Riadh Kacem', email: 'riadh.kacem@bhbank.com.tn', role: 'CLIENT', bank_id: '2', status: 'active', created_at: '2024-02-25', updated_at: '2026-04-14' },
+  { id: '7', name: 'Nadia Ben Hamad', email: 'nadia.benhamad@bhbank.com.tn', role: 'CLIENT', bank_id: '2', status: 'inactive', created_at: '2024-03-01', updated_at: '2026-03-20' },
+  { id: '8', name: 'Sami Bouassida', email: 'sami.bouassida@wifakbank.com.tn', role: 'ADMIN_BANK', bank_id: '3', status: 'active', created_at: '2024-03-10', updated_at: '2026-04-13' },
+  { id: '9', name: 'Hana Khatri', email: 'hana.khatri@wifakbank.com.tn', role: 'CLIENT', bank_id: '3', status: 'active', created_at: '2024-03-15', updated_at: '2026-04-15' },
 ];
 
 export const requests: Request[] = [
@@ -129,13 +139,13 @@ export const requests: Request[] = [
     created_by: '2',
     approved_by: '1',
     created_at: '2026-04-10',
-    notes: 'Demande d\'activation du store Immobilier',
+    notes: "Demande d'activation du store Immobilier",
   },
 ];
 
 export const getBankWithStores = (bankId: string): BankWithStores | undefined => {
-  const bank = banks.find(b => b.id === bankId);
-  const branding = bankBrandings.find(b => b.bank_id === bankId);
+  const bank = banks.find((b) => String(b.id) === bankId);
+  const branding = bankBrandings.find((b) => b.bank_id === bankId);
 
   if (!bank) return undefined;
 

@@ -19,6 +19,7 @@ public class RequestDto {
     private RequestTypeEnum requestType;
     private RequestStatusEnum status;
     private String priority;
+    private String rejectionReason;
     private String createdBy;
     private String bankName;
     private String bankEmail;
@@ -29,6 +30,9 @@ public class RequestDto {
     private String contactEmail;
     private String contactPhone;
     private String contactImageUrl;
+    private String adminContactName;
+    private String adminContactEmail;
+    private String adminContactPhone;
     private String description;
     private String bankDescription;
     private Integer establishmentYear;

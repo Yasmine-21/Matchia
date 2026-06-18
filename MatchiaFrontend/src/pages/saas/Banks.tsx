@@ -259,7 +259,7 @@ export function SaaSBanks() {
 
     try {
       setSavingStatusId(bank.id);
-      const updated = await bankService.updateBankStatus(bank.id, nextStatus, bank);
+      const updated = await bankService.updateBankStatus(bank.id, nextStatus);
       setBanksList((prev) => prev.map((item) => item.id === updated.id ? updated : item));
       setSelectedBank((prev) => prev?.id === updated.id ? updated : prev);
     } catch (error) {

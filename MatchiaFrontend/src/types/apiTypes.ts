@@ -4,7 +4,7 @@ export type ModuleStatus = 'active' | 'inactive';
 export type RequestType = 'join' | 'store' | 'module';
 export type RequestStatus = 'pending' | 'approved' | 'rejected';
 export type NotificationStatus = 'UNREAD' | 'READ';
-export type NotificationType = 'JOIN_REQUEST';
+export type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR' | 'PAYMENT_SUCCESS';
 
 export interface Bank {
   id: number;
@@ -98,6 +98,7 @@ export interface RequestDto {
   requestType: RequestType;
   status: RequestStatus;
   priority?: string | null;
+  rejectionReason?: string | null;
   createdBy?: string | null;
   bankName: string;
   bankEmail: string;
@@ -108,6 +109,9 @@ export interface RequestDto {
   contactEmail: string;
   contactPhone: string;
   contactImageUrl?: string | null;
+  adminContactName?: string | null;
+  adminContactEmail?: string | null;
+  adminContactPhone?: string | null;
   description?: string | null;
   bankDescription?: string | null;
   establishmentYear?: number | null;
@@ -155,10 +159,81 @@ export interface RequestPayload {
 
 export interface NotificationDto {
   id: number;
-  type: NotificationType;
   title: string;
   message: string;
-  requestId: number;
+  type: NotificationType;
   status: NotificationStatus;
+  relatedRequestId?: number | null;
+  requestId?: number | null;
+  recipientId?: number | null;
   createdAt?: string;
+  readAt?: string | null;
+}
+
+export interface MarketplaceModuleDetailDto {
+  id: number;
+  moduleId?: number | null;
+  name?: string | null;
+  category?: string | null;
+  price?: number | string | null;
+  enabled?: boolean | null;
+  visible?: boolean | null;
+}
+
+export interface MarketplaceStoreDetailDto {
+  id: number;
+  storeId?: number | null;
+  name?: string | null;
+  description?: string | null;
+  banniereUrl?: string | null;
+  price?: number | string | null;
+  enabled?: boolean | null;
+  visible?: boolean | null;
+  modules?: MarketplaceModuleDetailDto[];
+}
+
+export interface MarketplacePublicDto {
+  id: number;
+  bankId?: number | null;
+  bankName?: string | null;
+  bankSlug?: string | null;
+  bankLogoUrl?: string | null;
+  bankEmail?: string | null;
+  bankCountry?: string | null;
+  bankWebsiteUrl?: string | null;
+  bankDescription?: string | null;
+  bankEstablishedYear?: number | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+  homepageTitle?: string | null;
+  welcomeText?: string | null;
+  banniereUrl?: string | null;
+  bannerImageUrl?: string | null;
+  footerText?: string | null;
+  logoImageUrl?: string | null;
+  stores?: MarketplaceStoreDetailDto[];
+}
+
+export interface MarketplaceBrandingUpdatePayload {
+  primaryColor?: string;
+  secondaryColor?: string;
+  homepageTitle?: string;
+  welcomeText?: string;
+  footerText?: string;
+  logoImageUrl?: string;
+  banniereUrl?: string;
+  bannerImageUrl?: string;
+}
+
+export interface UserDto {
+  id: number;
+  bankId?: number | null;
+  fullName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  contactImageUrl?: string | null;
+  role?: string | null;
+  status?: string | null;
+  createdAt?: string | null;
+  created_at?: string | null;
 }

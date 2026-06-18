@@ -32,6 +32,20 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public List<User> findAllByBankSlug(String bankSlug) {
+        if (bankSlug == null || bankSlug.isBlank()) {
+            return findAll();
+        }
+        return userRepository.findByBank_Slug(bankSlug);
+    }
+
+    public Optional<User> findDetailedByIdAndBankSlug(Long id, String bankSlug) {
+        if (bankSlug == null || bankSlug.isBlank()) {
+            return userRepository.findById(id);
+        }
+        return userRepository.findByIdAndBank_Slug(id, bankSlug);
+    }
+
     /**
      * Find a User by its ID.
      * @param id The ID of the User.

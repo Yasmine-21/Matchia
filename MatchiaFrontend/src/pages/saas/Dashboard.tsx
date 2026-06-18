@@ -2,7 +2,7 @@ import '../../styles/SaaSDashboard.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { ArrowDown, ArrowUp, Building2, FileText, Loader2, LogOut, Store, Users } from 'lucide-react';
+import { ArrowUp, Building2, FileText, Loader2, LogOut, Store, Users } from 'lucide-react';
 
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -151,9 +151,8 @@ export function SaaSDashboard() {
                 <div className="saas-stat-icon-wrapper">
                   {stat.icon}
                 </div>
-                <div className={`saas-stat-trend ${stat.trend === 'up' ? 'text-success' : stat.trend === 'down' ? 'text-destructive' : 'text-muted-foreground'}`}>
+                <div className={`saas-stat-trend ${stat.trend === 'up' ? 'text-success' : 'text-muted-foreground'}`}>
                   {stat.trend === 'up' && <ArrowUp className="w-4 h-4" />}
-                  {stat.trend === 'down' && <ArrowDown className="w-4 h-4" />}
                   <span className="saas-bank-name">{stat.change}</span>
                 </div>
               </div>

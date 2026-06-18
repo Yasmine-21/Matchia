@@ -5,13 +5,35 @@ import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
-import { Plus, Edit, Trash2, Mail, Shield, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, Mail, Shield, CheckCircle, XCircle, Upload } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 import { bankService } from '../../services/bankService';
 import type { Bank } from '../../types';
 
-type UserRole = 'SUPER_ADMIN' | 'ADMIN' | 'USER' | string;
+const USER_ROLES = ['ADMIN_SAAS', 'ADMIN_BANK', 'CLIENT'] as const;
+type UserRoleOption = (typeof USER_ROLES)[number];
+type UserRole = UserRoleOption | string;
 type UserStatus = 'active' | 'inactive' | string;
+
+const normalizeUserRole = (value?: string | null): UserRoleOption => {
+  if (value === 'ADMIN_SAAS' || value === 'ADMIN_BANK' || value === 'CLIENT') {
+    return value;
+  }
+  if (value === 'SUPER_ADMIN') {
+    return 'ADMIN_SAAS';
+  }
+  if (value === 'ADMIN' || value === 'BANK_ADMIN' || value === 'MANAGER' || value === 'USER') {
+    return 'ADMIN_BANK';
+  }
+  return 'ADMIN_BANK';
+};
+
+const formatRoleLabel = (role?: string | null) => {
+  if (role === 'ADMIN_SAAS') return 'Admin SaaS';
+  if (role === 'ADMIN_BANK') return 'Admin banque';
+  if (role === 'CLIENT') return 'Client';
+  return role || '-';
+};
 
 type UserFormState = {
   fullName: string;
@@ -21,6 +43,7 @@ type UserFormState = {
   role: UserRole;
   status: UserStatus;
   password: string;
+  contactImageUrl: string;
 };
 
 interface UserDto {
@@ -50,6 +73,8 @@ export function SaaSUsers() {
   const [roleFilter, setRoleFilter] = useState<string | 'all'>('all');
   const [users, setUsers] = useState<UserDto[]>([]);
   const [banks, setBanks] = useState<Bank[]>([]);
+  const [contactImageFile, setContactImageFile] = useState<File | null>(null);
+  const [contactImagePreviewUrl, setContactImagePreviewUrl] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [createError, setCreateError] = useState('');
@@ -58,11 +83,20 @@ export function SaaSUsers() {
     email: '',
     phone: '',
     bankId: '',
-    role: 'ADMIN' as UserRole,
+    role: 'ADMIN_BANK' as UserRole,
     status: 'active' as UserStatus,
     password: '',
+    contactImageUrl: '',
   };
   const [userForm, setUserForm] = useState<UserFormState>(emptyUserForm);
+
+  useEffect(() => {
+    return () => {
+      if (contactImagePreviewUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(contactImagePreviewUrl);
+      }
+    };
+  }, [contactImagePreviewUrl]);
 
   useEffect(() => {
     let isMounted = true;
@@ -108,6 +142,8 @@ export function SaaSUsers() {
   const resetUserForm = () => {
     setEditingUserId(null);
     setUserForm(emptyUserForm);
+    setContactImageFile(null);
+    setContactImagePreviewUrl('');
     setCreateError('');
   };
 
@@ -123,12 +159,61 @@ export function SaaSUsers() {
       email: user.email || '',
       phone: user.phone || '',
       bankId: user.bankId ? String(user.bankId) : '',
-      role: user.role || 'ADMIN',
+      role: normalizeUserRole(user.role),
       status: user.status || 'active',
       password: '',
+      contactImageUrl: user.contactImageUrl || '',
     });
+    setContactImageFile(null);
+    setContactImagePreviewUrl(getBackendAssetUrl(user.contactImageUrl));
     setCreateError('');
     setIsModalOpen(true);
+  };
+
+  const handleContactImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith('image/')) {
+      setCreateError("L'image doit etre au format PNG, JPG, WEBP ou SVG.");
+      event.target.value = '';
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setCreateError("L'image ne doit pas depasser 2 Mo.");
+      event.target.value = '';
+      return;
+    }
+
+    setCreateError('');
+    setContactImageFile(file);
+    setContactImagePreviewUrl((previous) => {
+      if (previous.startsWith('blob:')) {
+        URL.revokeObjectURL(previous);
+      }
+      return URL.createObjectURL(file);
+    });
+  };
+
+  const clearSelectedContactImage = () => {
+    setContactImageFile(null);
+    setContactImagePreviewUrl(userForm.contactImageUrl ? getBackendAssetUrl(userForm.contactImageUrl) : '');
+  };
+
+  const uploadContactImage = async (file: File) => {
+    const formData = new FormData();
+    formData.append('contactImage', file);
+
+    const response = await apiClient.post<{ contactImageUrl: string }>(
+      '/api/v1/users/upload-contact-image',
+      formData,
+      {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      }
+    );
+
+    return response.data.contactImageUrl;
   };
 
   const handleSubmitUser = async () => {
@@ -151,6 +236,10 @@ export function SaaSUsers() {
       setIsCreating(true);
       setCreateError('');
 
+      const contactImageUrl = contactImageFile
+        ? await uploadContactImage(contactImageFile)
+        : userForm.contactImageUrl || null;
+
       const payload = {
         fullName,
         email,
@@ -158,6 +247,7 @@ export function SaaSUsers() {
         bankId,
         role: userForm.role,
         status: userForm.status,
+        contactImageUrl,
         password: password || undefined,
       };
 
@@ -212,37 +302,12 @@ export function SaaSUsers() {
     return matchesSearch && matchesRole;
   });
 
-  const stats = [
-    {
-      label: 'Comptes liés aux banques',
-      value: approvedUsers.length,
-      color: 'text-primary',
-    },
-    {
-      label: 'ADMIN',
-      value: approvedUsers.filter((user) => user.role === 'ADMIN').length,
-      color: 'text-purple-600',
-    },
-    {
-      label: 'Actifs',
-      value: approvedUsers.filter((user) => user.status === 'active').length,
-      color: 'text-green-600',
-    },
-    {
-      label: 'Banques couvertes',
-      value: new Set(approvedUsers.map((user) => user.bankId).filter(Boolean)).size,
-      color: 'text-secondary',
-    },
-  ];
-
   return (
     <div className="space-y-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold mb-2">Gestion des utilisateurs</h1>
-          <p className="text-muted-foreground">
-            Comptes créés automatiquement lors de l’approbation des demandes.
-          </p>
+         
         </div>
         <Button
           icon={<Plus className="w-5 h-5" />}
@@ -250,17 +315,6 @@ export function SaaSUsers() {
         >
           Ajouter un administrateur
         </Button>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {stats.map((stat, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <CardDescription>{stat.label}</CardDescription>
-              <div className={`text-3xl font-bold mt-2 ${stat.color}`}>{stat.value}</div>
-            </CardHeader>
-          </Card>
-        ))}
       </div>
 
       <Card className="mb-6">
@@ -285,9 +339,11 @@ export function SaaSUsers() {
                 className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
               >
                 <option value="all">Tous les rôles</option>
-                <option value="ADMIN">ADMIN</option>
-                <option value="USER">USER</option>
-                <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+                {USER_ROLES.map((role) => (
+                  <option key={role} value={role}>
+                    {formatRoleLabel(role)}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -355,11 +411,11 @@ export function SaaSUsers() {
                           </td>
                           <td className="py-3 px-4 text-center">
                             <Badge
-                              variant={user.role === 'ADMIN' ? 'default' : 'secondary'}
+                              variant={user.role === 'ADMIN_SAAS' ? 'warning' : user.role === 'ADMIN_BANK' ? 'default' : 'secondary'}
                               className="flex items-center justify-center gap-1 mx-auto w-fit"
                             >
                               <Shield className="w-3 h-3" />
-                              {user.role || '-'}
+                              {formatRoleLabel(user.role)}
                             </Badge>
                           </td>
                           <td className="py-3 px-4 text-center">
@@ -452,6 +508,49 @@ export function SaaSUsers() {
             />
           </div>
           <div>
+            <label className="block text-sm font-medium mb-2">Image de contact</label>
+            <div className="rounded-xl border border-dashed border-border bg-muted/20 p-4">
+              <input
+                id="contact-image-upload"
+                type="file"
+                accept="image/png,image/jpeg,image/webp,image/svg+xml"
+                className="sr-only"
+                onChange={handleContactImageChange}
+              />
+              <label
+                htmlFor="contact-image-upload"
+                className="flex cursor-pointer items-center gap-4"
+              >
+                {contactImagePreviewUrl ? (
+                  <img
+                    src={contactImagePreviewUrl}
+                    alt={userForm.fullName || 'Aperçu de l utilisateur'}
+                    className="h-16 w-16 rounded-full border border-border object-cover bg-background"
+                  />
+                ) : (
+                  <div className="flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Upload className="h-5 w-5" />
+                  </div>
+                )}
+                <div className="min-w-0">
+                  <p className="font-medium text-foreground">
+                    {contactImageFile?.name || (userForm.contactImageUrl ? 'Image actuelle' : 'Choisir une image')}
+                  </p>
+                  <p className="text-sm text-muted-foreground">
+                    PNG, JPG, WEBP ou SVG, max. 2 Mo
+                  </p>
+                </div>
+              </label>
+              {contactImageFile && (
+                <div className="mt-3">
+                  <Button type="button" variant="outline" onClick={clearSelectedContactImage}>
+                    Annuler la selection
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+          <div>
             <label className="block text-sm font-medium mb-2">Banque</label>
             <select
               className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
@@ -473,9 +572,11 @@ export function SaaSUsers() {
               value={userForm.role}
               onChange={(e) => setUserForm((prev) => ({ ...prev, role: e.target.value }))}
             >
-              <option value="ADMIN">ADMIN</option>
-              <option value="USER">USER</option>
-              <option value="SUPER_ADMIN">SUPER_ADMIN</option>
+              {USER_ROLES.map((role) => (
+                <option key={role} value={role}>
+                    {formatRoleLabel(role)}
+                </option>
+              ))}
             </select>
           </div>
           <div>

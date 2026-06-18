@@ -78,14 +78,14 @@ public class AuthController {
         String name = "";
 
         if ("admin@matchia.com".equals(email)) {
-            role = "SUPER_ADMIN";
+            role = "ADMIN_SAAS";
             name = "Mariem Trabelsi";
         } else if ("ahmed@zitouna.com".equals(email)) {
-            role = "SUPER_ADMIN";
+            role = "ADMIN_SAAS";
             bankSlug = "zitouna";
             name = "Ahmed Ben Ali";
         } else if ("fatma@bhbank.com".equals(email)) {
-            role = "BANK_ADMIN";
+            role = "ADMIN_BANK";
             bankSlug = "bh";
             name = "Fatma Gharbi";
         } else {
@@ -108,13 +108,10 @@ public class AuthController {
     }
 
     private String toAuthRole(RoleEnum role) {
-        if (role == RoleEnum.SUPER_ADMIN) {
-            return "SUPER_ADMIN";
+        if (role == null) {
+            return "CLIENT";
         }
-        if (role == RoleEnum.ADMIN) {
-            return "BANK_ADMIN";
-        }
-        return "USER";
+        return role.name();
     }
 
     private AuditLogRequest loginAudit(String email, String role, String action, AuditStatusEnum status, HttpServletRequest request, String metadata) {

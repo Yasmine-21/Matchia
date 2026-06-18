@@ -17,6 +17,10 @@ public class MarketplaceConfigDto {
     private String marketplaceDescription;
     private String primaryColor;
     private String secondaryColor;
+    private String homepageTitle;
+    private String welcomeText;
+    private String footerText;
+    private String logoImageUrl;
     private String banniereUrl;
     private String bannerImageUrl;
     private BigDecimal totalMonthlyPrice;

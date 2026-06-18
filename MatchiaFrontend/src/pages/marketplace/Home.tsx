@@ -1,7 +1,6 @@
 import { useOutletContext, Link } from 'react-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
 import { ArrowRight, Star, TrendingUp, Users } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -27,7 +26,7 @@ export function MarketplaceHome() {
             <h1 className="text-5xl font-bold mb-4">{branding.homepage_title}</h1>
             <p className="text-xl mb-8 max-w-2xl opacity-90">{branding.welcome_text}</p>
             <div className="flex gap-4">
-              <Link to={`/store/${bankData.stores[0]?.name}`}>
+              <Link to={`/store/${bankData.stores[0]?.slug || bankData.stores[0]?.name}`}>
                 <Button size="lg" style={{ backgroundColor: branding.primary_color }}>
                   Explorer nos solutions
                 </Button>
@@ -61,7 +60,7 @@ export function MarketplaceHome() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: index * 0.1 }}
               >
-                <Link to={`/store/${store.name}`}>
+                <Link to={`/store/${store.slug || store.name}`}>
                   <Card hover className="h-full">
                     <CardHeader>
                       <div className="w-14 h-14 rounded-xl flex items-center justify-center text-4xl mb-4">
@@ -69,18 +68,13 @@ export function MarketplaceHome() {
                       </div>
                       <CardTitle>{store.label}</CardTitle>
                       <CardDescription>
-                        Découvrez nos offres de financement {store.label.toLowerCase()}
+                        Découvrez la boutique {store.label.toLowerCase()}
                       </CardDescription>
                     </CardHeader>
                     <CardContent>
-                      <div className="flex items-center justify-between mb-4">
-                        <Badge style={{ backgroundColor: `${branding.primary_color}20`, color: branding.primary_color }}>
-                          {store.modules.length} modules
-                        </Badge>
-                        <div className="flex items-center gap-1">
-                          <Star className="w-4 h-4 fill-warning text-warning" />
-                          <span className="font-medium">4.8</span>
-                        </div>
+                      <div className="mb-4 flex items-center gap-1">
+                        <Star className="w-4 h-4 fill-warning text-warning" />
+                        <span className="font-medium">4.8</span>
                       </div>
                       <Button variant="outline" className="w-full" icon={<ArrowRight className="w-4 h-4" />}>
                         Explorer

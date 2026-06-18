@@ -1,27 +1,31 @@
+import { useEffect, useRef, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router';
 import {
-  LayoutDashboard,
-  Building2,
-  FileText,
-  Store,
   Box,
-  Users,
-  Settings,
-  ChevronLeft,
   Bell,
-  LogOut,
-  ExternalLink,
+  Building2,
+  ChevronLeft,
   CreditCard,
+  ExternalLink,
+  FileText,
+  LayoutDashboard,
+  LogOut,
+  Settings,
   ShieldCheck,
+  Store,
+  Users,
 } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
 import { motion } from 'motion/react';
 import { MatchiaLogo } from '../brand/MatchiaLogo';
+import { NotificationsPanel } from './NotificationsPanel';
 import {
   NOTIFICATIONS_UPDATED_EVENT,
+  notifyNotificationsUpdated,
   notificationService,
 } from '../../services/notificationService';
 import { NotificationDto } from '../../types/apiTypes';
+import { useBankTenant } from '../../hooks/useBankTenant';
+import { getBackendAssetUrl } from '../../utils/tenant';
 
 interface SidebarItem {
   label: string;
@@ -43,12 +47,12 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   const navigate = useNavigate();
   const notificationsRef = useRef<HTMLDivElement | null>(null);
   const [collapsed, setCollapsed] = useState(false);
-  const [pendingRequestsCount, setPendingRequestsCount] = useState(0);
+  const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
-
-  // Le const bankSlug a été supprimé ici car nous n'en avons plus besoin pour le lien
+  const bankTenant = useBankTenant(type === 'bank');
+  const notificationRecipientId = type === 'bank' ? bankTenant.marketplace?.bankId ?? null : null;
 
   const saasSections: SidebarSection[] = [
     {
@@ -88,44 +92,74 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     },
   ];
 
-  const bankItems: SidebarItem[] = [
-    { label: 'Dashboard', icon: <LayoutDashboard className="w-5 h-5" />, path: '/bank/dashboard' },
-    { label: 'Users', icon: <Users className="w-5 h-5" />, path: '/bank/utilisateurs' },
-    { label: 'Assigned Stores', icon: <Store className="w-5 h-5" />, path: '/bank/stores' },
-    { label: 'Assigned Modules', icon: <Box className="w-5 h-5" />, path: '/bank/modules' },
-    { label: 'Personalization', icon: <Settings className="w-5 h-5" />, path: '/bank/branding' },
-    { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/bank/parametres' },
+  const bankSections: SidebarSection[] = [
+    {
+      title: '',
+      items: [
+        { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/bank/dashboard' },
+        { label: 'Utilisateurs', icon: <Users className="w-5 h-5" />, path: '/bank/utilisateurs' },
+        { label: 'Stores assignés', icon: <Store className="w-5 h-5" />, path: '/bank/stores' },
+        { label: 'Modules assignés', icon: <Box className="w-5 h-5" />, path: '/bank/modules' },
+        { label: 'Mes demandes', icon: <FileText className="w-5 h-5" />, path: '/bank/demandes' },
+        { label: 'Branding', icon: <Settings className="w-5 h-5" />, path: '/bank/branding' },
+        { label: 'Paramètres', icon: <Settings className="w-5 h-5" />, path: '/bank/parametres' },
+      ],
+    },
   ];
 
-  const sections = type === 'saas' ? saasSections : [{ title: '', items: bankItems }];
+  const sections = type === 'saas' ? saasSections : bankSections;
 
-  const loadNotifications = async () => {
-    if (type !== 'saas') return;
+  const loadNotificationData = async () => {
+    if (type === 'bank' && !notificationRecipientId) {
+      setUnreadCount(0);
+      setNotifications([]);
+      return;
+    }
 
-    setIsLoadingNotifications(true);
     try {
-      const response = await notificationService.getNotifications();
-      setNotifications(response.data);
+      const [countResponse, notificationsResponse] = type === 'bank'
+        ? await Promise.all([
+            notificationService.getBankUnreadCount(notificationRecipientId!),
+            notificationService.getBankNotifications(notificationRecipientId!),
+          ])
+        : await Promise.all([
+            notificationService.getUnreadCount(),
+            notificationService.getNotifications(),
+          ]);
+      setUnreadCount(countResponse.data.count);
+      setNotifications(notificationsResponse.data);
     } catch (error) {
       console.error('Failed to load notifications:', error);
-    } finally {
-      setIsLoadingNotifications(false);
     }
   };
 
   useEffect(() => {
-    if (type !== 'saas') return;
-
-    const loadPendingCount = () => {
-      notificationService.getPendingCount()
-        .then((response) => setPendingRequestsCount(response.data.count))
-        .catch((error) => console.error('Failed to load pending requests count:', error));
+    const handleRefresh = () => {
+      loadNotificationData();
     };
 
-    loadPendingCount();
-    window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, loadPendingCount);
-    return () => window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, loadPendingCount);
-  }, [type]);
+    handleRefresh();
+    window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, handleRefresh);
+    return () => window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handleRefresh);
+  }, [type, notificationRecipientId]);
+
+  useEffect(() => {
+    if (type !== 'saas') return;
+
+    const refreshNotifications = () => {
+      loadNotificationData();
+    };
+
+    const intervalId = window.setInterval(refreshNotifications, 15000);
+    window.addEventListener('focus', refreshNotifications);
+    document.addEventListener('visibilitychange', refreshNotifications);
+
+    return () => {
+      window.clearInterval(intervalId);
+      window.removeEventListener('focus', refreshNotifications);
+      document.removeEventListener('visibilitychange', refreshNotifications);
+    };
+  }, [type, notificationRecipientId]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -138,35 +172,64 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   }, []);
 
   useEffect(() => {
-    if (showNotifications) {
-      loadNotifications();
-    }
-  }, [showNotifications]);
+    if (!showNotifications) return;
+    setIsLoadingNotifications(true);
+    loadNotificationData().finally(() => setIsLoadingNotifications(false));
+  }, [showNotifications, type, notificationRecipientId]);
 
   const toggleNotifications = () => {
-    if (type !== 'saas') return;
     setShowNotifications((current) => !current);
   };
 
   const openNotificationDetails = async (notification: NotificationDto) => {
     try {
-      await notificationService.markAsRead(notification.id);
+      if (type === 'bank') {
+        await notificationService.markBankNotificationAsRead(notification.id, notificationRecipientId!);
+      } else {
+        await notificationService.markAsRead(notification.id);
+      }
+      notifyNotificationsUpdated();
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
     } finally {
+      const requestId = notification.relatedRequestId ?? notification.requestId;
       setShowNotifications(false);
-      navigate('/saas/demandes');
+      if (type === 'bank') {
+        navigate(requestId ? `/bank/demandes?requestId=${requestId}` : '/bank/demandes');
+      } else if (notification.type === 'PAYMENT_SUCCESS') {
+        navigate(requestId ? `/saas/offers-subscriptions?requestId=${requestId}` : '/saas/offers-subscriptions');
+      } else {
+        navigate(requestId ? `/saas/demandes?requestId=${requestId}` : '/saas/demandes');
+      }
     }
   };
 
-  const formatNotificationDate = (value?: string) => {
-    if (!value) return '-';
-    return new Date(value).toLocaleDateString('fr-FR', {
-      day: '2-digit',
-      month: 'short',
-      hour: '2-digit',
-      minute: '2-digit',
-    });
+  const markAllAsRead = async () => {
+    try {
+      if (type === 'bank') {
+        await notificationService.markAllBankNotificationsAsRead(notificationRecipientId!);
+      } else {
+        await notificationService.markAllAsRead();
+      }
+      notifyNotificationsUpdated();
+      await loadNotificationData();
+    } catch (error) {
+      console.error('Failed to mark all notifications as read:', error);
+    }
+  };
+
+  const deleteNotification = async (notificationId: number) => {
+    try {
+      if (type === 'bank') {
+        await notificationService.deleteBankNotification(notificationId, notificationRecipientId!);
+      } else {
+        await notificationService.deleteNotification(notificationId);
+      }
+      notifyNotificationsUpdated();
+      await loadNotificationData();
+    } catch (error) {
+      console.error('Failed to delete notification:', error);
+    }
   };
 
   return (
@@ -177,10 +240,24 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
       <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
         {!collapsed && (
           <div className="flex items-center gap-3">
-            <MatchiaLogo showText={false} markClassName="h-10 w-auto max-w-[150px]" />
+            {type === 'bank' ? (
+              bankTenant.branding.logo_image_url ? (
+                <img
+                  src={getBackendAssetUrl(bankTenant.branding.logo_image_url)}
+                  alt={bankTenant.marketplace?.bankName || 'Banque'}
+                  className="h-10 w-10 rounded-lg border border-sidebar-border object-contain bg-white p-1"
+                />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-lg border border-sidebar-border bg-white text-primary">
+                  <Building2 className="h-5 w-5" />
+                </div>
+              )
+            ) : (
+              <MatchiaLogo showText={false} markClassName="h-10 w-auto max-w-[150px]" />
+            )}
             <div>
-              <div className="text-xs text-muted-foreground">
-                {type === 'saas' ? 'SaaS Admin' : 'Banque Admin'}
+              <div className="text-sm font-semibold text-foreground">
+                {type === 'bank' && bankTenant.marketplace?.bankName ? bankTenant.marketplace.bankName : 'Matchia'}
               </div>
             </div>
           </div>
@@ -189,9 +266,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
           onClick={() => setCollapsed(!collapsed)}
           className="p-1.5 hover:bg-sidebar-accent rounded-lg transition-colors"
         >
-          <ChevronLeft
-            className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`}
-          />
+          <ChevronLeft className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
@@ -205,7 +280,8 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
             )}
             <ul className="space-y-1">
               {section.items.map((item) => {
-                const isActive = location.pathname === item.path;
+                const normalizedPath = item.path?.split('?')[0];
+                const isActive = location.pathname === normalizedPath;
                 return (
                   <li key={item.path}>
                     <Link
@@ -218,11 +294,6 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
                     >
                       {item.icon}
                       {!collapsed && <span className="text-sm">{item.label}</span>}
-                      {!collapsed && item.path === '/saas/demandes' && pendingRequestsCount > 0 && (
-                        <span className="ml-auto rounded-full bg-orange-100 px-2 py-0.5 text-xs font-semibold text-orange-700">
-                          {pendingRequestsCount}
-                        </span>
-                      )}
                     </Link>
                   </li>
                 );
@@ -234,80 +305,53 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
 
       <div className="p-3 border-t border-sidebar-border space-y-1">
         {type === 'bank' && (
-          /* CORRECTION INTEGREE : On pointe vers "/" */
           <a
             href="/"
             target="_blank"
             rel="noopener noreferrer"
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-sidebar-accent transition-colors text-sidebar-foreground"
           >
-            <ExternalLink className="w-5 h-5" />
+            {bankTenant.branding.logo_image_url ? (
+              <img
+                src={getBackendAssetUrl(bankTenant.branding.logo_image_url)}
+                alt={bankTenant.marketplace?.bankName || 'Marketplace'}
+                className="h-5 w-5 rounded-sm object-contain"
+              />
+            ) : (
+              <ExternalLink className="w-5 h-5" />
+            )}
             {!collapsed && <span className="text-sm">View Marketplace</span>}
           </a>
         )}
-        {type === 'saas' ? (
-          <div className="relative" ref={notificationsRef}>
-            <button
-              type="button"
-              onClick={toggleNotifications}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-sidebar-accent transition-colors text-sidebar-foreground"
-            >
-              <Bell className="w-5 h-5" />
-              {!collapsed && <span className="text-sm">Notifications</span>}
-              {pendingRequestsCount > 0 && (
-                <span className={`${collapsed ? 'absolute right-2 top-1' : 'ml-auto'} rounded-full bg-orange-500 px-2 py-0.5 text-xs font-semibold text-white`}>
-                  {pendingRequestsCount}
-                </span>
-              )}
-            </button>
 
-            {showNotifications && (
-              <div className="absolute bottom-0 left-full z-50 ml-3 w-[340px] rounded-xl border border-border bg-white shadow-lg">
-                <div className="border-b border-border px-4 py-3">
-                  <div className="font-semibold text-gray-900">Notifications</div>
-                  <div className="text-xs text-muted-foreground">
-                    {pendingRequestsCount > 0 ? `${pendingRequestsCount} demande(s) en attente` : 'Aucune demande en attente'}
-                  </div>
-                </div>
-
-                <div className="max-h-80 overflow-y-auto p-2">
-                  {isLoadingNotifications ? (
-                    <div className="px-4 py-8 text-center text-sm text-muted-foreground">Chargement...</div>
-                  ) : notifications.length === 0 ? (
-                    <div className="px-4 py-8 text-center text-sm text-muted-foreground">Aucune nouvelle notification</div>
-                  ) : (
-                    notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className="mb-2 rounded-lg border border-orange-100 bg-orange-50/70 p-3 last:mb-0"
-                      >
-                        <div>
-                          <div className="text-sm font-semibold text-gray-900">{notification.title || 'Nouvelle demande'}</div>
-                          <div className="mt-1 text-sm text-gray-600">{notification.message}</div>
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            {formatNotificationDate(notification.createdAt)}
-                          </div>
-                        </div>
-                        <button
-                          type="button"
-                          onClick={() => openNotificationDetails(notification)}
-                          className="mt-3 text-sm font-medium text-orange-600 hover:text-orange-700"
-                        >
-                          Voir détails
-                        </button>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-        ) : (
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-sidebar-accent transition-colors text-sidebar-foreground">
+        <div className="relative" ref={notificationsRef}>
+          <button
+            type="button"
+            onClick={toggleNotifications}
+            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-sidebar-accent transition-colors text-sidebar-foreground"
+          >
             <Bell className="w-5 h-5" />
             {!collapsed && <span className="text-sm">Notifications</span>}
+            {unreadCount > 0 && (
+              <span className={`${collapsed ? 'absolute right-2 top-1' : 'ml-auto'} rounded-full bg-orange-500 px-2 py-0.5 text-xs font-semibold text-white`}>
+                {unreadCount}
+              </span>
+            )}
           </button>
-        )}
+
+          {showNotifications && (
+            <NotificationsPanel
+              notifications={notifications}
+              unreadCount={unreadCount}
+              isLoading={isLoadingNotifications}
+              onMarkAllAsRead={markAllAsRead}
+              onOpenNotification={openNotificationDetails}
+              onDeleteNotification={deleteNotification}
+              className="absolute bottom-0 left-full z-50 ml-3 w-[460px] rounded-xl border border-border bg-white shadow-lg"
+            />
+          )}
+        </div>
+
         <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive/10 text-destructive transition-colors">
           <LogOut className="w-5 h-5" />
           {!collapsed && <span className="text-sm">Sign Out</span>}

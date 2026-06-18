@@ -1,7 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router';
+import { BarChart3, CalendarX2, Clock3, Eye } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { KpiCard } from '../../components/ui/KpiCard';
+import { Modal } from '../../components/ui/Modal';
 
 interface OrganizationRequestSubscriptionDto {
   paymentId: number;
@@ -41,6 +45,25 @@ const formatDate = (value?: string | null) => {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
+  }).format(date);
+};
+
+const formatDateTime = (value?: string | null) => {
+  if (!value) {
+    return '-';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return '-';
+  }
+
+  return new Intl.DateTimeFormat('fr-TN', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
   }).format(date);
 };
 
@@ -94,6 +117,11 @@ export function OffersAndSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<OrganizationRequestSubscriptionDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchParams] = useSearchParams();
+  const [selectedSubscription, setSelectedSubscription] = useState<OrganizationRequestSubscriptionDto | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const autoOpenedRequestRef = useRef<string | null>(null);
+  const requestedRequestId = searchParams.get('requestId');
 
   useEffect(() => {
     let isMounted = true;
@@ -134,10 +162,56 @@ export function OffersAndSubscriptions() {
     };
   }, []);
 
-  const totalPaid = useMemo(
-    () => subscriptions.reduce((sum, item) => sum + (Number(item.amount) || 0), 0),
-    [subscriptions]
-  );
+  useEffect(() => {
+    if (!requestedRequestId || !subscriptions.length) {
+      return;
+    }
+
+    if (autoOpenedRequestRef.current === requestedRequestId) {
+      return;
+    }
+
+    const matchedSubscription = subscriptions.find(
+      (subscription) => String(subscription.requestId ?? '') === requestedRequestId
+    );
+
+    if (matchedSubscription) {
+      autoOpenedRequestRef.current = requestedRequestId;
+      setSelectedSubscription(matchedSubscription);
+      setIsDetailsOpen(true);
+    }
+  }, [requestedRequestId, subscriptions]);
+
+  const subscriptionStats = useMemo(() => {
+    let active = 0;
+    let expired = 0;
+
+    subscriptions.forEach((subscription) => {
+      const expirationDate = addOneMonth(subscription.paidAt);
+      const daysRemaining = getDaysRemaining(expirationDate);
+
+      if (daysRemaining !== null && daysRemaining >= 0) {
+        active += 1;
+      } else if (daysRemaining !== null && daysRemaining < 0) {
+        expired += 1;
+      }
+    });
+
+    return {
+      active,
+      expired,
+      total: subscriptions.length,
+    };
+  }, [subscriptions]);
+
+  const openDetails = (subscription: OrganizationRequestSubscriptionDto) => {
+    setSelectedSubscription(subscription);
+    setIsDetailsOpen(true);
+  };
+
+  const closeDetails = () => {
+    setIsDetailsOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -148,10 +222,30 @@ export function OffersAndSubscriptions() {
             Liste des abonnements dont le paiement est marque comme paye.
           </p>
         </div>
-        <div className="rounded-xl border border-border bg-surface px-4 py-3">
-          <p className="text-xs uppercase tracking-wide text-muted-foreground">Total encaisse</p>
-          <p className="mt-1 text-lg font-semibold text-foreground">{formatTnd(totalPaid)}</p>
-        </div>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <KpiCard
+          label="Abonnement actif"
+          value={subscriptionStats.active}
+          icon={<Clock3 className="h-5 w-5" />}
+          tone="warning"
+          badge={`${subscriptionStats.active} abonnements`}
+        />
+        <KpiCard
+          label="Abonnement expiré"
+          value={subscriptionStats.expired}
+          icon={<CalendarX2 className="h-5 w-5" />}
+          tone="success"
+          badge={`${subscriptionStats.expired} abonnements`}
+        />
+        <KpiCard
+          label="Total"
+          value={subscriptionStats.total}
+          icon={<BarChart3 className="h-5 w-5" />}
+          tone="danger"
+          badge={`${subscriptionStats.total} abonnements`}
+        />
       </div>
 
       <div className="bg-surface rounded-xl border border-border shadow-sm overflow-hidden">
@@ -287,6 +381,10 @@ export function OffersAndSubscriptions() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
+                          <Button size="icon" variant="ghost" onClick={() => openDetails(subscription)}>
+                            <Eye className="h-4 w-4" />
+                            <span className="sr-only">Voir détails</span>
+                          </Button>
                           <Button size="sm" variant="outline">
                             Renouveler
                           </Button>
@@ -303,6 +401,58 @@ export function OffersAndSubscriptions() {
           </div>
         )}
       </div>
+
+      <Modal
+        isOpen={isDetailsOpen}
+        onClose={closeDetails}
+        title="Détails du paiement"
+        size="lg"
+      >
+        {selectedSubscription && (
+          <div className="space-y-5">
+            <div className="rounded-2xl border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 px-5 py-4 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div className="text-xs font-semibold uppercase tracking-[0.2em] text-orange-600">
+                    Paiement réussi
+                  </div>
+                  <div className="mt-1 text-sm text-slate-700">
+                    Détails du paiement enregistré pour l&apos;abonnement de la banque.
+                  </div>
+                </div>
+                <div className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-orange-700 shadow-sm ring-1 ring-orange-200">
+                  Reçu le {formatDateTime(selectedSubscription.paidAt)}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Banque</p>
+                <p className="mt-1 text-base font-semibold text-foreground">{selectedSubscription.bankName}</p>
+              </div>
+              <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Marketplace</p>
+                <p className="mt-1 text-base font-semibold text-foreground">
+                  {selectedSubscription.marketplaceSlug || '-'}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Montant payé</p>
+                <p className="mt-1 text-base font-semibold text-foreground">
+                  {formatTnd(Number(selectedSubscription.amount))}
+                </p>
+              </div>
+              <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
+                <p className="text-xs uppercase tracking-wide text-muted-foreground">Date et heure de paiement</p>
+                <p className="mt-1 text-base font-semibold text-foreground">
+                  {formatDateTime(selectedSubscription.paidAt)}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

@@ -50,6 +50,7 @@ public class RequestService {
     private final MarketplaceStoreRepository marketplaceStoreRepository;
     private final MarketplaceStoreModuleRepository marketplaceStoreModuleRepository;
     private final AuditLogger auditLogger;
+    private final NotificationService notificationService;
 
     @Value("${app.upload.dir:uploads/logos}")
     private String uploadDir;
@@ -79,6 +80,13 @@ public class RequestService {
                 .toList();
     }
 
+    @Transactional(readOnly = true)
+    public List<Request> findByBankId(Long bankId) {
+        return requestRepository.findByBank_IdOrderByCreatedAtDesc(bankId).stream()
+                .peek(this::initializeRequestSelections)
+                .toList();
+    }
+
     public Request save(Request request) {
         return requestRepository.save(request);
     }
@@ -102,6 +110,7 @@ public class RequestService {
 
         Request saved = requestRepository.save(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.created", AuditCategoryEnum.core, AuditStatusEnum.success, null));
+        notificationService.createRequestCreatedNotification(saved);
         emailService.sendMarketplaceRequestConfirmationEmail(saved);
         return saved;
     }
@@ -165,6 +174,7 @@ public class RequestService {
 
         Request saved = requestRepository.save(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.created", AuditCategoryEnum.core, AuditStatusEnum.success, null));
+        notificationService.createRequestCreatedNotification(saved);
         emailService.sendMarketplaceRequestConfirmationEmail(saved);
         return saved;
     }
@@ -181,6 +191,7 @@ public class RequestService {
         request.setBank(bank);
         Request saved = requestRepository.save(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.approved", AuditCategoryEnum.billing, AuditStatusEnum.success, null));
+        notificationService.createRequestApprovedNotification(saved);
 
         String paymentLink = paymentService.initiatePayment(saved);
         emailService.sendPaymentInstructions(saved, paymentLink);
@@ -189,14 +200,31 @@ public class RequestService {
 
     @Transactional
     public Request rejectRequest(Long id) {
+        return rejectRequest(id, null);
+    }
+
+    @Transactional
+    public Request rejectRequest(Long id, String rejectionReason) {
         Request request = findOrThrow(id);
         if (request.getStatus() == RequestStatusEnum.approved) {
             throw new IllegalStateException("Une demande approuvee ne peut pas etre rejetee.");
         }
         request.setStatus(RequestStatusEnum.rejected);
+        request.setRejectionReason(normalizeRejectionReason(rejectionReason));
         Request saved = requestRepository.save(request);
-        auditLogger.logAsync(requestAudit(saved, "join_request.rejected", AuditCategoryEnum.core, AuditStatusEnum.success, null));
-        emailService.sendRequestRejectedEmail(saved);
+        auditLogger.logAsync(requestAudit(saved, "join_request.rejected", AuditCategoryEnum.core, AuditStatusEnum.success,
+                buildRejectionAuditDiff(saved.getRejectionReason())));
+
+        notificationService.createRequestRejectedNotification(saved, saved.getRejectionReason());
+        if (requiresBankNotification(saved)) {
+            notificationService.createBankRequestRejectedNotification(saved, saved.getRejectionReason());
+        }
+
+        try {
+            sendRejectionEmail(saved, saved.getRejectionReason());
+        } catch (Exception e) {
+            log.error("Erreur lors de l'envoi de l'email de rejet pour la demande {} : {}", saved.getId(), e.getMessage(), e);
+        }
         return saved;
     }
 
@@ -213,6 +241,19 @@ public class RequestService {
         Request saved = requestRepository.save(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.status_changed", AuditCategoryEnum.core, AuditStatusEnum.success,
                 "{\"before\":{\"status\":\"" + before + "\"},\"after\":{\"status\":\"" + status + "\"}}"));
+        if (status == RequestStatusEnum.approved) {
+            notificationService.createRequestApprovedNotification(saved);
+        } else if (status == RequestStatusEnum.rejected) {
+            notificationService.createRequestRejectedNotification(saved, saved.getRejectionReason());
+            if (requiresBankNotification(saved)) {
+                notificationService.createBankRequestRejectedNotification(saved, saved.getRejectionReason());
+            }
+            try {
+                sendRejectionEmail(saved, saved.getRejectionReason());
+            } catch (Exception e) {
+                log.error("Erreur lors de l'envoi de l'email de rejet pour la demande {} : {}", saved.getId(), e.getMessage(), e);
+            }
+        }
         return saved;
     }
 
@@ -244,8 +285,11 @@ public class RequestService {
     private void applyRequestFields(Request request, RequestDto dto,
                                     List<Long> storeIds, List<Long> moduleIds) {
         validateRequiredFields(dto, storeIds);
-        validateMarketplaceFields(dto);
-        request.setRequestType(dto.getRequestType() != null ? dto.getRequestType() : RequestTypeEnum.join);
+        RequestTypeEnum requestType = resolveRequestType(dto);
+        if (requestType == RequestTypeEnum.join) {
+            validateMarketplaceFields(dto);
+        }
+        request.setRequestType(requestType);
         request.setStatus(RequestStatusEnum.pending);
         request.setPriority(dto.getPriority() != null ? dto.getPriority() : "medium");
         request.setCreatedBy(hasText(dto.getCreatedBy()) ? dto.getCreatedBy() : "public_join_form");
@@ -265,11 +309,19 @@ public class RequestService {
         request.setPrimaryColor(dto.getPrimaryColor().trim().toUpperCase());
         request.setSecondaryColor(dto.getSecondaryColor().trim().toUpperCase());
         request.setBanniereUrl(dto.getBanniereUrl());
+        attachExistingBankIfNeeded(request, dto, requestType);
         request.setSelectedStores(toJsonArray(storeIds));
         request.setSelectedModules(toJsonArray(moduleIds));
         request.setTotalAmount(dto.getTotalAmount() != null ? dto.getTotalAmount() : dto.getTotalMonthlyPrice());
         request.setStores(resolveStores(storeIds));
         request.setModules(resolveModules(moduleIds));
+    }
+
+    private RequestTypeEnum resolveRequestType(RequestDto dto) {
+        if (dto.getRequestType() != null) {
+            return dto.getRequestType();
+        }
+        return dto.getBankId() != null ? RequestTypeEnum.store : RequestTypeEnum.join;
     }
 
     private void applySelectionDetails(Request request, RequestDto dto, List<Long> storeIds, List<Long> moduleIds) {
@@ -312,6 +364,21 @@ public class RequestService {
         createAdminUser(bank, request);
         assignStoresAndModules(marketplace, request);
         return bank;
+    }
+
+    private void attachExistingBankIfNeeded(Request request, RequestDto dto, RequestTypeEnum requestType) {
+        if (requestType != RequestTypeEnum.store) {
+            return;
+        }
+
+        Long bankId = dto.getBankId();
+        if (bankId == null) {
+            throw new IllegalArgumentException("La banque existante est obligatoire pour une demande de store.");
+        }
+
+        Bank bank = bankRepository.findById(bankId)
+                .orElseThrow(() -> new IllegalArgumentException("La banque selectionnee est introuvable."));
+        request.setBank(bank);
     }
 
     private Bank resolveOrCreateBank(Request request) {
@@ -494,7 +561,7 @@ public class RequestService {
             if (hasText(request.getContactImageUrl())) {
                 user.setContactImageUrl(request.getContactImageUrl());
             }
-            user.setRole(RoleEnum.ADMIN);
+            user.setRole(RoleEnum.ADMIN_BANK);
             user.setStatus(UserStatusEnum.active);
             if (!hasText(user.getPassword())) {
                 user.setPassword(generateTemporaryPassword()); // TODO: encoder avec BCrypt
@@ -510,7 +577,7 @@ public class RequestService {
         admin.setEmail(email);
         admin.setPhone(request.getContactPhone());
         admin.setContactImageUrl(request.getContactImageUrl());
-        admin.setRole(RoleEnum.ADMIN);
+        admin.setRole(RoleEnum.ADMIN_BANK);
         admin.setStatus(UserStatusEnum.active);
         admin.setPassword(generateTemporaryPassword()); // TODO: encoder avec BCrypt
         userRepository.save(admin);
@@ -527,6 +594,8 @@ public class RequestService {
     private void assignStoresAndModules(Marketplace marketplace, Request request) {
         List<Long> storeIds  = parseIds(request.getSelectedStores());
         List<Long> moduleIds = parseIds(request.getSelectedModules());
+        Map<Long, List<Long>> selectedModulesByStore = resolveSelectedModulesByStore(request);
+        boolean hasStoreSpecificSelections = !selectedModulesByStore.isEmpty();
 
         for (Long storeId : storeIds) {
             storeRepository.findById(storeId).ifPresent(store -> {
@@ -540,7 +609,11 @@ public class RequestService {
                             return marketplaceStoreRepository.save(marketplaceStore);
                         });
 
-                for (Long moduleId : moduleIds) {
+                List<Long> moduleIdsForStore = hasStoreSpecificSelections
+                        ? selectedModulesByStore.getOrDefault(storeId, List.of())
+                        : moduleIds;
+
+                for (Long moduleId : moduleIdsForStore) {
                     moduleRepository.findById(moduleId).ifPresent(module -> {
                         marketplaceStoreModuleRepository.findByMarketplaceStore_IdAndModule_Id(savedMarketplaceStore.getId(), module.getId())
                                 .orElseGet(() -> {
@@ -555,6 +628,69 @@ public class RequestService {
                 }
             });
         }
+    }
+
+    private boolean requiresBankNotification(Request request) {
+        if (request == null || request.getRequestType() == null) {
+            return false;
+        }
+        return request.getRequestType() == RequestTypeEnum.store || request.getRequestType() == RequestTypeEnum.module;
+    }
+
+    private void sendRejectionEmail(Request request, String rejectionReason) {
+        if (request == null || request.getRequestType() == null) {
+            emailService.sendRequestRejectedEmail(request);
+            return;
+        }
+
+        RequestTypeEnum requestType = request.getRequestType();
+        if (requestType == RequestTypeEnum.join) {
+            emailService.sendJoinRequestRejectedEmail(request, rejectionReason);
+            return;
+        }
+        if (requestType == RequestTypeEnum.store) {
+            emailService.sendStoreRequestRejectedEmail(request, rejectionReason);
+            return;
+        }
+        if (requestType == RequestTypeEnum.module) {
+            emailService.sendModuleRequestRejectedEmail(request, rejectionReason);
+            return;
+        }
+
+        emailService.sendRequestRejectedEmail(request);
+    }
+
+    private String buildRejectionAuditDiff(String rejectionReason) {
+        String normalizedReason = normalizeRejectionReason(rejectionReason);
+        if (!hasText(normalizedReason)) {
+            return null;
+        }
+        return "{\"after\":{\"rejectionReason\":\"" + safeJson(normalizedReason) + "\"}}";
+    }
+
+    private String normalizeRejectionReason(String rejectionReason) {
+        return hasText(rejectionReason) ? rejectionReason.trim() : null;
+    }
+
+    private Map<Long, List<Long>> resolveSelectedModulesByStore(Request request) {
+        if (request == null || request.getSelectedStoreDetails() == null || request.getSelectedStoreDetails().isEmpty()) {
+            return Map.of();
+        }
+
+        return request.getSelectedStoreDetails().stream()
+                .filter((storeSelection) -> storeSelection != null && storeSelection.getStoreId() != null)
+                .collect(Collectors.toMap(
+                        RequestStoreSelection::getStoreId,
+                        storeSelection -> storeSelection.getModules() == null
+                                ? List.of()
+                                : storeSelection.getModules().stream()
+                                .map(RequestModuleSelection::getModuleId)
+                                .filter(Objects::nonNull)
+                                .distinct()
+                                .toList(),
+                        (left, right) -> right,
+                        LinkedHashMap::new
+                ));
     }
 
     private String saveLogo(MultipartFile logo) throws IOException {

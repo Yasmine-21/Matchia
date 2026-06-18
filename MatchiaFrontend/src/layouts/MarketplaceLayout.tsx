@@ -10,6 +10,8 @@ interface MarketplaceModuleDetail {
   name?: string | null;
   category?: string | null;
   price?: number | string | null;
+  enabled?: boolean | null;
+  visible?: boolean | null;
 }
 
 interface MarketplaceStoreDetail {
@@ -19,6 +21,8 @@ interface MarketplaceStoreDetail {
   description?: string | null;
   banniereUrl?: string | null;
   price?: number | string | null;
+  enabled?: boolean | null;
+  visible?: boolean | null;
   modules?: MarketplaceModuleDetail[];
 }
 
@@ -73,6 +77,16 @@ const getExternalUrl = (url?: string | null) => {
   return `https://${url}`;
 };
 
+const slugify = (value?: string | null) =>
+  (value || '')
+    .toString()
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
 export function MarketplaceLayout() {
   const bankSlug = getSubdomain();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -121,21 +135,26 @@ export function MarketplaceLayout() {
   const secondaryColor = marketplace.secondaryColor || '#F97316';
   const logoUrl = getBackendAssetUrl(marketplace.logoImageUrl || marketplace.bankLogoUrl);
   const bannerImageUrl = getBackendAssetUrl(marketplace.banniereUrl || marketplace.bannerImageUrl);
-  const stores = (marketplace.stores || []).map((store) => ({
-    id: String(store.storeId || store.id),
-    name: store.name || `store-${store.storeId || store.id}`,
-    label: store.name || `Store ${store.storeId || store.id}`,
-    description: store.description || '',
-    banniere_url: getBackendAssetUrl(store.banniereUrl),
-    price: store.price,
-    modules: (store.modules || []).map((module) => ({
-      id: String(module.moduleId || module.id),
-      name: module.name || `module-${module.moduleId || module.id}`,
-      label: module.name || `Module ${module.moduleId || module.id}`,
-      category: module.category,
-      price: module.price,
-    })),
-  }));
+  const stores = (marketplace.stores || [])
+    .filter((store) => store.enabled !== false && store.visible !== false)
+    .map((store) => ({
+      id: String(store.storeId || store.id),
+      name: store.name || `store-${store.storeId || store.id}`,
+      slug: slugify(store.name || `store-${store.storeId || store.id}`),
+      label: store.name || `Store ${store.storeId || store.id}`,
+      description: store.description || '',
+      banniere_url: getBackendAssetUrl(store.banniereUrl),
+      price: store.price,
+      modules: (store.modules || [])
+        .filter((module) => module.enabled !== false && module.visible !== false)
+        .map((module) => ({
+          id: String(module.moduleId || module.id),
+          name: module.name || `module-${module.moduleId || module.id}`,
+          label: module.name || `Module ${module.moduleId || module.id}`,
+          category: module.category,
+          price: module.price,
+        })),
+    }));
 
   const bankData = {
     id: String(marketplace.bankId || marketplace.id),
@@ -188,7 +207,7 @@ export function MarketplaceLayout() {
               {stores.map((store) => (
                 <Link
                   key={store.id}
-                  to={`/store/${store.name}`}
+                  to={`/store/${encodeURIComponent(store.slug)}`}
                   className="text-foreground hover:opacity-80 transition-opacity"
                   style={{ color: primaryColor }}
                 >
@@ -220,7 +239,7 @@ export function MarketplaceLayout() {
               {stores.map((store) => (
                 <Link
                   key={store.id}
-                  to={`/store/${store.name}`}
+                  to={`/store/${encodeURIComponent(store.slug)}`}
                   className="block py-2"
                   onClick={() => setMobileMenuOpen(false)}
                 >

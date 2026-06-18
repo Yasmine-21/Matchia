@@ -3,6 +3,7 @@ package org.matchia.matchiabackend.controller;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.RequestDto;
+import org.matchia.matchiabackend.dto.RequestRejectionDto;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.enums.RequestStatusEnum;
 import org.matchia.matchiabackend.mapper.RequestMapper;
@@ -32,6 +33,14 @@ public class RequestController {
     @GetMapping
     public ResponseEntity<List<RequestDto>> getAll() {
         List<RequestDto> list = service.findAll().stream()
+                .map(mapper::toDto)
+                .collect(Collectors.toList());
+        return ResponseEntity.ok(list);
+    }
+
+    @GetMapping("/bank/{bankId}")
+    public ResponseEntity<List<RequestDto>> getByBankId(@PathVariable Long bankId) {
+        List<RequestDto> list = service.findByBankId(bankId).stream()
                 .map(mapper::toDto)
                 .collect(Collectors.toList());
         return ResponseEntity.ok(list);
@@ -141,9 +150,13 @@ public class RequestController {
     }
 
     @PutMapping("/{id}/reject")
-    public ResponseEntity<RequestDto> reject(@PathVariable Long id) {
+    public ResponseEntity<RequestDto> reject(
+            @PathVariable Long id,
+            @RequestBody(required = false) RequestRejectionDto payload
+    ) {
         try {
-            return ResponseEntity.ok(mapper.toDto(service.rejectRequest(id)));
+            String rejectionReason = payload != null ? payload.getRejectionReason() : null;
+            return ResponseEntity.ok(mapper.toDto(service.rejectRequest(id, rejectionReason)));
         } catch (NoSuchElementException e) {
             log.warn("Demande introuvable pour rejet {} : {}", id, e.getMessage());
             return ResponseEntity.notFound().build();

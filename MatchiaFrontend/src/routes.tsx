@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from 'react-router';
+import { createBrowserRouter } from 'react-router';
 import { PublicLayout } from './layouts/PublicLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 import { MarketplaceLayout } from './layouts/MarketplaceLayout';
@@ -22,8 +22,7 @@ import { SaaSSettings } from './pages/saas/Settings';
 import { AuditLogs } from './pages/saas/AuditLogs';
 import { OffersAndSubscriptions } from './pages/saas/OffersAndSubscriptions';
 import { Certificates } from './pages/saas/Certificates';
-import{SaaSStoresModules} from './pages/saas/StoresModules';
-
+import { SaaSStoresModules } from './pages/saas/StoresModules';
 
 // Imports Bank
 import { BankDashboard } from './pages/bank/Dashboard';
@@ -31,6 +30,7 @@ import { BankUsers } from './pages/bank/Users';
 import { BankStores } from './pages/bank/Stores';
 import { BankModules } from './pages/bank/Modules';
 import { BankBranding } from './pages/bank/Branding';
+import { BankParameters } from './pages/bank/Parameters';
 import { BankRequests } from './pages/bank/Requests';
 
 // Imports Marketplace
@@ -55,32 +55,30 @@ export const saasRouter = createBrowserRouter([
     ],
   },
   {
-    // Standalone route for forgot password (no header/footer)
     path: '/mot-de-passe-oublie',
-    element: <ForgotPasswordPage />
+    element: <ForgotPasswordPage />,
   },
   {
     path: '/payment/demo',
-    element: <PaymentDemoPage />
+    element: <PaymentDemoPage />,
   },
   {
     path: '/payment-success',
-    element: <PaymentResultPage status="success" />
+    element: <PaymentResultPage status="success" />,
   },
   {
     path: '/payment-cancel',
-    element: <PaymentResultPage status="cancel" />
+    element: <PaymentResultPage status="cancel" />,
   },
   {
     path: '/payment/success',
-    element: <PaymentResultPage status="success" />
+    element: <PaymentResultPage status="success" />,
   },
   {
     path: '/payment/cancel',
-    element: <PaymentResultPage status="cancel" />
+    element: <PaymentResultPage status="cancel" />,
   },
   {
-    // Accès: http://lvh.me:5173/saas
     path: '/saas',
     element: <AdminLayout type="saas" />,
     children: [
@@ -93,10 +91,9 @@ export const saasRouter = createBrowserRouter([
       { path: 'offers-subscriptions', element: <OffersAndSubscriptions /> },
       { path: 'utilisateurs', element: <SaaSUsers /> },
       { path: 'audit', element: <AuditLogs /> },
-  
       { path: 'parametres', element: <SaaSSettings /> },
     ],
-  }
+  },
 ]);
 
 // ==========================================
@@ -104,12 +101,10 @@ export const saasRouter = createBrowserRouter([
 // ==========================================
 export const tenantRouter = createBrowserRouter([
   {
-    // On met le layout directement sur la racine "/"
     path: '/',
     element: <MarketplaceLayout />,
     children: [
-      // MarketplaceHome s'affichera sur bh.lvh.me:5173/
-      { index: true, element: <MarketplaceHome /> }, 
+      { index: true, element: <MarketplaceHome /> },
       { path: 'store/:storeSlug', element: <MarketplaceStore /> },
       { path: 'store/:storeSlug/simulator', element: <SimulatorModule /> },
       { path: 'store/:storeSlug/comparator', element: <ComparatorModule /> },
@@ -117,7 +112,22 @@ export const tenantRouter = createBrowserRouter([
     ],
   },
   {
-    // Accès: http://bh.lvh.me:5173/bank/dashboard
+    path: '/connexion',
+    element: <LoginPage />,
+  },
+  {
+    path: '/rejoindre',
+    element: <JoinPage />,
+  },
+  {
+    path: '/inscription',
+    element: <JoinPage />,
+  },
+  {
+    path: '/mot-de-passe-oublie',
+    element: <ForgotPasswordPage />,
+  },
+  {
     path: '/bank',
     element: <AdminLayout type="bank" />,
     children: [
@@ -127,7 +137,7 @@ export const tenantRouter = createBrowserRouter([
       { path: 'modules', element: <BankModules /> },
       { path: 'branding', element: <BankBranding /> },
       { path: 'demandes', element: <BankRequests /> },
-      { path: 'parametres', element: <div className="p-6">Paramètres Banque</div> },
+      { path: 'parametres', element: <BankParameters /> },
     ],
   },
 ]);

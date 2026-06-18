@@ -1,5 +1,4 @@
-import type { User, Bank } from '../types';
-import { banks } from '../data/mockData';
+import type { User } from '../types';
 
 /**
  * Demo Account Configuration
@@ -8,22 +7,31 @@ import { banks } from '../data/mockData';
 export const DEMO_ACCOUNTS = {
   'admin@matchia.com': {
     name: 'Mariem Trabelsi',
-    role: 'SUPER_ADMIN',
+    role: 'ADMIN_SAAS',
     bank_id: undefined,
     bankSlug: undefined,
   },
   'ahmed@zitouna.com': {
     name: 'Ahmed Ben Ali',
-    role: 'ADMIN',
+    role: 'ADMIN_BANK',
     bank_id: '1',
     bankSlug: 'zitouna',
   },
   'fatma@bhbank.com': {
     name: 'Fatma Gharbi',
-    role: 'ADMIN',
+    role: 'ADMIN_BANK',
     bank_id: '2',
     bankSlug: 'bh',
   },
+};
+
+const normalizeRole = (role?: string | null): User['role'] => {
+  if (role === 'ADMIN_SAAS' || role === 'ADMIN_BANK' || role === 'CLIENT') {
+    return role;
+  }
+  if (role === 'SUPER_ADMIN') return 'ADMIN_SAAS';
+  if (role === 'ADMIN' || role === 'BANK_ADMIN' || role === 'MANAGER' || role === 'USER') return 'ADMIN_BANK';
+  return 'CLIENT';
 };
 
 export const authService = {
@@ -54,7 +62,7 @@ export const authService = {
         id: `user-${data.email}`,
         name: data.name || data.email,
         email: data.email,
-        role: data.role as any,
+        role: normalizeRole(data.role) as User['role'],
         bank_id: data.bankId || (data.bankSlug === 'zitouna' ? '1' : (data.bankSlug === 'bh' ? '2' : undefined)),
         status: 'active',
         created_at: new Date().toISOString(),
@@ -72,11 +80,11 @@ export const authService = {
    * Get redirect URL based on user role
    */
   getRedirectUrl(user: User): string {
-    if (user.role === 'SUPER_ADMIN') {
+    if (user.role === 'ADMIN_SAAS') {
       return '/saas/dashboard';
     }
     
-    if (user.role === 'ADMIN' || user.role === 'BANK_ADMIN' as any) {
+    if (user.role === 'ADMIN_BANK') {
       return `/bank/dashboard`;
     }
 
@@ -85,5 +93,7 @@ export const authService = {
 
   logout() {
     localStorage.removeItem('matchia_token');
+    localStorage.removeItem('matchia_user');
+    localStorage.removeItem('matchia_bank');
   }
 };

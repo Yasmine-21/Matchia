@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.RequestDto;
-import org.matchia.matchiabackend.dto.NotificationDto;
+import org.matchia.matchiabackend.dto.RequestRejectionDto;
 import org.matchia.matchiabackend.dto.RequestStoreSelectionDto;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.enums.RequestStatusEnum;
@@ -112,21 +112,6 @@ public class JoinRequestController {
         return ResponseEntity.ok(Map.of("count", requestService.countPendingRequests()));
     }
 
-    @GetMapping("/admin/notifications")
-    public ResponseEntity<List<NotificationDto>> getNotifications() {
-        List<NotificationDto> notifications = requestService.findPendingRequests().stream()
-                .map(request -> toNotificationDto(request, "UNREAD"))
-                .toList();
-        return ResponseEntity.ok(notifications);
-    }
-
-    @PatchMapping("/admin/notifications/{id}/read")
-    public ResponseEntity<NotificationDto> markNotificationAsRead(@PathVariable Long id) {
-        return requestService.findById(id)
-                .<ResponseEntity<NotificationDto>>map(request -> ResponseEntity.ok(toNotificationDto(request, "READ")))
-                .orElse(ResponseEntity.notFound().build());
-    }
-
     @GetMapping("/admin/join-requests/{id}")
     public ResponseEntity<RequestDto> getJoinRequestById(@PathVariable Long id) {
         return requestService.findById(id)
@@ -166,31 +151,19 @@ public class JoinRequestController {
     }
 
     @PutMapping("/admin/join-requests/{id}/reject")
-    public ResponseEntity<RequestDto> rejectJoinRequest(@PathVariable Long id) {
+    public ResponseEntity<RequestDto> rejectJoinRequest(
+            @PathVariable Long id,
+            @RequestBody(required = false) RequestRejectionDto payload
+    ) {
         try {
-            return ResponseEntity.ok(requestMapper.toDto(requestService.rejectRequest(id)));
+            String rejectionReason = payload != null ? payload.getRejectionReason() : null;
+            return ResponseEntity.ok(requestMapper.toDto(requestService.rejectRequest(id, rejectionReason)));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         } catch (IllegalArgumentException | IllegalStateException e) {
             log.warn("Impossible de rejeter la demande join {} : {}", id, e.getMessage());
             return ResponseEntity.badRequest().build();
         }
-    }
-
-    private NotificationDto toNotificationDto(Request request, String status) {
-        String bankName = request.getBankName() != null && !request.getBankName().isBlank()
-                ? request.getBankName()
-                : "Une banque";
-
-        return new NotificationDto(
-                request.getId(),
-                "JOIN_REQUEST",
-                "Nouvelle demande",
-                bankName + " a envoye une demande de rejoindre Matchia",
-                request.getId(),
-                status,
-                request.getCreatedAt()
-        );
     }
 
     private RequestDto toRequestDto(Map<String, Object> payload) throws JsonProcessingException {
