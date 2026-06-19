@@ -88,7 +88,7 @@ export interface User {
 
 export interface Request {
   id: string;
-  request_type: 'join' | 'store' | 'module';
+  request_type: 'join' | 'store' | 'module' | 'subscription';
   bank_id?: string;
   store_id?: string;
   module_id?: string;

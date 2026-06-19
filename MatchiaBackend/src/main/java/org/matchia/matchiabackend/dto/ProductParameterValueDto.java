@@ -1,0 +1,15 @@
+package org.matchia.matchiabackend.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductParameterValueDto {
+    private Long id;
+    private Long parameterDefinitionId;
+    private String parameterName;
+    private String value;
+}

@@ -1,5 +1,6 @@
 package org.matchia.matchiabackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -7,6 +8,8 @@ import org.matchia.matchiabackend.entity.enums.MarketplaceStatusEnum;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -26,6 +29,10 @@ public class Marketplace {
 
     @OneToMany(mappedBy = "marketplace", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private java.util.List<MarketplaceStore> marketplaceStores = new java.util.ArrayList<>();
+
+    @OneToMany(mappedBy = "marketplace", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private List<MarketplaceContent> marketplaceContents = new ArrayList<>();
 
     private String primaryColor;
     private String secondaryColor;

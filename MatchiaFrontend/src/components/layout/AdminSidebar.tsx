@@ -10,6 +10,7 @@ import {
   FileText,
   LayoutDashboard,
   LogOut,
+  Package,
   Settings,
   ShieldCheck,
   Store,
@@ -66,6 +67,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
       items: [
         { label: 'Banques', icon: <Building2 className="w-5 h-5" />, path: '/saas/banques' },
         { label: 'Demandes', icon: <FileText className="w-5 h-5" />, path: '/saas/demandes' },
+        { label: 'Gestion de contenu', icon: <FileText className="w-5 h-5" />, path: '/saas/gestion-contenu' },
         { label: 'Stores & Modules', icon: <Store className="w-5 h-5" />, path: '/saas/storesmodules' },
         { label: 'Utilisateurs & Rôles', icon: <Users className="w-5 h-5" />, path: '/saas/utilisateurs' },
       ],
@@ -94,13 +96,21 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
 
   const bankSections: SidebarSection[] = [
     {
+      title: 'PRODUCT MANAGEMENT',
+      items: [
+        { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/bank/products' },
+      ],
+    },
+    {
       title: '',
       items: [
         { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/bank/dashboard' },
         { label: 'Utilisateurs', icon: <Users className="w-5 h-5" />, path: '/bank/utilisateurs' },
         { label: 'Stores assignés', icon: <Store className="w-5 h-5" />, path: '/bank/stores' },
         { label: 'Modules assignés', icon: <Box className="w-5 h-5" />, path: '/bank/modules' },
+        { label: 'Manage content', icon: <FileText className="w-5 h-5" />, path: '/bank/gestion-contenu' },
         { label: 'Mes demandes', icon: <FileText className="w-5 h-5" />, path: '/bank/demandes' },
+        { label: 'Abonnement', icon: <CreditCard className="w-5 h-5" />, path: '/bank/abonnement' },
         { label: 'Branding', icon: <Settings className="w-5 h-5" />, path: '/bank/branding' },
         { label: 'Paramètres', icon: <Settings className="w-5 h-5" />, path: '/bank/parametres' },
       ],

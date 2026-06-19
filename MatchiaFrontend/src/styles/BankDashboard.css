@@ -8,6 +8,51 @@
 .bank-stat-icon-wrapper { @apply w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary; }
 .bank-stat-value { @apply text-3xl font-bold mt-2; }
 .bank-charts-grid { @apply grid lg:grid-cols-2 gap-6 mb-6; }
+.bank-chart-card {
+    @apply relative overflow-hidden border border-border/70 shadow-sm;
+    background: linear-gradient(180deg, rgba(37, 99, 235, 0.05) 0%, rgba(255, 255, 255, 0.96) 35%, #fff 100%);
+    box-shadow: 0 18px 45px rgba(15, 23, 42, 0.06);
+}
+
+.bank-chart-card::before {
+    content: "";
+    pointer-events: none;
+    position: absolute;
+    inset: auto -90px -90px auto;
+    width: 180px;
+    height: 180px;
+    border-radius: 9999px;
+    background: radial-gradient(circle, rgba(249, 115, 22, 0.18), transparent 70%);
+}
+
+.bank-chart-card--stores::before {
+    background: radial-gradient(circle, rgba(37, 99, 235, 0.18), transparent 70%);
+}
+
+.bank-chart-header { @apply flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between; }
+.bank-chart-badges { @apply flex flex-wrap gap-2; }
+.bank-chart-badge { @apply rounded-full border border-border bg-background/80 px-3 py-1 text-xs font-semibold text-muted-foreground shadow-sm; }
+.bank-chart-roles-layout { @apply grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] items-center; }
+.bank-chart-donut-shell { @apply relative mx-auto aspect-square w-full max-w-[320px]; }
+.bank-chart-container { @apply h-full w-full; }
+.bank-chart-donut-center { @apply pointer-events-none absolute inset-0 z-10 flex flex-col items-center justify-center text-center; }
+.bank-chart-donut-value { @apply text-4xl font-black tracking-tight text-foreground; }
+.bank-chart-donut-label { @apply mt-1 text-[11px] uppercase tracking-[0.35em] text-muted-foreground; }
+.bank-chart-roles-list { @apply space-y-3; }
+.bank-chart-role-row { @apply rounded-2xl border border-border/70 bg-background/80 p-3 shadow-sm backdrop-blur; }
+.bank-chart-role-top { @apply flex items-center justify-between gap-3; }
+.bank-chart-role-name-wrap { @apply flex items-center gap-2; }
+.bank-chart-role-dot { @apply h-3 w-3 rounded-full shadow-sm; }
+.bank-chart-role-name { @apply text-sm font-medium; }
+.bank-chart-role-value { @apply text-sm font-semibold text-foreground; }
+.bank-chart-role-bar { @apply mt-2 h-2 overflow-hidden rounded-full bg-muted; }
+.bank-chart-role-bar-fill { @apply h-full rounded-full transition-all; }
+.bank-chart-area-shell { @apply h-[320px] w-full; }
+.bank-chart-mini-metrics { @apply mt-4 grid gap-3 sm:grid-cols-2; }
+.bank-chart-mini-metric { @apply rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm; }
+.bank-chart-mini-label { @apply text-[11px] uppercase tracking-[0.22em] text-muted-foreground; }
+.bank-chart-mini-value { @apply mt-2 text-lg font-bold text-foreground; }
+.bank-chart-mini-hint { @apply mt-1 text-sm text-muted-foreground; }
 .bank-modules-list { @apply space-y-4; }
 .bank-module-item { @apply flex items-center gap-3; }
 .bank-module-info { @apply flex-1; }
@@ -17,7 +62,3 @@
 .bank-module-progress-bar { @apply h-2 bg-muted rounded-full overflow-hidden; }
 .bank-module-progress { @apply h-full bg-primary; }
 .bank-module-trend { @apply w-5 h-5; }
-.bank-actions-grid { @apply grid md:grid-cols-3 gap-4; }
-.bank-action-card { @apply p-4 border border-border rounded-lg hover:border-primary hover:bg-primary/5 transition-all text-left; }
-.bank-action-title { @apply font-medium mb-1; }
-.bank-action-desc { @apply text-sm text-muted-foreground; }

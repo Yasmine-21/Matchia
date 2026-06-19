@@ -15,10 +15,6 @@
     @apply text-muted-foreground;
 }
 
-.branding-actions {
-    @apply flex gap-3;
-}
-
 .branding-main-grid {
     @apply grid lg:grid-cols-3 gap-6;
 }

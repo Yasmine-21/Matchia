@@ -322,6 +322,7 @@ public class NotificationService {
             case "join" -> "Nouvelle demande d'inscription";
             case "store" -> "Nouvelle demande de store";
             case "module" -> "Nouvelle demande de module";
+            case "subscription" -> "Nouvelle demande de renouvellement";
             default -> "Nouvelle demande reçue";
         };
     }
@@ -332,6 +333,7 @@ public class NotificationService {
             case "join" -> "Demande d'inscription " + decisionLabel;
             case "store" -> "Demande de store " + decisionLabel;
             case "module" -> "Demande de module " + decisionLabel;
+            case "subscription" -> "Demande de renouvellement " + decisionLabel;
             default -> "Demande " + decisionLabel;
         };
     }
@@ -342,6 +344,7 @@ public class NotificationService {
             case "join" -> bankName + " a envoyé une demande de rejoindre Matchia.";
             case "store" -> bankName + " a envoyé une demande de nouveau store.";
             case "module" -> bankName + " a envoyé une demande de nouveau module.";
+            case "subscription" -> bankName + " a envoyé une demande de renouvellement d'abonnement.";
             default -> bankName + " a envoyé une nouvelle demande.";
         };
     }
@@ -353,6 +356,7 @@ public class NotificationService {
             case "join" -> "La demande d'inscription de " + bankName + " a été " + decisionLabel + ".";
             case "store" -> "La demande de nouveau store de " + bankName + " a été " + decisionLabel + ".";
             case "module" -> "La demande de nouveau module de " + bankName + " a été " + decisionLabel + ".";
+            case "subscription" -> "La demande de renouvellement d'abonnement de " + bankName + " a été " + decisionLabel + ".";
             default -> "La demande de " + bankName + " a été " + decisionLabel + ".";
         };
         return appendReason(message, rejectionReason);
@@ -362,6 +366,7 @@ public class NotificationService {
         return switch (requestType) {
             case "store" -> "Demande de store rejetée";
             case "module" -> "Demande de module rejetée";
+            case "subscription" -> "Demande de renouvellement rejetée";
             default -> "Demande rejetée";
         };
     }
@@ -370,6 +375,7 @@ public class NotificationService {
         String message = switch (requestType) {
             case "store" -> "Votre demande pour un nouveau store a été rejetée.";
             case "module" -> "Votre demande pour un nouveau module a été rejetée.";
+            case "subscription" -> "Votre demande de renouvellement d'abonnement a été rejetée.";
             default -> "Votre demande a été rejetée.";
         };
         return appendReason(message, rejectionReason);

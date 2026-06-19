@@ -186,15 +186,17 @@ public class RequestService {
             throw new IllegalStateException("Une demande rejetee ne peut pas etre approuvee.");
         }
 
-        Bank bank = provisionApprovedRequest(request);
+        Bank bank = request.getRequestType() == RequestTypeEnum.subscription ? request.getBank() : provisionApprovedRequest(request);
         request.setStatus(RequestStatusEnum.approved);
         request.setBank(bank);
         Request saved = requestRepository.save(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.approved", AuditCategoryEnum.billing, AuditStatusEnum.success, null));
         notificationService.createRequestApprovedNotification(saved);
 
-        String paymentLink = paymentService.initiatePayment(saved);
-        emailService.sendPaymentInstructions(saved, paymentLink);
+        if (request.getRequestType() != RequestTypeEnum.subscription) {
+            String paymentLink = paymentService.initiatePayment(saved);
+            emailService.sendPaymentInstructions(saved, paymentLink);
+        }
         return saved;
     }
 
@@ -232,7 +234,7 @@ public class RequestService {
         Request request = findOrThrow(id);
         RequestStatusEnum before = request.getStatus();
 
-        if (status == RequestStatusEnum.approved) {
+        if (status == RequestStatusEnum.approved && request.getRequestType() != RequestTypeEnum.subscription) {
             Bank bank = provisionApprovedRequest(request);
             request.setBank(bank);
         }
@@ -284,8 +286,8 @@ public class RequestService {
 
     private void applyRequestFields(Request request, RequestDto dto,
                                     List<Long> storeIds, List<Long> moduleIds) {
-        validateRequiredFields(dto, storeIds);
         RequestTypeEnum requestType = resolveRequestType(dto);
+        validateRequiredFields(dto, storeIds, requestType);
         if (requestType == RequestTypeEnum.join) {
             validateMarketplaceFields(dto);
         }
@@ -304,10 +306,10 @@ public class RequestService {
         request.setDescription(dto.getDescription());
         request.setBankDescription(hasText(dto.getBankDescription()) ? dto.getBankDescription() : dto.getDescription());
         request.setEstablishmentYear(dto.getEstablishmentYear());
-        request.setMarketplaceSlug(dto.getMarketplaceSlug().trim());
+        request.setMarketplaceSlug(hasText(dto.getMarketplaceSlug()) ? dto.getMarketplaceSlug().trim() : null);
         request.setMarketplaceDescription(dto.getMarketplaceDescription());
-        request.setPrimaryColor(dto.getPrimaryColor().trim().toUpperCase());
-        request.setSecondaryColor(dto.getSecondaryColor().trim().toUpperCase());
+        request.setPrimaryColor(hasText(dto.getPrimaryColor()) ? dto.getPrimaryColor().trim().toUpperCase() : "#0F172A");
+        request.setSecondaryColor(hasText(dto.getSecondaryColor()) ? dto.getSecondaryColor().trim().toUpperCase() : "#F97316");
         request.setBanniereUrl(dto.getBanniereUrl());
         attachExistingBankIfNeeded(request, dto, requestType);
         request.setSelectedStores(toJsonArray(storeIds));
@@ -367,13 +369,13 @@ public class RequestService {
     }
 
     private void attachExistingBankIfNeeded(Request request, RequestDto dto, RequestTypeEnum requestType) {
-        if (requestType != RequestTypeEnum.store) {
+        if (requestType != RequestTypeEnum.store && requestType != RequestTypeEnum.subscription) {
             return;
         }
 
         Long bankId = dto.getBankId();
         if (bankId == null) {
-            throw new IllegalArgumentException("La banque existante est obligatoire pour une demande de store.");
+            throw new IllegalArgumentException("La banque existante est obligatoire pour cette demande.");
         }
 
         Bank bank = bankRepository.findById(bankId)
@@ -456,7 +458,7 @@ public class RequestService {
         }
     }
 
-    private void validateRequiredFields(RequestDto dto, List<Long> storeIds) {
+    private void validateRequiredFields(RequestDto dto, List<Long> storeIds, RequestTypeEnum requestType) {
         if (!hasText(dto.getBankName())) {
             throw new IllegalArgumentException("Le nom de la banque est obligatoire.");
         }
@@ -469,7 +471,7 @@ public class RequestService {
         if (!isEmail(dto.getContactEmail())) {
             throw new IllegalArgumentException("L'email du contact est obligatoire et doit etre valide.");
         }
-        if (storeIds == null || storeIds.isEmpty()) {
+        if (requestType != RequestTypeEnum.subscription && (storeIds == null || storeIds.isEmpty())) {
             throw new IllegalArgumentException("Au moins un store doit etre selectionne.");
         }
         Double total = dto.getTotalAmount() != null ? dto.getTotalAmount() : dto.getTotalMonthlyPrice();
@@ -634,7 +636,9 @@ public class RequestService {
         if (request == null || request.getRequestType() == null) {
             return false;
         }
-        return request.getRequestType() == RequestTypeEnum.store || request.getRequestType() == RequestTypeEnum.module;
+        return request.getRequestType() == RequestTypeEnum.store
+                || request.getRequestType() == RequestTypeEnum.module
+                || request.getRequestType() == RequestTypeEnum.subscription;
     }
 
     private void sendRejectionEmail(Request request, String rejectionReason) {
@@ -654,6 +658,10 @@ public class RequestService {
         }
         if (requestType == RequestTypeEnum.module) {
             emailService.sendModuleRequestRejectedEmail(request, rejectionReason);
+            return;
+        }
+        if (requestType == RequestTypeEnum.subscription) {
+            emailService.sendSubscriptionRequestRejectedEmail(request, rejectionReason);
             return;
         }
 

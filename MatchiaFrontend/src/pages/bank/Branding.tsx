@@ -513,14 +513,6 @@ export function BankBranding() {
             {marketplace?.bankName ? `Configurez l'apparence de ${marketplace.bankName}` : "Configurez l'apparence de votre marketplace"}
           </p>
         </div>
-        <div className="branding-actions">
-          <Button variant="outline" icon={<Eye className="w-5 h-5" />} onClick={handlePreviewScroll} type="button">
-            Aperçu
-          </Button>
-          <Button icon={<Save className="w-5 h-5" />} onClick={handleSave} loading={isSaving} type="button">
-            Enregistrer
-          </Button>
-        </div>
       </div>
 
       {error && <p className="mb-4 text-sm text-destructive">{error}</p>}

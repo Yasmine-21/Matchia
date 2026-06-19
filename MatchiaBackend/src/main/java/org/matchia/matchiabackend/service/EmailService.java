@@ -33,16 +33,53 @@ public class EmailService {
             log.warn("Impossible d'envoyer la confirmation de demande: email de contact manquant.");
             return false;
         }
-        String subject = "Demande d'activation marketplace recue";
-        String body = """
-                Bonjour,
+        String requestType = request != null && request.getRequestType() != null
+                ? request.getRequestType().name().toLowerCase()
+                : "join";
+        String subject = switch (requestType) {
+            case "store" -> "Demande de store recue";
+            case "module" -> "Demande de module recue";
+            case "subscription" -> "Demande de renouvellement recue";
+            default -> "Demande d'activation marketplace recue";
+        };
+        String body = switch (requestType) {
+            case "store" -> """
+                    Bonjour,
 
-                Votre demande de creation marketplace a bien ete envoyee.
-                Elle sera examinee par notre equipe dans un delai maximum de 2 jours.
+                    Votre demande d'ajout de store a bien ete envoyee.
+                    Elle sera examinee par notre equipe dans un delai maximum de 2 jours.
 
-                Merci,
-                L'equipe Matchia
-                """;
+                    Merci,
+                    L'equipe Matchia
+                    """;
+            case "module" -> """
+                    Bonjour,
+
+                    Votre demande d'ajout de module a bien ete envoyee.
+                    Elle sera examinee par notre equipe dans un delai maximum de 2 jours.
+
+                    Merci,
+                    L'equipe Matchia
+                    """;
+            case "subscription" -> """
+                    Bonjour,
+
+                    Votre demande de renouvellement d'abonnement a bien ete envoyee.
+                    Elle sera examinee par notre equipe dans un delai maximum de 2 jours.
+
+                    Merci,
+                    L'equipe Matchia
+                    """;
+            default -> """
+                    Bonjour,
+
+                    Votre demande de creation marketplace a bien ete envoyee.
+                    Elle sera examinee par notre equipe dans un delai maximum de 2 jours.
+
+                    Merci,
+                    L'equipe Matchia
+                    """;
+        };
 
         if (mailSender == null || !hasText(mailHost)) {
             log.info("ENVOI D'EMAIL SIMULE - Confirmation demande marketplace");
@@ -164,6 +201,18 @@ public class EmailService {
         return sendMail(recipient, subject, body, "rejet demande module", "REJET DEMANDE MODULE");
     }
 
+    public boolean sendSubscriptionRequestRejectedEmail(Request request, String rejectionReason) {
+        String recipient = resolveBankRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer le rejet de demande abonnement: email de la banque manquant.");
+            return false;
+        }
+
+        String subject = "Votre demande de renouvellement d'abonnement a ete rejetee";
+        String body = buildSubscriptionRequestRejectedBody(request, rejectionReason);
+        return sendMail(recipient, subject, body, "rejet demande abonnement", "REJET DEMANDE ABONNEMENT");
+    }
+
     private boolean sendMail(String recipient, String subject, String body, String logLabel, String simulatedLabel) {
         if (mailSender != null && hasText(mailHost)) {
             try {
@@ -216,6 +265,16 @@ public class EmailService {
         return buildRejectedBody(
                 contactName,
                 "Votre demande d'ajout de module pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
+                rejectionReason
+        );
+    }
+
+    private String buildSubscriptionRequestRejectedBody(Request request, String rejectionReason) {
+        String contactName = hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin";
+        String bankName = hasText(request != null ? request.getBankName() : null) ? request.getBankName() : "votre banque";
+        return buildRejectedBody(
+                contactName,
+                "Votre demande de renouvellement d'abonnement pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
                 rejectionReason
         );
     }

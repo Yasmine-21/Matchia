@@ -23,6 +23,7 @@ import { AuditLogs } from './pages/saas/AuditLogs';
 import { OffersAndSubscriptions } from './pages/saas/OffersAndSubscriptions';
 import { Certificates } from './pages/saas/Certificates';
 import { SaaSStoresModules } from './pages/saas/StoresModules';
+import { ContentManagement } from './pages/saas/ContentManagementTabs';
 
 // Imports Bank
 import { BankDashboard } from './pages/bank/Dashboard';
@@ -32,6 +33,9 @@ import { BankModules } from './pages/bank/Modules';
 import { BankBranding } from './pages/bank/Branding';
 import { BankParameters } from './pages/bank/Parameters';
 import { BankRequests } from './pages/bank/Requests';
+import { BankSubscription } from './pages/bank/Subscription';
+import { BankContentManagement } from './pages/bank/ContentManagement';
+import { ProductManagement } from './pages/bank/ProductManagement';
 
 // Imports Marketplace
 import { MarketplaceHome } from './pages/marketplace/Home';
@@ -85,6 +89,7 @@ export const saasRouter = createBrowserRouter([
       { path: 'dashboard', element: <SaaSDashboard /> },
       { path: 'banques', element: <SaaSBanks /> },
       { path: 'demandes', element: <Requests /> },
+      { path: 'gestion-contenu', element: <ContentManagement /> },
       { path: 'storesmodules', element: <SaaSStoresModules /> },
       { path: 'marketplaces', element: <Marketplaces /> },
       { path: 'certificates', element: <Certificates /> },
@@ -135,8 +140,11 @@ export const tenantRouter = createBrowserRouter([
       { path: 'utilisateurs', element: <BankUsers /> },
       { path: 'stores', element: <BankStores /> },
       { path: 'modules', element: <BankModules /> },
+      { path: 'products', element: <ProductManagement /> },
+      { path: 'gestion-contenu', element: <BankContentManagement /> },
       { path: 'branding', element: <BankBranding /> },
       { path: 'demandes', element: <BankRequests /> },
+      { path: 'abonnement', element: <BankSubscription /> },
       { path: 'parametres', element: <BankParameters /> },
     ],
   },

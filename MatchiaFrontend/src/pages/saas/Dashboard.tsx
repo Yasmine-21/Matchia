@@ -28,6 +28,8 @@ const getRequestTypeLabel = (requestType: RequestDto['requestType']) => {
       return 'Demande de store';
     case 'module':
       return 'Demande de module';
+    case 'subscription':
+      return "Demande de renouvellement";
     default:
       return 'Demande';
   }

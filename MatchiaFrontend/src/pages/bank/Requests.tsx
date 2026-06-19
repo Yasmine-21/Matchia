@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
-import { Building2, Clock, Eye, FileText, Loader2, X, CheckCircle } from 'lucide-react';
+import { Building2, Clock, CreditCard, Eye, FileText, Loader2, X, CheckCircle } from 'lucide-react';
 import { useBankTenant } from '../../hooks/useBankTenant';
 import { requestService } from '../../services/requestService';
 import { useApp } from '../../context/AppContext';
@@ -21,7 +21,10 @@ const requestTypeLabel: Record<RequestType, string> = {
   join: "Demande d'inscription",
   store: 'Demande de store',
   module: 'Demande de module',
+  subscription: "Renouvellement d'abonnement",
 };
+
+const isSubscriptionRequest = (request?: RequestDto | null) => request?.requestType === 'subscription';
 
 const statusVariant = (status: RequestStatus) => (
   status === 'pending' ? 'warning' : status === 'approved' ? 'success' : 'danger'
@@ -35,6 +38,8 @@ const formatTnd = (amount?: number) =>
     currency: 'TND',
     minimumFractionDigits: 0,
   }).format(amount || 0);
+
+const getBankDescription = (request: RequestDto) => request.bankDescription || request.description || null;
 
 export function BankRequests() {
   const { currentBank, currentUser } = useApp();
@@ -75,6 +80,7 @@ export function BankRequests() {
       setRequests(
         response.data.filter((request) =>
           request.requestType === 'store' || request.requestType === 'module'
+          || request.requestType === 'subscription'
         ),
       );
     } catch (loadError) {
@@ -293,40 +299,72 @@ export function BankRequests() {
               </section>
             )}
 
-            <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
-              <h3 className="mb-3 flex items-center gap-2 font-semibold">
-                <Building2 className="h-4 w-4 text-orange-500" /> Stores et modules demandés
-              </h3>
-              <div className="space-y-3">
-                {(selectedRequest.selectedStoreDetails || []).length === 0 ? (
-                  <p className="text-sm text-muted-foreground">Aucun détail de store demandé n'est disponible.</p>
-                ) : (
-                  selectedRequest.selectedStoreDetails?.map((store) => (
-                    <div key={store.id || store.storeId} className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
-                      <div className="mb-2 flex items-start justify-between gap-3">
-                        <div>
-                          <div className="font-semibold">{store.storeName}</div>
-                          <p className="text-sm text-muted-foreground">{store.storeDescription || 'Store demandé'}</p>
-                        </div>
-                        <Badge variant="secondary">{formatTnd(store.storePrice)}</Badge>
-                      </div>
-                      <div className="space-y-2">
-                        {(store.modules || []).length === 0 ? (
-                          <div className="text-sm text-muted-foreground">Aucun module demandé pour ce store.</div>
-                        ) : (
-                          store.modules.map((module) => (
-                            <div key={module.id || module.moduleId} className="flex items-center justify-between rounded-md bg-white px-3 py-2 text-sm dark:bg-gray-900">
-                              <span className="font-medium">{module.moduleName}</span>
-                              <span className="font-semibold">{formatTnd(module.modulePrice)}</span>
-                            </div>
-                          ))
-                        )}
-                      </div>
+            {isSubscriptionRequest(selectedRequest) ? (
+              <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
+                <h3 className="mb-3 flex items-center gap-2 font-semibold">
+                  <CreditCard className="h-4 w-4 text-orange-500" /> Détails du renouvellement
+                </h3>
+                <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
+                  <div>
+                    <span className="text-muted-foreground">Abonnement</span>
+                    <div className="font-medium">{getBankDescription(selectedRequest) || 'Renouvellement marketplace'}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Marketplace</span>
+                    <div className="font-medium">{selectedRequest.marketplaceSlug || '-'}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Montant</span>
+                    <div className="font-medium">{formatTnd(selectedRequest.totalMonthlyPrice ?? selectedRequest.totalAmount)}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Contact</span>
+                    <div className="font-medium">{selectedRequest.contactName || '-'}</div>
+                  </div>
+                  <div className="md:col-span-2">
+                    <span className="text-muted-foreground">Description</span>
+                    <div className="mt-1 rounded-lg bg-muted p-3">
+                      {getBankDescription(selectedRequest) || 'Demande de renouvellement envoyée par la banque.'}
                     </div>
-                  ))
-                )}
-              </div>
-            </section>
+                  </div>
+                </div>
+              </section>
+            ) : (
+              <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
+                <h3 className="mb-3 flex items-center gap-2 font-semibold">
+                  <Building2 className="h-4 w-4 text-orange-500" /> Stores et modules demandés
+                </h3>
+                <div className="space-y-3">
+                  {(selectedRequest.selectedStoreDetails || []).length === 0 ? (
+                    <p className="text-sm text-muted-foreground">Aucun détail de store demandé n'est disponible.</p>
+                  ) : (
+                    selectedRequest.selectedStoreDetails?.map((store) => (
+                      <div key={store.id || store.storeId} className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
+                        <div className="mb-2 flex items-start justify-between gap-3">
+                          <div>
+                            <div className="font-semibold">{store.storeName}</div>
+                            <p className="text-sm text-muted-foreground">{store.storeDescription || 'Store demandé'}</p>
+                          </div>
+                          <Badge variant="secondary">{formatTnd(store.storePrice)}</Badge>
+                        </div>
+                        <div className="space-y-2">
+                          {(store.modules || []).length === 0 ? (
+                            <div className="text-sm text-muted-foreground">Aucun module demandé pour ce store.</div>
+                          ) : (
+                            store.modules.map((module) => (
+                              <div key={module.id || module.moduleId} className="flex items-center justify-between rounded-md bg-white px-3 py-2 text-sm dark:bg-gray-900">
+                                <span className="font-medium">{module.moduleName}</span>
+                                <span className="font-semibold">{formatTnd(module.modulePrice)}</span>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </section>
+            )}
           </div>
         )}
       </Modal>

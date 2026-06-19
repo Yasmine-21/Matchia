@@ -1,23 +1,23 @@
-import '../../styles/BankDashboard.css';
+﻿import '../../styles/BankDashboard.css';
 import { useEffect, useMemo, useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Store, Box, TrendingUp, Loader2, Users, FileText } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import { AreaChart, Area, Cell, Pie, PieChart, XAxis, YAxis, CartesianGrid } from 'recharts';
 import { Badge } from '../../components/ui/Badge';
-import { useNavigate } from 'react-router';
 import { useBankTenant } from '../../hooks/useBankTenant';
 import { bankTenantService } from '../../services/bankTenantService';
 import { requestService } from '../../services/requestService';
 import type { MarketplacePublicDto, ModuleAssignment } from '../../types/apiTypes';
 import { KpiCard } from '../../components/ui/KpiCard';
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../../components/ui/chart';
 
 const COLORS = ['#2563eb', '#f97316', '#10b981', '#8b5cf6', '#ef4444'];
+const STORE_CHART_COLOR = '#f97316';
 
 const getStoreId = (store: { storeId?: number | null; id: number }) => store.storeId ?? store.id;
 
 export function BankDashboard() {
   const { users, stores, modulesByStore, marketplace, isLoading, error } = useBankTenant();
-  const navigate = useNavigate();
   const [publicMarketplace, setPublicMarketplace] = useState<MarketplacePublicDto | null>(null);
   const [requestCount, setRequestCount] = useState(0);
 
@@ -70,7 +70,11 @@ export function BankDashboard() {
         const response = await requestService.getBankRequests(tenantBankId);
         if (!mounted) return;
         setRequestCount(
-          response.data.filter((request) => request.requestType === 'store' || request.requestType === 'module').length,
+          response.data.filter((request) =>
+            request.requestType === 'store'
+            || request.requestType === 'module'
+            || request.requestType === 'subscription',
+          ).length,
         );
       } catch (loadError) {
         console.error('Failed to load bank request count:', loadError);
@@ -134,9 +138,32 @@ export function BankDashboard() {
       acc[key] = (acc[key] || 0) + 1;
       return acc;
     }, {});
-    return Object.entries(roleCounts).map(([name, value]) => ({ name, value }));
+    return Object.entries(roleCounts)
+      .map(([name, value]) => ({ name, value }))
+      .sort((left, right) => right.value - left.value);
   }, [users]);
 
+  const roleChartData = useMemo(
+    () =>
+      usersByRole.map((entry, index) => ({
+        ...entry,
+        percent: users.length > 0 ? Math.round((entry.value / users.length) * 100) : 0,
+        fill: COLORS[index % COLORS.length],
+      })),
+    [users.length, usersByRole],
+  );
+
+  const roleChartConfig = useMemo(
+    () =>
+      roleChartData.reduce<Record<string, { label: string; color: string }>>((acc, entry) => {
+        acc[entry.name] = {
+          label: entry.name,
+          color: entry.fill,
+        };
+        return acc;
+      }, {}),
+    [roleChartData],
+  );
   const storeModuleCounts = useMemo(
       () =>
         stores.map((store) => ({
@@ -161,6 +188,22 @@ export function BankDashboard() {
         })),
     [stores, visibleModulesByStore],
   );
+  const storeChartData = useMemo(
+    () =>
+      [...storeModuleCounts]
+        .sort((left, right) => right.modules - left.modules)
+        .map((entry) => ({
+          ...entry,
+          shortName: entry.name.length > 14 ? `${entry.name.slice(0, 13)}...` : entry.name,
+        })),
+    [storeModuleCounts],
+  );
+
+  const busiestStore = storeChartData[0] || null;
+  const averageModules = storeChartData.length
+    ? Math.round(storeChartData.reduce((sum, entry) => sum + entry.modules, 0) / storeChartData.length)
+    : 0;
+  const activeStoreRatio = stores.length ? Math.round((activeStores.length / stores.length) * 100) : 0;
 
   const topModules = useMemo(() => {
     const moduleUsage = new Map<number, { id: number; name: string; usage: number }>();
@@ -195,6 +238,8 @@ export function BankDashboard() {
     { label: 'Modules assignes', value: visibleModuleCount, change: `${activeModuleCount} actifs`, icon: <Box className="w-5 h-5" /> },
     { label: 'Mes demandes', value: requestCount, change: `${requestCount} demandes envoyées`, icon: <FileText className="w-5 h-5" /> },
   ];
+
+  const roleTop = roleChartData[0] || null;
 
   if (isLoading) {
     return (
@@ -235,43 +280,146 @@ export function BankDashboard() {
       </div>
 
       <div className="bank-charts-grid">
-        <Card>
-          <CardHeader>
-            <CardTitle>Repartition des roles</CardTitle>
-            <CardDescription>Utilisateurs filtres par marketplace</CardDescription>
+        <Card className="bank-chart-card bank-chart-card--roles">
+          <CardHeader className="bank-chart-header">
+            <div>
+              <CardTitle>Repartition des roles</CardTitle>
+              <CardDescription>Vue circulaire des profils actifs</CardDescription>
+            </div>
+            <div className="bank-chart-badges">
+              <span className="bank-chart-badge">{users.length} users</span>
+              <span className="bank-chart-badge">{roleTop ? `${roleTop.name} dominant` : 'Aucun role'}</span>
+            </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={usersByRole}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" stroke="#64748b" />
-                <YAxis stroke="#64748b" />
-                <Tooltip />
-                <Bar dataKey="value" fill="#2563eb" />
-              </BarChart>
-            </ResponsiveContainer>
+            <div className="bank-chart-roles-layout">
+              <div className="bank-chart-donut-shell">
+                <div className="bank-chart-donut-center">
+                  <div className="bank-chart-donut-value">{users.length}</div>
+                  <div className="bank-chart-donut-label">users</div>
+                </div>
+                <ChartContainer config={roleChartConfig} className="bank-chart-container">
+                  <PieChart>
+                    <ChartTooltip content={<ChartTooltipContent hideLabel indicator="dot" />} />
+                    <Pie
+                      data={roleChartData}
+                      dataKey="value"
+                      nameKey="name"
+                      innerRadius={72}
+                      outerRadius={110}
+                      paddingAngle={4}
+                      strokeWidth={4}
+                    >
+                      {roleChartData.map((entry) => (
+                        <Cell key={entry.name} fill={entry.fill} />
+                      ))}
+                    </Pie>
+                  </PieChart>
+                </ChartContainer>
+              </div>
+
+              <div className="bank-chart-roles-list">
+                {roleChartData.length === 0 ? (
+                  <div className="text-sm text-muted-foreground">Aucune donnee disponible.</div>
+                ) : (
+                  roleChartData.map((entry) => (
+                    <div key={entry.name} className="bank-chart-role-row">
+                      <div className="bank-chart-role-top">
+                        <div className="bank-chart-role-name-wrap">
+                          <span className="bank-chart-role-dot" style={{ backgroundColor: entry.fill }} />
+                          <span className="bank-chart-role-name">{entry.name}</span>
+                        </div>
+                        <span className="bank-chart-role-value">
+                          {entry.value} ({entry.percent}%)
+                        </span>
+                      </div>
+                      <div className="bank-chart-role-bar">
+                        <div
+                          className="bank-chart-role-bar-fill"
+                          style={{
+                            width: `${Math.max(entry.percent, 8)}%`,
+                            backgroundColor: entry.fill,
+                          }}
+                        />
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Stores et modules</CardTitle>
-            <CardDescription>Le contenu affiché correspond uniquement a cette marketplace</CardDescription>
+        <Card className="bank-chart-card bank-chart-card--stores">
+          <CardHeader className="bank-chart-header">
+            <div>
+              <CardTitle>Modules par store</CardTitle>
+              <CardDescription>Comparaison visuelle des stores visibles</CardDescription>
+            </div>
+            <div className="bank-chart-badges">
+              <span className="bank-chart-badge">{activeStores.length} actifs</span>
+              <span className="bank-chart-badge">{activeStoreRatio}% couverture</span>
+            </div>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={storeModuleCounts}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="name" stroke="#64748b" />
-                <YAxis stroke="#64748b" />
-                <Tooltip />
-                <Bar dataKey="modules" fill="#f97316" />
-              </BarChart>
-            </ResponsiveContainer>
+            <ChartContainer
+              config={{
+                modules: {
+                  label: 'Modules visibles',
+                  color: STORE_CHART_COLOR,
+                },
+              }}
+              className="bank-chart-area-shell"
+            >
+              <AreaChart data={storeChartData} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="storeModuleFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={STORE_CHART_COLOR} stopOpacity={0.35} />
+                    <stop offset="95%" stopColor={STORE_CHART_COLOR} stopOpacity={0.04} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis
+                  dataKey="shortName"
+                  tickLine={false}
+                  axisLine={false}
+                  stroke="#64748b"
+                  interval={0}
+                  angle={-18}
+                  textAnchor="end"
+                  height={56}
+                />
+                <YAxis
+                  tickLine={false}
+                  axisLine={false}
+                  stroke="#64748b"
+                />
+                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                <Area
+                  type="monotone"
+                  dataKey="modules"
+                  stroke={STORE_CHART_COLOR}
+                  fill="url(#storeModuleFill)"
+                  strokeWidth={3}
+                />
+              </AreaChart>
+            </ChartContainer>
+
+            <div className="bank-chart-mini-metrics">
+              <div className="bank-chart-mini-metric">
+                <div className="bank-chart-mini-label">Store le plus charge</div>
+                <div className="bank-chart-mini-value">{busiestStore?.name || 'N/A'}</div>
+                <div className="bank-chart-mini-hint">{busiestStore?.modules || 0} modules</div>
+              </div>
+              <div className="bank-chart-mini-metric">
+                <div className="bank-chart-mini-label">Moyenne par store</div>
+                <div className="bank-chart-mini-value">{averageModules}</div>
+                <div className="bank-chart-mini-hint">modules visibles</div>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
-
       <div className="grid gap-6 lg:grid-cols-2 mb-6">
         <Card>
           <CardHeader>
@@ -353,32 +501,11 @@ export function BankDashboard() {
         </Card>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Actions rapides</CardTitle>
-          <CardDescription>Raccourcis dynamiques selon la configuration de la marketplace</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="bank-actions-grid">
-            <button className="bank-action-card" type="button" onClick={() => navigate('/bank/utilisateurs')}>
-              <div className="bank-action-title">Gerer les utilisateurs</div>
-              <div className="bank-action-desc">Voir uniquement les comptes de cette marketplace</div>
-            </button>
-            <button className="bank-action-card" type="button" onClick={() => navigate('/bank/stores')}>
-              <div className="bank-action-title">Explorer les stores</div>
-              <div className="bank-action-desc">{stores.length} store(s) assigne(s)</div>
-            </button>
-            <button className="bank-action-card" type="button" onClick={() => navigate('/bank/branding')}>
-              <div className="bank-action-title">Personnaliser le branding</div>
-              <div className="bank-action-desc">Logo, banniere, couleurs et messages</div>
-            </button>
-            <button className="bank-action-card" type="button" onClick={() => navigate('/bank/modules')}>
-              <div className="bank-action-title">Voir les modules</div>
-              <div className="bank-action-desc">{visibleModuleCount} module(s) assigné(s) à cette marketplace</div>
-            </button>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
+
+
+
+
+

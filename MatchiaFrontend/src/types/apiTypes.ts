@@ -1,7 +1,8 @@
 export type BankStatus = 'pending' | 'inactive' | 'active' | 'suspended' | 'rejected';
 export type StoreStatus = 'active' | 'inactive';
 export type ModuleStatus = 'active' | 'inactive';
-export type RequestType = 'join' | 'store' | 'module';
+export type ContentStatus = 'active' | 'inactive';
+export type RequestType = 'join' | 'store' | 'module' | 'subscription';
 export type RequestStatus = 'pending' | 'approved' | 'rejected';
 export type NotificationStatus = 'UNREAD' | 'READ';
 export type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR' | 'PAYMENT_SUCCESS';
@@ -32,6 +33,78 @@ export interface StoreDto {
   price?: number | null;
   createdAt?: string;
   modulesCount?: number;
+}
+
+export interface ContentDto {
+  id: number;
+  storeId: number;
+  storeName?: string | null;
+  title: string;
+  description: string;
+  imageUrl?: string | null;
+  status: ContentStatus;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProductParameterDefinitionDto {
+  id: number;
+  storeId: number;
+  storeName?: string | null;
+  name: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProductParameterValueDto {
+  id: number;
+  parameterDefinitionId: number;
+  parameterName?: string | null;
+  value?: string | null;
+}
+
+export interface ProductDto {
+  id: number;
+  bankId: number;
+  bankName?: string | null;
+  storeId: number;
+  storeName?: string | null;
+  name: string;
+  description?: string | null;
+  parameterValues: ProductParameterValueDto[];
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface ProductParameterDefinitionPayload {
+  storeId: number;
+  name: string;
+}
+
+export interface ProductParameterValuePayload {
+  parameterDefinitionId: number;
+  value: string;
+}
+
+export interface ProductPayload {
+  bankId: number;
+  storeId: number;
+  name: string;
+  description?: string | null;
+  parameterValues: ProductParameterValuePayload[];
+}
+
+export interface MarketplaceContentDto {
+  id: number;
+  marketplaceId: number;
+  storeId?: number | null;
+  storeName?: string | null;
+  title: string;
+  description: string;
+  imageUrl?: string | null;
+  status: ContentStatus;
+  createdAt?: string;
+  updatedAt?: string;
 }
 export interface ModuleDto {
   id: number;
@@ -203,6 +276,7 @@ export interface MarketplacePublicDto {
   bankWebsiteUrl?: string | null;
   bankDescription?: string | null;
   bankEstablishedYear?: number | null;
+  totalMonthlyPrice?: number | null;
   primaryColor?: string | null;
   secondaryColor?: string | null;
   homepageTitle?: string | null;
@@ -212,6 +286,17 @@ export interface MarketplacePublicDto {
   footerText?: string | null;
   logoImageUrl?: string | null;
   stores?: MarketplaceStoreDetailDto[];
+}
+
+export interface PaidSubscriptionDto {
+  paymentId: number;
+  requestId: number | null;
+  bankName: string;
+  bankLogoUrl?: string | null;
+  marketplaceSlug?: string | null;
+  amount?: number | string | null;
+  currency?: string | null;
+  paidAt?: string | null;
 }
 
 export interface MarketplaceBrandingUpdatePayload {
