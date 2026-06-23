@@ -55,6 +55,8 @@ interface ComparisonRow {
   values: Map<number, string>;
 }
 
+type ComparisonFilter = 'all' | 'differences' | 'similarities';
+
 const normalizeSlug = (value?: string | null) =>
   (value || '')
     .toString()
@@ -109,6 +111,22 @@ const getProductSortValue = (createdAt?: string) => {
   return Number.isNaN(value) ? 0 : value;
 };
 
+const normalizeComparisonValue = (value?: string | null) =>
+  (value || '-')
+    .toString()
+    .trim()
+    .toLowerCase();
+
+const isRowDifferent = (row: ComparisonRow, productIds: number[]) => {
+  const values = productIds.map((productId) => normalizeComparisonValue(row.values.get(productId)));
+  return new Set(values).size > 1;
+};
+
+const isRowSimilar = (row: ComparisonRow, productIds: number[]) => {
+  const values = productIds.map((productId) => normalizeComparisonValue(row.values.get(productId)));
+  return new Set(values).size === 1;
+};
+
 export function ComparatorModule() {
   const { storeSlug } = useParams();
   const navigate = useNavigate();
@@ -117,6 +135,7 @@ export function ComparatorModule() {
   const [loading, setLoading] = useState(true);
   const [loadingError, setLoadingError] = useState(false);
   const [compareIds, setCompareIds] = useState<number[]>([]);
+  const [comparisonFilter, setComparisonFilter] = useState<ComparisonFilter>('all');
 
   const store = useMemo(() => {
     const targetSlug = normalizeSlug(storeSlug);
@@ -266,6 +285,28 @@ export function ComparatorModule() {
     return [...rows, ...Array.from(parameterRows.values())];
   }, [selectedProducts]);
 
+  const selectedProductIds = useMemo(
+    () => selectedProducts.map((product) => product.id),
+    [selectedProducts]
+  );
+
+  const visibleComparisonRows = useMemo(() => {
+    if (!selectedProducts.length) {
+      return [] as ComparisonRow[];
+    }
+
+    if (comparisonFilter === 'all') {
+      return comparisonRows;
+    }
+
+    const parameterRowsOnly = comparisonRows.filter((row) => row.key !== 'price');
+    return parameterRowsOnly.filter((row) =>
+      comparisonFilter === 'differences'
+        ? isRowDifferent(row, selectedProductIds)
+        : isRowSimilar(row, selectedProductIds)
+    );
+  }, [comparisonFilter, comparisonRows, selectedProductIds, selectedProducts.length]);
+
   const canRenderComparison = canCompare && selectedProducts.length >= 2;
   const maxReached = compareIds.length >= 4;
 
@@ -279,6 +320,10 @@ export function ComparatorModule() {
 
   const backToStore = () => {
     navigate(`/store/${encodeURIComponent(storeSlug || '')}`);
+  };
+
+  const toggleComparisonFilter = (nextFilter: Exclude<ComparisonFilter, 'all'>) => {
+    setComparisonFilter((current) => (current === nextFilter ? 'all' : nextFilter));
   };
 
   if (!store) {
@@ -416,83 +461,129 @@ export function ComparatorModule() {
               </div>
             </div>
 
-            <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
-              <div className="overflow-x-auto">
-                <table className="min-w-full border-collapse">
-                  <thead>
-                    <tr className="bg-slate-50">
-                      <th className="sticky left-0 z-20 min-w-[220px] border-b border-slate-200 bg-slate-50 px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
-                        Caracteristique
-                      </th>
-                      {selectedProducts.map((product) => {
-                        const imageUrl = getBackendAssetUrl(product.imageUrl);
+            <div className="rounded-[2rem] border border-slate-200 bg-white p-4 shadow-sm">
+              <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+                <div>
+                  <div className="text-sm font-semibold text-slate-900">Filter comparison</div>
+                  <p className="mt-1 text-sm text-slate-500">
+                    Switch between differences and similarities without leaving the page.
+                  </p>
+                </div>
 
-                        return (
-                          <th
-                            key={product.id}
-                            className="min-w-[260px] border-b border-slate-200 px-5 py-4 text-left align-top"
-                          >
-                            <div className="space-y-4">
-                              <div className="flex items-center justify-between gap-3">
-                                <div className="flex items-center gap-3">
-                                  <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white">
-                                    {imageUrl ? (
-                                      <img
-                                        src={imageUrl}
-                                        alt={product.name}
-                                        className="h-full w-full object-contain p-1"
-                                      />
-                                    ) : (
-                                      <div className="flex h-full w-full items-center justify-center text-slate-400">
-                                        <ImageIcon className="h-5 w-5" />
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div>
-                                    <div className="text-lg font-semibold text-slate-900">{product.name}</div>
-                                    <div className="text-sm text-slate-500">{product.storeName || storeLabel}</div>
-                                  </div>
-                                </div>
-
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="text-slate-400 hover:bg-slate-100 hover:text-slate-900"
-                                  onClick={() => removeProduct(product.id)}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </div>
-
-                              <Badge variant="secondary" className="w-fit bg-red-50 text-red-600">
-                                {formatTnd(product.price)}
-                              </Badge>
-                            </div>
-                          </th>
-                        );
-                      })}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {comparisonRows.map((row) => (
-                      <tr key={row.key} className="odd:bg-white even:bg-slate-50/60">
-                        <td className="sticky left-0 z-10 border-b border-slate-100 bg-inherit px-5 py-4 text-sm font-semibold text-slate-700">
-                          {row.label}
-                        </td>
-                        {selectedProducts.map((product) => (
-                          <td key={`${row.key}-${product.id}`} className="border-b border-slate-100 px-5 py-4 align-top">
-                            <div className={`text-sm ${row.key === 'price' ? 'font-semibold text-red-600' : 'text-slate-900'}`}>
-                              {row.values.get(product.id) || '-'}
-                            </div>
-                          </td>
-                        ))}
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                <div className="inline-flex rounded-full border border-slate-200 bg-slate-50 p-1">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className={`rounded-full px-4 ${
+                      comparisonFilter === 'differences'
+                        ? 'bg-slate-900 text-white hover:bg-slate-900'
+                        : 'text-slate-600 hover:bg-white'
+                    }`}
+                    onClick={() => toggleComparisonFilter('differences')}
+                  >
+                    Show Differences
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className={`rounded-full px-4 ${
+                      comparisonFilter === 'similarities'
+                        ? 'bg-slate-900 text-white hover:bg-slate-900'
+                        : 'text-slate-600 hover:bg-white'
+                    }`}
+                    onClick={() => toggleComparisonFilter('similarities')}
+                  >
+                    Show Similarities
+                  </Button>
+                </div>
               </div>
             </div>
+
+            {visibleComparisonRows.length ? (
+              <div className="overflow-hidden rounded-[2rem] border border-slate-200 bg-white shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full border-collapse">
+                    <thead>
+                      <tr className="bg-slate-50">
+                        <th className="sticky left-0 z-20 min-w-[220px] border-b border-slate-200 bg-slate-50 px-5 py-4 text-left text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">
+                          Caracteristique
+                        </th>
+                        {selectedProducts.map((product) => {
+                          const imageUrl = getBackendAssetUrl(product.imageUrl);
+
+                          return (
+                            <th
+                              key={product.id}
+                              className="min-w-[260px] border-b border-slate-200 px-5 py-4 text-left align-top"
+                            >
+                              <div className="space-y-4">
+                                <div className="flex items-center justify-between gap-3">
+                                  <div className="flex items-center gap-3">
+                                    <div className="h-14 w-14 shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                                      {imageUrl ? (
+                                        <img
+                                          src={imageUrl}
+                                          alt={product.name}
+                                          className="h-full w-full object-contain p-1"
+                                        />
+                                      ) : (
+                                        <div className="flex h-full w-full items-center justify-center text-slate-400">
+                                          <ImageIcon className="h-5 w-5" />
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <div className="text-lg font-semibold text-slate-900">{product.name}</div>
+                                      <div className="text-sm text-slate-500">{product.storeName || storeLabel}</div>
+                                    </div>
+                                  </div>
+
+                                  <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    className="text-slate-400 hover:bg-slate-100 hover:text-slate-900"
+                                    onClick={() => removeProduct(product.id)}
+                                  >
+                                    <Trash2 className="h-4 w-4" />
+                                  </Button>
+                                </div>
+
+                                <Badge variant="secondary" className="w-fit bg-red-50 text-red-600">
+                                  {formatTnd(product.price)}
+                                </Badge>
+                              </div>
+                            </th>
+                          );
+                        })}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {visibleComparisonRows.map((row) => (
+                        <tr key={row.key} className="odd:bg-white even:bg-slate-50/60">
+                          <td className="sticky left-0 z-10 border-b border-slate-100 bg-inherit px-5 py-4 text-sm font-semibold text-slate-700">
+                            {row.label}
+                          </td>
+                          {selectedProducts.map((product) => (
+                            <td key={`${row.key}-${product.id}`} className="border-b border-slate-100 px-5 py-4 align-top">
+                              <div className={`text-sm ${row.key === 'price' ? 'font-semibold text-red-600' : 'text-slate-900'}`}>
+                                {row.values.get(product.id) || '-'}
+                              </div>
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-[2rem] border border-dashed border-slate-200 bg-white px-6 py-12 text-center text-sm text-slate-500 shadow-sm">
+                No parameters match the selected filter.
+              </div>
+            )}
           </div>
         )}
 
