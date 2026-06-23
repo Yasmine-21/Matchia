@@ -71,6 +71,8 @@ export interface ProductDto {
   storeName?: string | null;
   name: string;
   description?: string | null;
+  price?: number | string | null;
+  imageUrl?: string | null;
   parameterValues: ProductParameterValueDto[];
   createdAt?: string;
   updatedAt?: string;
@@ -91,6 +93,8 @@ export interface ProductPayload {
   storeId: number;
   name: string;
   description?: string | null;
+  price?: number | string | null;
+  image?: File | null;
   parameterValues: ProductParameterValuePayload[];
 }
 

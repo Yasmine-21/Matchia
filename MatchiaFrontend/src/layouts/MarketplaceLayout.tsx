@@ -1,6 +1,19 @@
-import { Outlet, Link } from 'react-router';
-import { User, Menu, X, Building2, Loader2, Mail, Globe, MapPin, CalendarDays } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { Outlet, Link, useLocation } from 'react-router';
+import {
+  UserRound,
+  Menu,
+  X,
+  Building2,
+  Loader2,
+  Mail,
+  Globe,
+  MapPin,
+  CalendarDays,
+  Smartphone,
+  HeartPulse,
+  CarFront,
+} from 'lucide-react';
+import { useEffect, useMemo, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import apiClient from '../api/apiClient';
 
@@ -87,12 +100,66 @@ const slugify = (value?: string | null) =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
 
+const getStoreMeta = (name?: string | null) => {
+  const normalized = `${name || ''}`.toLowerCase();
+
+  if (normalized.includes('mobile') || normalized.includes('smart')) {
+    return { icon: Smartphone, label: 'mobile' };
+  }
+
+  if (normalized.includes('medical') || normalized.includes('médical') || normalized.includes('sant')) {
+    return { icon: HeartPulse, label: 'medical' };
+  }
+
+  if (normalized.includes('vehicle') || normalized.includes('vehicule') || normalized.includes('auto') || normalized.includes('car')) {
+    return { icon: CarFront, label: 'vehicule' };
+  }
+
+  return { icon: Building2, label: 'immobilier' };
+};
+
 export function MarketplaceLayout() {
   const bankSlug = getSubdomain();
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [marketplace, setMarketplace] = useState<MarketplacePublicDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const primaryColor = marketplace?.primaryColor || '#2563EB';
+  const secondaryColor = marketplace?.secondaryColor || '#F97316';
+  const logoUrl = getBackendAssetUrl(marketplace?.logoImageUrl || marketplace?.bankLogoUrl);
+  const bannerImageUrl = getBackendAssetUrl(marketplace?.banniereUrl || marketplace?.bannerImageUrl);
+  const stores = useMemo(() => (
+    (marketplace?.stores || [])
+      .filter((store) => store.enabled !== false && store.visible !== false)
+      .map((store) => ({
+        id: String(store.storeId || store.id),
+        name: store.name || `store-${store.storeId || store.id}`,
+        slug: slugify(store.name || `store-${store.storeId || store.id}`),
+        label: store.name || `Store ${store.storeId || store.id}`,
+        description: store.description || '',
+        banniere_url: getBackendAssetUrl(store.banniereUrl),
+        price: store.price,
+        modules: (store.modules || [])
+          .filter((module) => module.enabled !== false && module.visible !== false)
+          .map((module) => ({
+            id: String(module.moduleId || module.id),
+            name: module.name || `module-${module.moduleId || module.id}`,
+            label: module.name || `Module ${module.moduleId || module.id}`,
+            category: module.category,
+            price: module.price,
+          })),
+      }))
+  ), [marketplace]);
+  const headerStores = stores.slice(0, 4);
+  const activeStoreSlug = useMemo(() => {
+    if (location.pathname === '/' && headerStores[0]) {
+      return headerStores[0].slug;
+    }
+
+    const match = location.pathname.match(/^\/store\/([^/]+)/);
+    return match ? decodeURIComponent(match[1]) : headerStores[0]?.slug || '';
+  }, [headerStores, location.pathname]);
 
   useEffect(() => {
     if (!bankSlug) return;
@@ -131,31 +198,6 @@ export function MarketplaceLayout() {
     return <div className="p-8 text-center">Marketplace non trouvee</div>;
   }
 
-  const primaryColor = marketplace.primaryColor || '#2563EB';
-  const secondaryColor = marketplace.secondaryColor || '#F97316';
-  const logoUrl = getBackendAssetUrl(marketplace.logoImageUrl || marketplace.bankLogoUrl);
-  const bannerImageUrl = getBackendAssetUrl(marketplace.banniereUrl || marketplace.bannerImageUrl);
-  const stores = (marketplace.stores || [])
-    .filter((store) => store.enabled !== false && store.visible !== false)
-    .map((store) => ({
-      id: String(store.storeId || store.id),
-      name: store.name || `store-${store.storeId || store.id}`,
-      slug: slugify(store.name || `store-${store.storeId || store.id}`),
-      label: store.name || `Store ${store.storeId || store.id}`,
-      description: store.description || '',
-      banniere_url: getBackendAssetUrl(store.banniereUrl),
-      price: store.price,
-      modules: (store.modules || [])
-        .filter((module) => module.enabled !== false && module.visible !== false)
-        .map((module) => ({
-          id: String(module.moduleId || module.id),
-          name: module.name || `module-${module.moduleId || module.id}`,
-          label: module.name || `Module ${module.moduleId || module.id}`,
-          category: module.category,
-          price: module.price,
-        })),
-    }));
-
   const bankData = {
     id: String(marketplace.bankId || marketplace.id),
     name: marketplace.bankName || marketplace.bankSlug || bankSlug,
@@ -182,12 +224,12 @@ export function MarketplaceLayout() {
 
   return (
     <div
-      className="min-h-screen flex flex-col"
+      className="min-h-screen flex flex-col bg-[#f8f6f2]"
       style={{ '--bank-primary': branding.primary_color, '--bank-secondary': branding.secondary_color } as any}
     >
-      <header className="sticky top-0 z-30 bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
+      <header className="sticky top-0 z-30 bg-transparent px-4 pt-4">
+        <div className="mx-auto max-w-7xl rounded-[26px] border border-white/70 bg-white/95 px-4 py-3 shadow-[0_12px_34px_rgba(15,23,42,0.10)] backdrop-blur-xl sm:px-6">
+          <div className="flex items-center justify-between gap-4">
             <Link to="/" className="flex items-center gap-3">
               {branding.logo_image_url ? (
                 <img
@@ -200,25 +242,43 @@ export function MarketplaceLayout() {
                   <Building2 className="h-5 w-5" />
                 </div>
               )}
-              <span className="text-xl font-bold" style={{ color: primaryColor }}>{bankData.name}</span>
+              <span className="text-lg font-bold text-slate-900 sm:text-xl" style={{ color: primaryColor }}>
+                {bankData.name}
+              </span>
             </Link>
 
-            <nav className="hidden md:flex items-center gap-6">
-              {stores.map((store) => (
+            <nav className="hidden flex-1 items-center justify-center gap-3 lg:flex">
+              {headerStores.map((store) => {
+                const meta = getStoreMeta(store.name || store.label);
+                const ActiveIcon = meta.icon;
+                const isActive = store.slug === activeStoreSlug;
+
+                return (
                 <Link
                   key={store.id}
                   to={`/store/${encodeURIComponent(store.slug)}`}
-                  className="text-foreground hover:opacity-80 transition-opacity"
-                  style={{ color: primaryColor }}
+                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+                    isActive
+                      ? 'border-transparent text-white shadow-[0_10px_22px_rgba(155,17,26,0.26)]'
+                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                  }`}
+                  style={isActive ? { backgroundColor: primaryColor } : undefined}
                 >
-                  {store.label}
+                  <ActiveIcon className="h-4 w-4" />
+                  <span className="capitalize">{meta.label}</span>
                 </Link>
-              ))}
+                );
+              })}
             </nav>
 
             <div className="hidden md:flex items-center gap-3">
               <Link to="/connexion">
-                <Button size="sm" variant="outline" icon={<User className="w-4 h-4" />}>
+                <Button
+                  size="sm"
+                  className="rounded-full border-0 px-5 text-white shadow-[0_10px_20px_rgba(155,17,26,0.28)] hover:opacity-95"
+                  style={{ backgroundColor: primaryColor }}
+                  icon={<UserRound className="w-4 h-4" />}
+                >
                   Se connecter
                 </Button>
               </Link>
@@ -234,19 +294,41 @@ export function MarketplaceLayout() {
         </div>
 
         {mobileMenuOpen && (
-          <div className="md:hidden border-t border-border bg-white px-4 py-4">
-            <nav className="space-y-2">
-              {stores.map((store) => (
-                <Link
-                  key={store.id}
-                  to={`/store/${encodeURIComponent(store.slug)}`}
-                  className="block py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  {store.label}
-                </Link>
-              ))}
+          <div className="mx-auto mt-3 max-w-7xl rounded-[22px] border border-slate-200 bg-white px-4 py-4 shadow-[0_10px_30px_rgba(15,23,42,0.08)] lg:hidden">
+            <nav className="grid gap-2">
+              {stores.map((store) => {
+                const meta = getStoreMeta(store.name || store.label);
+                const ActiveIcon = meta.icon;
+                const isActive = store.slug === activeStoreSlug;
+
+                return (
+                  <Link
+                    key={store.id}
+                    to={`/store/${encodeURIComponent(store.slug)}`}
+                    className={`flex items-center gap-3 rounded-2xl border px-4 py-3 text-sm font-medium ${
+                      isActive
+                        ? 'border-transparent text-white'
+                        : 'border-slate-200 bg-white text-slate-700'
+                    }`}
+                    style={isActive ? { backgroundColor: primaryColor } : undefined}
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    <ActiveIcon className="h-4 w-4" />
+                    <span className="capitalize">{meta.label}</span>
+                  </Link>
+                );
+              })}
             </nav>
+            <Link to="/connexion" onClick={() => setMobileMenuOpen(false)} className="mt-4 block">
+              <Button
+                size="sm"
+                className="w-full rounded-full border-0 px-5 text-white"
+                style={{ backgroundColor: primaryColor }}
+                icon={<UserRound className="w-4 h-4" />}
+              >
+                Se connecter
+              </Button>
+            </Link>
           </div>
         )}
       </header>
@@ -255,9 +337,9 @@ export function MarketplaceLayout() {
         <Outlet context={{ bankData, branding, marketplace }} />
       </main>
 
-      <footer className="bg-slate-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-10 md:grid-cols-[1.4fr_1fr_1fr]">
+      <footer className="bg-[linear-gradient(180deg,#0f172a_0%,#10192d_100%)] text-white py-12">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-10 md:grid-cols-[1.3fr_1fr_1fr]">
             <div>
               <div className="flex items-center gap-3">
                 {branding.logo_image_url ? (
@@ -282,7 +364,7 @@ export function MarketplaceLayout() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Contact</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">Contact</h3>
               <div className="mt-4 space-y-3 text-sm text-slate-400">
                 {bankData.email && (
                   <a href={`mailto:${bankData.email}`} className="flex items-center gap-2 transition-colors hover:text-white">
@@ -320,10 +402,10 @@ export function MarketplaceLayout() {
             </div>
 
             <div>
-              <h3 className="text-sm font-semibold uppercase tracking-wide text-slate-300">Stores</h3>
+              <h3 className="text-sm font-semibold uppercase tracking-[0.22em] text-slate-300">Stores</h3>
               <div className="mt-4 space-y-2 text-sm text-slate-400">
                 {stores.length > 0 ? stores.map((store) => (
-                  <Link key={store.id} to={`/store/${store.name}`} className="block transition-colors hover:text-white">
+                  <Link key={store.id} to={`/store/${encodeURIComponent(store.slug)}`} className="block transition-colors hover:text-white">
                     {store.label}
                   </Link>
                 )) : (

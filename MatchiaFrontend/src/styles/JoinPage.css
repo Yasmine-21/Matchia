@@ -92,11 +92,15 @@
 }
 
 .join-upload-preview {
-  @apply w-20 h-20 bg-muted rounded-lg mx-auto flex items-center justify-center;
+  @apply w-24 h-24 bg-muted rounded-xl mx-auto flex items-center justify-center overflow-hidden border border-border/60;
 }
 
 .join-upload-success-icon {
   @apply w-10 h-10 text-success;
+}
+
+.join-upload-preview-image {
+  @apply h-full w-full object-cover;
 }
 
 .join-upload-icon {

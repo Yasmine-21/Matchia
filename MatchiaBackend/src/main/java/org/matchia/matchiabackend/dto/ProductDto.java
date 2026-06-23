@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,8 @@ public class ProductDto {
     private String storeName;
     private String name;
     private String description;
+    private BigDecimal price;
+    private String imageUrl;
     private List<ProductParameterValueDto> parameterValues = new ArrayList<>();
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;

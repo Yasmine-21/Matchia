@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
+import { KpiCard } from '../../components/ui/KpiCard';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
 import { Select } from '../../components/ui/Select';
@@ -111,12 +112,11 @@ export function ContentManagement() {
     const active = contents.filter((content) => content.status === 'active').length;
     const inactive = contents.filter((content) => content.status === 'inactive').length;
     return [
-      { label: 'Contenus', value: contents.length, helper: 'tous les contenus' },
-      { label: 'Actifs', value: active, helper: 'contenus visibles' },
-      { label: 'Inactifs', value: inactive, helper: 'contenus masquÃ©s' },
-      { label: 'Stores', value: stores.length, helper: 'stores disponibles' },
+      { label: 'Contenus', value: contents.length, badge: 'tous les contenus', tone: 'primary' as const },
+      { label: 'Actifs', value: active, badge: 'contenus visibles', tone: 'success' as const },
+      { label: 'Inactifs', value: inactive, badge: 'contenus masqués', tone: 'warning' as const },
     ];
-  }, [contents, stores.length]);
+  }, [contents]);
 
   const storeOptions = useMemo(() => (
     stores.map((store) => ({
@@ -213,7 +213,7 @@ export function ContentManagement() {
           : [response.data, ...prev]
       ));
       closeAndResetModal();
-      toast.success(editingContentId ? 'Contenu modifiÃ© avec succÃ¨s.' : 'Contenu crÃ©Ã© avec succÃ¨s.');
+      toast.success(editingContentId ? 'Contenu modifié avec succès.' : 'Contenu créé avec succès.');
     } catch (submitError) {
       console.error('Failed to create content:', submitError);
       setFormError(editingContentId ? 'La modification du contenu a echoue.' : 'La creation du contenu a echoue.');
@@ -243,7 +243,7 @@ export function ContentManagement() {
   };
 
   const modalTitle = editingContentId ? 'Modifier le contenu' : 'Nouveau contenu';
-  const submitLabel = editingContentId ? 'Enregistrer les modifications' : 'CrÃ©er le contenu';
+  const submitLabel = editingContentId ? 'Enregistrer les modifications' : 'Créer le contenu';
 
   return (
     <div className="space-y-6">
@@ -251,7 +251,7 @@ export function ContentManagement() {
         <div>
           <h1 className="text-3xl font-bold mb-2">Gestion de contenu</h1>
           <p className="text-muted-foreground">
-            CrÃ©ez et suivez les contenus liÃ©s Ã  chaque store de la marketplace.
+            Créez et suivez les contenus liés à chaque store de la marketplace.
           </p>
         </div>
 
@@ -270,22 +270,23 @@ export function ContentManagement() {
         </div>
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-3">
         {stats.map((stat) => (
-          <Card key={stat.label}>
-            <CardHeader className="space-y-1">
-              <CardDescription>{stat.label}</CardDescription>
-              <div className="text-3xl font-bold">{stat.value}</div>
-              <div className="text-xs text-muted-foreground">{stat.helper}</div>
-            </CardHeader>
-          </Card>
+          <KpiCard
+            key={stat.label}
+            label={stat.label}
+            value={stat.value}
+            icon={<Sparkles className="h-5 w-5" />}
+            tone={stat.tone}
+            badge={stat.badge}
+          />
         ))}
       </div>
 
       <Card className="border-border/70 shadow-sm">
         <CardHeader>
           <CardTitle>Liste des contenus</CardTitle>
-          <CardDescription>Tous les contenus crÃ©Ã©s pour vos stores</CardDescription>
+          <CardDescription>Tous les contenus créés pour vos stores</CardDescription>
         </CardHeader>
         <CardContent>
           {loading ? (
@@ -348,7 +349,7 @@ export function ContentManagement() {
                       </div>
 
                       <div className="flex items-center justify-end text-xs text-muted-foreground">
-                        <span>{content.status === 'active' ? 'Visible' : 'MasquÃ©'}</span>
+                        <span>{content.status === 'active' ? 'Visible' : 'Masqué'}</span>
                       </div>
 
                       <div className="mt-auto flex flex-col gap-3 sm:flex-row">
@@ -389,10 +390,10 @@ export function ContentManagement() {
           <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-900">
             <div className="flex items-center gap-2 font-semibold">
               <Sparkles className="h-4 w-4" />
-              Contenu liÃ© Ã  un store
+              Contenu lié à un store
             </div>
             <p className="mt-1 text-orange-800">
-              SÃ©lectionnez un store existant puis renseignez le titre, la description, l'image et le statut du contenu.
+              Sélectionnez un store existant puis renseignez le titre, la description, l'image et le statut du contenu.
             </p>
           </div>
 
@@ -408,7 +409,7 @@ export function ContentManagement() {
               value={form.storeId}
               onChange={(event) => setForm((prev) => ({ ...prev, storeId: event.target.value }))}
               options={[
-                { value: '', label: 'SÃ©lectionnez un store' },
+                { value: '', label: 'Sélectionnez un store' },
                 ...storeOptions,
               ]}
             />
@@ -436,7 +437,7 @@ export function ContentManagement() {
               rows={5}
               value={form.description}
               onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
-              placeholder="DÃ©crivez le contenu..."
+              placeholder="Décrivez le contenu..."
             />
           </div>
 
@@ -451,10 +452,10 @@ export function ContentManagement() {
             </div>
 
             <div className="rounded-2xl border border-border bg-muted/30 p-4">
-              <div className="text-sm font-medium">AperÃ§u</div>
+              <div className="text-sm font-medium">Aperçu</div>
               <div className="mt-3 h-40 overflow-hidden rounded-xl border border-border bg-slate-900">
                 {imagePreview ? (
-                  <img src={imagePreview} alt="PrÃ©visualisation" className="h-full w-full object-cover" />
+                  <img src={imagePreview} alt="Prévisualisation" className="h-full w-full object-cover" />
                 ) : (
                   <div className="flex h-full w-full items-center justify-center text-muted-foreground">
                     <ImageIcon className="h-8 w-8" />
@@ -482,3 +483,4 @@ export function ContentManagement() {
     </div>
   );
 }
+

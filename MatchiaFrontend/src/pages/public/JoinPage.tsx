@@ -77,6 +77,9 @@ export function JoinPage() {
     selectedModulesByStore: {} as Record<number, number[]>,
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [logoPreviewUrl, setLogoPreviewUrl] = useState('');
+  const [contactImagePreviewUrl, setContactImagePreviewUrl] = useState('');
+  const [bannierePreviewUrl, setBannierePreviewUrl] = useState('');
   const [colorPickers, setColorPickers] = useState({
     primaryColor: { hue: 24, saturation: 0.91, value: 0.97 },
     secondaryColor: { hue: 221, saturation: 0.83, value: 0.92 },
@@ -107,6 +110,16 @@ export function JoinPage() {
 
     loadCatalog();
   }, []);
+
+  useEffect(() => {
+    return () => {
+      [logoPreviewUrl, contactImagePreviewUrl, bannierePreviewUrl].forEach((url) => {
+        if (url) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, [logoPreviewUrl, contactImagePreviewUrl, bannierePreviewUrl]);
 
   const loadModulesForStore = async (storeId: number) => {
     if (modulesByStore[storeId]) return;
@@ -209,7 +222,62 @@ export function JoinPage() {
     });
   };
 
-  const validateMarketplaceConfig = () => {
+  const getBankInfoErrors = () => {
+    const errors: Record<string, string> = {};
+    const bankName = formData.bankName.trim();
+    const bankEmail = formData.bankEmail.trim();
+    const website = formData.website.trim();
+    const bankDescription = formData.bankDescription.trim();
+    const currentYear = new Date().getFullYear();
+    const year = formData.establishmentYear ? Number(formData.establishmentYear) : null;
+
+    if (!bankName) {
+      errors.bankName = 'Le nom de la banque est obligatoire.';
+    }
+    if (!bankEmail) {
+      errors.bankEmail = "L'email de la banque est obligatoire.";
+    }
+    if (!website) {
+      errors.website = "L'URL du site web est obligatoire.";
+    }
+    if (!bankDescription) {
+      errors.bankDescription = 'La description de la banque est obligatoire.';
+    }
+    if (!formData.establishmentYear.trim()) {
+      errors.establishmentYear = "L'annee d'etablissement est obligatoire.";
+    } else if (year === null || Number.isNaN(year) || year < 1800 || year > currentYear) {
+      errors.establishmentYear = `L'annee doit etre entre 1800 et ${currentYear}.`;
+    }
+    if (!formData.logo) {
+      errors.logo = 'Le logo de la banque est obligatoire.';
+    }
+    if (bankDescription.length > 1000) {
+      errors.bankDescription = 'La description ne doit pas depasser 1000 caracteres.';
+    }
+
+    return errors;
+  };
+
+  const getContactInfoErrors = () => {
+    const errors: Record<string, string> = {};
+
+    if (!formData.contactName.trim()) {
+      errors.contactName = 'Le nom du contact principal est obligatoire.';
+    }
+    if (!formData.email.trim()) {
+      errors.email = "L'adresse e-mail du contact est obligatoire.";
+    }
+    if (!formData.phone.trim()) {
+      errors.phone = 'Le numero de telephone est obligatoire.';
+    }
+    if (!formData.contactImage) {
+      errors.contactImage = "L'image du contact principal est obligatoire.";
+    }
+
+    return errors;
+  };
+
+  const getMarketplaceErrors = () => {
     const errors: Record<string, string> = {};
     const slug = formData.marketplaceSlug.trim();
     const marketplaceDescription = formData.marketplaceDescription.trim();
@@ -220,7 +288,9 @@ export function JoinPage() {
       errors.marketplaceSlug = 'Utilisez uniquement des minuscules, chiffres et tirets.';
     }
 
-    if (marketplaceDescription.length > 500) {
+    if (!marketplaceDescription) {
+      errors.marketplaceDescription = 'La description marketplace est obligatoire.';
+    } else if (marketplaceDescription.length > 500) {
       errors.marketplaceDescription = 'La description ne doit pas depasser 500 caracteres.';
     }
 
@@ -232,75 +302,120 @@ export function JoinPage() {
       errors.secondaryColor = 'Choisissez une couleur secondaire valide.';
     }
 
+    if (!formData.banniere) {
+      errors.banniere = 'La banniere marketplace est obligatoire.';
+    }
+
+    return errors;
+  };
+
+  const getSelectionErrors = () => {
+    const errors: Record<string, string> = {};
+
+    if (formData.selectedStores.length === 0) {
+      errors.selectedStores = 'Veuillez selectionner au moins un store.';
+    }
+
+    formData.selectedStores.forEach((storeId) => {
+      const availableModules = modulesByStore[storeId] || [];
+      if (availableModules.length === 0) {
+        return;
+      }
+
+      const selectedForStore = formData.selectedModulesByStore[storeId] || [];
+      if (selectedForStore.length === 0) {
+        const store = stores.find((item) => item.id === storeId);
+        errors[`modules-${storeId}`] = `Veuillez selectionner au moins un module pour ${store?.name || 'ce store'}.`;
+      }
+    });
+
+    return errors;
+  };
+
+  const getAllErrors = () => ({
+    ...getBankInfoErrors(),
+    ...getContactInfoErrors(),
+    ...getMarketplaceErrors(),
+    ...getSelectionErrors(),
+  });
+
+  const getFirstInvalidStep = (errors: Record<string, string>) => {
+    const bankFields = ['bankName', 'bankEmail', 'country', 'website', 'bankDescription', 'establishmentYear', 'logo'];
+    const contactFields = ['contactName', 'email', 'phone', 'contactImage'];
+    const marketplaceFields = ['marketplaceSlug', 'marketplaceDescription', 'primaryColor', 'secondaryColor', 'banniere'];
+
+    if (bankFields.some((field) => errors[field])) return 1;
+    if (contactFields.some((field) => errors[field])) return 2;
+    if (marketplaceFields.some((field) => errors[field]) || Object.keys(errors).some((key) => key.startsWith('modules-') || key === 'selectedStores')) return 3;
+    return 4;
+  };
+
+  const validateBankInfo = () => {
+    const errors = getBankInfoErrors();
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
-  const validateBankInfo = () => {
-    const errors: Record<string, string> = {};
-    const currentYear = new Date().getFullYear();
-    const year = formData.establishmentYear ? Number(formData.establishmentYear) : null;
-
-    if (!formData.bankName.trim()) {
-      errors.bankName = 'Le nom de la banque est obligatoire.';
-    }
-    if (!formData.bankEmail.trim()) {
-      errors.bankEmail = "L'email de la banque est obligatoire.";
-    }
-    if (formData.bankDescription.length > 1000) {
-      errors.bankDescription = 'La description ne doit pas depasser 1000 caracteres.';
-    }
-    if (year !== null && (Number.isNaN(year) || year < 1800 || year > currentYear)) {
-      errors.establishmentYear = `L'annee doit etre entre 1800 et ${currentYear}.`;
-    }
-
+  const validateContactInfo = () => {
+    const errors = getContactInfoErrors();
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
 
   const goToNextStep = () => {
     if (step === 1 && !validateBankInfo()) return;
-    if (step === 3 && !validateMarketplaceConfig()) return;
+    if (step === 2 && !validateContactInfo()) return;
+    if (step === 3) {
+      const errors = { ...getMarketplaceErrors(), ...getSelectionErrors() };
+      setFormErrors(errors);
+      if (Object.keys(errors).length > 0) return;
+    }
     setStep(step + 1);
   };
 
   const handleLogoChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    event.target.value = '';
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
       alert('Le logo ne doit pas depasser 2 Mo.');
-      event.target.value = '';
       return;
     }
 
     setFormData((prev) => ({ ...prev, logo: file }));
+    setLogoPreviewUrl(URL.createObjectURL(file));
+    setFormErrors((prev) => ({ ...prev, logo: '' }));
   };
 
   const handleBanniereChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    event.target.value = '';
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
       alert('La banniere ne doit pas depasser 5 Mo.');
-      event.target.value = '';
       return;
     }
 
     setFormData((prev) => ({ ...prev, banniere: file }));
+    setBannierePreviewUrl(URL.createObjectURL(file));
+    setFormErrors((prev) => ({ ...prev, banniere: '' }));
   };
 
   const handleContactImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
+    event.target.value = '';
     if (!file) return;
 
     if (file.size > 2 * 1024 * 1024) {
       alert("L'image du contact ne doit pas depasser 2 Mo.");
-      event.target.value = '';
       return;
     }
 
     setFormData((prev) => ({ ...prev, contactImage: file }));
+    setContactImagePreviewUrl(URL.createObjectURL(file));
+    setFormErrors((prev) => ({ ...prev, contactImage: '' }));
   };
 
   const toggleStore = async (storeId: number) => {
@@ -321,6 +436,13 @@ export function JoinPage() {
         selectedStores: nextStores,
         selectedModulesByStore: nextModules,
       };
+    });
+
+    setFormErrors((prev) => {
+      const nextErrors = { ...prev };
+      delete nextErrors.selectedStores;
+      delete nextErrors[`modules-${storeId}`];
+      return nextErrors;
     });
 
     if (!isSelected) {
@@ -346,11 +468,20 @@ export function JoinPage() {
         },
       };
     });
+
+    setFormErrors((prev) => {
+      const nextErrors = { ...prev };
+      delete nextErrors[`modules-${storeId}`];
+      return nextErrors;
+    });
   };
 
   const handleSubmit = async () => {
-    if (!validateMarketplaceConfig()) {
-      setStep(3);
+    const errors = getAllErrors();
+    setFormErrors(errors);
+
+    if (Object.keys(errors).length > 0) {
+      setStep(getFirstInvalidStep(errors));
       return;
     }
 
@@ -465,7 +596,12 @@ export function JoinPage() {
                   <Select
                     label="Pays"
                     value={formData.country}
-                    onChange={(e) => setFormData((prev) => ({ ...prev, country: e.target.value }))}
+                    required
+                    error={formErrors.country}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, country: e.target.value }));
+                      setFormErrors((prev) => ({ ...prev, country: '' }));
+                    }}
                     options={[
                       { value: 'Tunisie', label: 'Tunisie' },
                       { value: 'Maroc', label: 'Maroc' },
@@ -474,7 +610,18 @@ export function JoinPage() {
                       { value: 'Emirats Arabes Unis', label: 'Emirats Arabes Unis' },
                     ]}
                   />
-                  <Input label="URL du site web" type="url" placeholder="https://www.exemple.com" value={formData.website} onChange={(e) => setFormData((prev) => ({ ...prev, website: e.target.value }))} />
+                  <Input
+                    label="URL du site web"
+                    type="url"
+                    placeholder="https://www.exemple.com"
+                    value={formData.website}
+                    required
+                    error={formErrors.website}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, website: e.target.value }));
+                      setFormErrors((prev) => ({ ...prev, website: '' }));
+                    }}
+                  />
                 </div>
                 <div className="join-form-grid">
                   <div>
@@ -485,6 +632,7 @@ export function JoinPage() {
                       maxLength={1000}
                       placeholder="Decrivez brievement votre institution"
                       value={formData.bankDescription}
+                      required
                       onChange={(e) => {
                         setFormData((prev) => ({ ...prev, bankDescription: e.target.value }));
                         setFormErrors((prev) => ({ ...prev, bankDescription: '' }));
@@ -503,6 +651,7 @@ export function JoinPage() {
                       max={new Date().getFullYear()}
                       placeholder="Ex: 1984"
                       value={formData.establishmentYear}
+                      required
                       onChange={(e) => {
                         setFormData((prev) => ({ ...prev, establishmentYear: e.target.value }));
                         setFormErrors((prev) => ({ ...prev, establishmentYear: '' }));
@@ -514,11 +663,15 @@ export function JoinPage() {
                 <div>
                   <label className="join-label" htmlFor="bank-logo">Logo de la banque</label>
                   <label className="join-upload-area block" htmlFor="bank-logo">
-                    <input id="bank-logo" type="file" accept="image/png,image/jpeg,image/svg+xml" className="sr-only" onChange={handleLogoChange} />
+                    <input id="bank-logo" type="file" accept="image/png,image/jpeg,image/svg+xml" className="sr-only" required onChange={handleLogoChange} />
                     {formData.logo ? (
                       <div className="join-upload-content">
                         <div className="join-upload-preview">
-                          <CheckCircle className="join-upload-success-icon" />
+                          {logoPreviewUrl ? (
+                            <img src={logoPreviewUrl} alt="Apercu du logo de la banque" className="join-upload-preview-image" />
+                          ) : (
+                            <CheckCircle className="join-upload-success-icon" />
+                          )}
                         </div>
                         <p className="join-upload-filename">{formData.logo.name}</p>
                       </div>
@@ -530,8 +683,19 @@ export function JoinPage() {
                       </>
                     )}
                   </label>
+                  {formErrors.logo && <p className="join-error-text">{formErrors.logo}</p>}
                   {formData.logo && (
-                    <Button size="sm" variant="ghost" className="mt-2" onClick={() => setFormData((prev) => ({ ...prev, logo: null }))}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="mt-2"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, logo: null }));
+                        setLogoPreviewUrl('');
+                        setFormErrors((prev) => ({ ...prev, logo: '' }));
+                      }}
+                    >
                       Supprimer
                     </Button>
                   )}
@@ -547,17 +711,53 @@ export function JoinPage() {
                 <CardDescription>Contact principal pour votre compte</CardDescription>
               </CardHeader>
               <CardContent className="join-form-spacing">
-                <Input label="Nom complet" placeholder="Jean Dupont" value={formData.contactName} onChange={(e) => setFormData((prev) => ({ ...prev, contactName: e.target.value }))} />
-                <Input label="Adresse e-mail" type="email" placeholder="jean.dupont@exemple.com" value={formData.email} onChange={(e) => setFormData((prev) => ({ ...prev, email: e.target.value }))} />
-                <Input label="Numero de telephone" type="tel" placeholder="+216 55 123 456" value={formData.phone} onChange={(e) => setFormData((prev) => ({ ...prev, phone: e.target.value }))} />
+                <Input
+                  label="Nom complet"
+                  placeholder="Jean Dupont"
+                  value={formData.contactName}
+                  required
+                  error={formErrors.contactName}
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, contactName: e.target.value }));
+                    setFormErrors((prev) => ({ ...prev, contactName: '' }));
+                  }}
+                />
+                <Input
+                  label="Adresse e-mail"
+                  type="email"
+                  placeholder="jean.dupont@exemple.com"
+                  value={formData.email}
+                  required
+                  error={formErrors.email}
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, email: e.target.value }));
+                    setFormErrors((prev) => ({ ...prev, email: '' }));
+                  }}
+                />
+                <Input
+                  label="Numero de telephone"
+                  type="tel"
+                  placeholder="+216 55 123 456"
+                  value={formData.phone}
+                  required
+                  error={formErrors.phone}
+                  onChange={(e) => {
+                    setFormData((prev) => ({ ...prev, phone: e.target.value }));
+                    setFormErrors((prev) => ({ ...prev, phone: '' }));
+                  }}
+                />
                 <div>
                   <label className="join-label" htmlFor="contact-image">Image du contact principal</label>
                   <label className="join-upload-area block" htmlFor="contact-image">
-                    <input id="contact-image" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={handleContactImageChange} />
+                    <input id="contact-image" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" required onChange={handleContactImageChange} />
                     {formData.contactImage ? (
                       <div className="join-upload-content">
                         <div className="join-upload-preview">
-                          <CheckCircle className="join-upload-success-icon" />
+                          {contactImagePreviewUrl ? (
+                            <img src={contactImagePreviewUrl} alt="Apercu de l'image du contact" className="join-upload-preview-image" />
+                          ) : (
+                            <CheckCircle className="join-upload-success-icon" />
+                          )}
                         </div>
                         <p className="join-upload-filename">{formData.contactImage.name}</p>
                       </div>
@@ -569,8 +769,19 @@ export function JoinPage() {
                       </>
                     )}
                   </label>
+                  {formErrors.contactImage && <p className="join-error-text">{formErrors.contactImage}</p>}
                   {formData.contactImage && (
-                    <Button size="sm" variant="ghost" className="mt-2" onClick={() => setFormData((prev) => ({ ...prev, contactImage: null }))}>
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="mt-2"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, contactImage: null }));
+                        setContactImagePreviewUrl('');
+                        setFormErrors((prev) => ({ ...prev, contactImage: '' }));
+                      }}
+                    >
                       Supprimer
                     </Button>
                   )}
@@ -593,6 +804,7 @@ export function JoinPage() {
                         label="Slug marketplace"
                         placeholder="matchia-bank"
                         value={formData.marketplaceSlug}
+                        required
                         onChange={(e) => updateMarketplaceSlug(e.target.value)}
                       />
                       <p className="join-upload-hint mt-2">Minuscules, chiffres et tirets uniquement.</p>
@@ -606,6 +818,7 @@ export function JoinPage() {
                         maxLength={500}
                         placeholder="Decrivez l'experience proposee aux clients de votre banque"
                         value={formData.marketplaceDescription}
+                        required
                         onChange={(e) => {
                           setFormData((prev) => ({ ...prev, marketplaceDescription: e.target.value }));
                           setFormErrors((prev) => ({ ...prev, marketplaceDescription: '' }));
@@ -619,9 +832,9 @@ export function JoinPage() {
                   </div>
 
                   <div className="join-color-grid">
-                    <div>
-                      <label className="join-label">Primary color</label>
-                      <div className="join-custom-color-picker">
+                  <div>
+                    <label className="join-label">Primary color</label>
+                    <div className="join-custom-color-picker">
                         <button
                           type="button"
                           className="join-color-area"
@@ -699,11 +912,15 @@ export function JoinPage() {
                   <div>
                     <label className="join-label" htmlFor="marketplace-banniere">Banniere marketplace</label>
                     <label className="join-upload-area block" htmlFor="marketplace-banniere">
-                      <input id="marketplace-banniere" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" onChange={handleBanniereChange} />
+                      <input id="marketplace-banniere" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" required onChange={handleBanniereChange} />
                       {formData.banniere ? (
                         <div className="join-upload-content">
                           <div className="join-upload-preview">
-                            <CheckCircle className="join-upload-success-icon" />
+                            {bannierePreviewUrl ? (
+                              <img src={bannierePreviewUrl} alt="Apercu de la banniere marketplace" className="join-upload-preview-image" />
+                            ) : (
+                              <CheckCircle className="join-upload-success-icon" />
+                            )}
                           </div>
                           <p className="join-upload-filename">{formData.banniere.name}</p>
                         </div>
@@ -712,15 +929,26 @@ export function JoinPage() {
                           <Upload className="join-upload-icon" />
                           <p className="join-upload-title">Cliquez pour telecharger une banniere</p>
                           <p className="join-upload-hint">PNG, JPG, WEBP ou SVG (max. 5 Mo)</p>
-                        </>
-                      )}
-                    </label>
-                    {formData.banniere && (
-                      <Button size="sm" variant="ghost" className="mt-2" onClick={() => setFormData((prev) => ({ ...prev, banniere: null }))}>
-                        Supprimer
-                      </Button>
+                      </>
                     )}
-                  </div>
+                  </label>
+                  {formErrors.banniere && <p className="join-error-text">{formErrors.banniere}</p>}
+                  {formData.banniere && (
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      className="mt-2"
+                      onClick={() => {
+                        setFormData((prev) => ({ ...prev, banniere: null }));
+                        setBannierePreviewUrl('');
+                        setFormErrors((prev) => ({ ...prev, banniere: '' }));
+                      }}
+                    >
+                      Supprimer
+                    </Button>
+                  )}
+                </div>
 
                 </CardContent>
               </Card>
@@ -761,12 +989,14 @@ export function JoinPage() {
                       })}
                     </div>
                   )}
+                  {formErrors.selectedStores && <p className="join-error-text">{formErrors.selectedStores}</p>}
                 </CardContent>
               </Card>
 
               {selectedStores.map((store) => {
                 const storeModules = modulesByStore[store.id] || [];
                 const selectedForStore = formData.selectedModulesByStore[store.id] || [];
+                const storeModuleError = formErrors[`modules-${store.id}`];
 
                 return (
                   <Card key={store.id}>
@@ -805,6 +1035,7 @@ export function JoinPage() {
                           })}
                         </div>
                       )}
+                      {storeModuleError && <p className="join-error-text">{storeModuleError}</p>}
                     </CardContent>
                   </Card>
                 );

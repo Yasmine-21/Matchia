@@ -20,6 +20,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${app.marketplace-content.upload.dir:uploads/marketplace-content}")
     private String marketplaceContentUploadDir;
 
+    @Value("${app.product.upload.dir:uploads/products}")
+    private String productUploadDir;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
@@ -33,5 +36,9 @@ public class WebConfig implements WebMvcConfigurer {
         Path marketplaceContentUploadPath = Paths.get(marketplaceContentUploadDir).toAbsolutePath().normalize();
         registry.addResourceHandler("/uploads/marketplace-content/**")
                 .addResourceLocations(marketplaceContentUploadPath.toUri().toString());
+
+        Path productUploadPath = Paths.get(productUploadDir).toAbsolutePath().normalize();
+        registry.addResourceHandler("/uploads/products/**")
+                .addResourceLocations(productUploadPath.toUri().toString());
     }
 }

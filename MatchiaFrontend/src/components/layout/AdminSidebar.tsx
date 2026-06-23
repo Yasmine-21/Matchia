@@ -67,7 +67,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
       items: [
         { label: 'Banques', icon: <Building2 className="w-5 h-5" />, path: '/saas/banques' },
         { label: 'Demandes', icon: <FileText className="w-5 h-5" />, path: '/saas/demandes' },
-        { label: 'Gestion de contenu', icon: <FileText className="w-5 h-5" />, path: '/saas/gestion-contenu' },
+        { label: 'Contenu marketplace', icon: <FileText className="w-5 h-5" />, path: '/saas/gestion-contenu' },
         { label: 'Stores & Modules', icon: <Store className="w-5 h-5" />, path: '/saas/storesmodules' },
         { label: 'Utilisateurs & Rôles', icon: <Users className="w-5 h-5" />, path: '/saas/utilisateurs' },
       ],

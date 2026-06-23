@@ -1,10 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, Link, useOutletContext } from 'react-router';
-import { BarChart3, Bot, Calculator, FileText, Loader2 } from 'lucide-react';
+import { useParams, Link, useOutletContext, useNavigate } from 'react-router';
+import { BarChart3, Bot, Calculator, Check, FileText, Image as ImageIcon, Loader2, Plus } from 'lucide-react';
 import { motion } from 'motion/react';
 import { contentService } from '../../services/contentService';
 import { marketplaceContentService } from '../../services/marketplaceContentService';
-import type { ContentDto, MarketplaceContentDto } from '../../types/apiTypes';
+import { productService } from '../../services/productService';
+import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
+import { Modal } from '../../components/ui/Modal';
+import type { ContentDto, MarketplaceContentDto, ProductDto } from '../../types/apiTypes';
+import { getCompareStorageKey, readCompareProductIds, writeCompareProductIds } from '../../utils/comparison';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -43,6 +48,18 @@ interface StoreContentItem {
   createdAt?: string | null;
 }
 
+interface StoreProductItem {
+  id: number;
+  name: string;
+  description?: string | null;
+  imageUrl?: string | null;
+  price?: number | string | null;
+  storeId: number;
+  storeName?: string | null;
+  parameterValues: ProductDto['parameterValues'];
+  createdAt?: string;
+}
+
 const normalizeSlug = (value?: string | null) =>
   (value || '')
     .toString()
@@ -66,7 +83,9 @@ const getModuleRoute = (moduleName?: string | null, storeSlug?: string) => {
   const encodedStoreSlug = encodeURIComponent(storeSlug || '');
 
   if (normalized === 'simulator') return `/store/${encodedStoreSlug}/simulator`;
-  if (normalized === 'comparator') return `/store/${encodedStoreSlug}/comparator`;
+  if (normalized === 'comparator' || normalized === 'comparateur' || normalized === 'comparatuer' || normalized === 'compare') {
+    return `/store/${encodedStoreSlug}/comparator`;
+  }
   if (normalized === 'blog') return `/store/${encodedStoreSlug}/blog`;
 
   return null;
@@ -78,16 +97,78 @@ const getContentSortValue = (createdAt?: string | null) => {
   return Number.isNaN(value) ? 0 : value;
 };
 
+const getProductSortValue = (createdAt?: string) => {
+  if (!createdAt) return 0;
+  const value = new Date(createdAt).getTime();
+  return Number.isNaN(value) ? 0 : value;
+};
+
+const formatTnd = (value?: number | string | null) => {
+  if (value === undefined || value === null || value === '') {
+    return '-';
+  }
+
+  const numericValue = Number(value);
+  if (Number.isNaN(numericValue)) {
+    return '-';
+  }
+
+  return new Intl.NumberFormat('fr-TN', {
+    style: 'currency',
+    currency: 'TND',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numericValue);
+};
+
+const normalizeModuleKey = (value?: string | null) =>
+  normalizeSlug(value).replace(/^module-/, '');
+
+const isComparatorModule = (module: MarketplaceModuleDetail) => {
+  const keys = [module.name, module.label, module.category]
+    .map((value) => normalizeModuleKey(value))
+    .filter(Boolean);
+
+  return keys.some((key) =>
+    ['comparator', 'comparateur', 'comparatuer', 'compare'].includes(key) || key.includes('comparat')
+  );
+};
+
+const hasModule = (modules: MarketplaceModuleDetail[], expectedKeys: string[]) =>
+  modules.some((module) => {
+    const keys = [module.name, module.label, module.category]
+      .map((value) => normalizeModuleKey(value))
+      .filter(Boolean);
+
+    return keys.some((key) => expectedKeys.includes(key));
+  });
+
+const hexToRgba = (hex: string, alpha: number) => {
+  const normalized = hex.trim().replace('#', '');
+
+  if (normalized.length !== 6) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+
+  const red = Number.parseInt(normalized.slice(0, 2), 16);
+  const green = Number.parseInt(normalized.slice(2, 4), 16);
+  const blue = Number.parseInt(normalized.slice(4, 6), 16);
+
+  if ([red, green, blue].some((value) => Number.isNaN(value))) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
+
 function ContentBlock({
   content,
   index,
   fallbackImageUrl,
-  primaryColor,
 }: {
   content: StoreContentItem;
   index: number;
   fallbackImageUrl: string;
-  primaryColor: string;
 }) {
   const reversed = index % 2 === 1;
   const imageUrl = getBackendAssetUrl(content.imageUrl) || fallbackImageUrl;
@@ -126,14 +207,6 @@ function ContentBlock({
           {content.description}
         </p>
 
-        <Link
-          to="#"
-          className="inline-flex w-fit items-center font-semibold underline decoration-2 underline-offset-4 transition-colors hover:text-lime-700"
-          style={{ color: primaryColor, textDecorationColor: primaryColor }}
-          onClick={(event) => event.preventDefault()}
-        >
-          Plus de détails
-        </Link>
       </div>
     </motion.article>
   );
@@ -190,12 +263,270 @@ function ModuleSidebar({
   );
 }
 
+function ProductCard({
+  product,
+  index,
+  storeLabel,
+  isComparatorActive,
+  isInCompare,
+  onToggleCompare,
+  onClick,
+}: {
+  product: StoreProductItem;
+  index: number;
+  storeLabel: string;
+  isComparatorActive: boolean;
+  isInCompare: boolean;
+  onToggleCompare: (product: StoreProductItem) => void;
+  onClick: () => void;
+}) {
+  const imageUrl = getBackendAssetUrl(product.imageUrl);
+
+  return (
+    <motion.article
+      initial={{ opacity: 0, y: 18 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.2 }}
+      transition={{ duration: 0.45, delay: index * 0.06 }}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onClick();
+        }
+      }}
+      role="button"
+      tabIndex={0}
+      className="group flex h-full w-full flex-col overflow-hidden rounded-[2rem] border border-slate-200 bg-white text-left shadow-[0_18px_40px_rgba(15,23,42,0.06)] transition-all duration-200 hover:-translate-y-1 hover:shadow-[0_24px_52px_rgba(15,23,42,0.12)] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white"
+    >
+      <div className="relative h-52 overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 p-3">
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={product.name}
+            className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <div className="flex h-full w-full items-center justify-center rounded-[1.5rem] bg-gradient-to-br from-slate-900 via-slate-800 to-orange-500 text-white/80">
+            Aucun visuel disponible
+          </div>
+        )}
+
+        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent p-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <div className="text-[11px] uppercase tracking-[0.28em] text-white/65">Produit bancaire</div>
+              <h3 className="mt-2 truncate text-xl font-semibold text-white">{product.name}</h3>
+            </div>
+          </div>
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Badge variant="secondary" className="bg-white/10 text-white">
+              {product.storeName || storeLabel}
+            </Badge>
+          </div>
+        </div>
+      </div>
+
+      <div className="flex flex-1 flex-col gap-4 p-5">
+        <p className="text-sm leading-6 text-slate-600">
+          {product.description || 'Aucune description fournie pour ce produit.'}
+        </p>
+
+        <div className="space-y-3">
+          <div className="space-y-2">
+            <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Prix</div>
+            <div className="font-semibold text-red-600">{formatTnd(product.price)}</div>
+          </div>
+
+          {isComparatorActive && (
+            <Button
+              type="button"
+              variant={isInCompare ? 'secondary' : 'outline'}
+              size="sm"
+              className="w-full"
+              icon={isInCompare ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleCompare(product);
+              }}
+            >
+              {isInCompare ? 'Remove from Compare' : 'Add to Compare'}
+            </Button>
+          )}
+        </div>
+      </div>
+    </motion.article>
+  );
+}
+
+function ProductDetailsModal({
+  product,
+  storeLabel,
+  primaryColor,
+  storeSlug,
+  canSimulate,
+  canCompare,
+  onClose,
+}: {
+  product: StoreProductItem | null;
+  storeLabel: string;
+  primaryColor: string;
+  storeSlug?: string;
+  canSimulate: boolean;
+  canCompare: boolean;
+  onClose: () => void;
+}) {
+  const navigate = useNavigate();
+  const imageUrl = getBackendAssetUrl(product?.imageUrl);
+  const simulatorRoute = canSimulate ? getModuleRoute('simulator', storeSlug) : null;
+  const comparatorRoute = canCompare ? getModuleRoute('comparator', storeSlug) : null;
+  const parameterValues = product?.parameterValues || [];
+
+  return (
+    <Modal isOpen={Boolean(product)} onClose={onClose} size="xl">
+      {product && (
+        <div className="space-y-6 text-slate-900">
+          <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="relative overflow-hidden rounded-[2rem] border border-slate-200 bg-slate-950 shadow-[0_18px_40px_rgba(15,23,42,0.14)]">
+              {imageUrl ? (
+                <img
+                  src={imageUrl}
+                  alt={product.name}
+                  className="h-full min-h-[340px] w-full object-contain bg-gradient-to-br from-slate-100 via-white to-slate-200 p-4"
+                />
+              ) : (
+                <div className="flex min-h-[340px] w-full items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-orange-600 text-white/80">
+                  <ImageIcon className="h-14 w-14" />
+                </div>
+              )}
+
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/35 to-transparent p-5">
+                <div className="flex flex-wrap items-center gap-2">
+                  <Badge variant="secondary" className="bg-white/10 text-white backdrop-blur-sm">
+                    {product.storeName || storeLabel}
+                  </Badge>
+                  <Badge variant="secondary" className="bg-white/10 text-red-200 backdrop-blur-sm">
+                    {formatTnd(product.price)}
+                  </Badge>
+                </div>
+                <div className="mt-4">
+                  <div className="text-[11px] uppercase tracking-[0.28em] text-white/70">Produit bancaire</div>
+                  <h2 className="mt-2 text-3xl font-semibold tracking-tight text-white">{product.name}</h2>
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-4">
+              <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_14px_32px_rgba(15,23,42,0.06)]">
+                <div className="mb-3 text-xs uppercase tracking-[0.28em] text-slate-400">Details du produit</div>
+                <h3 className="text-3xl font-semibold tracking-tight text-slate-900">{product.name}</h3>
+                <p className="mt-4 text-sm leading-7 text-slate-600">
+                  {product.description || 'Aucune description fournie pour ce produit.'}
+                </p>
+              </div>
+
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                  <div className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Store</div>
+                  <div className="mt-2 text-base font-semibold text-slate-900">
+                    {product.storeName || storeLabel}
+                  </div>
+                </div>
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                  <div className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Prix</div>
+                  <div className="mt-2 text-base font-semibold text-red-600">{formatTnd(product.price)}</div>
+                </div>
+              </div>
+
+              <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_14px_32px_rgba(15,23,42,0.06)]">
+                <div className="mb-4 text-sm font-semibold text-slate-900">Caractéristiques</div>
+                {parameterValues.length ? (
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                    <table className="w-full border-collapse text-left">
+                      <thead>
+                        <tr className="bg-slate-50">
+                          <th className="border-b border-slate-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                            Caractéristique
+                          </th>
+                          <th className="border-b border-slate-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
+                            Valeur
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {parameterValues.map((parameter) => (
+                          <tr key={parameter.id} className="odd:bg-white even:bg-slate-50/70">
+                            <td className="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-700">
+                              {parameter.parameterName || `Parametre ${parameter.parameterDefinitionId}`}
+                            </td>
+                            <td className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">
+                              {parameter.value || '-'}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+                    Aucun parametre configure pour ce produit.
+                  </div>
+                )}
+              </div>
+
+              {(simulatorRoute || comparatorRoute) && (
+                <div className={`grid gap-3 ${simulatorRoute && comparatorRoute ? 'sm:grid-cols-2' : ''}`}>
+                  {simulatorRoute && (
+                    <Button
+                      className="w-full text-white hover:opacity-95"
+                      icon={<Calculator className="h-4 w-4" />}
+                      onClick={() => navigate(simulatorRoute)}
+                      style={{ backgroundColor: primaryColor }}
+                    >
+                      Simulate
+                    </Button>
+                  )}
+                  {comparatorRoute && (
+                    <Button
+                      variant="outline"
+                      className="w-full border-slate-300 text-slate-900 hover:bg-slate-50"
+                      icon={<BarChart3 className="h-4 w-4" />}
+                      onClick={() => navigate(comparatorRoute)}
+                      style={{ borderColor: primaryColor, color: primaryColor }}
+                    >
+                      Compare
+                    </Button>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-end pt-1">
+                <Button variant="outline" onClick={onClose}>
+                  Fermer
+                </Button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </Modal>
+  );
+}
+
 export function MarketplaceStore() {
   const { storeSlug } = useParams();
+  const navigate = useNavigate();
   const { bankData, branding, marketplace } = useOutletContext<any>();
   const [contents, setContents] = useState<StoreContentItem[]>([]);
   const [contentsLoading, setContentsLoading] = useState(true);
   const [contentsError, setContentsError] = useState(false);
+  const [products, setProducts] = useState<StoreProductItem[]>([]);
+  const [productsLoading, setProductsLoading] = useState(true);
+  const [productsError, setProductsError] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<StoreProductItem | null>(null);
+  const [compareProductIds, setCompareProductIds] = useState<number[]>([]);
+  const [compareNotice, setCompareNotice] = useState<string | null>(null);
 
   const store = useMemo(() => {
     const targetSlug = normalizeSlug(storeSlug);
@@ -207,12 +538,23 @@ export function MarketplaceStore() {
   }, [bankData?.stores, storeSlug]);
 
   const marketplaceSlug = bankData?.slug || marketplace?.bankSlug || '';
+  const storesReady = Array.isArray(bankData?.stores);
+  const marketplaceBankId = useMemo(() => {
+    const rawBankId = marketplace?.bankId ?? bankData?.id ?? null;
+    const numericBankId = Number(rawBankId);
+    return Number.isNaN(numericBankId) ? null : numericBankId;
+  }, [bankData?.id, marketplace?.bankId]);
 
   const currentStoreId = useMemo(() => {
     if (!store) return null;
     const numericId = Number(store.storeId ?? store.id);
     return Number.isNaN(numericId) ? null : numericId;
   }, [store]);
+
+  const compareStorageKey = useMemo(
+    () => getCompareStorageKey(marketplaceSlug, storeSlug),
+    [marketplaceSlug, storeSlug]
+  );
 
   useEffect(() => {
     if (!marketplaceSlug || currentStoreId == null) {
@@ -283,54 +625,209 @@ export function MarketplaceStore() {
     };
   }, [marketplaceSlug, currentStoreId]);
 
-  if (!store) {
-    return <div className="p-6">Store non trouve</div>;
-  }
+  useEffect(() => {
+    if (!marketplaceBankId || currentStoreId == null) {
+      setProducts([]);
+      setProductsLoading(false);
+      setProductsError(false);
+      return;
+    }
 
-  const storeLabel = store.label || store.name || `Store ${store.storeId || store.id}`;
-  const storeBannerUrl = getBackendAssetUrl(store.banniereUrl || store.banniere_url) || branding.banner_image_url;
-  const modules = (store.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
+    let cancelled = false;
+
+    const loadProducts = async () => {
+      setProductsLoading(true);
+      setProductsError(false);
+
+      try {
+        const response = await productService.getByBank(marketplaceBankId);
+        const storeProducts = (response.data || [])
+          .filter((product) => product.storeId === currentStoreId)
+          .map((product): StoreProductItem => ({
+            id: product.id,
+            name: product.name,
+            description: product.description,
+            imageUrl: product.imageUrl,
+            price: product.price,
+            storeId: product.storeId,
+            storeName: product.storeName,
+            parameterValues: product.parameterValues || [],
+            createdAt: product.createdAt,
+          }))
+          .sort((left, right) => getProductSortValue(right.createdAt) - getProductSortValue(left.createdAt));
+
+        if (!cancelled) {
+          setProducts(storeProducts);
+        }
+      } catch (loadError) {
+        console.error('Failed to load products for marketplace store:', loadError);
+        if (!cancelled) {
+          setProducts([]);
+          setProductsError(true);
+        }
+      } finally {
+        if (!cancelled) {
+          setProductsLoading(false);
+        }
+      }
+    };
+
+    void loadProducts();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [currentStoreId, marketplaceBankId]);
+
+  const storeLabel = store?.label || store?.name || `Store ${store?.storeId || store?.id || ''}`;
+  const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
+  const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(branding.secondary_color, 0.78)} 100%)`;
+  const modules = (store?.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
+  const canSimulate = hasModule(modules, ['simulator', 'simulateur']);
+  const canCompare = modules.some(isComparatorModule);
   const moduleIcons: Record<string, any> = {
     simulator: Calculator,
     comparator: BarChart3,
     blog: FileText,
     bot: Bot,
   };
+  useEffect(() => {
+    if (!storesReady) {
+      return;
+    }
+
+    if (!canCompare) {
+      setCompareProductIds([]);
+      return;
+    }
+
+    setCompareProductIds(readCompareProductIds(compareStorageKey).slice(0, 4));
+  }, [canCompare, compareStorageKey, storesReady]);
+
+  useEffect(() => {
+    if (!storesReady) {
+      return;
+    }
+
+    if (!canCompare) {
+      return;
+    }
+
+    writeCompareProductIds(compareStorageKey, compareProductIds.slice(0, 4));
+  }, [canCompare, compareProductIds, compareStorageKey, storesReady]);
+
+  const selectedCompareProducts = useMemo(() => {
+    const productMap = new Map(products.map((product) => [product.id, product]));
+    return compareProductIds.map((productId) => productMap.get(productId)).filter(Boolean) as StoreProductItem[];
+  }, [compareProductIds, products]);
+
+  const compareCount = selectedCompareProducts.length;
+
+  const toggleCompareProduct = (product: StoreProductItem) => {
+    if (!canCompare) {
+      return;
+    }
+
+    setCompareNotice(null);
+    setCompareProductIds((current) => {
+      if (current.includes(product.id)) {
+        return current.filter((productId) => productId !== product.id);
+      }
+
+      if (current.length >= 4) {
+        setCompareNotice('You can compare up to 4 products.');
+        return current;
+      }
+
+      const currentStores = current
+        .map((productId) => products.find((candidate) => candidate.id === productId)?.storeId)
+        .filter((value): value is number => typeof value === 'number');
+
+      if (currentStores.length > 0 && currentStores.some((storeId) => storeId !== product.storeId)) {
+        setCompareNotice('Only products from the same store can be compared.');
+        return current;
+      }
+
+      return [...current, product.id];
+    });
+  };
+
+  const openComparator = () => {
+    if (!canCompare || compareCount < 2) {
+      return;
+    }
+
+    const comparatorRoute = getModuleRoute('comparator', storeSlug);
+    if (comparatorRoute) {
+      navigate(comparatorRoute);
+    }
+  };
+
+  if (!store) {
+    return <div className="p-6">Store non trouve</div>;
+  }
 
   return (
     <div className="min-h-screen bg-background">
       <section
-        className="relative bg-cover bg-center py-20"
+        className="relative h-96 flex items-center bg-cover bg-center"
         style={
           storeBannerUrl
-            ? { backgroundImage: `url(${storeBannerUrl})` }
+            ? {
+                backgroundImage: `url(${storeBannerUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
             : { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
         }
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/20" />
-        <div className="relative mx-auto max-w-7xl px-4 text-white sm:px-6 lg:px-8">
-          <div className="mb-4 flex items-center gap-2 text-sm text-white/80">
-            <Link to="/" className="hover:text-white">
-              Accueil
-            </Link>
-            <span>/</span>
-            <span>{storeLabel}</span>
-          </div>
-          <h1 className="mb-4 text-4xl font-bold">Financement {storeLabel}</h1>
-          <p className="max-w-2xl text-xl text-white/90">
-            {store.description || `Decouvrez nos solutions de financement ${storeLabel.toLowerCase()} adaptees a vos besoins`}
-          </p>
+        <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />
+        <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-4 text-white sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="w-full"
+          >
+            <h1 className="max-w-5xl text-5xl font-bold leading-tight mb-4">
+              Financement {storeLabel}
+            </h1>
+            <p className="max-w-4xl text-xl leading-8 mb-8 opacity-90">
+              {store.description || `Decouvrez nos solutions de financement ${storeLabel.toLowerCase()} adaptees a vos besoins`}
+            </p>
+            <div className="flex flex-wrap gap-4">
+              <Link to={`/store/${encodeURIComponent(storeSlug || '')}`}>
+                <Button
+                  size="lg"
+                  className="rounded-none"
+                  style={{ backgroundColor: branding.primary_color }}
+                >
+                  Explorer nos solutions
+                </Button>
+              </Link>
+              <Link to="/connexion">
+                <Button
+                  size="lg"
+                  variant="outline"
+                  className="border-white text-white hover:bg-white/20"
+                >
+                  Se connecter
+                </Button>
+              </Link>
+            </div>
+          </motion.div>
         </div>
       </section>
 
+
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10">
+          <div className="mb-12 max-w-5xl">
             <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Contenus du store</p>
-            <h2 className="mt-3 text-center font-serif text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+            <h2 className="mt-3 font-serif text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
               Contenus liés à {storeLabel}
             </h2>
-            <p className="mx-auto mt-4 max-w-3xl text-center text-lg leading-8 text-slate-600">
+            <p className="mt-4 max-w-none text-lg leading-8 text-slate-600">
               Les contenus standards et personnalisés publiés pour cette boutique s&apos;affichent ici selon le même style éditorial que votre exemple.
             </p>
           </div>
@@ -338,7 +835,7 @@ export function MarketplaceStore() {
           <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
             <ModuleSidebar modules={modules} storeSlug={storeSlug} moduleIcons={moduleIcons} />
 
-            <div className="min-w-0 flex-1 lg:pl-[150px]">
+            <div className="min-w-0 flex-1 lg:pl-0">
               {contentsLoading ? (
                 <div className="flex items-center justify-center rounded-[2rem] border border-slate-200 bg-white/80 px-6 py-16 text-slate-500 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
                   <Loader2 className="mr-3 h-5 w-5 animate-spin" />
@@ -360,15 +857,90 @@ export function MarketplaceStore() {
                       content={content}
                       index={index}
                       fallbackImageUrl={storeBannerUrl}
-                      primaryColor={branding.primary_color}
                     />
                   ))}
                 </div>
               )}
             </div>
           </div>
+
+          <div className="mt-24">
+            <div className="mb-10 flex flex-col gap-4 text-center lg:flex-row lg:items-end lg:justify-between lg:text-left">
+              <div className="mx-auto max-w-3xl lg:mx-0">
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Available Products</p>
+                <h2 className="mt-3 font-serif text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
+                  Produits disponibles
+                </h2>
+                <p className="mx-auto mt-4 max-w-3xl text-lg leading-8 text-slate-600 lg:mx-0">
+                  Les produits ci-dessous appartiennent a la banque de cette marketplace et sont associes a ce store.
+                </p>
+              </div>
+
+              {canCompare && (
+                <div className="flex flex-col items-center gap-2 lg:items-end">
+                  <Button
+                    type="button"
+                    className="min-w-[220px]"
+                    onClick={openComparator}
+                    disabled={compareCount < 2}
+                    style={{ backgroundColor: branding.primary_color }}
+                  >
+                    Show Comparator
+                  </Button>
+                  <div className="text-xs text-slate-500">
+                    {compareCount}/4 selected. Minimum 2 products required.
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {compareNotice && (
+              <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                {compareNotice}
+              </div>
+            )}
+
+            {productsLoading ? (
+              <div className="flex items-center justify-center rounded-[2rem] border border-slate-200 bg-white/80 px-6 py-16 text-slate-500 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
+                <Loader2 className="mr-3 h-5 w-5 animate-spin" />
+                Chargement des produits...
+              </div>
+            ) : productsError ? (
+              <div className="rounded-[2rem] border border-rose-200 bg-rose-50 px-6 py-10 text-rose-700">
+                Impossible de charger les produits disponibles pour ce store.
+              </div>
+            ) : products.length === 0 ? (
+              <div className="rounded-[2rem] border border-dashed border-slate-200 bg-white/80 px-6 py-12 text-center text-slate-500 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
+                Aucun produit disponible pour ce store.
+              </div>
+            ) : (
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {products.map((product, index) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    index={index}
+                    storeLabel={storeLabel}
+                    isComparatorActive={canCompare}
+                    isInCompare={selectedCompareProducts.some((candidate) => candidate.id === product.id)}
+                    onToggleCompare={toggleCompareProduct}
+                    onClick={() => setSelectedProduct(product)}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       </section>
+      <ProductDetailsModal
+        product={selectedProduct}
+        storeLabel={storeLabel}
+        primaryColor={branding.primary_color}
+        storeSlug={storeSlug}
+        canSimulate={canSimulate}
+        canCompare={canCompare}
+        onClose={() => setSelectedProduct(null)}
+      />
     </div>
   );
 }

@@ -2,11 +2,12 @@ import '../../styles/SaaSDashboard.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { ArrowUp, Building2, FileText, Loader2, LogOut, Store, Users } from 'lucide-react';
+import { Building2, FileText, Loader2, LogOut, Store, Users } from 'lucide-react';
 
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
+import { KpiCard } from '../../components/ui/KpiCard';
 import { useApp } from '../../context/AppContext';
 import { bankService } from '../../services/bankService';
 import { requestService } from '../../services/requestService';
@@ -92,29 +93,29 @@ export function SaaSDashboard() {
       label: 'Banques actives',
       value: activeBanksCount,
       icon: <Building2 className="w-5 h-5" />,
-      change: isLoadingData ? '...' : `${activeBanksCount}`,
-      trend: 'up' as const,
+      badge: isLoadingData ? '...' : `${activeBanksCount} banques`,
+      tone: 'success' as const,
     },
     {
       label: 'Demandes en attente',
       value: pendingRequestsCount,
       icon: <FileText className="w-5 h-5" />,
-      change: isLoadingData ? '...' : `${pendingRequestsCount}`,
-      trend: 'up' as const,
+      badge: isLoadingData ? '...' : `${pendingRequestsCount} demandes`,
+      tone: 'warning' as const,
     },
     {
       label: 'Utilisateurs total',
       value: totalUsersCount,
       icon: <Users className="w-5 h-5" />,
-      change: isLoadingData ? '...' : `${totalUsersCount}`,
-      trend: 'up' as const,
+      badge: isLoadingData ? '...' : `${totalUsersCount} users`,
+      tone: 'primary' as const,
     },
     {
       label: 'Stores actifs',
       value: activeStoresCount,
       icon: <Store className="w-5 h-5" />,
-      change: isLoadingData ? '...' : `${activeStoresCount}`,
-      trend: 'neutral' as const,
+      badge: isLoadingData ? '...' : `${activeStoresCount} stores`,
+      tone: 'secondary' as const,
     },
   ];
 
@@ -145,23 +146,16 @@ export function SaaSDashboard() {
         </Button>
       </div>
 
-      <div className="saas-stats-grid">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
         {stats.map((stat, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <div className="saas-stat-header">
-                <div className="saas-stat-icon-wrapper">
-                  {stat.icon}
-                </div>
-                <div className={`saas-stat-trend ${stat.trend === 'up' ? 'text-success' : 'text-muted-foreground'}`}>
-                  {stat.trend === 'up' && <ArrowUp className="w-4 h-4" />}
-                  <span className="saas-bank-name">{stat.change}</span>
-                </div>
-              </div>
-              <CardDescription>{stat.label}</CardDescription>
-              <div className="saas-stat-value">{stat.value}</div>
-            </CardHeader>
-          </Card>
+          <KpiCard
+            key={index}
+            label={stat.label}
+            value={stat.value}
+            icon={stat.icon}
+            tone={stat.tone}
+            badge={stat.badge}
+          />
         ))}
       </div>
 

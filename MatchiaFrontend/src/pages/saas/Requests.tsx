@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router';
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -10,15 +10,18 @@ import { Tabs } from '../../components/ui/Tabs';
 import {
   CheckCircle2,
   CheckCircle,
+  CalendarDays,
   Clock3,
   Eye,
   Building2,
   CreditCard,
+  Link2,
   Mail,
   Globe,
-  Palette,
+  Phone,
   Store,
   Package,
+  UserRound,
   XCircle,
   X,
   Loader2,
@@ -137,10 +140,45 @@ const BankLogo = ({
       src={logoSrc}
       alt={bankName || 'Logo banque'}
       className={`${sizeClass} shrink-0 border border-gray-200 bg-white object-contain p-1`}
-      onError={() => setHasError(true)}
-    />
+    onError={() => setHasError(true)}
+  />
   );
 };
+
+const RequestDetailSectionTitle = ({
+  icon,
+  title,
+  iconClassName = 'text-orange-500',
+}: {
+  icon: ReactNode;
+  title: string;
+  iconClassName?: string;
+}) => (
+  <div className="mb-4 flex items-center gap-3">
+    <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 ring-1 ring-slate-200 ${iconClassName}`}>
+      {icon}
+    </div>
+    <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+  </div>
+);
+
+const RequestDetailRow = ({
+  icon,
+  label,
+  value,
+}: {
+  icon?: ReactNode;
+  label: string;
+  value?: React.ReactNode;
+}) => (
+  <div className="grid grid-cols-[1fr] gap-2 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start">
+    <div className="flex items-center gap-2 text-sm text-slate-500">
+      {icon ? <span className="text-slate-400">{icon}</span> : null}
+      <span>{label}</span>
+    </div>
+    <div className="min-w-0 text-sm font-medium text-slate-900 break-words">{value || '-'}</div>
+  </div>
+);
 
 export function Requests() {
   const [requests, setRequests] = useState<RequestDto[]>([]);
@@ -423,152 +461,178 @@ export function Requests() {
       <Modal
         isOpen={isModalOpen}
         onClose={closeDetails}
-        title="Details de la demande"
-        size="lg"
+        size="xl"
       >
         {selectedRequest && (
           <div className="space-y-6">
-            <div className="space-y-5">
-              <div className="flex items-center gap-2">
-                <Badge variant={statusVariant(selectedRequest.status)}>
-                  {statusLabel[selectedRequest.status]}
-                </Badge>
+            <div className="flex flex-wrap items-start gap-3 border-b border-slate-100 pb-5 pr-10">
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-3">
+                  <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Détails de la demande</h2>
+                  <Badge variant={statusVariant(selectedRequest.status)} className="rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
+                    {statusLabel[selectedRequest.status]}
+                  </Badge>
+                </div>
               </div>
-              {selectedRequest.rejectionReason && (
-                <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">
-                  <div className="font-medium">Motif de rejet</div>
-                  <div className="mt-1">{selectedRequest.rejectionReason}</div>
-                </div>
-              )}
+            </div>
 
-              <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
-                <div className="mb-4 flex items-center gap-3">
-                  <BankLogo logoUrl={selectedRequest.logoUrl} bankName={selectedRequest.bankName} size="lg" />
-                  <div>
-                    <h3 className="flex items-center gap-2 font-semibold">
-                      Informations bancaires
-                    </h3>
-                    <p className="text-sm text-muted-foreground">{selectedRequest.bankName || '-'}</p>
-                  </div>
-                </div>
-                <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
-                  <div><span className="text-muted-foreground">Banque</span><div className="font-medium">{selectedRequest.bankName || '-'}</div></div>
-                  <div><span className="text-muted-foreground">Email banque</span><div className="font-medium">{selectedRequest.bankEmail || '-'}</div></div>
-                  <div><span className="text-muted-foreground">Pays</span><div className="font-medium">{selectedRequest.country || '-'}</div></div>
-                  <div><span className="text-muted-foreground">Site web</span><div className="font-medium">{selectedRequest.website || '-'}</div></div>
-                  <div><span className="text-muted-foreground">Annee d'etablissement</span><div className="font-medium">{selectedRequest.establishmentYear || '-'}</div></div>
-                  <div className="md:col-span-2"><span className="text-muted-foreground">Description banque</span><div className="mt-1 rounded-lg bg-muted p-3">{getBankDescription(selectedRequest) || '-'}</div></div>
-                </div>
-              </section>
+            {selectedRequest.rejectionReason && (
+              <div className="rounded-[20px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+                <div className="font-semibold">Motif de rejet</div>
+                <div className="mt-1 leading-6">{selectedRequest.rejectionReason}</div>
+              </div>
+            )}
 
-              <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
-                <h3 className="mb-3 flex items-center gap-2 font-semibold">
-                  <Mail className="h-4 w-4 text-orange-500" /> Coordonnees
-                </h3>
-                <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-3">
-                  <div>
-                    <span className="text-muted-foreground">Contact</span>
-                    <div className="font-medium">
-                      {selectedRequest.adminContactName || selectedRequest.contactName || '-'}
+            {selectedRequest.requestType === 'subscription' ? (
+              <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+                <RequestDetailSectionTitle icon={<CreditCard className="h-5 w-5" />} title="Détails du renouvellement" iconClassName="text-orange-500" />
+                <div className="grid gap-4 md:grid-cols-2">
+                  <RequestDetailRow icon={<Building2 className="h-4 w-4" />} label="Banque" value={selectedRequest.bankName || '-'} />
+                  <RequestDetailRow icon={<Globe className="h-4 w-4" />} label="Marketplace" value={selectedRequest.marketplaceSlug || '-'} />
+                  <RequestDetailRow icon={<CreditCard className="h-4 w-4" />} label="Montant" value={formatTnd(selectedRequest.totalMonthlyPrice ?? selectedRequest.totalAmount)} />
+                  <RequestDetailRow icon={<UserRound className="h-4 w-4" />} label="Contact" value={selectedRequest.contactName || '-'} />
+                  <div className="space-y-2 md:col-span-2">
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <span className="text-slate-400"><Globe className="h-4 w-4" /></span>
+                      <span>Description</span>
                     </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Email</span>
-                    <div className="font-medium">
-                      {selectedRequest.adminContactEmail || selectedRequest.contactEmail || '-'}
-                    </div>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Telephone</span>
-                    <div className="font-medium">
-                      {selectedRequest.adminContactPhone || selectedRequest.contactPhone || '-'}
+                    <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-600">
+                      {getBankDescription(selectedRequest) || 'Demande de renouvellement envoyee par la banque.'}
                     </div>
                   </div>
                 </div>
               </section>
-
-              <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
-                <h3 className="mb-3 flex items-center gap-2 font-semibold">
-                  <Globe className="h-4 w-4 text-orange-500" /> Marketplace
-                </h3>
-                <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
-                  <div><span className="text-muted-foreground">Slug</span><div className="font-medium">{selectedRequest.marketplaceSlug || '-'}</div></div>
-                  <div><span className="text-muted-foreground">Type</span><div className="font-medium">{requestTypeLabel[selectedRequest.requestType]}</div></div>
-                  <div className="md:col-span-2"><span className="text-muted-foreground">Description</span><div className="mt-1 rounded-lg bg-muted p-3">{selectedRequest.marketplaceDescription || '-'}</div></div>
-                  <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-muted-foreground" />
-                    <span className="h-4 w-4 rounded-full border" style={{ backgroundColor: selectedRequest.primaryColor }} />
-                    <span>{selectedRequest.primaryColor}</span>
+            ) : (
+              <div className="grid gap-4 lg:grid-cols-[1.08fr_0.92fr]">
+                <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+                  <RequestDetailSectionTitle icon={<Building2 className="h-5 w-5" />} title="Informations bancaires" iconClassName="text-slate-700" />
+                  <div className="mb-5 flex items-center gap-4">
+                    <BankLogo logoUrl={selectedRequest.logoUrl} bankName={selectedRequest.bankName} size="lg" />
+                    <div className="min-w-0">
+                      <p className="text-sm font-medium text-slate-500">Banque</p>
+                      <h4 className="mt-1 truncate text-2xl font-semibold text-slate-900">{selectedRequest.bankName || '-'}</h4>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Palette className="h-4 w-4 text-muted-foreground" />
-                    <span className="h-4 w-4 rounded-full border" style={{ backgroundColor: selectedRequest.secondaryColor }} />
-                    <span>{selectedRequest.secondaryColor}</span>
-                  </div>
-                </div>
-              </section>
-
-              {selectedRequest.requestType === 'subscription' ? (
-                <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
-                  <h3 className="mb-3 flex items-center gap-2 font-semibold">
-                    <CreditCard className="h-4 w-4 text-orange-500" /> Détails du renouvellement
-                  </h3>
-                  <div className="grid grid-cols-1 gap-3 text-sm md:grid-cols-2">
-                    <div><span className="text-muted-foreground">Banque</span><div className="font-medium">{selectedRequest.bankName || '-'}</div></div>
-                    <div><span className="text-muted-foreground">Marketplace</span><div className="font-medium">{selectedRequest.marketplaceSlug || '-'}</div></div>
-                    <div><span className="text-muted-foreground">Montant</span><div className="font-medium">{formatTnd(selectedRequest.totalMonthlyPrice ?? selectedRequest.totalAmount)}</div></div>
-                    <div><span className="text-muted-foreground">Contact</span><div className="font-medium">{selectedRequest.contactName || '-'}</div></div>
-                    <div className="md:col-span-2"><span className="text-muted-foreground">Description</span><div className="mt-1 rounded-lg bg-muted p-3">{getBankDescription(selectedRequest) || 'Demande de renouvellement envoyée par la banque.'}</div></div>
+                  <div className="space-y-4">
+                    <RequestDetailRow icon={<Building2 className="h-4 w-4" />} label="Banque" value={selectedRequest.bankName || '-'} />
+                    <RequestDetailRow icon={<Globe className="h-4 w-4" />} label="Pays" value={selectedRequest.country || '-'} />
+                    <RequestDetailRow icon={<Mail className="h-4 w-4" />} label="Email banque" value={selectedRequest.bankEmail || '-'} />
+                    <RequestDetailRow icon={<Link2 className="h-4 w-4" />} label="Site web" value={selectedRequest.website || '-'} />
+                    <RequestDetailRow icon={<CalendarDays className="h-4 w-4" />} label="Annee d'etablissement" value={selectedRequest.establishmentYear || '-'} />
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <span className="text-slate-400"><Building2 className="h-4 w-4" /></span>
+                        <span>Description banque</span>
+                      </div>
+                      <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-600">
+                        {getBankDescription(selectedRequest) || '-'}
+                      </div>
+                    </div>
                   </div>
                 </section>
-              ) : (
-                <section className="rounded-xl border border-border bg-white p-4 dark:bg-gray-900">
-                  <h3 className="mb-3 flex items-center gap-2 font-semibold">
-                    <Store className="h-4 w-4 text-orange-500" /> Configuration selectionnee
-                  </h3>
-                  <div className="space-y-3">
-                    {(selectedRequest.selectedStoreDetails || []).length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Aucun detail de configuration disponible.</p>
-                    ) : selectedRequest.selectedStoreDetails?.map((store) => (
-                      <div key={store.id || store.storeId} className="rounded-lg border border-gray-200 bg-gray-50 p-3 dark:border-gray-700 dark:bg-gray-800/50">
-                        <div className="mb-2 flex items-start justify-between gap-3">
-                          <div>
-                            <div className="font-semibold">{store.storeName}</div>
-                            <p className="text-sm text-muted-foreground">{store.storeDescription || 'Store bancaire'}</p>
-                          </div>
-                          <Badge variant="secondary">{formatTnd(store.storePrice)}</Badge>
+
+                <div className="space-y-4">
+                  <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+                    <RequestDetailSectionTitle icon={<Mail className="h-5 w-5" />} title="Coordonnées" iconClassName="text-orange-500" />
+                    <div className="space-y-4">
+                      <RequestDetailRow icon={<UserRound className="h-4 w-4" />} label="Contact" value={selectedRequest.adminContactName || selectedRequest.contactName || '-'} />
+                      <RequestDetailRow icon={<Mail className="h-4 w-4" />} label="Email" value={selectedRequest.adminContactEmail || selectedRequest.contactEmail || '-'} />
+                      <RequestDetailRow icon={<Phone className="h-4 w-4" />} label="Téléphone" value={selectedRequest.adminContactPhone || selectedRequest.contactPhone || '-'} />
+                    </div>
+                  </section>
+
+                  <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+                    <RequestDetailSectionTitle icon={<Globe className="h-5 w-5" />} title="Marketplace" iconClassName="text-blue-500" />
+                    <div className="space-y-4">
+                      <RequestDetailRow icon={<Link2 className="h-4 w-4" />} label="Slug" value={selectedRequest.marketplaceSlug || '-'} />
+                      <RequestDetailRow icon={<Store className="h-4 w-4" />} label="Type" value={requestTypeLabel[selectedRequest.requestType]} />
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                          <span className="text-slate-400"><Globe className="h-4 w-4" /></span>
+                          <span>Description</span>
                         </div>
-                        <div className="space-y-2">
-                          {store.modules.length === 0 ? (
-                            <span className="text-sm text-muted-foreground">Aucun module choisi</span>
-                          ) : store.modules.map((module) => (
-                            <div key={module.id || module.moduleId} className="flex items-center justify-between rounded-md bg-white px-3 py-2 text-sm dark:bg-gray-900">
-                              <span className="flex items-center gap-2"><Package className="h-4 w-4 text-muted-foreground" />{module.moduleName}</span>
-                              <span className="font-medium">{formatTnd(module.modulePrice)}</span>
-                            </div>
-                          ))}
+                        <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-600">
+                          {selectedRequest.marketplaceDescription || '-'}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                </section>
-              )}
-
-              <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 dark:border-orange-900/40 dark:bg-orange-950/20">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-orange-700 dark:text-orange-300">Total mensuel</span>
-                  <strong className="text-2xl text-orange-600 dark:text-orange-300">{formatTnd(getRequestTotal(selectedRequest))}</strong>
+                      <div className="flex flex-wrap gap-3 pt-1">
+                        <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2">
+                          <span className="h-3.5 w-3.5 rounded-full ring-2 ring-white" style={{ backgroundColor: selectedRequest.primaryColor }} />
+                          <span className="text-sm font-medium text-slate-700">{selectedRequest.primaryColor}</span>
+                        </div>
+                        <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2">
+                          <span className="h-3.5 w-3.5 rounded-full ring-2 ring-white" style={{ backgroundColor: selectedRequest.secondaryColor }} />
+                          <span className="text-sm font-medium text-slate-700">{selectedRequest.secondaryColor}</span>
+                        </div>
+                      </div>
+                    </div>
+                  </section>
                 </div>
-                <div className="mt-1 text-xs text-muted-foreground">Creee le {formatDate(selectedRequest.createdAt)}</div>
+              </div>
+            )}
+
+            <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
+              <RequestDetailSectionTitle icon={<Store className="h-5 w-5" />} title="Configuration sélectionnée" iconClassName="text-violet-500" />
+              <div className="space-y-3">
+                {(selectedRequest.selectedStoreDetails || []).length === 0 ? (
+                  <p className="text-sm text-slate-500">Aucun detail de configuration disponible.</p>
+                ) : selectedRequest.selectedStoreDetails?.map((store) => (
+                  <div
+                    key={store.id || store.storeId}
+                    className="rounded-[22px] border border-slate-200 bg-slate-50/80 p-4"
+                  >
+                    <div className="mb-3 flex items-start justify-between gap-3">
+                      <div className="flex min-w-0 items-start gap-3">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-white text-violet-600 ring-1 ring-slate-200">
+                          <Store className="h-6 w-6" />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="truncate text-lg font-semibold text-slate-900">{store.storeName}</div>
+                          <p className="mt-1 text-sm leading-6 text-slate-500">{store.storeDescription || 'Store bancaire'}</p>
+                        </div>
+                      </div>
+                      <Badge variant="secondary" className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">
+                        {formatTnd(store.storePrice)}
+                      </Badge>
+                    </div>
+                    <div className="space-y-2">
+                      {store.modules.length === 0 ? (
+                        <span className="text-sm text-slate-500">Aucun module choisi</span>
+                      ) : store.modules.map((module) => (
+                        <div
+                          key={module.id || module.moduleId}
+                          className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-slate-100"
+                        >
+                          <span className="flex min-w-0 items-center gap-2 text-slate-700">
+                            <Package className="h-4 w-4 shrink-0 text-slate-400" />
+                            <span className="truncate">{module.moduleName}</span>
+                          </span>
+                          <span className="font-semibold text-slate-900">{formatTnd(module.modulePrice)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <div className="rounded-[24px] border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 px-5 py-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <span className="block text-base font-semibold text-orange-600">Total mensuel</span>
+                  <span className="mt-1 block text-xs text-slate-500">Creee le {formatDate(selectedRequest.createdAt)}</span>
+                </div>
+                <strong className="text-3xl font-bold text-orange-600">{formatTnd(getRequestTotal(selectedRequest))}</strong>
               </div>
             </div>
 
             {selectedRequest.status === 'pending' && (
-              <div className="flex gap-3 pt-4 border-t border-border">
+              <div className="grid gap-3 pt-1 sm:grid-cols-2">
                 {selectedRequest.requestType !== 'subscription' ? (
                   <Button
                     variant="success"
-                    className="flex-1"
+                    size="lg"
+                    className="h-14 rounded-2xl text-base font-semibold shadow-sm"
                     icon={actionLoadingId === selectedRequest.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                     onClick={() => runAction(selectedRequest)}
                     disabled={actionLoadingId === selectedRequest.id}
@@ -578,7 +642,8 @@ export function Requests() {
                 ) : null}
                 <Button
                   variant="danger"
-                  className={selectedRequest.requestType !== 'subscription' ? 'flex-1' : 'w-full'}
+                  size="lg"
+                  className={`h-14 rounded-2xl text-base font-semibold shadow-sm ${selectedRequest.requestType !== 'subscription' ? '' : 'sm:col-span-2'}`}
                   icon={actionLoadingId === selectedRequest.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
                   onClick={() => openRejectModal(selectedRequest)}
                   disabled={actionLoadingId === selectedRequest.id}
@@ -633,3 +698,5 @@ export function Requests() {
     </div>
   );
 }
+
+

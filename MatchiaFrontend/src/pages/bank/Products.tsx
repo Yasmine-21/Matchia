@@ -6,11 +6,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
+import { Textarea } from '../../components/ui/textarea';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { useBankTenant } from '../../hooks/useBankTenant';
+import { useApp } from '../../context/AppContext';
 import { productParameterService } from '../../services/productParameterService';
 import { productService } from '../../services/productService';
-import { useApp } from '../../context/AppContext';
+import { getBackendAssetUrl } from '../../utils/tenant';
 import type {
   MarketplaceStoreDetailDto,
   ProductDto,
@@ -18,22 +20,48 @@ import type {
   ProductParameterValuePayload,
   ProductPayload,
 } from '../../types/apiTypes';
-import { Loader2, Package, Plus, RefreshCcw, Sparkles, Tags } from 'lucide-react';
+import { Eye, Image as ImageIcon, Loader2, Package, Pencil, Plus, RefreshCcw, Sparkles, Tags } from 'lucide-react';
 
 type ProductFormState = {
   storeId: string;
   name: string;
   description: string;
+  price: string;
 };
 
 const initialForm: ProductFormState = {
   storeId: '',
   name: '',
   description: '',
+  price: '',
 };
 
 const getStoreId = (store: MarketplaceStoreDetailDto) => store.storeId ?? store.id;
 const getStoreLabel = (store: MarketplaceStoreDetailDto) => store.name || `Store ${getStoreId(store)}`;
+const getProductImageUrl = (url?: string | null) => getBackendAssetUrl(url);
+const formatTnd = (value?: number | string | null) => {
+  if (value === undefined || value === null || value === '') {
+    return '-';
+  }
+
+  const numericValue = Number(value);
+  if (Number.isNaN(numericValue)) {
+    return '-';
+  }
+
+  return new Intl.NumberFormat('fr-TN', {
+    style: 'currency',
+    currency: 'TND',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(numericValue);
+};
+
+const revokeBlobUrl = (url: string) => {
+  if (url.startsWith('blob:')) {
+    URL.revokeObjectURL(url);
+  }
+};
 
 export function BankProducts() {
   const { currentBank } = useApp();
@@ -43,12 +71,17 @@ export function BankProducts() {
   const [error, setError] = useState('');
   const [selectedStoreFilter, setSelectedStoreFilter] = useState<'all' | string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [editingProductId, setEditingProductId] = useState<number | null>(null);
+  const [selectedProduct, setSelectedProduct] = useState<ProductDto | null>(null);
   const [form, setForm] = useState<ProductFormState>(initialForm);
   const [formError, setFormError] = useState('');
   const [parameterDefinitions, setParameterDefinitions] = useState<ProductParameterDefinitionDto[]>([]);
   const [parameterValues, setParameterValues] = useState<Record<number, string>>({});
   const [parameterLoading, setParameterLoading] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState('');
 
   const bankId = marketplace?.bankId ?? currentBank?.id ?? null;
 
@@ -80,12 +113,21 @@ export function BankProducts() {
     void loadProducts();
   }, [bankId]);
 
+  useEffect(() => {
+    return () => revokeBlobUrl(imagePreview);
+  }, [imagePreview]);
+
   const storeMap = useMemo(() => {
     return stores.reduce<Record<number, MarketplaceStoreDetailDto>>((acc, store) => {
       acc[getStoreId(store)] = store;
       return acc;
     }, {});
   }, [stores]);
+
+  const editingProduct = useMemo(
+    () => products.find((product) => product.id === editingProductId) || null,
+    [editingProductId, products],
+  );
 
   const availableProducts = useMemo(() => {
     if (selectedStoreFilter === 'all') {
@@ -108,12 +150,47 @@ export function BankProducts() {
     ];
   }, [products, stores.length]);
 
-  const openCreateModal = () => {
+  const resetImage = () => {
+    revokeBlobUrl(imagePreview);
+    setImageFile(null);
+    setImagePreview('');
+  };
+
+  const resetForm = () => {
     setForm(initialForm);
+    setFormError('');
+    setEditingProductId(null);
+    setParameterDefinitions([]);
+    setParameterValues({});
+    resetImage();
+  };
+
+  const openCreateModal = () => {
+    resetForm();
+    setIsModalOpen(true);
+  };
+
+  const openEditModal = (product: ProductDto) => {
+    revokeBlobUrl(imagePreview);
+    setEditingProductId(product.id);
+    setForm({
+      storeId: String(product.storeId),
+      name: product.name,
+      description: product.description || '',
+      price: product.price != null ? String(product.price) : '',
+    });
     setFormError('');
     setParameterDefinitions([]);
     setParameterValues({});
+    setImageFile(null);
+    setImagePreview(getProductImageUrl(product.imageUrl) || '');
+    setSelectedProduct(null);
     setIsModalOpen(true);
+  };
+
+  const openDetailsModal = (product: ProductDto) => {
+    setSelectedProduct(product);
+    setIsDetailsOpen(true);
   };
 
   const closeModal = () => {
@@ -121,10 +198,25 @@ export function BankProducts() {
       return;
     }
     setIsModalOpen(false);
-    setForm(initialForm);
-    setFormError('');
-    setParameterDefinitions([]);
-    setParameterValues({});
+    resetForm();
+  };
+
+  const closeDetailsModal = () => {
+    setIsDetailsOpen(false);
+    setSelectedProduct(null);
+  };
+
+  const handleImageChange = (file?: File | null) => {
+    if (!file) {
+      setImageFile(null);
+      revokeBlobUrl(imagePreview);
+      setImagePreview(editingProduct?.imageUrl ? getProductImageUrl(editingProduct.imageUrl) || '' : '');
+      return;
+    }
+
+    revokeBlobUrl(imagePreview);
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
   };
 
   useEffect(() => {
@@ -146,10 +238,17 @@ export function BankProducts() {
         }
 
         const definitions = response.data || [];
+        const existingValues = new Map(
+          (editingProduct?.storeId === Number(form.storeId) ? editingProduct?.parameterValues || [] : []).map((value) => [
+            value.parameterDefinitionId,
+            value.value || '',
+          ]),
+        );
+
         setParameterDefinitions(definitions);
         setParameterValues(
           definitions.reduce<Record<number, string>>((acc, definition) => {
-            acc[definition.id] = '';
+            acc[definition.id] = existingValues.get(definition.id) || '';
             return acc;
           }, {}),
         );
@@ -172,7 +271,7 @@ export function BankProducts() {
     return () => {
       mounted = false;
     };
-  }, [form.storeId, isModalOpen]);
+  }, [editingProduct, form.storeId, isModalOpen]);
 
   const submit = async () => {
     if (!bankId) {
@@ -202,11 +301,19 @@ export function BankProducts() {
         storeId: Number(form.storeId),
         name: form.name.trim(),
         description: form.description.trim() || null,
+        price: form.price.trim() ? form.price.trim() : null,
+        image: imageFile,
         parameterValues: parameterPayload,
       };
 
-      await productService.create(payload);
-      toast.success('Produit cree avec succes.');
+      if (editingProductId) {
+        await productService.update(editingProductId, payload);
+        toast.success('Produit mis a jour avec succes.');
+      } else {
+        await productService.create(payload);
+        toast.success('Produit cree avec succes.');
+      }
+
       await loadProducts();
       closeModal();
     } catch (submitError) {
@@ -219,6 +326,9 @@ export function BankProducts() {
   };
 
   const selectedStore = form.storeId ? storeMap[Number(form.storeId)] : null;
+  const selectedDetailsStore = selectedProduct ? storeMap[selectedProduct.storeId] : null;
+  const selectedDetailsImage = selectedProduct?.imageUrl ? getProductImageUrl(selectedProduct.imageUrl) : '';
+
   const productList = useMemo(() => {
     return availableProducts.slice().sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
   }, [availableProducts]);
@@ -229,7 +339,7 @@ export function BankProducts() {
         <div>
           <h1 className="text-3xl font-bold mb-2">Product Management</h1>
           <p className="text-muted-foreground">
-            Creez des produits pour vos stores et renseignez leurs valeurs de parametres de maniere centralisee.
+            Creez des produits pour vos stores, associez leurs parametres et donnez leur une presentation plus claire avec une image dediee.
           </p>
         </div>
 
@@ -300,58 +410,95 @@ export function BankProducts() {
               {productList.map((product) => {
                 const store = storeMap[product.storeId];
                 const isStoreActive = store ? store.enabled !== false && store.visible !== false : true;
+                const productImage = getProductImageUrl(product.imageUrl);
 
                 return (
                   <article
                     key={product.id}
-                    className="flex h-full flex-col gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm transition-transform hover:-translate-y-1 hover:shadow-lg"
+                    className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-card shadow-sm transition-all duration-200 hover:-translate-y-1 hover:shadow-xl"
                   >
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="min-w-0">
-                        <div className="text-xs uppercase tracking-[0.28em] text-muted-foreground">Produit</div>
-                        <h3 className="mt-2 truncate text-xl font-semibold text-foreground">{product.name}</h3>
-                      </div>
-                      <div className="rounded-full border border-border bg-muted/40 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-foreground">
-                        #{product.id}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap gap-2">
-                      <Badge variant="secondary">{store?.name || product.storeName || `Store ${product.storeId}`}</Badge>
-                      <Badge variant={isStoreActive ? 'success' : 'warning'}>
-                        {isStoreActive ? 'Actif' : 'Inactif'}
-                      </Badge>
-                    </div>
-
-                    <p className="text-sm leading-6 text-muted-foreground">
-                      {product.description || 'Aucune description fournie pour ce produit.'}
-                    </p>
-
-                    <div>
-                      <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-                        <Tags className="h-4 w-4 text-orange-500" />
-                        Parametres
-                      </div>
-                      {product.parameterValues?.length ? (
-                        <div className="flex flex-wrap gap-2">
-                          {product.parameterValues.map((parameter) => (
-                            <span
-                              key={parameter.id}
-                              className="inline-flex items-center rounded-full border border-border bg-muted/30 px-3 py-1 text-xs text-foreground"
-                            >
-                              <span className="font-semibold">
-                                {parameter.parameterName || `Parametre ${parameter.parameterDefinitionId}`}
-                              </span>
-                              <span className="mx-2 text-muted-foreground">:</span>
-                              <span className="truncate">{parameter.value || '-'}</span>
-                            </span>
-                          ))}
-                        </div>
+                    <div className="relative h-56 overflow-hidden bg-gradient-to-br from-slate-100 via-white to-slate-200 p-3">
+                      {productImage ? (
+                        <img
+                          src={productImage}
+                          alt={product.name}
+                          className="h-full w-full object-contain transition-transform duration-300 group-hover:scale-105"
+                        />
                       ) : (
-                        <div className="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
-                          Aucun parametre configure pour ce produit.
+                        <div className="flex h-full w-full items-center justify-center rounded-2xl bg-gradient-to-br from-slate-950 via-slate-900 to-orange-500 text-white/80">
+                          <ImageIcon className="h-12 w-12" />
                         </div>
                       )}
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent p-4">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <div className="text-[11px] uppercase tracking-[0.3em] text-white/65">Produit</div>
+                            <h3 className="mt-2 truncate text-xl font-semibold text-white">{product.name}</h3>
+                          </div>
+                        </div>
+                        <div className="mt-4 flex flex-wrap gap-2">
+                          <Badge variant="secondary" className="bg-white/10 text-white">
+                            {store?.name || product.storeName || `Store ${product.storeId}`}
+                          </Badge>
+                          <Badge variant={isStoreActive ? 'success' : 'warning'} className="backdrop-blur-sm">
+                            {isStoreActive ? 'Actif' : 'Inactif'}
+                          </Badge>
+                          <Badge variant="secondary" className="bg-white/10 text-white">
+                            {formatTnd(product.price)}
+                          </Badge>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-1 flex-col gap-4 p-5">
+                      <p className="text-sm leading-6 text-muted-foreground">
+                        {product.description || 'Aucune description fournie pour ce produit.'}
+                      </p>
+
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+                          <Tags className="h-4 w-4 text-orange-500" />
+                          Caractéristiques
+                        </div>
+                        {product.parameterValues?.length ? (
+                          <div className="flex flex-wrap gap-2">
+                            {product.parameterValues.map((parameter) => (
+                              <span
+                                key={parameter.id}
+                                className="inline-flex items-center rounded-full border border-border bg-muted/30 px-3 py-1 text-xs text-foreground"
+                              >
+                                <span className="font-semibold">
+                                  {parameter.parameterName || `Parametre ${parameter.parameterDefinitionId}`}
+                                </span>
+                                <span className="mx-2 text-muted-foreground">:</span>
+                                <span className="truncate">{parameter.value || '-'}</span>
+                              </span>
+                            ))}
+                          </div>
+                        ) : (
+                          <div className="rounded-xl border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
+                            Aucun parametre configure pour ce produit.
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="mt-auto grid grid-cols-2 gap-3 pt-2">
+                        <Button
+                          variant="outline"
+                          className="w-full"
+                          icon={<Eye className="h-4 w-4" />}
+                          onClick={() => openDetailsModal(product)}
+                        >
+                          Details
+                        </Button>
+                        <Button
+                          className="w-full bg-orange-500 hover:bg-orange-600"
+                          icon={<Pencil className="h-4 w-4" />}
+                          onClick={() => openEditModal(product)}
+                        >
+                          Modifier
+                        </Button>
+                      </div>
                     </div>
                   </article>
                 );
@@ -361,7 +508,12 @@ export function BankProducts() {
         </CardContent>
       </Card>
 
-      <Modal isOpen={isModalOpen} onClose={closeModal} title="Add Product" size="xl">
+      <Modal
+        isOpen={isModalOpen}
+        onClose={closeModal}
+        title={editingProductId ? 'Modifier le produit' : 'Add Product'}
+        size="xl"
+      >
         <div className="space-y-5">
           <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-900">
             <div className="flex items-center gap-2 font-semibold">
@@ -401,14 +553,50 @@ export function BankProducts() {
             />
           </div>
 
+          <Input
+            label="Prix"
+            type="number"
+            step="0.01"
+            min="0"
+            value={form.price}
+            onChange={(event) => setForm((prev) => ({ ...prev, price: event.target.value }))}
+            placeholder="Ex: 2500"
+          />
+
+          <div className="grid gap-4 lg:grid-cols-[1.05fr_0.95fr]">
+            <div className="space-y-2">
+              <label className="block text-sm text-foreground">Image du produit</label>
+              <Input
+                type="file"
+                accept="image/*"
+                onChange={(event) => handleImageChange(event.target.files?.[0] || null)}
+              />
+              <p className="text-xs text-muted-foreground">
+                Ajoutez une image pour rendre la fiche produit plus lisible. Si vous ne choisissez pas de nouvelle image lors de la modification, l&apos;image actuelle est conservee.
+              </p>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-muted/20 p-4">
+              <div className="text-sm font-semibold text-foreground">Apercu</div>
+              <div className="mt-3 h-40 overflow-hidden rounded-2xl border border-border bg-slate-950">
+                {imagePreview ? (
+                  <img src={imagePreview} alt="Apercu du produit" className="h-full w-full object-cover" />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground">
+                    <ImageIcon className="h-8 w-8" />
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <label className="block text-sm text-foreground">Description</label>
-            <textarea
+            <Textarea
               rows={4}
               value={form.description}
               onChange={(event) => setForm((prev) => ({ ...prev, description: event.target.value }))}
               placeholder="Description du produit..."
-              className="w-full rounded-lg border border-input bg-input-background px-4 py-2.5 transition-all focus:border-transparent focus:outline-none focus:ring-2 focus:ring-ring"
             />
           </div>
 
@@ -467,6 +655,102 @@ export function BankProducts() {
             </Button>
           </div>
         </div>
+      </Modal>
+
+      <Modal
+        isOpen={isDetailsOpen}
+        onClose={closeDetailsModal}
+        title={selectedProduct ? selectedProduct.name : 'Details du produit'}
+        size="xl"
+      >
+        {selectedProduct && (
+          <div className="space-y-5">
+            <div className="grid gap-5 lg:grid-cols-[0.95fr_1.05fr]">
+              <div className="overflow-hidden rounded-3xl border border-border bg-slate-100">
+                {selectedDetailsImage ? (
+                    <img
+                      src={selectedDetailsImage}
+                      alt={selectedProduct.name}
+                      className="h-72 w-full object-contain bg-gradient-to-br from-slate-100 via-white to-slate-200 p-3"
+                    />
+                ) : (
+                  <div className="flex h-72 w-full items-center justify-center text-white/70">
+                    <ImageIcon className="h-12 w-12" />
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-4">
+                <div className="rounded-2xl border border-border bg-muted/20 p-4">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <Badge variant="secondary">{selectedProduct.bankName || 'Banque'}</Badge>
+                    <Badge
+                      variant={
+                        selectedDetailsStore
+                          ? selectedDetailsStore.enabled !== false && selectedDetailsStore.visible !== false
+                            ? 'success'
+                            : 'warning'
+                          : 'secondary'
+                      }
+                    >
+                      {selectedDetailsStore
+                        ? selectedDetailsStore.enabled !== false && selectedDetailsStore.visible !== false
+                          ? 'Actif'
+                          : 'Inactif'
+                        : 'Store'}
+                    </Badge>
+                  </div>
+                  <h3 className="mt-3 text-2xl font-bold">{selectedProduct.name}</h3>
+                  <p className="mt-2 text-sm leading-6 text-muted-foreground">
+                    {selectedProduct.description || 'Aucune description fournie pour ce produit.'}
+                  </p>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-border bg-card p-4">
+                    <div className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Store</div>
+                    <div className="mt-2 font-semibold">
+                      {selectedDetailsStore?.name || selectedProduct.storeName || 'Store'}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-border bg-card p-4 sm:col-span-2">
+                    <div className="text-xs uppercase tracking-[0.24em] text-muted-foreground">Prix</div>
+                    <div className="mt-2 font-semibold">{formatTnd(selectedProduct.price)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-muted/20 p-4">
+              <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-foreground">
+                <Tags className="h-4 w-4 text-orange-500" />
+                Valeurs des caracteristiques
+              </div>
+              {selectedProduct.parameterValues?.length ? (
+                <div className="grid gap-3 md:grid-cols-2">
+                  {selectedProduct.parameterValues.map((parameter) => (
+                    <div key={parameter.id} className="rounded-xl border border-border bg-white px-4 py-3">
+                      <div className="text-xs uppercase tracking-[0.24em] text-muted-foreground">
+                        {parameter.parameterName || `Parametre ${parameter.parameterDefinitionId}`}
+                      </div>
+                      <div className="mt-2 font-medium text-foreground">{parameter.value || '-'}</div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border bg-background px-4 py-8 text-center text-sm text-muted-foreground">
+                  Aucun parametre configure pour ce produit.
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end">
+              <Button variant="outline" onClick={closeDetailsModal}>
+                Fermer
+              </Button>
+            </div>
+          </div>
+        )}
       </Modal>
     </div>
   );

@@ -7,18 +7,24 @@ import { KpiCard } from '../../components/ui/KpiCard';
 import { Modal } from '../../components/ui/Modal';
 import {
   AlertCircle,
+  CalendarDays,
   Building2,
   Check,
   CheckCircle,
   DollarSign,
+  ExternalLink,
   Eye,
+  FileText,
   Loader2,
+  Link2,
   Pencil,
   Plus,
+  Palette,
   Save,
   Store as StoreIcon,
   Trash2,
   Upload,
+  ChevronUp,
   Wrench,
 } from 'lucide-react';
 import { bankService } from '../../services/bankService';
@@ -713,7 +719,7 @@ export function Marketplaces() {
                     <th className="px-3 py-4">Couleurs</th>
                     <th className="px-3 py-4">Stores</th>
                     <th className="px-3 py-4">Tarif/mois</th>
-                    <th className="px-3 py-4">Création</th>
+                    <th className="px-3 py-4">CrÃ©ation</th>
                     <th className="px-3 py-4">Statut</th>
                     <th className="px-3 py-4 text-right">Actions</th>
                   </tr>
@@ -820,65 +826,117 @@ export function Marketplaces() {
       <Modal
         isOpen={detailsBank !== null}
         onClose={() => setDetailsBank(null)}
-        title="Détails Marketplace"
-        size="lg"
+        size="xl"
       >
         {detailsBank && (
-          <div className="space-y-6">
-            <div className="flex flex-col gap-4 rounded-xl border border-slate-200 bg-slate-50 p-5 md:flex-row md:items-center md:justify-between">
+          <div className="space-y-6 text-slate-900">
+            <div className="flex flex-col gap-4 border-b border-slate-200 pb-5 pr-10 sm:flex-row sm:items-start sm:justify-between">
               <div className="flex min-w-0 items-center gap-4">
-                <BankLogo bank={detailsBank} />
+                <div className="scale-110 origin-left">
+                  <BankLogo bank={detailsBank} />
+                </div>
                 <div className="min-w-0">
-                  <h3 className="truncate text-2xl font-bold text-gray-950">
+                  <h2 className="truncate text-3xl font-bold tracking-tight text-slate-900">
                     {detailsBank.slug || detailsBank.name}
-                  </h3>
-                  <p className="mt-1 text-sm text-slate-600">{detailsBank.name}</p>
+                  </h2>
+                  <div className="mt-2 flex items-center gap-2 text-sm text-slate-500">
+                    <Building2 className="h-4 w-4" />
+                    <span>{detailsBank.name}</span>
+                  </div>
                 </div>
               </div>
-              <Badge variant={statusVariant(detailsMarketplace?.status || detailsBank.status)}>
+              <Badge
+                variant={statusVariant(detailsMarketplace?.status || detailsBank.status)}
+                className="inline-flex rounded-full bg-emerald-50 px-4 py-1.5 text-emerald-700 ring-1 ring-emerald-200"
+              >
+                <span className="mr-2 h-2.5 w-2.5 rounded-full bg-emerald-500" />
                 {statusLabel(detailsMarketplace?.status || detailsBank.status)}
               </Badge>
             </div>
 
-            <div className="grid gap-4 md:grid-cols-2">
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-sm font-medium text-slate-500">Banque</div>
-                <div className="mt-2 font-semibold text-gray-950">{detailsBank.name}</div>
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-slate-50 text-blue-600 ring-1 ring-slate-200">
+                    <Building2 className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-slate-500">Banque</div>
+                    <div className="mt-1 truncate text-lg font-bold text-slate-900">{detailsBank.name}</div>
+                  </div>
+                </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-sm font-medium text-slate-500">Slug marketplace</div>
-                <div className="mt-2 font-semibold text-gray-950">{detailsBank.slug || '-'}</div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-violet-50 text-violet-600 ring-1 ring-violet-100">
+                    <Link2 className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-slate-500">Slug marketplace</div>
+                    <div className="mt-1 truncate text-lg font-bold text-slate-900">{detailsBank.slug || '-'}</div>
+                  </div>
+                </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-sm font-medium text-slate-500">Création</div>
-                <div className="mt-2 font-semibold text-gray-950">{formatDate(detailsMarketplace?.createdAt)}</div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-slate-200">
+                    <CalendarDays className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-slate-500">CrÃ©ation</div>
+                    <div className="mt-1 truncate text-lg font-bold text-slate-900">{formatDate(detailsMarketplace?.createdAt)}</div>
+                  </div>
+                </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-sm font-medium text-slate-500">Stores assignés</div>
-                <div className="mt-2 font-semibold text-gray-950">{detailsStoresCount}</div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100">
+                    <StoreIcon className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-slate-500">Stores assignÃ©s</div>
+                    <div className="mt-1 truncate text-lg font-bold text-slate-900">{detailsStoresCount}</div>
+                  </div>
+                </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-4">
-                <div className="text-sm font-medium text-slate-500">Tarif mensuel</div>
-                <div className="mt-2 font-semibold text-gray-950">{formatTnd(detailsMonthlyPrice)}</div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                <div className="flex items-center gap-4">
+                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-orange-50 text-orange-600 ring-1 ring-orange-100">
+                    <DollarSign className="h-5 w-5" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-medium text-slate-500">Tarif mensuel</div>
+                    <div className="mt-1 truncate text-lg font-bold text-slate-900">{formatTnd(detailsMonthlyPrice)}</div>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                <div>
-                  <div className="text-sm font-medium text-slate-500">Stores et modules</div>
-                  <div className="mt-1 text-sm text-slate-600">
-                    {detailsStoresCount} store{detailsStoresCount > 1 ? 's' : ''} assigne{detailsStoresCount > 1 ? 's' : ''}
+            <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
+              <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                    <StoreIcon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h3 className="text-base font-semibold text-slate-900">Stores et modules</h3>
+                    <p className="mt-1 text-sm text-slate-500">
+                      {detailsStoresCount} store{detailsStoresCount > 1 ? 's' : ''} assignÃ©{detailsStoresCount > 1 ? 's' : ''}
+                    </p>
                   </div>
                 </div>
-                <div className="text-sm font-semibold text-gray-950">
-                  Total : {formatTnd(detailsMonthlyPrice)}
+                <div className="text-sm font-semibold text-slate-700">
+                  Total : <span className="text-blue-600">{formatTnd(detailsMonthlyPrice)}</span>
                 </div>
               </div>
 
               {detailsSelectedStores.length === 0 ? (
-                <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-center text-sm text-slate-500">
-                  Aucun store associe a cette marketplace.
+                <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
+                  Aucun store associÃ© Ã  cette marketplace.
                 </div>
               ) : (
                 <div className="mt-4 space-y-4">
@@ -886,50 +944,63 @@ export function Marketplaces() {
                     const modules = store.modules || [];
 
                     return (
-                      <div key={store.id || store.storeId} className="rounded-xl border border-slate-200 bg-slate-50 p-4">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <div className="font-semibold text-gray-950">
-                              {'storeName' in store
-                                ? store.storeName
-                                : store.name || `Store ${store.storeId || store.id}`}
+                      <div key={store.id || store.storeId} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                          <div className="flex min-w-0 items-start gap-3">
+                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-600 ring-1 ring-slate-200">
+                              <StoreIcon className="h-5 w-5" />
                             </div>
-                            <div className="mt-1 text-sm text-slate-500">
-                              {modules.length} module{modules.length > 1 ? 's' : ''}
+                            <div className="min-w-0">
+                              <div className="truncate text-lg font-semibold text-slate-900">
+                                {'storeName' in store
+                                  ? store.storeName
+                                  : store.name || `Store ${store.storeId || store.id}`}
+                              </div>
+                              <div className="mt-1 text-sm text-slate-500">
+                                {modules.length} module{modules.length > 1 ? 's' : ''}
+                              </div>
                             </div>
                           </div>
-                          <div className="shrink-0 rounded-full bg-white px-3 py-1 text-sm font-semibold text-gray-950">
-                            {formatOptionalTnd('storePrice' in store ? store.storePrice : store.price)}
+                          <div className="flex items-center gap-3">
+                            <div className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-blue-600 ring-1 ring-slate-200">
+                              {formatOptionalTnd('storePrice' in store ? store.storePrice : store.price)}
+                            </div>
+                            <ChevronUp className="h-4 w-4 text-slate-400" />
                           </div>
                         </div>
 
                         {modules.length > 0 ? (
-                          <div className="mt-4 divide-y divide-slate-200 rounded-lg border border-slate-200 bg-white">
+                          <div className="mt-4 space-y-1 rounded-2xl border border-slate-200 bg-white p-3">
                             {modules.map((module) => (
-                              <div key={module.id || module.moduleId} className="flex flex-col gap-2 px-3 py-3 sm:flex-row sm:items-center sm:justify-between">
-                                <div className="min-w-0">
-                                  <div className="truncate text-sm font-semibold text-gray-900">
-                                    {'moduleName' in module
-                                      ? module.moduleName
-                                      : module.name || `Module ${module.moduleId || module.id}`}
+                              <div key={module.id || module.moduleId} className="flex items-center justify-between gap-3 rounded-xl px-2 py-2">
+                                <div className="flex min-w-0 items-start gap-3">
+                                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
+                                    <Wrench className="h-4 w-4" />
                                   </div>
-                                  {'moduleDescription' in module
-                                    ? module.moduleDescription && (
-                                      <div className="mt-0.5 text-xs text-slate-500">{module.moduleDescription}</div>
-                                    )
-                                    : 'category' in module && module.category && (
-                                      <div className="mt-0.5 text-xs text-slate-500">{module.category}</div>
-                                    )}
+                                  <div className="min-w-0">
+                                    <div className="truncate text-sm font-semibold text-slate-900">
+                                      {'moduleName' in module
+                                        ? module.moduleName
+                                        : module.name || `Module ${module.moduleId || module.id}`}
+                                    </div>
+                                    {'moduleDescription' in module
+                                      ? module.moduleDescription && (
+                                        <div className="mt-0.5 text-xs text-slate-500">{module.moduleDescription}</div>
+                                      )
+                                      : 'category' in module && module.category && (
+                                        <div className="mt-0.5 text-xs text-slate-500">{module.category}</div>
+                                      )}
+                                  </div>
                                 </div>
-                                <div className="text-sm font-semibold text-gray-950">
+                                <div className="shrink-0 text-sm font-semibold text-slate-700">
                                   {formatOptionalTnd(getDetailsModulePrice(store.storeId, module))}
                                 </div>
                               </div>
                             ))}
                           </div>
                         ) : (
-                          <div className="mt-4 rounded-lg border border-dashed border-slate-200 bg-white px-3 py-4 text-sm text-slate-500">
-                            Aucun module associe a ce store.
+                          <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-white px-3 py-4 text-sm text-slate-500">
+                            Aucun module associÃ© Ã  ce store.
                           </div>
                         )}
                       </div>
@@ -939,34 +1010,43 @@ export function Marketplaces() {
               )}
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="text-sm font-medium text-slate-500">Couleurs marketplace</div>
-              <div className="mt-3 flex flex-wrap items-center gap-4">
-                <div className="flex items-center gap-2">
-                  <span className="h-8 w-8 rounded-md border border-slate-200" style={{ backgroundColor: detailsPrimaryColor }} />
-                  <span className="text-sm font-semibold text-gray-950">{detailsPrimaryColor}</span>
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <Palette className="h-4 w-4 text-blue-600" />
+                  <span>Couleurs marketplace</span>
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="h-8 w-8 rounded-md border border-slate-200" style={{ backgroundColor: detailsSecondaryColor }} />
-                  <span className="text-sm font-semibold text-gray-950">{detailsSecondaryColor}</span>
+                <div className="flex flex-wrap gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="h-8 w-8 rounded-md border border-slate-200" style={{ backgroundColor: detailsPrimaryColor }} />
+                    <span className="text-sm font-semibold text-slate-900">{detailsPrimaryColor}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="h-8 w-8 rounded-md border border-slate-200" style={{ backgroundColor: detailsSecondaryColor }} />
+                    <span className="text-sm font-semibold text-slate-900">{detailsSecondaryColor}</span>
+                  </div>
                 </div>
+              </div>
+
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
+                <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                  <FileText className="h-4 w-4 text-blue-600" />
+                  <span>Description</span>
+                </div>
+                <p className="leading-relaxed text-slate-700">
+                  {detailsBank.description || detailsMarketplace?.welcomeText || 'Aucune description disponible.'}
+                </p>
               </div>
             </div>
 
-            <div className="rounded-xl border border-slate-200 bg-white p-4">
-              <div className="text-sm font-medium text-slate-500">Description</div>
-              <p className="mt-2 leading-relaxed text-gray-800">
-                {detailsBank.description || detailsMarketplace?.welcomeText || 'Aucune description disponible.'}
-              </p>
-            </div>
-
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-2">
               <a
                 href={`http://${detailsBank.slug}.lvh.me:5173`}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700"
+                className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(37,99,235,0.24)] transition-colors hover:bg-blue-700"
               >
+                <ExternalLink className="h-4 w-4" />
                 Ouvrir la marketplace
               </a>
             </div>
