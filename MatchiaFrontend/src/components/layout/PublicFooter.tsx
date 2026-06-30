@@ -1,79 +1,89 @@
 import { Link } from 'react-router';
-import { Facebook, Twitter, Linkedin, Mail, Phone, MapPin } from 'lucide-react';
+import { Facebook, Linkedin, Mail, MapPin, Phone, Twitter } from 'lucide-react';
 import { MatchiaLogo } from '../brand/MatchiaLogo';
 
 export function PublicFooter() {
   return (
-    <footer className="bg-slate-900 text-white">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+    <footer className="border-t border-slate-800 bg-[#08112a] text-white">
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid gap-10 md:grid-cols-2 xl:grid-cols-5">
           <div>
             <MatchiaLogo className="mb-4" textClassName="text-xl font-bold text-white" />
-            <p className="text-slate-300 mb-4">
-              The multi-tenant SaaS platform for modern banking marketplaces.
+            <p className="max-w-xs text-sm leading-7 text-slate-300">
+              La plateforme digitale de financement qui permet aux banques de lancer rapidement leur marketplace.
             </p>
-            <div className="flex items-center gap-3">
-              <a href="#" className="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors">
-                <Facebook className="w-4 h-4" />
+            <div className="mt-4 flex items-center gap-3">
+              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-white/80 transition-colors hover:bg-white/10 hover:text-white">
+                <Facebook className="h-4 w-4" />
               </a>
-              <a href="#" className="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors">
-                <Twitter className="w-4 h-4" />
+              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-white/80 transition-colors hover:bg-white/10 hover:text-white">
+                <Twitter className="h-4 w-4" />
               </a>
-              <a href="#" className="w-9 h-9 bg-slate-800 rounded-lg flex items-center justify-center hover:bg-primary transition-colors">
-                <Linkedin className="w-4 h-4" />
+              <a href="#" className="flex h-9 w-9 items-center justify-center rounded-lg bg-white/5 text-white/80 transition-colors hover:bg-white/10 hover:text-white">
+                <Linkedin className="h-4 w-4" />
               </a>
             </div>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Product</h4>
-            <ul className="space-y-2 text-slate-300">
-              <li><Link to="/" className="hover:text-white transition-colors">Features</Link></li>
-              <li><Link to="/banques" className="hover:text-white transition-colors">Partner Banks</Link></li>
-              <li><Link to="/rejoindre" className="hover:text-white transition-colors">Pricing</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Documentation</Link></li>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-slate-200">Produit</h4>
+            <ul className="space-y-2 text-sm text-slate-300">
+              <li><Link to="/" className="transition-colors hover:text-white">Fonctionnalités</Link></li>
+              <li><Link to="/banques" className="transition-colors hover:text-white">Banques</Link></li>
+              <li><Link to="/rejoindre" className="transition-colors hover:text-white">Rejoindre Matchia</Link></li>
+              <li><Link to="/" className="transition-colors hover:text-white">Documentation</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Company</h4>
-            <ul className="space-y-2 text-slate-300">
-              <li><Link to="/" className="hover:text-white transition-colors">About</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Blog</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Careers</Link></li>
-              <li><Link to="/" className="hover:text-white transition-colors">Press</Link></li>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-slate-200">Ressources</h4>
+            <ul className="space-y-2 text-sm text-slate-300">
+              <li><Link to="/" className="transition-colors hover:text-white">Blog</Link></li>
+              <li><Link to="/" className="transition-colors hover:text-white">FAQ</Link></li>
+              <li><Link to="/" className="transition-colors hover:text-white">Cas clients</Link></li>
+              <li><Link to="/" className="transition-colors hover:text-white">Support</Link></li>
             </ul>
           </div>
 
           <div>
-            <h4 className="font-semibold mb-4">Contact</h4>
-            <ul className="space-y-3 text-slate-300">
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-slate-200">Entreprise</h4>
+            <ul className="space-y-2 text-sm text-slate-300">
+              <li><Link to="/" className="transition-colors hover:text-white">À propos</Link></li>
+              <li><Link to="/" className="transition-colors hover:text-white">Partenaires</Link></li>
+              <li><Link to="/" className="transition-colors hover:text-white">Carrières</Link></li>
+              <li><Link to="/" className="transition-colors hover:text-white">Presse</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="mb-4 text-sm font-semibold uppercase tracking-[0.24em] text-slate-200">Contact</h4>
+            <ul className="space-y-3 text-sm text-slate-300">
               <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4" />
-                <a href="mailto:contact@matchia.com" className="hover:text-white transition-colors">
+                <Mail className="h-4 w-4" />
+                <a href="mailto:contact@matchia.com" className="transition-colors hover:text-white">
                   contact@matchia.com
                 </a>
               </li>
               <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4" />
+                <Phone className="h-4 w-4" />
                 <span>+216 71 123 456</span>
               </li>
               <li className="flex items-center gap-2">
-                <MapPin className="w-4 h-4" />
+                <MapPin className="h-4 w-4" />
                 <span>Tunis, Tunisie</span>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-slate-800 flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-slate-400 text-sm">
-            © 2026 Matchia. All rights reserved.
-          </p>
-          <div className="flex items-center gap-6 text-sm text-slate-400">
-            <Link to="/" className="hover:text-white transition-colors">Privacy Policy</Link>
-            <Link to="/" className="hover:text-white transition-colors">Terms of Service</Link>
-            <Link to="/" className="hover:text-white transition-colors">Legal</Link>
+        <div className="mt-10 border-t border-white/10 pt-6 text-sm text-slate-400">
+          <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <p>(c) 2026 Matchia. Tous droits réservés.</p>
+            <div className="flex flex-wrap gap-5">
+              <Link to="/" className="transition-colors hover:text-white">Mentions légales</Link>
+              <Link to="/" className="transition-colors hover:text-white">Politique de confidentialité</Link>
+              <Link to="/" className="transition-colors hover:text-white">Conditions d’utilisation</Link>
+            </div>
           </div>
         </div>
       </div>

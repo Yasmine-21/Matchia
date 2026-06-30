@@ -17,6 +17,24 @@ apiClient.interceptors.request.use((config) => {
     config.headers.Authorization = `Bearer ${token}`;
   }
 
+  const isFormData =
+    typeof FormData !== 'undefined' &&
+    config.data instanceof FormData;
+
+  if (isFormData && config.headers) {
+    const headers = config.headers as Record<string, unknown> & {
+      delete?: (headerName: string) => void;
+    };
+
+    if (typeof headers.delete === 'function') {
+      headers.delete('Content-Type');
+      headers.delete('content-type');
+    } else {
+      delete headers['Content-Type'];
+      delete headers['content-type'];
+    }
+  }
+
   const tenantSlug = getTenantSlugFromLocation();
   if (tenantSlug) {
     config.headers = config.headers ?? {};

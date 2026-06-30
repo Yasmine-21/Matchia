@@ -32,6 +32,6 @@ public class RequestModuleSelection {
     @Column(precision = 12, scale = 2)
     private BigDecimal modulePrice;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "TEXT")
     private String parameters;
 }

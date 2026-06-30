@@ -43,4 +43,17 @@ public class RequestSchemaMigration {
             log.warn("Could not clean legacy request marketplace slug constraint: {}", error.getMessage());
         }
     }
+
+    @EventListener(ApplicationReadyEvent.class)
+    public void widenRequestModuleSelectionParametersColumn() {
+        try {
+            jdbcTemplate.execute("""
+                    ALTER TABLE public.request_module_selection
+                    ALTER COLUMN parameters TYPE TEXT
+                    """);
+            log.info("Ensured request_module_selection.parameters uses TEXT for large module parameter payloads");
+        } catch (Exception error) {
+            log.warn("Could not widen request_module_selection.parameters column: {}", error.getMessage());
+        }
+    }
 }

@@ -27,4 +27,10 @@ public class ModuleStoreParameter {
     private String code;
     private String type;
     private Boolean required;
+
+    @Column(name = "parameter_value")
+    private String value;
+
+    @Column(name = "parameter_options", columnDefinition = "text")
+    private String options;
 }

@@ -161,6 +161,40 @@ public class EmailService {
         return false;
     }
 
+    public boolean sendBankCredentialsEmail(Request request) {
+        User adminUser = resolveBankAdminUser(request);
+        if (adminUser == null || !hasText(adminUser.getEmail())) {
+            log.warn("Impossible d'envoyer les identifiants banque: utilisateur admin introuvable.");
+            return false;
+        }
+        if (!hasText(adminUser.getPassword())) {
+            log.warn("Impossible d'envoyer les identifiants banque: mot de passe manquant pour l'utilisateur {}.", adminUser.getEmail());
+            return false;
+        }
+
+        String subject = "Vos identifiants Matchia pour le back office bancaire";
+        String body = """
+                Bonjour %s,
+
+                Votre paiement a ete confirme avec succes.
+
+                Voici vos identifiants de connexion au back office bancaire :
+                Login : %s
+                Mot de passe : %s
+
+                Merci de changer ce mot de passe lors de votre premiere connexion.
+
+                Merci,
+                L'equipe Matchia
+                """.formatted(
+                hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin",
+                adminUser.getEmail(),
+                adminUser.getPassword()
+        );
+
+        return sendMail(adminUser.getEmail(), subject, body, "identifiants banque", "IDENTIFIANTS BANQUE");
+    }
+
     public boolean sendRequestRejectedEmail(Request request) {
         return sendJoinRequestRejectedEmail(request, null);
     }
@@ -319,6 +353,17 @@ public class EmailService {
             }
         }
         return hasText(request.getBankEmail()) ? request.getBankEmail() : null;
+    }
+
+    private User resolveBankAdminUser(Request request) {
+        if (request == null || request.getBank() == null || request.getBank().getId() == null) {
+            return null;
+        }
+
+        return userRepository.findByBank_IdOrderByCreatedAtAsc(request.getBank().getId()).stream()
+                .filter(user -> user.getRole() == RoleEnum.ADMIN_BANK)
+                .findFirst()
+                .orElse(null);
     }
 
     private boolean hasText(String value) {

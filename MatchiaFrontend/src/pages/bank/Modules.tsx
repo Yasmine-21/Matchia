@@ -5,9 +5,11 @@ import { AlertTriangle, Loader2, Store, Wrench } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
+import { Input } from '../../components/ui/Input';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { useBankTenant } from '../../hooks/useBankTenant';
 import { bankTenantService } from '../../services/bankTenantService';
+import { moduleService } from '../../services/moduleService';
 import type { MarketplacePublicDto, ModuleAssignment } from '../../types/apiTypes';
 
 const getStoreKey = (store: { storeId?: number | null; id: number }) => String(store.storeId ?? store.id);
@@ -18,6 +20,8 @@ export function BankModules() {
   const navigate = useNavigate();
   const { stores, modulesByStore, marketplace, isLoading, error, refresh } = useBankTenant();
   const [updatingModuleId, setUpdatingModuleId] = useState<number | null>(null);
+  const [savingParameterId, setSavingParameterId] = useState<number | null>(null);
+  const [parameterDrafts, setParameterDrafts] = useState<Record<number, string>>({});
   const [publicMarketplace, setPublicMarketplace] = useState<MarketplacePublicDto | null>(null);
 
   const selectedStoreId = useMemo(() => {
@@ -61,6 +65,58 @@ export function BankModules() {
 
     return selectedStoreAssignments.filter((assignment) => assignment.actif !== false);
   }, [isSelectedStoreInactive, selectedStoreAssignments]);
+
+  const getParameterDraftValue = (parameter: ModuleAssignment['parameters'][number]) => {
+    if (parameterDrafts[parameter.id] !== undefined) {
+      return parameterDrafts[parameter.id];
+    }
+
+    return parameter.value !== undefined && parameter.value !== null ? String(parameter.value) : '';
+  };
+
+  const updateParameterDraft = (parameterId: number, value: string) => {
+    setParameterDrafts((current) => ({
+      ...current,
+      [parameterId]: value,
+    }));
+  };
+
+  const saveParameterValue = async (parameter: ModuleAssignment['parameters'][number]) => {
+    if (isSelectedStoreInactive) {
+      return;
+    }
+
+    setSavingParameterId(parameter.id);
+    try {
+      const response = await moduleService.updateModuleStoreParameter(parameter.id, {
+        name: parameter.name,
+        code: parameter.code,
+        type: parameter.type,
+        required: parameter.required,
+        value: getParameterDraftValue(parameter),
+      });
+
+      const updatedParameter = response.data.parameters?.find(
+        (entry: ModuleAssignment['parameters'][number]) => entry.id === parameter.id,
+      );
+      if (updatedParameter) {
+        setParameterDrafts((current) => ({
+          ...current,
+          [updatedParameter.id]:
+            updatedParameter.value !== undefined && updatedParameter.value !== null
+              ? String(updatedParameter.value)
+              : '',
+        }));
+      }
+
+      refresh();
+    } catch (updateError) {
+      console.error('Failed to update module parameter value:', updateError);
+      alert("Impossible de mettre à jour la valeur du parametre.");
+    } finally {
+      setSavingParameterId(null);
+    }
+  };
 
   const visibleStoresCount = useMemo(
     () => stores.filter((store) => store.enabled !== false && store.visible !== false).length,
@@ -255,17 +311,78 @@ export function BankModules() {
                       </div>
 
                       <div className="mt-4 rounded-xl border border-border bg-background p-4">
-                        <div className="mb-3 text-sm font-medium text-foreground">Paramètres du module</div>
+                        <div className="mb-3 flex items-center justify-between gap-3">
+                          <div>
+                            <div className="text-sm font-medium text-foreground">Paramètres du module</div>
+                            <div className="text-xs text-muted-foreground">
+                              Les valeurs ci-dessous peuvent être personnalisées pour la marketplace de cette banque.
+                            </div>
+                          </div>
+                          {assignment.parameters?.length ? (
+                            <Badge variant="secondary">{assignment.parameters.length} paramètre(s)</Badge>
+                          ) : null}
+                        </div>
                         {assignment.parameters?.length ? (
-                          <div className="flex flex-wrap gap-2">
-                            {assignment.parameters.map((parameter) => (
-                              <span
-                                key={parameter.id}
-                                className="inline-flex items-center rounded-full border border-border bg-card px-3 py-1 text-xs font-medium text-foreground"
-                              >
-                                {parameter.name}
-                              </span>
-                            ))}
+                          <div className="space-y-3">
+                            {assignment.parameters.map((parameter) => {
+                              const draftValue = getParameterDraftValue(parameter);
+                              const inputType =
+                                parameter.type === 'number'
+                                  ? 'number'
+                                  : parameter.type === 'date'
+                                    ? 'date'
+                                    : 'text';
+
+                              return (
+                                <div
+                                  key={parameter.id}
+                                  className="rounded-xl border border-border bg-card p-3 shadow-sm"
+                                >
+                                  <div className="flex flex-wrap items-start justify-between gap-2">
+                                    <div className="min-w-0">
+                                      <div className="truncate text-sm font-semibold text-foreground">{parameter.name}</div>
+                                      <div className="text-xs text-muted-foreground">
+                                        Code: {parameter.code} · Type: {parameter.type}
+                                        {parameter.required ? ' · Requis' : ''}
+                                      </div>
+                                    </div>
+                                    <Badge variant={parameter.required ? 'warning' : 'secondary'}>
+                                      {parameter.required ? 'Obligatoire' : 'Optionnel'}
+                                    </Badge>
+                                  </div>
+
+                                  <div className="mt-3 grid gap-3 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                                    <Input
+                                      label="Valeur personnalisée"
+                                      type={inputType}
+                                      value={draftValue}
+                                      onChange={(event) => updateParameterDraft(parameter.id, event.target.value)}
+                                      placeholder={
+                                        parameter.type === 'number'
+                                          ? '0'
+                                          : parameter.type === 'date'
+                                            ? 'AAAA-MM-JJ'
+                                            : 'Saisir la valeur'
+                                      }
+                                      disabled={isSelectedStoreInactive}
+                                    />
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      loading={savingParameterId === parameter.id}
+                                      disabled={isSelectedStoreInactive}
+                                      onClick={() => saveParameterValue(parameter)}
+                                    >
+                                      Enregistrer
+                                    </Button>
+                                  </div>
+
+                                  <div className="mt-3 text-xs text-muted-foreground">
+                                    {draftValue ? `Valeur actuelle : ${draftValue}` : 'Aucune valeur personnalisée'}
+                                  </div>
+                                </div>
+                              );
+                            })}
                           </div>
                         ) : (
                           <div className="text-sm text-muted-foreground">

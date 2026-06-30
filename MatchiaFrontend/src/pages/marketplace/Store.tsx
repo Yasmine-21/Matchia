@@ -82,7 +82,9 @@ const getModuleRoute = (moduleName?: string | null, storeSlug?: string) => {
   const normalized = normalizeSlug(moduleName);
   const encodedStoreSlug = encodeURIComponent(storeSlug || '');
 
-  if (normalized === 'simulator') return `/store/${encodedStoreSlug}/simulator`;
+  if (normalized === 'simulator' || normalized === 'simulateur' || normalized.includes('simulat')) {
+    return `/store/${encodedStoreSlug}/simulator`;
+  }
   if (normalized === 'comparator' || normalized === 'comparateur' || normalized === 'comparatuer' || normalized === 'compare') {
     return `/store/${encodedStoreSlug}/comparator`;
   }
@@ -124,6 +126,14 @@ const formatTnd = (value?: number | string | null) => {
 const normalizeModuleKey = (value?: string | null) =>
   normalizeSlug(value).replace(/^module-/, '');
 
+const isSimulatorModule = (module: MarketplaceModuleDetail) => {
+  const keys = [module.name, module.label, module.category]
+    .map((value) => normalizeModuleKey(value))
+    .filter(Boolean);
+
+  return keys.some((key) => key.includes('simulat'));
+};
+
 const isComparatorModule = (module: MarketplaceModuleDetail) => {
   const keys = [module.name, module.label, module.category]
     .map((value) => normalizeModuleKey(value))
@@ -133,15 +143,6 @@ const isComparatorModule = (module: MarketplaceModuleDetail) => {
     ['comparator', 'comparateur', 'comparatuer', 'compare'].includes(key) || key.includes('comparat')
   );
 };
-
-const hasModule = (modules: MarketplaceModuleDetail[], expectedKeys: string[]) =>
-  modules.some((module) => {
-    const keys = [module.name, module.label, module.category]
-      .map((value) => normalizeModuleKey(value))
-      .filter(Boolean);
-
-    return keys.some((key) => expectedKeys.includes(key));
-  });
 
 const hexToRgba = (hex: string, alpha: number) => {
   const normalized = hex.trim().replace('#', '');
@@ -266,18 +267,22 @@ function ModuleSidebar({
 function ProductCard({
   product,
   index,
-  storeLabel,
+  primaryColor,
   isComparatorActive,
   isInCompare,
+  isSimulatorActive,
   onToggleCompare,
+  onSimulate,
   onClick,
 }: {
   product: StoreProductItem;
   index: number;
-  storeLabel: string;
+  primaryColor: string;
   isComparatorActive: boolean;
   isInCompare: boolean;
+  isSimulatorActive: boolean;
   onToggleCompare: (product: StoreProductItem) => void;
+  onSimulate: (product: StoreProductItem) => void;
   onClick: () => void;
 }) {
   const imageUrl = getBackendAssetUrl(product.imageUrl);
@@ -320,39 +325,53 @@ function ProductCard({
               <h3 className="mt-2 truncate text-xl font-semibold text-white">{product.name}</h3>
             </div>
           </div>
-          <div className="mt-4 flex flex-wrap gap-2">
-            <Badge variant="secondary" className="bg-white/10 text-white">
-              {product.storeName || storeLabel}
-            </Badge>
-          </div>
         </div>
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 p-5">
+      <div className="flex flex-1 flex-col p-5">
         <p className="text-sm leading-6 text-slate-600">
           {product.description || 'Aucune description fournie pour ce produit.'}
         </p>
 
-        <div className="space-y-3">
-          <div className="space-y-2">
-            <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Prix</div>
-            <div className="font-semibold text-red-600">{formatTnd(product.price)}</div>
+        <div className="mt-auto pt-4 space-y-3">
+          <div className="flex justify-end">
+            <div className="text-lg font-bold text-red-600">{formatTnd(product.price)}</div>
           </div>
 
-          {isComparatorActive && (
-            <Button
-              type="button"
-              variant={isInCompare ? 'secondary' : 'outline'}
-              size="sm"
-              className="w-full"
-              icon={isInCompare ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
-              onClick={(event) => {
-                event.stopPropagation();
-                onToggleCompare(product);
-              }}
-            >
-              {isInCompare ? 'Remove from Compare' : 'Add to Compare'}
-            </Button>
+          {(isSimulatorActive || isComparatorActive) && (
+            <div className={`grid gap-2 ${isSimulatorActive && isComparatorActive ? 'sm:grid-cols-2' : ''}`}>
+              {isSimulatorActive && (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="w-full text-white"
+                  icon={<Calculator className="h-4 w-4" />}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onSimulate(product);
+                  }}
+                  style={{ backgroundColor: primaryColor }}
+                >
+                  Simuler
+                </Button>
+              )}
+              {isComparatorActive && (
+                <Button
+                  type="button"
+                  variant={isInCompare ? 'secondary' : 'outline'}
+                  size="sm"
+                  className="w-full"
+                  icon={isInCompare ? <Check className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+                  onClick={(event) => {
+                    event.stopPropagation();
+                    onToggleCompare(product);
+                  }}
+                >
+                  {isInCompare ? 'Retirer de la comparaison' : 'Ajouter à la comparaison'}
+                </Button>
+              )}
+            </div>
           )}
         </div>
       </div>
@@ -363,24 +382,13 @@ function ProductCard({
 function ProductDetailsModal({
   product,
   storeLabel,
-  primaryColor,
-  storeSlug,
-  canSimulate,
-  canCompare,
   onClose,
 }: {
   product: StoreProductItem | null;
   storeLabel: string;
-  primaryColor: string;
-  storeSlug?: string;
-  canSimulate: boolean;
-  canCompare: boolean;
   onClose: () => void;
 }) {
-  const navigate = useNavigate();
   const imageUrl = getBackendAssetUrl(product?.imageUrl);
-  const simulatorRoute = canSimulate ? getModuleRoute('simulator', storeSlug) : null;
-  const comparatorRoute = canCompare ? getModuleRoute('comparator', storeSlug) : null;
   const parameterValues = product?.parameterValues || [];
 
   return (
@@ -419,27 +427,14 @@ function ProductDetailsModal({
 
             <div className="space-y-4">
               <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_14px_32px_rgba(15,23,42,0.06)]">
-                <div className="mb-3 text-xs uppercase tracking-[0.28em] text-slate-400">Details du produit</div>
+                <div className="mb-3 text-xs uppercase tracking-[0.28em] text-slate-400">Détails du produit</div>
                 <h3 className="text-3xl font-semibold tracking-tight text-slate-900">{product.name}</h3>
                 <p className="mt-4 text-sm leading-7 text-slate-600">
                   {product.description || 'Aucune description fournie pour ce produit.'}
                 </p>
               </div>
 
-              <div className="grid gap-3 sm:grid-cols-2">
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
-                  <div className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Store</div>
-                  <div className="mt-2 text-base font-semibold text-slate-900">
-                    {product.storeName || storeLabel}
-                  </div>
-                </div>
-                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.05)]">
-                  <div className="text-[11px] uppercase tracking-[0.28em] text-slate-400">Prix</div>
-                  <div className="mt-2 text-base font-semibold text-red-600">{formatTnd(product.price)}</div>
-                </div>
-              </div>
-
-              <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_14px_32px_rgba(15,23,42,0.06)]">
+                            <div className="rounded-[2rem] border border-slate-200 bg-white p-5 shadow-[0_14px_32px_rgba(15,23,42,0.06)]">
                 <div className="mb-4 text-sm font-semibold text-slate-900">Caractéristiques</div>
                 {parameterValues.length ? (
                   <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
@@ -458,7 +453,7 @@ function ProductDetailsModal({
                         {parameterValues.map((parameter) => (
                           <tr key={parameter.id} className="odd:bg-white even:bg-slate-50/70">
                             <td className="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-700">
-                              {parameter.parameterName || `Parametre ${parameter.parameterDefinitionId}`}
+                              {parameter.parameterName || `Paramètre ${parameter.parameterDefinitionId}`}
                             </td>
                             <td className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">
                               {parameter.value || '-'}
@@ -470,36 +465,14 @@ function ProductDetailsModal({
                   </div>
                 ) : (
                   <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-                    Aucun parametre configure pour ce produit.
+                    Aucun paramètre configuré pour ce produit.
                   </div>
                 )}
               </div>
 
-              {(simulatorRoute || comparatorRoute) && (
-                <div className={`grid gap-3 ${simulatorRoute && comparatorRoute ? 'sm:grid-cols-2' : ''}`}>
-                  {simulatorRoute && (
-                    <Button
-                      className="w-full text-white hover:opacity-95"
-                      icon={<Calculator className="h-4 w-4" />}
-                      onClick={() => navigate(simulatorRoute)}
-                      style={{ backgroundColor: primaryColor }}
-                    >
-                      Simulate
-                    </Button>
-                  )}
-                  {comparatorRoute && (
-                    <Button
-                      variant="outline"
-                      className="w-full border-slate-300 text-slate-900 hover:bg-slate-50"
-                      icon={<BarChart3 className="h-4 w-4" />}
-                      onClick={() => navigate(comparatorRoute)}
-                      style={{ borderColor: primaryColor, color: primaryColor }}
-                    >
-                      Compare
-                    </Button>
-                  )}
-                </div>
-              )}
+              <div className="flex justify-end rounded-[2rem] border border-slate-200 bg-white px-5 py-4 shadow-[0_14px_32px_rgba(15,23,42,0.06)]">
+                <div className="text-base font-semibold text-red-600">{formatTnd(product.price)}</div>
+              </div>
 
               <div className="flex justify-end pt-1">
                 <Button variant="outline" onClick={onClose}>
@@ -683,7 +656,7 @@ export function MarketplaceStore() {
   const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
   const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(branding.secondary_color, 0.78)} 100%)`;
   const modules = (store?.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
-  const canSimulate = hasModule(modules, ['simulator', 'simulateur']);
+  const canSimulate = modules.some(isSimulatorModule);
   const canCompare = modules.some(isComparatorModule);
   const moduleIcons: Record<string, any> = {
     simulator: Calculator,
@@ -735,7 +708,7 @@ export function MarketplaceStore() {
       }
 
       if (current.length >= 4) {
-        setCompareNotice('You can compare up to 4 products.');
+        setCompareNotice('Vous pouvez comparer jusqu\'à 4 produits.');
         return current;
       }
 
@@ -744,7 +717,7 @@ export function MarketplaceStore() {
         .filter((value): value is number => typeof value === 'number');
 
       if (currentStores.length > 0 && currentStores.some((storeId) => storeId !== product.storeId)) {
-        setCompareNotice('Only products from the same store can be compared.');
+        setCompareNotice('Seuls les produits du même store peuvent être comparés.');
         return current;
       }
 
@@ -760,6 +733,19 @@ export function MarketplaceStore() {
     const comparatorRoute = getModuleRoute('comparator', storeSlug);
     if (comparatorRoute) {
       navigate(comparatorRoute);
+    }
+  };
+
+  const openSimulator = (product: StoreProductItem) => {
+    if (!canSimulate) {
+      return;
+    }
+
+    const simulatorRoute = getModuleRoute('simulator', storeSlug);
+    if (simulatorRoute) {
+      navigate(`${simulatorRoute}?productId=${product.id}`, {
+        state: { productId: product.id },
+      });
     }
   };
 
@@ -793,7 +779,7 @@ export function MarketplaceStore() {
               Financement {storeLabel}
             </h1>
             <p className="max-w-4xl text-xl leading-8 mb-8 opacity-90">
-              {store.description || `Decouvrez nos solutions de financement ${storeLabel.toLowerCase()} adaptees a vos besoins`}
+              {store.description || `Découvrez nos solutions de financement ${storeLabel.toLowerCase()} adaptees a vos besoins`}
             </p>
             <div className="flex flex-wrap gap-4">
               <Link to={`/store/${encodeURIComponent(storeSlug || '')}`}>
@@ -867,13 +853,10 @@ export function MarketplaceStore() {
           <div className="mt-24">
             <div className="mb-10 flex flex-col gap-4 text-center lg:flex-row lg:items-end lg:justify-between lg:text-left">
               <div className="mx-auto max-w-3xl lg:mx-0">
-                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Available Products</p>
+                <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Produits disponibles</p>
                 <h2 className="mt-3 font-serif text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
                   Produits disponibles
                 </h2>
-                <p className="mx-auto mt-4 max-w-3xl text-lg leading-8 text-slate-600 lg:mx-0">
-                  Les produits ci-dessous appartiennent a la banque de cette marketplace et sont associes a ce store.
-                </p>
               </div>
 
               {canCompare && (
@@ -885,10 +868,10 @@ export function MarketplaceStore() {
                     disabled={compareCount < 2}
                     style={{ backgroundColor: branding.primary_color }}
                   >
-                    Show Comparator
+                    Afficher le comparateur
                   </Button>
                   <div className="text-xs text-slate-500">
-                    {compareCount}/4 selected. Minimum 2 products required.
+                    {compareCount}/4 sélectionnés. 2 produits minimum requis.
                   </div>
                 </div>
               )}
@@ -920,10 +903,12 @@ export function MarketplaceStore() {
                     key={product.id}
                     product={product}
                     index={index}
-                    storeLabel={storeLabel}
+                    primaryColor={branding.primary_color}
                     isComparatorActive={canCompare}
                     isInCompare={selectedCompareProducts.some((candidate) => candidate.id === product.id)}
+                    isSimulatorActive={canSimulate}
                     onToggleCompare={toggleCompareProduct}
+                    onSimulate={openSimulator}
                     onClick={() => setSelectedProduct(product)}
                   />
                 ))}
@@ -935,12 +920,9 @@ export function MarketplaceStore() {
       <ProductDetailsModal
         product={selectedProduct}
         storeLabel={storeLabel}
-        primaryColor={branding.primary_color}
-        storeSlug={storeSlug}
-        canSimulate={canSimulate}
-        canCompare={canCompare}
         onClose={() => setSelectedProduct(null)}
       />
     </div>
   );
 }
+

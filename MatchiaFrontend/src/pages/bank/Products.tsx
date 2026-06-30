@@ -29,6 +29,11 @@ type ProductFormState = {
   price: string;
 };
 
+type ProductParameterFieldConfig = {
+  kind: 'text' | 'number' | 'select';
+  options?: Array<{ value: string; label: string }>;
+};
+
 const initialForm: ProductFormState = {
   storeId: '',
   name: '',
@@ -36,9 +41,110 @@ const initialForm: ProductFormState = {
   price: '',
 };
 
+const REAL_ESTATE_STORE_KEY = 'immobilier';
+const REAL_ESTATE_SELECT_OPTIONS: Record<string, Array<{ value: string; label: string }>> = {
+  balconterrasse: [
+    { value: 'Oui', label: 'Oui' },
+    { value: 'Non', label: 'Non' },
+  ],
+  chauffage: [
+    { value: 'Oui', label: 'Oui' },
+    { value: 'Non', label: 'Non' },
+  ],
+  climatisation: [
+    { value: 'Oui', label: 'Oui' },
+    { value: 'Non', label: 'Non' },
+  ],
+  disponibiliteparking: [
+    { value: 'Oui', label: 'Oui' },
+    { value: 'Non', label: 'Non' },
+  ],
+  jardin: [
+    { value: 'Oui', label: 'Oui' },
+    { value: 'Non', label: 'Non' },
+  ],
+  presenceascenseur: [
+    { value: 'Oui', label: 'Oui' },
+    { value: 'Non', label: 'Non' },
+  ],
+  etatdubien: [
+    { value: 'Neuf', label: 'Neuf' },
+    { value: 'Ancien', label: 'Ancien' },
+    { value: 'Rénové', label: 'Rénové' },
+    { value: 'En construction', label: 'En construction' },
+  ],
+  typedebien: [
+    { value: 'Appartement', label: 'Appartement' },
+    { value: 'Maison', label: 'Maison' },
+    { value: 'Villa', label: 'Villa' },
+    { value: 'Studio', label: 'Studio' },
+    { value: 'Duplex', label: 'Duplex' },
+    { value: 'Terrain', label: 'Terrain' },
+  ],
+  nombredepieces: [
+    { value: 'S+0', label: 'S+0' },
+    { value: 'S+1', label: 'S+1' },
+    { value: 'S+2', label: 'S+2' },
+    { value: 'S+3', label: 'S+3' },
+    { value: 'S+4', label: 'S+4' },
+    { value: 'S+5+', label: 'S+5+' },
+  ],
+  etage: [
+    { value: 'RDC', label: 'RDC' },
+    { value: '1er étage', label: '1er étage' },
+    { value: '2ème étage', label: '2ème étage' },
+    { value: '3ème étage', label: '3ème étage' },
+    { value: '4ème étage', label: '4ème étage' },
+    { value: '5ème étage et plus', label: '5ème étage et plus' },
+  ],
+};
+const REAL_ESTATE_NUMBER_FIELDS = new Set(['nombresallesdebain', 'surfacetotale']);
+const REAL_ESTATE_TEXT_FIELDS = new Set(['localisation']);
+
 const getStoreId = (store: MarketplaceStoreDetailDto) => store.storeId ?? store.id;
 const getStoreLabel = (store: MarketplaceStoreDetailDto) => store.name || `Store ${getStoreId(store)}`;
 const getProductImageUrl = (url?: string | null) => getBackendAssetUrl(url);
+const normalizeLookupKey = (value?: string | null) =>
+  (value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '');
+
+const getProductParameterFieldConfig = (
+  store: MarketplaceStoreDetailDto | null,
+  definition: ProductParameterDefinitionDto,
+): ProductParameterFieldConfig => {
+  if (normalizeLookupKey(store?.name || store?.description) !== REAL_ESTATE_STORE_KEY) {
+    return { kind: 'text' };
+  }
+
+  const normalizedName = normalizeLookupKey(definition.name);
+  const selectOptions = REAL_ESTATE_SELECT_OPTIONS[normalizedName];
+
+  if (selectOptions) {
+    return { kind: 'select', options: selectOptions };
+  }
+
+  if (REAL_ESTATE_NUMBER_FIELDS.has(normalizedName)) {
+    return { kind: 'number' };
+  }
+
+  if (REAL_ESTATE_TEXT_FIELDS.has(normalizedName)) {
+    return { kind: 'text' };
+  }
+
+  return { kind: 'text' };
+};
+
+const getParameterSelectOptions = (definition: ProductParameterDefinitionDto, value: string) => {
+  const baseOptions = REAL_ESTATE_SELECT_OPTIONS[normalizeLookupKey(definition.name)] || [];
+  if (!value || baseOptions.some((option) => option.value === value)) {
+    return baseOptions;
+  }
+
+  return [{ value, label: value }, ...baseOptions];
+};
 const formatTnd = (value?: number | string | null) => {
   if (value === undefined || value === null || value === '') {
     return '-';
@@ -624,18 +730,48 @@ export function BankProducts() {
             ) : (
               <div className="grid gap-4 md:grid-cols-2">
                 {parameterDefinitions.map((definition) => (
-                  <Input
-                    key={definition.id}
-                    label={definition.name}
-                    value={parameterValues[definition.id] ?? ''}
-                    onChange={(event) =>
-                      setParameterValues((current) => ({
-                        ...current,
-                        [definition.id]: event.target.value,
-                      }))
+                  (() => {
+                    const value = parameterValues[definition.id] ?? '';
+                    const fieldConfig = getProductParameterFieldConfig(selectedStore, definition);
+
+                    if (fieldConfig.kind === 'select') {
+                      return (
+                        <Select
+                          key={definition.id}
+                          label={definition.name}
+                          value={value}
+                          onChange={(event) =>
+                            setParameterValues((current) => ({
+                              ...current,
+                              [definition.id]: event.target.value,
+                            }))
+                          }
+                          options={[
+                            { value: '', label: 'Sélectionnez une valeur' },
+                            ...getParameterSelectOptions(definition, value),
+                          ]}
+                        />
+                      );
                     }
-                    placeholder={`Valeur pour ${definition.name}`}
-                  />
+
+                    return (
+                      <Input
+                        key={definition.id}
+                        label={definition.name}
+                        type={fieldConfig.kind === 'number' ? 'number' : 'text'}
+                        step={fieldConfig.kind === 'number' ? '1' : undefined}
+                        min={fieldConfig.kind === 'number' ? '0' : undefined}
+                        value={value}
+                        onChange={(event) =>
+                          setParameterValues((current) => ({
+                            ...current,
+                            [definition.id]: event.target.value,
+                          }))
+                        }
+                        placeholder={`Valeur pour ${definition.name}`}
+                      />
+                    );
+                  })()
                 ))}
               </div>
             )}

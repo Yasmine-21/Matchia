@@ -94,6 +94,8 @@ public class ModuleStoreService {
                         param.setName(p.getName());
                         param.setType(p.getType());
                         param.setRequired(p.getRequired());
+                        param.setValue(normalizeParameterValue(p.getValue()));
+                        param.setOptions(normalizeOptions(p.getOptions()));
 
                         // IMPORTANT relation bidirectionnelle
                         param.setModuleStore(moduleStore);
@@ -181,6 +183,8 @@ public class ModuleStoreService {
         ModuleStore ms = moduleStoreRepository.findById(moduleStoreId)
                 .orElseThrow(() -> new RuntimeException("ModuleStore non trouvé avec l'id : " + moduleStoreId));
         validateParameter(param);
+        param.setValue(normalizeParameterValue(param.getValue()));
+        param.setOptions(normalizeOptions(param.getOptions()));
         param.setModuleStore(ms);
         ModuleStoreParameter savedParam = parameterRepository.save(param);
         ms.getParameters().add(savedParam);
@@ -207,6 +211,8 @@ public class ModuleStoreService {
         param.setCode(details.getCode());
         param.setType(details.getType());
         param.setRequired(details.getRequired());
+        param.setValue(normalizeParameterValue(details.getValue()));
+        param.setOptions(normalizeOptions(details.getOptions()));
         parameterRepository.save(param);
         return moduleStoreMapper.toDto(param.getModuleStore());
     }
@@ -247,5 +253,27 @@ public class ModuleStoreService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private String normalizeParameterValue(String value) {
+        if (value == null) {
+            return null;
+        }
+
+        String trimmed = value.trim();
+        return trimmed.isEmpty() ? null : trimmed;
+    }
+
+    private String normalizeOptions(String options) {
+        if (options == null) {
+            return null;
+        }
+
+        String normalized = options
+                .lines()
+                .map(String::trim)
+                .filter(line -> !line.isEmpty())
+                .collect(Collectors.joining(","));
+        return normalized.isBlank() ? null : normalized;
     }
 }

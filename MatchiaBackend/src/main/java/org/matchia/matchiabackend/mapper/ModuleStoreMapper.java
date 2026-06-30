@@ -5,6 +5,8 @@ import org.matchia.matchiabackend.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.stream.Collectors;
 
 @Component
@@ -38,13 +40,30 @@ public class ModuleStoreMapper {
         if (entity.getParameters() != null) {
             dto.setParameters(entity.getParameters().stream()
                     .map(p -> new ModuleStoreParameterDto(
-                            p.getId(),p.getName(), p.getCode(), p.getType(), p.getRequired()
+                            p.getId(),
+                            p.getName(),
+                            p.getCode(),
+                            p.getType(),
+                            p.getRequired() != null && p.getRequired(),
+                            p.getValue(),
+                            splitOptions(p.getOptions())
                     )).collect(Collectors.toList()));
         } else {
             dto.setParameters(new ArrayList<>());
         }
 
         return dto;
+    }
+
+    private java.util.List<String> splitOptions(String options) {
+        if (options == null || options.isBlank()) {
+            return Collections.emptyList();
+        }
+
+        return Arrays.stream(options.split("[\\n,|]"))
+                .map(String::trim)
+                .filter(value -> !value.isEmpty())
+                .collect(Collectors.toList());
     }
     public StoreDto toStoreDto(Store store) {
         if (store == null) return null;

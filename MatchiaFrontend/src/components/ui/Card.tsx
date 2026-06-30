@@ -1,6 +1,6 @@
-import { ReactNode, type CSSProperties } from 'react';
+import { ReactNode, type CSSProperties, type HTMLAttributes } from 'react';
 
-interface CardProps {
+interface CardProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
   className?: string;
   hover?: boolean;
@@ -8,7 +8,7 @@ interface CardProps {
   style?: CSSProperties;
 }
 
-export function Card({ children, className = '', hover = false, onClick, style }: CardProps) {
+export function Card({ children, className = '', hover = false, onClick, style, ...props }: CardProps) {
   return (
     <div
       className={`bg-card rounded-xl border border-border p-6 ${
@@ -16,6 +16,7 @@ export function Card({ children, className = '', hover = false, onClick, style }
       } ${className}`}
       style={style}
       onClick={onClick}
+      {...props}
     >
       {children}
     </div>

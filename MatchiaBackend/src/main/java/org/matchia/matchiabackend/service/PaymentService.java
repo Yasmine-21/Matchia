@@ -54,6 +54,7 @@ public class PaymentService {
     private final RequestRepository requestRepository;
     private final MarketplaceRepository marketplaceRepository;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Value("${payment.demo-url:http://lvh.me:5173/payment/demo}")
     private String demoPaymentUrl;
@@ -186,6 +187,11 @@ public class PaymentService {
             } catch (Exception e) {
                 log.error("Impossible de creer la notification de paiement pour le paiement {}.", savedPayment.getId(), e);
             }
+            try {
+                emailService.sendBankCredentialsEmail(savedPayment.getRequest());
+            } catch (Exception e) {
+                log.error("Impossible d'envoyer les identifiants de connexion pour le paiement {}.", savedPayment.getId(), e);
+            }
         }
 
         return new CreatePaymentIntentResponse(
@@ -276,6 +282,11 @@ public class PaymentService {
             notificationService.createPaymentSuccessNotification(savedPayment.getRequest());
         } catch (Exception e) {
             log.error("Impossible de creer la notification de paiement pour la demande {}.", requestId, e);
+        }
+        try {
+            emailService.sendBankCredentialsEmail(savedPayment.getRequest());
+        } catch (Exception e) {
+            log.error("Impossible d'envoyer les identifiants de connexion pour la demande {}.", requestId, e);
         }
         return savedPayment;
     }
