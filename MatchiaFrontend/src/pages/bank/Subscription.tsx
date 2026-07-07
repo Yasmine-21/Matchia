@@ -295,7 +295,7 @@ export function BankSubscription() {
                   Renouvellement prêt à envoyer
                 </div>
                 <p className="mt-1 text-orange-800">
-                  Cliquez sur Renouveler pour ouvrir les détails, puis confirmez pour envoyer la demande .
+                  Cliquez sur Renouveler pour ouvrir les détails, puis confirmez pour envoyer la demande dans le back office SaaS.
                 </p>
               </div>
             </CardContent>
