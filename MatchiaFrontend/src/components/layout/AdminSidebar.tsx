@@ -95,12 +95,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   ];
 
   const bankSections: SidebarSection[] = [
-    {
-      title: 'PRODUCT MANAGEMENT',
-      items: [
-        { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/bank/products' },
-      ],
-    },
+    
     {
       title: '',
       items: [
@@ -109,6 +104,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
         { label: 'Stores assignés', icon: <Store className="w-5 h-5" />, path: '/bank/stores' },
         { label: 'Modules assignés', icon: <Box className="w-5 h-5" />, path: '/bank/modules' },
         { label: 'Manage content', icon: <FileText className="w-5 h-5" />, path: '/bank/gestion-contenu' },
+        { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/bank/products' },
         { label: 'Mes demandes', icon: <FileText className="w-5 h-5" />, path: '/bank/demandes' },
         { label: 'Abonnement', icon: <CreditCard className="w-5 h-5" />, path: '/bank/abonnement' },
         { label: 'Branding', icon: <Settings className="w-5 h-5" />, path: '/bank/branding' },

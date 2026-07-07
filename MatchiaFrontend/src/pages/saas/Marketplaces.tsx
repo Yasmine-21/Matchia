@@ -24,16 +24,14 @@ import {
   Store as StoreIcon,
   Trash2,
   Upload,
-  ChevronUp,
   Wrench,
 } from 'lucide-react';
 import { bankService } from '../../services/bankService';
-import { requestService } from '../../services/requestService';
 import { storeService } from '../../services/storeService';
 import { moduleService } from '../../services/moduleService';
 import apiClient from '../../api/apiClient';
 import { Bank } from '../../types';
-import { ModuleAssignment, RequestDto, RequestStoreSelectionDto, StoreDto } from '../../types/apiTypes';
+import { ModuleAssignment, StoreDto } from '../../types/apiTypes';
 
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
 const SLUG_PATTERN = /^[a-z0-9-]+$/;
@@ -71,6 +69,7 @@ interface MarketplaceStoreDetail {
   id: number;
   storeId?: number | null;
   name?: string | null;
+  description?: string | null;
   price?: number | string | null;
   enabled?: boolean | null;
   visible?: boolean | null;
@@ -86,9 +85,6 @@ interface MarketplaceModuleDetail {
   enabled?: boolean | null;
   visible?: boolean | null;
 }
-
-type RequestSelectedStore = NonNullable<RequestDto['selectedStoreDetails']>[number];
-type RequestSelectedModule = RequestSelectedStore['modules'][number];
 
 const getLogoUrl = (logoUrl?: string | null) => {
   if (!logoUrl) return null;
@@ -152,11 +148,6 @@ const formatTnd = (amount: number) =>
     minimumFractionDigits: 0,
   }).format(amount);
 
-const formatOptionalTnd = (amount?: number | string | null) => {
-  const parsedAmount = toNumber(amount);
-  return parsedAmount === null ? '-' : formatTnd(parsedAmount);
-};
-
 function BankLogo({ bank }: { bank: Bank }) {
   const [hasError, setHasError] = useState(false);
   const src = !hasError ? getLogoUrl(bank.logoUrl || bank.logo_url) : null;
@@ -193,7 +184,6 @@ export function Marketplaces() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMarketplace, setEditingMarketplace] = useState<MarketplaceVisualConfig | null>(null);
   const [detailsBank, setDetailsBank] = useState<Bank | null>(null);
-  const [detailsRequest, setDetailsRequest] = useState<RequestDto | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const [deletingMarketplaceId, setDeletingMarketplaceId] = useState<number | null>(null);
   const [updatingStatusIds, setUpdatingStatusIds] = useState<Set<number>>(new Set());
@@ -328,59 +318,21 @@ export function Marketplaces() {
       return sum + (toNumber(marketplace?.totalMonthlyPrice) ?? marketplaceTariff(marketplace));
     }, 0);
   const detailsMarketplace = detailsBank ? marketplacesByBank[detailsBank.id] : null;
-  const detailsSelectedStores: RequestStoreSelectionDto[] | MarketplaceStoreDetail[] =
-    detailsRequest?.selectedStoreDetails?.length
-      ? detailsRequest.selectedStoreDetails
-      : detailsMarketplace?.stores || [];
+  const detailsSelectedStores: MarketplaceStoreDetail[] = detailsMarketplace?.stores || [];
   const detailsPrimaryColor = detailsMarketplace?.primaryColor || DEFAULT_MARKETPLACE_COLORS[0];
   const detailsSecondaryColor = detailsMarketplace?.secondaryColor || DEFAULT_MARKETPLACE_COLORS[1];
   const detailsMonthlyPrice = detailsBank
-    ? detailsRequest?.totalMonthlyPrice
-      ?? toNumber(detailsMarketplace?.totalMonthlyPrice)
+    ? toNumber(detailsMarketplace?.totalMonthlyPrice)
       ?? marketplaceTariff(detailsMarketplace)
     : 0;
   const detailsStoresCount = detailsSelectedStores.length || marketplaceStoresCount(detailsMarketplace);
-  const getDetailsModulePrice = (
-    storeId: number | null | undefined,
-    module: MarketplaceModuleDetail | RequestSelectedModule,
-  ) => {
-    const directPrice = toNumber('modulePrice' in module ? module.modulePrice : module.price);
-    if (directPrice !== null) return directPrice;
-    if (!storeId || !module.moduleId) return null;
-
-    const assignment = modulesByStore[storeId]?.find((item) => item.module.id === module.moduleId);
-    return toNumber(assignment?.price ?? assignment?.module.price);
-  };
 
   const openDetailsModal = async (bank: Bank) => {
     setDetailsBank(bank);
-    setDetailsRequest(null);
-
     const marketplace = marketplacesByBank[bank.id];
     const storeIds = (marketplace?.stores || [])
       .map((store) => store.storeId)
       .filter((storeId): storeId is number => typeof storeId === 'number');
-
-    try {
-      const requestsResponse = await requestService.getRequests();
-      const matchingRequests = requestsResponse.data.filter((request) =>
-        request.requestType === 'join'
-        && request.status === 'approved'
-        && request.marketplaceSlug?.toLowerCase() === (bank.slug || '').toLowerCase(),
-      );
-      const latestMatchingRequest = matchingRequests.sort((left, right) => {
-        const leftTime = left.createdAt ? new Date(left.createdAt).getTime() : 0;
-        const rightTime = right.createdAt ? new Date(right.createdAt).getTime() : 0;
-        return rightTime - leftTime;
-      })[0];
-
-      if (latestMatchingRequest?.selectedStoreDetails?.length) {
-        setDetailsRequest(latestMatchingRequest);
-      }
-    } catch (requestError) {
-      console.error('Failed to load marketplace request details:', requestError);
-    }
-
     await Promise.all(storeIds.map((storeId) => loadModulesForStore(storeId)));
   };
 
@@ -825,7 +777,9 @@ export function Marketplaces() {
 
       <Modal
         isOpen={detailsBank !== null}
-        onClose={() => setDetailsBank(null)}
+        onClose={() => {
+          setDetailsBank(null);
+        }}
         size="xl"
       >
         {detailsBank && (
@@ -915,7 +869,6 @@ export function Marketplaces() {
                 </div>
               </div>
             </div>
-
             <div className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
               <div className="flex flex-col gap-3 border-b border-slate-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-3">
@@ -923,9 +876,9 @@ export function Marketplaces() {
                     <StoreIcon className="h-5 w-5" />
                   </div>
                   <div>
-                    <h3 className="text-base font-semibold text-slate-900">Stores et modules</h3>
+                    <h3 className="text-base font-semibold text-slate-900">Stores assignes</h3>
                     <p className="mt-1 text-sm text-slate-500">
-                      {detailsStoresCount} store{detailsStoresCount > 1 ? 's' : ''} assignÃ©{detailsStoresCount > 1 ? 's' : ''}
+                      {detailsStoresCount} store{detailsStoresCount > 1 ? 's' : ''} assigne{detailsStoresCount > 1 ? 's' : ''}
                     </p>
                   </div>
                 </div>
@@ -936,73 +889,54 @@ export function Marketplaces() {
 
               {detailsSelectedStores.length === 0 ? (
                 <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-8 text-center text-sm text-slate-500">
-                  Aucun store associÃ© Ã  cette marketplace.
+                  Aucun store assigne a cette marketplace.
                 </div>
               ) : (
-                <div className="mt-4 space-y-4">
+                <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
                   {detailsSelectedStores.map((store) => {
                     const modules = store.modules || [];
 
                     return (
                       <div key={store.id || store.storeId} className="rounded-2xl border border-slate-200 bg-slate-50/80 p-4">
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                          <div className="flex min-w-0 items-start gap-3">
-                            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-600 ring-1 ring-slate-200">
-                              <StoreIcon className="h-5 w-5" />
-                            </div>
-                            <div className="min-w-0">
-                              <div className="truncate text-lg font-semibold text-slate-900">
-                                {'storeName' in store
-                                  ? store.storeName
-                                  : store.name || `Store ${store.storeId || store.id}`}
-                              </div>
-                              <div className="mt-1 text-sm text-slate-500">
-                                {modules.length} module{modules.length > 1 ? 's' : ''}
-                              </div>
-                            </div>
+                        <div className="flex items-start gap-3">
+                          <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-white text-blue-600 ring-1 ring-slate-200">
+                            <StoreIcon className="h-5 w-5" />
                           </div>
-                          <div className="flex items-center gap-3">
-                            <div className="rounded-full bg-white px-3 py-1 text-sm font-semibold text-blue-600 ring-1 ring-slate-200">
-                              {formatOptionalTnd('storePrice' in store ? store.storePrice : store.price)}
+                          <div className="min-w-0">
+                            <div className="truncate text-lg font-semibold text-slate-900">
+                              {store.name || `Store ${store.storeId || store.id}`}
                             </div>
-                            <ChevronUp className="h-4 w-4 text-slate-400" />
+                            <div className="mt-1 text-sm text-slate-500">
+                              {store.description || 'Store associe a cette marketplace'}
+                            </div>
                           </div>
                         </div>
 
-                        {modules.length > 0 ? (
-                          <div className="mt-4 space-y-1 rounded-2xl border border-slate-200 bg-white p-3">
-                            {modules.map((module) => (
-                              <div key={module.id || module.moduleId} className="flex items-center justify-between gap-3 rounded-xl px-2 py-2">
-                                <div className="flex min-w-0 items-start gap-3">
-                                  <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-blue-600 ring-1 ring-blue-100">
-                                    <Wrench className="h-4 w-4" />
-                                  </div>
+                        <div className="mt-4">
+                          <div className="mb-2 text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
+                            Modules assignes
+                          </div>
+                          {modules.length === 0 ? (
+                            <div className="rounded-xl border border-dashed border-slate-200 bg-white px-3 py-4 text-sm text-slate-500">
+                              Aucun module assigne a ce store.
+                            </div>
+                          ) : (
+                            <div className="space-y-2">
+                              {modules.map((module) => (
+                                <div key={module.id || module.moduleId} className="rounded-xl border border-slate-200 bg-white px-3 py-2">
                                   <div className="min-w-0">
                                     <div className="truncate text-sm font-semibold text-slate-900">
-                                      {'moduleName' in module
-                                        ? module.moduleName
-                                        : module.name || `Module ${module.moduleId || module.id}`}
+                                      {module.name || `Module ${module.moduleId || module.id}`}
                                     </div>
-                                    {'moduleDescription' in module
-                                      ? module.moduleDescription && (
-                                        <div className="mt-0.5 text-xs text-slate-500">{module.moduleDescription}</div>
-                                      )
-                                      : 'category' in module && module.category && (
-                                        <div className="mt-0.5 text-xs text-slate-500">{module.category}</div>
-                                      )}
+                                    {module.category && (
+                                      <div className="mt-0.5 text-xs text-slate-500">{module.category}</div>
+                                    )}
                                   </div>
                                 </div>
-                                <div className="shrink-0 text-sm font-semibold text-slate-700">
-                                  {formatOptionalTnd(getDetailsModulePrice(store.storeId, module))}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        ) : (
-                          <div className="mt-4 rounded-2xl border border-dashed border-slate-200 bg-white px-3 py-4 text-sm text-slate-500">
-                            Aucun module associÃ© Ã  ce store.
-                          </div>
-                        )}
+                              ))}
+                            </div>
+                          )}
+                        </div>
                       </div>
                     );
                   })}
@@ -1392,3 +1326,4 @@ export function Marketplaces() {
     </div>
   );
 }
+

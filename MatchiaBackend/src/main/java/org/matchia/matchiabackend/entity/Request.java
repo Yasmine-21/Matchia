@@ -49,13 +49,13 @@ public class Request {
 
 
     private String description;
-    @Column(length = 1000)
+    @Column(length = 3000)
     private String bankDescription;
     private Integer establishmentYear;
 
     private String marketplaceSlug;
 
-    @Column(length = 500)
+    @Column(length = 1000)
     private String marketplaceDescription;
 
     @Column(length = 7)

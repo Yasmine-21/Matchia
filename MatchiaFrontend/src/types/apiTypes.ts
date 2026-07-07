@@ -301,6 +301,23 @@ export interface PaidSubscriptionDto {
   amount?: number | string | null;
   currency?: string | null;
   paidAt?: string | null;
+  stores?: PaidSubscriptionStoreDto[];
+}
+
+export interface PaidSubscriptionModuleDto {
+  moduleId?: number | null;
+  moduleName?: string | null;
+  moduleDescription?: string | null;
+  moduleCategory?: string | null;
+  modulePrice?: number | string | null;
+}
+
+export interface PaidSubscriptionStoreDto {
+  storeId?: number | null;
+  storeName?: string | null;
+  storeDescription?: string | null;
+  storePrice?: number | string | null;
+  modules?: PaidSubscriptionModuleDto[];
 }
 
 export interface MarketplaceBrandingUpdatePayload {

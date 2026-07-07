@@ -276,9 +276,10 @@ public class NotificationService {
 
     @Transactional
     public Notification createRequestApprovedNotification(Request request) {
+        String requestType = request.getRequestType() != null ? request.getRequestType().name().toLowerCase() : "request";
         return createNotification(
-                buildDecisionTitle(request, "approuvée"),
-                buildDecisionMessage(request, "approuvée", null),
+                buildApprovedTitle(requestType),
+                buildApprovedMessage(requestType),
                 NotificationTypeEnum.SUCCESS,
                 NotificationStatusEnum.UNREAD,
                 request.getId(),
@@ -335,6 +336,26 @@ public class NotificationService {
             case "module" -> "Demande de module " + decisionLabel;
             case "subscription" -> "Demande de renouvellement " + decisionLabel;
             default -> "Demande " + decisionLabel;
+        };
+    }
+
+    private String buildApprovedTitle(String requestType) {
+        return switch (requestType) {
+            case "join" -> "Demande d'inscription approuvée";
+            case "store" -> "Demande de store approuvée";
+            case "module" -> "Demande de module approuvée";
+            case "subscription" -> "Demande de renouvellement approuvée";
+            default -> "Demande approuvée";
+        };
+    }
+
+    private String buildApprovedMessage(String requestType) {
+        return switch (requestType) {
+            case "join" -> "Request approved: the bank, marketplace, and user account have been created.";
+            case "store" -> "Request approved.";
+            case "module" -> "Request approved.";
+            case "subscription" -> "Request approved.";
+            default -> "Request approved.";
         };
     }
 

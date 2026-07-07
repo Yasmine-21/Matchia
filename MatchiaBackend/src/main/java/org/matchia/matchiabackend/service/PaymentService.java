@@ -13,11 +13,14 @@ import org.matchia.matchiabackend.dto.CheckoutSessionRequest;
 import org.matchia.matchiabackend.dto.ConfirmPaymentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentResponse;
+import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.Payment;
 import org.matchia.matchiabackend.entity.Request;
-import org.matchia.matchiabackend.entity.Marketplace;
+import org.matchia.matchiabackend.entity.RequestModuleSelection;
+import org.matchia.matchiabackend.entity.RequestStoreSelection;
 import org.matchia.matchiabackend.entity.enums.PaymentStatusEnum;
 import org.matchia.matchiabackend.entity.enums.MarketplaceStatusEnum;
+import org.matchia.matchiabackend.entity.enums.RequestTypeEnum;
 import org.matchia.matchiabackend.repository.PaymentRepository;
 import org.matchia.matchiabackend.repository.RequestRepository;
 import org.matchia.matchiabackend.repository.MarketplaceRepository;
@@ -38,6 +41,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -54,7 +59,7 @@ public class PaymentService {
     private final RequestRepository requestRepository;
     private final MarketplaceRepository marketplaceRepository;
     private final NotificationService notificationService;
-    private final EmailService emailService;
+    private final StoreRequestActivationService storeRequestActivationService;
 
     @Value("${payment.demo-url:http://lvh.me:5173/payment/demo}")
     private String demoPaymentUrl;
@@ -188,9 +193,9 @@ public class PaymentService {
                 log.error("Impossible de creer la notification de paiement pour le paiement {}.", savedPayment.getId(), e);
             }
             try {
-                emailService.sendBankCredentialsEmail(savedPayment.getRequest());
+                activateStoreRequestIfNeeded(savedPayment);
             } catch (Exception e) {
-                log.error("Impossible d'envoyer les identifiants de connexion pour le paiement {}.", savedPayment.getId(), e);
+                log.error("Impossible d'activer la demande store apres paiement {}.", savedPayment.getId(), e);
             }
         }
 
@@ -284,9 +289,9 @@ public class PaymentService {
             log.error("Impossible de creer la notification de paiement pour la demande {}.", requestId, e);
         }
         try {
-            emailService.sendBankCredentialsEmail(savedPayment.getRequest());
+            activateStoreRequestIfNeeded(savedPayment);
         } catch (Exception e) {
-            log.error("Impossible d'envoyer les identifiants de connexion pour la demande {}.", requestId, e);
+            log.error("Impossible d'activer la demande store apres paiement {}.", requestId, e);
         }
         return savedPayment;
     }
@@ -397,12 +402,18 @@ public class PaymentService {
         return hasText(currency) ? currency.trim().toLowerCase() : stripeCurrency.toLowerCase();
     }
 
+    private void activateStoreRequestIfNeeded(Payment payment) {
+        if (payment == null || payment.getRequest() == null || payment.getRequest().getRequestType() != RequestTypeEnum.store) {
+            return;
+        }
+        storeRequestActivationService.activateAfterPayment(payment.getRequest(), payment);
+    }
+
     private PaidSubscriptionDto toPaidSubscriptionDto(Payment payment) {
         Request request = payment.getRequest();
         String bankName = hasText(payment.getBankName())
                 ? payment.getBankName().trim()
                 : (request != null && hasText(request.getBankName()) ? request.getBankName().trim() : "Matchia");
-
         return new PaidSubscriptionDto(
                 payment.getId(),
                 request != null ? request.getId() : null,
@@ -411,8 +422,43 @@ public class PaymentService {
                 request != null ? request.getMarketplaceSlug() : null,
                 payment.getAmount(),
                 payment.getCurrency(),
-                payment.getPaidAt()
+                payment.getPaidAt(),
+                buildStoreDtos(request)
         );
+    }
+
+    private List<PaidSubscriptionDto.PaidSubscriptionStoreDto> buildStoreDtos(Request request) {
+        if (request == null || request.getSelectedStoreDetails() == null || request.getSelectedStoreDetails().isEmpty()) {
+            return List.of();
+        }
+
+        return request.getSelectedStoreDetails().stream()
+                .filter(Objects::nonNull)
+                .map(storeSelection -> new PaidSubscriptionDto.PaidSubscriptionStoreDto(
+                        storeSelection.getStoreId(),
+                        storeSelection.getStoreName(),
+                        storeSelection.getStoreDescription(),
+                        storeSelection.getStorePrice(),
+                        buildModuleDtos(storeSelection.getModules())
+                ))
+                .collect(Collectors.toList());
+    }
+
+    private List<PaidSubscriptionDto.PaidSubscriptionModuleDto> buildModuleDtos(List<RequestModuleSelection> modules) {
+        if (modules == null || modules.isEmpty()) {
+            return List.of();
+        }
+
+        return modules.stream()
+                .filter(module -> module != null && module.getModuleId() != null)
+                .map(module -> new PaidSubscriptionDto.PaidSubscriptionModuleDto(
+                        module.getModuleId(),
+                        module.getModuleName(),
+                        module.getModuleDescription(),
+                        null,
+                        module.getModulePrice()
+                ))
+                .collect(Collectors.toList());
     }
 
     private void syncMarketplaceStatusesFromPaidSubscriptions() {

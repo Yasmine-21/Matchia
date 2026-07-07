@@ -16,10 +16,23 @@ interface OrganizationRequestSubscriptionDto {
   amount?: number | string | null;
   currency?: string | null;
   paidAt?: string | null;
+  stores?: {
+    storeId: number;
+    storeName?: string | null;
+    storeDescription?: string | null;
+    storePrice?: number | string | null;
+    modules?: {
+      moduleId: number;
+      moduleName?: string | null;
+      moduleDescription?: string | null;
+      moduleCategory?: string | null;
+      modulePrice?: number | string | null;
+    }[];
+  }[];
 }
 
 const formatTnd = (value?: number | null) => {
-  if (value === undefined || value === null) {
+  if (value === undefined || value === null || Number.isNaN(value)) {
     return '-';
   }
 
@@ -449,6 +462,89 @@ export function OffersAndSubscriptions() {
                   {formatDateTime(selectedSubscription.paidAt)}
                 </p>
               </div>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-white p-5 shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                    Stores de cet abonnement
+                  </p>
+                  <h4 className="mt-1 text-lg font-semibold text-foreground">
+                    {(selectedSubscription.stores || []).length} store{(selectedSubscription.stores || []).length > 1 ? 's' : ''}
+                  </h4>
+                  <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                    Chaque store est affiché avec les modules payés dans ce paiement.
+                  </p>
+                </div>
+                <Badge variant="default">Paiement unique</Badge>
+              </div>
+
+              {(selectedSubscription.stores || []).length === 0 ? (
+                <div className="mt-4 rounded-xl border border-dashed border-border bg-surface px-4 py-6 text-center text-sm text-muted-foreground">
+                  Aucun détail de store n&apos;est disponible pour cet abonnement.
+                </div>
+              ) : (
+                <div className="mt-4 space-y-4">
+                  {(selectedSubscription.stores || []).map((store) => (
+                    <div key={store.storeId} className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-foreground">{store.storeName || 'Store'}</p>
+                          {store.storeDescription ? (
+                            <p className="mt-1 text-sm leading-6 text-muted-foreground">{store.storeDescription}</p>
+                          ) : null}
+                        </div>
+                        <div className="text-right">
+                          <p className="text-xs uppercase tracking-wide text-muted-foreground">Prix store</p>
+                          <p className="text-sm font-semibold text-foreground">
+                            {formatTnd(Number(store.storePrice))}
+                          </p>
+                        </div>
+                      </div>
+
+                      <div className="mt-4">
+                        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted-foreground">
+                          Modules
+                        </p>
+                        {(store.modules || []).length === 0 ? (
+                          <div className="mt-3 rounded-xl border border-dashed border-border bg-white px-4 py-5 text-center text-sm text-muted-foreground">
+                            Aucun module associé à ce store.
+                          </div>
+                        ) : (
+                          <div className="mt-3 grid gap-3 md:grid-cols-2">
+                            {(store.modules || []).map((module) => (
+                              <div key={module.moduleId} className="rounded-xl border border-border bg-white p-4">
+                                <div className="flex items-start justify-between gap-3">
+                                  <div>
+                                    <p className="text-sm font-semibold text-foreground">
+                                      {module.moduleName || 'Module'}
+                                    </p>
+                                    <p className="mt-1 text-xs uppercase tracking-wide text-muted-foreground">
+                                      {module.moduleCategory || 'Module'}
+                                    </p>
+                                  </div>
+                                  <div className="text-right">
+                                    <p className="text-xs uppercase tracking-wide text-muted-foreground">Prix</p>
+                                    <p className="text-sm font-semibold text-foreground">
+                                      {formatTnd(Number(module.modulePrice))}
+                                    </p>
+                                  </div>
+                                </div>
+                                {module.moduleDescription ? (
+                                  <p className="mt-3 text-sm leading-6 text-muted-foreground">
+                                    {module.moduleDescription}
+                                  </p>
+                                ) : null}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         )}

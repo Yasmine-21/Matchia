@@ -186,7 +186,14 @@ public class RequestService {
             throw new IllegalStateException("Une demande rejetee ne peut pas etre approuvee.");
         }
 
-        Bank bank = request.getRequestType() == RequestTypeEnum.subscription ? request.getBank() : provisionApprovedRequest(request);
+        Bank bank;
+        if (request.getRequestType() == RequestTypeEnum.join) {
+            bank = provisionApprovedRequest(request);
+        } else if (request.getRequestType() == RequestTypeEnum.module) {
+            bank = provisionApprovedRequest(request);
+        } else {
+            bank = request.getBank();
+        }
         request.setStatus(RequestStatusEnum.approved);
         request.setBank(bank);
         Request saved = requestRepository.save(request);
@@ -234,7 +241,8 @@ public class RequestService {
         Request request = findOrThrow(id);
         RequestStatusEnum before = request.getStatus();
 
-        if (status == RequestStatusEnum.approved && request.getRequestType() != RequestTypeEnum.subscription) {
+        if (status == RequestStatusEnum.approved
+                && (request.getRequestType() == RequestTypeEnum.join || request.getRequestType() == RequestTypeEnum.module)) {
             Bank bank = provisionApprovedRequest(request);
             request.setBank(bank);
         }
@@ -263,14 +271,18 @@ public class RequestService {
         return requestRepository.countByStatus(RequestStatusEnum.pending);
     }
 
-    @Transactional
+        @Transactional
     public Bank validatePaymentAndProvisionBank(Long requestId) {
         Request request = findOrThrow(requestId);
         log.info("Provisionnement de la banque '{}' en cours...", request.getBankName());
 
-        Bank bank = provisionApprovedRequest(request);
         paymentService.markRequestPaymentPaid(requestId);
-        log.info("Banque '{}' provisionnée avec succès.", bank.getName());
+        if (request.getRequestType() == RequestTypeEnum.store) {
+            return request.getBank();
+        }
+
+        Bank bank = provisionApprovedRequest(request);
+        log.info("Banque '{}' provisionnee avec succes.", bank.getName());
         return bank;
     }
 
@@ -775,3 +787,4 @@ public class RequestService {
         return s != null && !s.isBlank();
     }
 }
+

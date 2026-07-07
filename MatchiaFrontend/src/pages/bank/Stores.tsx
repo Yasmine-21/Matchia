@@ -146,41 +146,30 @@ export function BankStores() {
     [storeCatalog, assignedStoreIds],
   );
 
-  const assignedMarketplaceModuleIds = useMemo(
-    () =>
-      new Set(
-        Object.values(modulesByStore)
-          .flat()
-          .map((assignment) => getModuleId(assignment))
-          .filter((id): id is number => typeof id === 'number'),
-      ),
-    [modulesByStore],
-  );
-
-  const getRequestableModulesForStore = (storeId: number) => {
-    const storeModules = storeModulesByStore[storeId] || [];
-    return storeModules.filter((assignment) => {
-      const moduleId = getModuleId(assignment);
-      return moduleId != null && !assignedMarketplaceModuleIds.has(moduleId);
+  const uniqueAvailableStores = useMemo(() => {
+    const byId = new Map<number, StoreDto>();
+    availableStores.forEach((store) => {
+      byId.set(store.id, store);
     });
-  };
+    return Array.from(byId.values());
+  }, [availableStores]);
 
   const requestableStores = useMemo(
-    () => availableStores.filter((store) => getRequestableModulesForStore(store.id).length > 0),
-    [availableStores, storeModulesByStore, assignedMarketplaceModuleIds],
+    () => uniqueAvailableStores.filter((store) => (storeModulesByStore[store.id] || []).length > 0),
+    [uniqueAvailableStores, storeModulesByStore],
   );
 
   useEffect(() => {
     setSelectedRequestStoreIds((current) =>
-      current.filter((storeId) => availableStores.some((store) => store.id === storeId)),
+      current.filter((storeId) => uniqueAvailableStores.some((store) => store.id === storeId)),
     );
-  }, [availableStores]);
+  }, [uniqueAvailableStores]);
 
   useEffect(() => {
     let mounted = true;
 
     const loadStoreModules = async () => {
-      if (availableStores.length === 0) {
+      if (uniqueAvailableStores.length === 0) {
         if (mounted) {
           setStoreModulesByStore({});
         }
@@ -191,10 +180,10 @@ export function BankStores() {
         setIsStoreModulesLoading(true);
         setStoreModulesError('');
         const responses = await Promise.all(
-          availableStores.map(async (store) => {
-            try {
-              const response = await moduleService.getStoreModulesWithConfig(store.id);
-              return { storeId: store.id, modules: response.data || [] };
+          uniqueAvailableStores.map(async (store) => {
+              try {
+                const response = await moduleService.getActiveStoreModulesWithConfig(store.id);
+                return { storeId: store.id, modules: response.data || [] };
             } catch (loadError) {
               console.error(`Failed to load modules for store ${store.id}:`, loadError);
               return { storeId: store.id, modules: [] as ModuleAssignment[] };
@@ -228,7 +217,7 @@ export function BankStores() {
     return () => {
       mounted = false;
     };
-  }, [availableStores]);
+  }, [uniqueAvailableStores]);
 
   useEffect(() => {
     setSelectedRequestModulesByStore((current) => {
@@ -236,8 +225,8 @@ export function BankStores() {
 
       Object.entries(current).forEach(([storeIdString, moduleIds]) => {
         const storeId = Number(storeIdString);
-        const requestableModuleIds = getRequestableModulesForStore(storeId).map(getModuleId);
-        const filteredIds = moduleIds.filter((moduleId) => requestableModuleIds.includes(moduleId));
+        const availableModuleIds = (storeModulesByStore[storeId] || []).map(getModuleId);
+        const filteredIds = moduleIds.filter((moduleId) => availableModuleIds.includes(moduleId));
         if (filteredIds.length > 0) {
           next[storeId] = filteredIds;
         }
@@ -245,7 +234,7 @@ export function BankStores() {
 
       return next;
     });
-  }, [storeModulesByStore, assignedMarketplaceModuleIds]);
+  }, [storeModulesByStore]);
 
   const visibleModulesByStore = useMemo(() => {
     return Object.entries(modulesByStore).reduce<Record<number, ModuleAssignment[]>>((acc, [storeIdString, assignments]) => {
@@ -327,7 +316,7 @@ export function BankStores() {
   };
 
   const toggleRequestStore = (storeId: number) => {
-    const requestableModuleIds = getRequestableModulesForStore(storeId).map(getModuleId);
+    const requestableModuleIds = (storeModulesByStore[storeId] || []).map(getModuleId);
     if (requestableModuleIds.length === 0) {
       return;
     }
@@ -353,18 +342,18 @@ export function BankStores() {
   };
 
   const selectedRequestStores = useMemo(
-    () => availableStores.filter((store) => selectedRequestStoreIds.includes(store.id)),
-    [availableStores, selectedRequestStoreIds],
+    () => uniqueAvailableStores.filter((store) => selectedRequestStoreIds.includes(store.id)),
+    [uniqueAvailableStores, selectedRequestStoreIds],
   );
 
   const selectedModulesByStore = useMemo(() => {
     return selectedRequestStores.reduce<Record<number, ModuleAssignment[]>>((acc, store) => {
-      const requestableModules = getRequestableModulesForStore(store.id);
+      const requestableModules = storeModulesByStore[store.id] || [];
       const selectedModuleIds = selectedRequestModulesByStore[store.id] || requestableModules.map(getModuleId);
       acc[store.id] = requestableModules.filter((assignment) => selectedModuleIds.includes(getModuleId(assignment)));
       return acc;
     }, {});
-  }, [selectedRequestStores, selectedRequestModulesByStore, storeModulesByStore, assignedMarketplaceModuleIds]);
+  }, [selectedRequestStores, selectedRequestModulesByStore, storeModulesByStore]);
 
   const hasRequestableModules = requestableStores.length > 0;
 
@@ -726,16 +715,16 @@ export function BankStores() {
               <Loader2 className="mr-2 h-5 w-5 animate-spin" />
               Chargement des modules disponibles...
             </div>
-          ) : availableStores.length === 0 ? (
+          ) : uniqueAvailableStores.length === 0 ? (
             <div className="rounded-lg border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
               Aucun store disponible pour une nouvelle demande.
             </div>
           ) : (
-            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-              {availableStores.map((store) => {
+            <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3 items-stretch">
+              {uniqueAvailableStores.map((store) => {
                 const isSelected = selectedRequestStoreIds.includes(store.id);
                 const storePrice = getCatalogStorePrice(store);
-                const requestableModules = getRequestableModulesForStore(store.id);
+                const requestableModules = storeModulesByStore[store.id] || [];
                 const selectedModuleIds = selectedRequestModulesByStore[store.id] || requestableModules.map(getModuleId);
                 const selectedModuleTotal = requestableModules
                   .filter((module) => selectedModuleIds.includes(getModuleId(module)))
@@ -748,7 +737,7 @@ export function BankStores() {
                     type="button"
                     onClick={() => toggleRequestStore(store.id)}
                     disabled={!hasAvailableModules}
-                    className={`rounded-2xl border p-4 text-left transition-all ${
+                    className={`flex h-full min-h-[430px] flex-col rounded-2xl border p-4 text-left transition-all ${
                       hasAvailableModules ? 'hover:border-primary/60' : 'cursor-not-allowed opacity-70'
                     } ${
                       isSelected ? 'border-primary bg-primary/5 shadow-sm' : 'border-border bg-card'
@@ -778,19 +767,19 @@ export function BankStores() {
                         {store.price == null ? 'Prix non defini' : formatTnd(storePrice + selectedModuleTotal)} / mois
                       </span>
                     </div>
-                    <div className="mt-4 space-y-3">
+                    <div className="mt-4 flex flex-1 flex-col space-y-3">
                       {hasAvailableModules ? (
                         <>
                           <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                             Modules disponibles
                           </div>
-                          <div className="space-y-2">
-                            {requestableModules.map((module) => {
+                          <div className="space-y-2 flex-1">
+                            {requestableModules.map((module, index) => {
                               const moduleId = getModuleId(module);
                               const moduleSelected = selectedModuleIds.includes(moduleId);
                               return (
                                 <label
-                                  key={moduleId}
+                                  key={`${store.id}-${moduleId}-${index}`}
                                   className="flex items-start justify-between gap-3 rounded-lg border border-border bg-white px-3 py-2 text-sm"
                                   onClick={(event) => event.stopPropagation()}
                                 >

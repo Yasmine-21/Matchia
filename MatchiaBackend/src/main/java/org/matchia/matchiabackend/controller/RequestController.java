@@ -219,4 +219,5 @@ public class RequestController {
         if (lower.endsWith(".svg"))  return MediaType.valueOf("image/svg+xml");
         return MediaType.APPLICATION_OCTET_STREAM;
     }
+
 }
