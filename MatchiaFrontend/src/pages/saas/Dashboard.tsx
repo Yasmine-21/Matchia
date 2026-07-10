@@ -104,7 +104,7 @@ export function SaaSDashboard() {
       tone: 'warning' as const,
     },
     {
-      label: 'Utilisateurs total',
+      label: 'Utilisateurs totaux',
       value: totalUsersCount,
       icon: <Users className="w-5 h-5" />,
       badge: isLoadingData ? '...' : `${totalUsersCount} users`,

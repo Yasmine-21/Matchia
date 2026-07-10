@@ -3,7 +3,7 @@ import { Outlet, useNavigate } from 'react-router';
 import { Bell, Search, User } from 'lucide-react';
 import { AdminSidebar } from '../components/layout/AdminSidebar';
 import { NotificationsPanel } from '../components/layout/NotificationsPanel';
-import { Chatbot } from '../components/Chatbot';
+import { AiAssistantWidget } from '../components/ai/AiAssistantWidget';
 import { useBankTenant } from '../hooks/useBankTenant';
 import { NotificationDto } from '../types/apiTypes';
 import {
@@ -211,7 +211,7 @@ export function AdminLayout({ type }: AdminLayoutProps) {
           <Outlet />
         </main>
       </div>
-      {type === 'saas' && <Chatbot />}
+      {type === 'saas' && <AiAssistantWidget />}
     </div>
   );
 }

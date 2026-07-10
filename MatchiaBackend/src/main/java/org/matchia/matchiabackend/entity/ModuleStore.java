@@ -32,13 +32,7 @@ public class ModuleStore {
     @JoinColumn(name = "module_id")
     @JsonIgnoreProperties("moduleStores")
     private Module module;
-/*
-    @OneToOne(mappedBy = "moduleStore", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private ModuleComparateur moduleComparateur;
 
-    @OneToOne(mappedBy = "moduleStore", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    private ModuleSimulateur moduleSimulateur;
-*/
 @OneToMany(mappedBy = "moduleStore", cascade = CascadeType.ALL)
 private List<ModuleStoreParameter> parameters = new ArrayList<>();
 

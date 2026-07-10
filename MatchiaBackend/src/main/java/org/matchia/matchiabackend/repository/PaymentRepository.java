@@ -13,4 +13,6 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
     Optional<Payment> findTopByRequest_IdOrderByCreatedAtDesc(Long requestId);
     List<Payment> findByRequest_IdOrderByCreatedAtDesc(Long requestId);
     List<Payment> findByStatusOrderByPaidAtDesc(PaymentStatusEnum status);
+    List<Payment> findTop10ByStatusOrderByPaidAtDesc(PaymentStatusEnum status);
+    long countByStatus(PaymentStatusEnum status);
 }

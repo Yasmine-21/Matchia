@@ -247,6 +247,19 @@ export interface NotificationDto {
   readAt?: string | null;
 }
 
+export interface AiAskRequest {
+  question: string;
+  currentPage?: string;
+  bankId?: number | null;
+  marketplaceId?: number | null;
+  storeId?: number | null;
+}
+
+export interface AiAskResponse {
+  answer: string;
+  responseType: string;
+}
+
 export interface MarketplaceModuleDetailDto {
   id: number;
   moduleId?: number | null;

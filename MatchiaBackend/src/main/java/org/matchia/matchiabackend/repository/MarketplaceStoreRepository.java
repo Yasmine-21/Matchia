@@ -19,6 +19,14 @@ public interface MarketplaceStoreRepository extends JpaRepository<MarketplaceSto
     })
     List<MarketplaceStore> findByMarketplace_Id(Long marketplaceId);
 
+    @EntityGraph(attributePaths = {
+            "marketplace",
+            "store",
+            "marketplaceStoreModules",
+            "marketplaceStoreModules.module"
+    })
+    List<MarketplaceStore> findByStore_Id(Long storeId);
+
     Optional<MarketplaceStore> findByMarketplace_IdAndStore_Id(Long marketplaceId, Long storeId);
     Optional<MarketplaceStore> findByMarketplace_Bank_IdAndStore_Id(Long bankId, Long storeId);
 }
