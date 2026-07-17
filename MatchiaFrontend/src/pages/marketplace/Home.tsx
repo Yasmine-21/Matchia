@@ -5,6 +5,7 @@ import {
   ArrowRight,
   Building2,
   CarFront,
+  GraduationCap,
   HeartPulse,
   Smartphone,
   Star,
@@ -39,8 +40,6 @@ type StoreCardMeta = {
   icon: JSX.Element;
   iconBg: string;
   iconColor: string;
-  title: string;
-  description: string;
 };
 
 const getStoreMeta = (store: StoreLike): StoreCardMeta => {
@@ -51,8 +50,6 @@ const getStoreMeta = (store: StoreLike): StoreCardMeta => {
       icon: <Smartphone className="h-6 w-6" />,
       iconBg: 'bg-rose-50',
       iconColor: '#b91c1c',
-      title: 'mobile',
-      description: 'Découvrez la boutique mobile',
     };
   }
 
@@ -61,8 +58,6 @@ const getStoreMeta = (store: StoreLike): StoreCardMeta => {
       icon: <HeartPulse className="h-6 w-6" />,
       iconBg: 'bg-indigo-50',
       iconColor: '#4f46e5',
-      title: 'medical',
-      description: 'Découvrez la boutique medical',
     };
   }
 
@@ -71,8 +66,14 @@ const getStoreMeta = (store: StoreLike): StoreCardMeta => {
       icon: <CarFront className="h-6 w-6" />,
       iconBg: 'bg-emerald-50',
       iconColor: '#0f9f63',
-      title: 'vehicule',
-      description: 'Découvrez la boutique vehicule',
+    };
+  }
+
+  if (raw.includes('education') || raw.includes('edu') || raw.includes('school') || raw.includes('study')) {
+    return {
+      icon: <GraduationCap className="h-6 w-6" />,
+      iconBg: 'bg-sky-50',
+      iconColor: '#0369a1',
     };
   }
 
@@ -80,8 +81,6 @@ const getStoreMeta = (store: StoreLike): StoreCardMeta => {
     icon: <Building2 className="h-6 w-6" />,
     iconBg: 'bg-amber-50',
     iconColor: '#d97706',
-    title: 'immobilier',
-    description: 'Découvrez la boutique immobilier',
   };
 };
 
@@ -108,7 +107,7 @@ const hexToRgba = (hex: string, alpha: number) => {
 export function MarketplaceHome() {
   const { bankData, branding } = useOutletContext<MarketplaceHomeContext>();
 
-  const featuredStores = useMemo(() => bankData.stores.slice(0, 4).map((store, index) => ({
+  const featuredStores = useMemo(() => bankData.stores.map((store, index) => ({
     ...store,
     meta: getStoreMeta(store),
     delay: index * 0.08,
@@ -194,11 +193,11 @@ export function MarketplaceHome() {
                       {store.meta.icon}
                     </div>
                     <div className="mt-6 flex-1">
-                      <h3 className="text-xl font-semibold capitalize text-slate-900">
-                        {store.meta.title}
+                      <h3 className="text-xl font-semibold text-slate-900">
+                        {store.label || store.name || 'Store'}
                       </h3>
                       <p className="mt-2 text-sm leading-6 text-slate-500">
-                        {store.meta.description}
+                        {store.description || `Découvrez la boutique ${store.label || store.name || 'store'}`}
                       </p>
                       <div className="mt-4 flex items-center gap-2 text-sm text-amber-500">
                         <Star className="h-4 w-4 fill-current" />

@@ -151,7 +151,7 @@ export function MarketplaceLayout() {
           })),
       }))
   ), [marketplace]);
-  const headerStores = stores.slice(0, 4);
+  const headerStores = stores;
   const activeStoreSlug = useMemo(() => {
     if (location.pathname === '/' && headerStores[0]) {
       return headerStores[0].slug;
@@ -247,26 +247,26 @@ export function MarketplaceLayout() {
               </span>
             </Link>
 
-            <nav className="hidden flex-1 items-center justify-center gap-3 lg:flex">
+            <nav className="hidden flex-1 items-center justify-center gap-3 overflow-x-auto lg:flex">
               {headerStores.map((store) => {
                 const meta = getStoreMeta(store.name || store.label);
                 const ActiveIcon = meta.icon;
                 const isActive = store.slug === activeStoreSlug;
 
                 return (
-                <Link
-                  key={store.id}
-                  to={`/store/${encodeURIComponent(store.slug)}`}
-                  className={`inline-flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
-                    isActive
-                      ? 'border-transparent text-white shadow-[0_10px_22px_rgba(155,17,26,0.26)]'
-                      : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
-                  }`}
-                  style={isActive ? { backgroundColor: primaryColor } : undefined}
-                >
-                  <ActiveIcon className="h-4 w-4" />
-                  <span className="capitalize">{meta.label}</span>
-                </Link>
+                  <Link
+                    key={store.id}
+                    to={`/store/${encodeURIComponent(store.slug)}`}
+                    className={`inline-flex shrink-0 items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-all ${
+                      isActive
+                        ? 'border-transparent text-white shadow-[0_10px_22px_rgba(155,17,26,0.26)]'
+                        : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                    style={isActive ? { backgroundColor: primaryColor } : undefined}
+                  >
+                    <ActiveIcon className="h-4 w-4" />
+                    <span>{store.label || store.name}</span>
+                  </Link>
                 );
               })}
             </nav>
@@ -314,7 +314,7 @@ export function MarketplaceLayout() {
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     <ActiveIcon className="h-4 w-4" />
-                    <span className="capitalize">{meta.label}</span>
+                    <span>{store.label || store.name}</span>
                   </Link>
                 );
               })}

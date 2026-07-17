@@ -478,8 +478,8 @@ export function BankStores() {
           icon={<Plus className="h-5 w-5" />}
           onClick={openRequestModal}
           disabled={isStoreCatalogLoading}
-        >
-          Request New Store
+        >Demander
+          
         </Button>
       </div>
 
@@ -694,15 +694,12 @@ export function BankStores() {
       <Modal
         isOpen={isRequestModalOpen}
         onClose={closeRequestModal}
-        title="Request New Store"
+        title="Demander un nouveau store"
         size="xl"
       >
         <div className="space-y-5">
           <div>
             <h3 className="text-lg font-semibold">Stores disponibles</h3>
-            <p className="text-sm text-muted-foreground">
-              Seuls les stores actifs dans le back office SaaS et non deja assignes a cette marketplace sont affiches.
-            </p>
           </div>
 
           {isStoreCatalogLoading ? (
