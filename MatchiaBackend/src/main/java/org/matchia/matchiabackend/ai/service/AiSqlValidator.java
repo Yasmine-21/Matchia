@@ -45,6 +45,11 @@ public class AiSqlValidator {
     private static final Pattern QUALIFIED_COLUMN = Pattern.compile(
             "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*\\.\\s*\"?([A-Za-z_][A-Za-z0-9_]*)\"?"
     );
+    private static final Pattern CROSS_TABLE_EQUALITY = Pattern.compile(
+            "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*\\.\\s*\"?([A-Za-z_][A-Za-z0-9_]*)\"?\\s*=\\s*"
+                    + "([A-Za-z_][A-Za-z0-9_]*)\\s*\\.\\s*\"?([A-Za-z_][A-Za-z0-9_]*)\"?",
+            Pattern.CASE_INSENSITIVE
+    );
     private static final Pattern FUNCTION_CALL = Pattern.compile("\\b([A-Za-z_][A-Za-z0-9_]*)\\s*\\(");
     private static final Pattern LIMIT = Pattern.compile("\\bLIMIT\\s+(\\d+)\\b", Pattern.CASE_INSENSITIVE);
     private static final Pattern COUNT_STAR = Pattern.compile("\\bCOUNT\\s*\\(\\s*\\*\\s*\\)", Pattern.CASE_INSENSITIVE);
@@ -73,6 +78,7 @@ public class AiSqlValidator {
 
         Map<String, String> aliases = validateTables(executableCode, allowedSchema);
         validateColumns(executableCode, aliases, allowedSchema);
+        validateCrossTableEqualities(executableCode, aliases, allowedSchema);
         validateFunctions(executableCode);
         if (COUNT_STAR.matcher(executableCode).replaceAll("").contains("*")) {
             throw rejected();
@@ -132,6 +138,43 @@ public class AiSqlValidator {
                 throw rejected();
             }
         }
+    }
+
+    private void validateCrossTableEqualities(
+            String executableCode,
+            Map<String, String> aliases,
+            DatabaseSchemaService.AllowedSchema allowedSchema
+    ) {
+        Matcher matcher = CROSS_TABLE_EQUALITY.matcher(executableCode);
+        while (matcher.find()) {
+            String leftTable = aliases.get(matcher.group(1).toLowerCase(Locale.ROOT));
+            String leftColumn = matcher.group(2).toLowerCase(Locale.ROOT);
+            String rightTable = aliases.get(matcher.group(3).toLowerCase(Locale.ROOT));
+            String rightColumn = matcher.group(4).toLowerCase(Locale.ROOT);
+            if (leftTable == null || rightTable == null || leftTable.equals(rightTable)) {
+                continue;
+            }
+            if (!areCompatibleTypes(allowedSchema.columnType(leftTable, leftColumn), allowedSchema.columnType(rightTable, rightColumn))
+                    || !allowedSchema.hasForeignKey(leftTable, leftColumn, rightTable, rightColumn)) {
+                throw rejected();
+            }
+        }
+    }
+
+    private boolean areCompatibleTypes(String leftType, String rightType) {
+        if (leftType == null || rightType == null) {
+            return false;
+        }
+        return typeFamily(leftType).equals(typeFamily(rightType));
+    }
+
+    private String typeFamily(String type) {
+        String normalized = type.toLowerCase(Locale.ROOT);
+        if (normalized.contains("int") || normalized.contains("numeric") || normalized.contains("decimal")
+                || normalized.contains("double") || normalized.contains("real")) return "number";
+        if (normalized.contains("date") || normalized.contains("time")) return "temporal";
+        if (normalized.contains("bool")) return "boolean";
+        return "text";
     }
 
     /**

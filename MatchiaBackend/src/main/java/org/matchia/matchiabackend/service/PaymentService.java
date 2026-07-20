@@ -70,7 +70,7 @@ public class PaymentService {
     @Value("${stripe.publishable.key:${stripe.public.key:}}")
     private String stripePublishableKey;
 
-    @Value("${stripe.currency:usd}")
+    @Value("${stripe.currency:tnd}")
     private String stripeCurrency;
 
     @Value("${app.frontend.url:http://localhost:5173}")
@@ -219,7 +219,7 @@ public class PaymentService {
 
         String requestId = String.valueOf(checkoutRequest.getRequestId());
         String bankName = hasText(checkoutRequest.getBankName()) ? checkoutRequest.getBankName().trim() : "Matchia";
-        String currency = hasText(checkoutRequest.getCurrency()) ? checkoutRequest.getCurrency().trim().toLowerCase() : stripeCurrency.toLowerCase();
+        String currency = normalizeCurrency(checkoutRequest.getCurrency());
 
         SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
@@ -275,7 +275,7 @@ public class PaymentService {
                     newPayment.setRequest(joinRequest);
                     newPayment.setAmount(BigDecimal.valueOf(joinRequest.getTotalAmount() != null ? joinRequest.getTotalAmount() : 0)
                             .setScale(2, RoundingMode.HALF_UP));
-                    newPayment.setCurrency(hasText(stripeCurrency) ? stripeCurrency.toLowerCase() : "usd");
+                    newPayment.setCurrency(normalizeCurrency(null));
                     newPayment.setBankName(joinRequest.getBankName());
                     return newPayment;
                 });
@@ -399,7 +399,11 @@ public class PaymentService {
     }
 
     private String normalizeCurrency(String currency) {
-        return hasText(currency) ? currency.trim().toLowerCase() : stripeCurrency.toLowerCase();
+        String platformCurrency = hasText(stripeCurrency) ? stripeCurrency.trim().toLowerCase() : "tnd";
+        if (hasText(currency) && !platformCurrency.equals(currency.trim().toLowerCase())) {
+            log.warn("Devise de paiement {} ignoree : la plateforme utilise {}.", currency, platformCurrency);
+        }
+        return platformCurrency;
     }
 
     private void activateStoreRequestIfNeeded(Payment payment) {

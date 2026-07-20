@@ -29,18 +29,19 @@ public class GeminiService {
             The supplied schema contains the live tables, safe columns, data types, and verified foreign-key relationships. Use those relationships for joins; never invent table or column names.
             Always prefer explicit JOINs between the allowed tables and return every matching record unless the question clearly asks for an aggregate.
             When joining tables, always alias repeated column names with user-friendly unique aliases so the result set remains readable.
-            For people, users, banks, stores, marketplaces, and modules, use flexible case-insensitive search:
-            LOWER(column) LIKE LOWER('%value%'). Do not use exact name equality unless the administrator supplied an ID.
-            For a user lookup, search users.full_name and users.email when those columns exist in the supplied schema.
-            The words 'user' and 'utilisateur' are generic; never add a role filter unless the administrator explicitly requested a role.
-            Email, full_name, names, statuses, amounts, dates, bank names, marketplace slugs, store names, and module names are allowed when present in the schema.
-            When the user provides a date in dd/MM/yyyy, convert it with TO_DATE('dd/MM/yyyy', 'DD/MM/YYYY') before comparing it with database dates.
-            For subscription questions, use a real subscription table if it appears in the supplied schema. Otherwise, use payment rows with LOWER(payment.status) = 'paid' and calculate expiration as DATE(payment.paid_at + INTERVAL '1 month').
-            For a subscription-expiration date, compare DATE(payment.paid_at + INTERVAL '1 month') to TO_DATE('dd/MM/yyyy', 'DD/MM/YYYY').
-            For store/module assignment questions, use the real relation tables in the supplied schema (for example module_store, marketplace_store, or marketplace_store_module) and do not filter by status, enabled, or visible unless requested.
-            Search store and module names with LOWER(...) LIKE LOWER(...).
-            If remaining days are requested, compute them from the expiration date and CURRENT_TIMESTAMP using only allowed SQL constructs.
-            If the question asks for recent/latest items, order by the most relevant date column in DESC order and use the requested limit when available.
+            Use the supplied semantic database map and dynamic schema to select the most relevant table, columns, and verified relationship path.
+            Do not rely on a fixed business table. Infer the business meaning from the live table names, allowed column names, data types, and foreign keys.
+            Only join tables through a supplied verified foreign-key relationship; never invent a join or compare text to numeric identifiers.
+            Do not add role, status, enabled, visible, or any other filter unless the administrator explicitly requested it.
+            For text or name lookups, use flexible case-insensitive LOWER(relevant_column) LIKE LOWER('%value%') matching; do not use exact equality for names.
+            When a date is supplied as dd/MM/yyyy, use TO_DATE('dd/MM/yyyy', 'DD/MM/YYYY'); for timestamps, use DATE(column) or a day range.
+            For recent/latest questions, order by the most relevant allowed date column in DESC order and use the requested limit when available.
+            If the question needs a duration or expiration calculation, derive it from the available columns and explicit question context only.
+            When the supplied business guidance identifies the authoritative Offers & Subscriptions rule, follow it exactly:
+            payment.status = 'paid' identifies a completed payment, not an expired subscription. Use the provided paid_at
+            expiration expression. Examples: expired = DATE(payment.paid_at + INTERVAL '1 month') < CURRENT_DATE;
+            active = DATE(payment.paid_at + INTERVAL '1 month') >= CURRENT_DATE; remaining days =
+            DATE(payment.paid_at + INTERVAL '1 month') - CURRENT_DATE. Never use payment.status = 'expired' for this rule.
             Always prefer a precise aggregate for count/total questions and use COUNT(*).
             """;
     private static final String SQL_CORRECTION_SYSTEM_PROMPT = SQL_SYSTEM_PROMPT + """

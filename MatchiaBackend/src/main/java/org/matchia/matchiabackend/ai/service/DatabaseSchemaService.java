@@ -73,7 +73,8 @@ public class DatabaseSchemaService {
         if (tables.isEmpty()) {
             throw new IllegalStateException("Le schéma autorisé de l'assistant est vide.");
         }
-        return new AllowedSchema(tables, buildSchemaText(tables, columnTypes, loadAllowedForeignKeys(tables)));
+        List<ForeignKey> foreignKeys = loadAllowedForeignKeys(tables);
+        return new AllowedSchema(tables, columnTypes, foreignKeys, buildSchemaText(tables, columnTypes, foreignKeys));
     }
 
     private String buildSchemaText(
@@ -99,12 +100,6 @@ public class DatabaseSchemaService {
                     .append("\n"));
         }
 
-        boolean hasSubscriptionTable = tables.keySet().stream()
-                .anyMatch(table -> table.toLowerCase(Locale.ROOT).contains("subscription"));
-        if (!hasSubscriptionTable && tables.containsKey("payment") && tables.get("payment").contains("paid_at")) {
-            schema.append("\nSubscription business rule: subscriptions are paid payment records and expire one month after paid_at: ")
-                    .append("paid_at + INTERVAL '1 month'.\n");
-        }
         schema.append("\nUse only these public tables and columns. Never use SELECT *, system tables, information_schema, ")
                 .append("or columns omitted from this schema. Email and full_name are allowed. ")
                 .append("Always qualify columns with a table alias when joining tables.");
@@ -141,7 +136,7 @@ public class DatabaseSchemaService {
         return value == null ? null : String.valueOf(value);
     }
 
-    private record ForeignKey(String sourceTable, String sourceColumn, String targetTable, String targetColumn) {
+    public record ForeignKey(String sourceTable, String sourceColumn, String targetTable, String targetColumn) {
         private boolean isAllowedBy(Map<String, Set<String>> tables) {
             return sourceTable != null && sourceColumn != null && targetTable != null && targetColumn != null
                     && tables.getOrDefault(sourceTable, Set.of()).contains(sourceColumn)
@@ -149,11 +144,25 @@ public class DatabaseSchemaService {
         }
     }
 
-    public record AllowedSchema(Map<String, Set<String>> tables, String schemaText) {
+    public record AllowedSchema(
+            Map<String, Set<String>> tables,
+            Map<String, Map<String, String>> columnTypes,
+            List<ForeignKey> foreignKeys,
+            String schemaText
+    ) {
         public AllowedSchema {
             Map<String, Set<String>> copy = new LinkedHashMap<>();
             tables.forEach((table, columns) -> copy.put(table, Collections.unmodifiableSet(new LinkedHashSet<>(columns))));
             tables = Collections.unmodifiableMap(copy);
+
+            Map<String, Map<String, String>> typeCopy = new LinkedHashMap<>();
+            columnTypes.forEach((table, columns) -> typeCopy.put(table, Collections.unmodifiableMap(new LinkedHashMap<>(columns))));
+            columnTypes = Collections.unmodifiableMap(typeCopy);
+            foreignKeys = List.copyOf(foreignKeys);
+        }
+
+        public AllowedSchema(Map<String, Set<String>> tables, String schemaText) {
+            this(tables, Map.of(), List.of(), schemaText);
         }
 
         public boolean isSensitiveName(String identifier) {
@@ -162,6 +171,19 @@ public class DatabaseSchemaService {
             }
             String normalized = identifier.toLowerCase(Locale.ROOT);
             return FORBIDDEN_NAME_PARTS.stream().anyMatch(normalized::contains);
+        }
+
+        public boolean hasForeignKey(String leftTable, String leftColumn, String rightTable, String rightColumn) {
+            return foreignKeys.stream().anyMatch(foreignKey ->
+                    (foreignKey.sourceTable().equals(leftTable) && foreignKey.sourceColumn().equals(leftColumn)
+                            && foreignKey.targetTable().equals(rightTable) && foreignKey.targetColumn().equals(rightColumn))
+                            || (foreignKey.sourceTable().equals(rightTable) && foreignKey.sourceColumn().equals(rightColumn)
+                            && foreignKey.targetTable().equals(leftTable) && foreignKey.targetColumn().equals(leftColumn))
+            );
+        }
+
+        public String columnType(String table, String column) {
+            return columnTypes.getOrDefault(table, Map.of()).get(column);
         }
     }
 }

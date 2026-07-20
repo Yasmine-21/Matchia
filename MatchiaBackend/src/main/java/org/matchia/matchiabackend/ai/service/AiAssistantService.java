@@ -27,6 +27,7 @@ public class AiAssistantService {
     private final AiSqlExecutionService sqlExecutionService;
     private final AiIntentService aiIntentService;
     private final DatabaseSchemaService databaseSchemaService;
+    private final SemanticDatabaseMapService semanticDatabaseMapService;
 
     public AiAskResponse ask(AiAskRequest request) {
         String question = request != null ? request.getQuestion() : null;
@@ -40,34 +41,74 @@ public class AiAssistantService {
         try {
             AiIntentService.Analysis analysis = aiIntentService.analyze(question);
             DatabaseSchemaService.AllowedSchema allowedSchema = databaseSchemaService.loadAllowedSchema();
-            String generatedSql = geminiService.generateSql(question, analysis.buildSqlGuidance(), allowedSchema.schemaText());
+            SemanticDatabaseMapService.SemanticMap semanticMap = semanticDatabaseMapService.analyze(question, allowedSchema);
+            String initialGuidance = semanticMap.promptContext() + "\n\n" + analysis.buildSqlGuidance()
+                    + "\n" + semanticMap.initialGuidance();
+            String generatedSql = geminiService.generateSql(question, initialGuidance, allowedSchema.schemaText());
             log.info("AI assistant question received: {}", abbreviate(question, 500));
             log.debug("AI assistant dynamic schema preview: {}", abbreviate(allowedSchema.schemaText(), 2000));
             log.debug("AI assistant intent detected: {}", analysis.intent());
+            log.debug("AI assistant semantic candidates: {}", semanticMap.candidates());
             log.debug("AI assistant original SQL before validation: {}", generatedSql);
 
-            AiSqlExecutionService.QueryResult queryResult = sqlExecutionService.execute(generatedSql, allowedSchema);
-            log.debug("AI assistant original validated SQL: {}", queryResult.validatedSql());
-            log.debug("AI assistant original result size: {}; preview: {}", queryResult.rowCount(), abbreviate(queryResult.resultJson(), 1000));
-            if (queryResult.isEmpty()) {
-                log.info("AI assistant SQL retry triggered: the original validated query returned zero rows.");
+            AiSqlExecutionService.QueryResult queryResult = null;
+            AiSqlExecutionService.AiSqlExecutionException lastExecutionException = null;
+            String previousSql = generatedSql;
+            try {
+                queryResult = sqlExecutionService.execute(generatedSql, allowedSchema);
+                previousSql = queryResult.validatedSql();
+                log.debug("AI assistant original validated SQL: {}", queryResult.validatedSql());
+                log.debug("AI assistant original result size: {}; preview: {}", queryResult.rowCount(), abbreviate(queryResult.resultJson(), 1000));
+            } catch (AiSqlExecutionService.AiSqlExecutionException exception) {
+                lastExecutionException = exception;
+                previousSql = exception.getSql();
+                log.warn("AI assistant original SQL execution failed; an alternative semantic path will be attempted.", exception);
+            }
+
+            java.util.Set<String> usedTables = new java.util.LinkedHashSet<>(semanticMap.referencedTables(previousSql));
+            for (int retryNumber = 1; (queryResult == null || queryResult.isEmpty()) && retryNumber <= semanticMap.retryBudget(); retryNumber++) {
+                String alternativeGuidance = semanticMap.alternativeGuidance(usedTables);
+                if (alternativeGuidance == null) {
+                    break;
+                }
+                String retryReason = queryResult == null
+                        ? "the previous SQL execution failed"
+                        : "the previous validated query returned zero rows";
+                log.info("AI assistant alternative SQL attempt {} triggered because {}. Used tables: {}",
+                        retryNumber, retryReason, usedTables);
                 String correctedSql = geminiService.generateCorrectedSql(
                         question,
-                        analysis.buildSqlGuidance(),
+                        semanticMap.promptContext() + "\n\n" + analysis.buildSqlGuidance() + "\n" + alternativeGuidance,
                         allowedSchema.schemaText(),
-                        queryResult.validatedSql()
+                        previousSql
                 );
-                log.debug("AI assistant corrected SQL before validation: {}", correctedSql);
+                log.debug("AI assistant alternative SQL {} before validation: {}", retryNumber, correctedSql);
 
-                queryResult = sqlExecutionService.execute(correctedSql, allowedSchema);
-                log.debug("AI assistant corrected validated SQL: {}", queryResult.validatedSql());
-                log.debug("AI assistant corrected result size: {}; preview: {}", queryResult.rowCount(), abbreviate(queryResult.resultJson(), 1000));
-                if (queryResult.isEmpty()) {
-                    return new AiAskResponse(
-                            "Aucune donnée correspondante n'a été trouvée pour cette demande.",
-                            "NO_DATA"
-                    );
+                try {
+                    queryResult = sqlExecutionService.execute(correctedSql, allowedSchema);
+                    previousSql = queryResult.validatedSql();
+                    usedTables.addAll(semanticMap.referencedTables(previousSql));
+                    log.debug("AI assistant alternative validated SQL {}: {}", retryNumber, previousSql);
+                    log.debug("AI assistant alternative result size {}: {}; preview: {}", retryNumber, queryResult.rowCount(), abbreviate(queryResult.resultJson(), 1000));
+                } catch (AiSqlExecutionService.AiSqlExecutionException exception) {
+                    lastExecutionException = exception;
+                    previousSql = exception.getSql();
+                    usedTables.addAll(semanticMap.referencedTables(previousSql));
+                    queryResult = null;
+                    log.warn("AI assistant alternative SQL {} execution failed; another relevant path may be attempted.", retryNumber, exception);
                 }
+            }
+            if (queryResult == null) {
+                throw lastExecutionException;
+            }
+            if (queryResult.isEmpty()) {
+                if (lastExecutionException != null) {
+                    throw lastExecutionException;
+                }
+                return new AiAskResponse(
+                        "Aucune donnée correspondante n'a été trouvée pour cette demande.",
+                        "NO_DATA"
+                );
             }
 
             String answer = geminiService.generateAnswer(ANSWER_SYSTEM_PROMPT, buildAnswerPrompt(question, queryResult.resultJson()));

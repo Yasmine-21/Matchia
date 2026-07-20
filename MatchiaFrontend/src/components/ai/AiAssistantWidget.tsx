@@ -24,7 +24,7 @@ export function AiAssistantWidget() {
       id: buildMessageId(),
       role: 'assistant',
       content:
-        "Bonjour, je suis Matchia AI Assistant. Posez-moi une question sur les banques, les marketplaces, les stores, les modules, les paiements, les demandes ou les notifications.",
+        "Bonjour, je suis Matchia AI Assistant. Posez votre question, je vous accompagne dans l’analyse et la consultation des informations de la plateforme.",
     },
   ]);
 
