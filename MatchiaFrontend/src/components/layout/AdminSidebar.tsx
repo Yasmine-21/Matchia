@@ -53,7 +53,9 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
   const bankTenant = useBankTenant(type === 'bank');
-  const notificationRecipientId = type === 'bank' ? bankTenant.marketplace?.bankId ?? null : null;
+  const notificationRecipientId = type === 'bank'
+    ? (bankTenant.marketplace?.bankId || null)
+    : null;
 
   const saasSections: SidebarSection[] = [
     {
@@ -150,8 +152,6 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   }, [type, notificationRecipientId]);
 
   useEffect(() => {
-    if (type !== 'saas') return;
-
     const refreshNotifications = () => {
       loadNotificationData();
     };

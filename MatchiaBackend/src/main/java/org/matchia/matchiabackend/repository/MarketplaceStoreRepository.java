@@ -1,8 +1,12 @@
 package org.matchia.matchiabackend.repository;
 
 import org.matchia.matchiabackend.entity.MarketplaceStore;
+import org.matchia.matchiabackend.dto.StoreMarketplaceCountDto;
+import org.matchia.matchiabackend.entity.enums.MarketplaceStatusEnum;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -29,4 +33,22 @@ public interface MarketplaceStoreRepository extends JpaRepository<MarketplaceSto
 
     Optional<MarketplaceStore> findByMarketplace_IdAndStore_Id(Long marketplaceId, Long storeId);
     Optional<MarketplaceStore> findByMarketplace_Bank_IdAndStore_Id(Long bankId, Long storeId);
+
+    @Query("""
+            select new org.matchia.matchiabackend.dto.StoreMarketplaceCountDto(
+                store.id,
+                store.name,
+                count(distinct marketplaceStore.marketplace.id)
+            )
+            from Store store
+            left join store.marketplaceStores marketplaceStore
+                on marketplaceStore.enabled = true
+                and marketplaceStore.visible = true
+                and marketplaceStore.marketplace.status = :marketplaceStatus
+            group by store.id, store.name
+            order by store.name
+            """)
+    List<StoreMarketplaceCountDto> countDistinctMarketplacesByStore(
+            @Param("marketplaceStatus") MarketplaceStatusEnum marketplaceStatus
+    );
 }

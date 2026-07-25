@@ -9,6 +9,7 @@ import org.matchia.matchiabackend.entity.Module;
 import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 import org.matchia.matchiabackend.mapper.ModuleMapper;
 import org.matchia.matchiabackend.repository.ModuleRepository;
+import org.matchia.matchiabackend.repository.ModuleStoreRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class ModuleService {
 
     private final ModuleRepository moduleRepository;
+    private final ModuleStoreRepository moduleStoreRepository;
     private final ModuleMapper moduleMapper;
 
     // LIRE TOUT
@@ -50,6 +52,7 @@ public class ModuleService {
     }
 
     // METTRE À JOUR
+    @Transactional
     public ModuleDto updateModule(Long id, ModuleDto moduleDto) {
         // 1. On vérifie si le store existe
         Module existingModule = moduleRepository.findById(id)
@@ -63,8 +66,12 @@ public class ModuleService {
         existingModule.setStatus(moduleDto.getStatus());
         existingModule.setPrice(moduleDto.getPrice());
 
-        // 3. On sauvegarde
-        return moduleMapper.toDto(moduleRepository.save(existingModule));
+        // 3. Persist the global state and all related assignment deactivations atomically.
+        Module savedModule = moduleRepository.save(existingModule);
+        if (savedModule.getStatus() == ModuleStatusEnum.inactive) {
+            moduleStoreRepository.deactivateAssignmentsByModuleId(savedModule.getId());
+        }
+        return moduleMapper.toDto(savedModule);
     }
 
     public void deleteModule(Long id) {

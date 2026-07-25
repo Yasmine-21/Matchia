@@ -232,6 +232,11 @@ export function SaaSUsers() {
       return;
     }
 
+    if (password && password.length < 8) {
+      setCreateError('Le mot de passe doit contenir au moins 8 caractères.');
+      return;
+    }
+
     try {
       setIsCreating(true);
       setCreateError('');
@@ -588,6 +593,7 @@ export function SaaSUsers() {
               placeholder="********"
               value={userForm.password}
               onChange={(e) => setUserForm((prev) => ({ ...prev, password: e.target.value }))}
+              minLength={8}
             />
           </div>
           <div className="flex gap-3 pt-4">

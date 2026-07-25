@@ -4,10 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.MarketplaceBrandingDto;
 import org.matchia.matchiabackend.dto.MarketplaceConfigDto;
 import org.matchia.matchiabackend.dto.MarketplaceDto;
+import org.matchia.matchiabackend.dto.AuditLogRequest;
+import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
+import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
 import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.enums.MarketplaceStatusEnum;
 import org.matchia.matchiabackend.mapper.MarketplaceMapper;
 import org.matchia.matchiabackend.service.MarketplaceService;
+import org.matchia.matchiabackend.service.AuditLogger;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +32,7 @@ public class MarketplaceController {
 
     private final MarketplaceService service;
     private final MarketplaceMapper mapper;
+    private final AuditLogger auditLogger;
 
     @GetMapping
     public ResponseEntity<List<MarketplaceDto>> getAllMarketplaces() {
@@ -67,6 +72,7 @@ public class MarketplaceController {
     public ResponseEntity<MarketplaceDto> configureMarketplace(@RequestBody MarketplaceConfigDto dto) {
         try {
             Marketplace saved = service.configureMarketplace(dto);
+            audit("marketplace.configured", saved.getId());
             return new ResponseEntity<>(mapper.toDto(saved), HttpStatus.CREATED);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -103,6 +109,7 @@ public class MarketplaceController {
     public ResponseEntity<MarketplaceDto> updateMarketplace(@PathVariable Long id, @RequestBody MarketplaceConfigDto dto) {
         try {
             Marketplace saved = service.updateMarketplace(id, dto);
+            audit("marketplace.updated", id);
             return ResponseEntity.ok(mapper.toDto(saved));
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -118,6 +125,7 @@ public class MarketplaceController {
     ) {
         try {
             Marketplace saved = service.updateMarketplaceBranding(id, dto);
+            audit("marketplace.branding_updated", id);
             return ResponseEntity.ok(mapper.toDto(saved));
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -135,6 +143,7 @@ public class MarketplaceController {
             }
             MarketplaceStatusEnum status = MarketplaceStatusEnum.valueOf(statusValue.trim().toLowerCase());
             Marketplace saved = service.updateStatus(id, status);
+            audit("marketplace.status_updated", id);
             return ResponseEntity.ok(mapper.toDto(saved));
         } catch (IllegalArgumentException e) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
@@ -147,9 +156,23 @@ public class MarketplaceController {
     public ResponseEntity<Void> deleteMarketplace(@PathVariable Long id) {
         try {
             service.deleteById(id);
+            audit("marketplace.deleted", id);
             return ResponseEntity.noContent().build();
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+    }
+
+    private void audit(String action, Long marketplaceId) {
+        AuditLogRequest audit = new AuditLogRequest();
+        audit.setTenantId("saas");
+        audit.setAction(action);
+        audit.setCategory(AuditCategoryEnum.data_config);
+        audit.setResourceType("marketplace");
+        audit.setResourceId(marketplaceId != null ? String.valueOf(marketplaceId) : null);
+        audit.setMarketplaceId(marketplaceId != null ? String.valueOf(marketplaceId) : null);
+        audit.setStatus(AuditStatusEnum.success);
+        audit.setSource("SAAS_BACK_OFFICE");
+        auditLogger.logAsync(audit);
     }
 }

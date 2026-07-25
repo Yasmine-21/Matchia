@@ -4,5 +4,6 @@ public enum RequestTypeEnum {
     join,
     store,
     module,
-    subscription
+    subscription,
+    renewal
 }

@@ -10,6 +10,7 @@ export interface BankStoreRequestPayload {
   requestType: RequestDto['requestType'];
   bankName: string;
   bankEmail: string;
+  bankPhone?: string;
   country: string;
   website?: string;
   contactName: string;
@@ -36,6 +37,7 @@ const toFormData = (payload: RequestPayload) => {
 
   formData.append('bankName', payload.bankName);
   formData.append('bankEmail', payload.bankEmail);
+  formData.append('bankPhone', payload.bankPhone || '');
   formData.append('country', payload.country);
   formData.append('website', payload.website || '');
   formData.append('contactName', payload.contactName);

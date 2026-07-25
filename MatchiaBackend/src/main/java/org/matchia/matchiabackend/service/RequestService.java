@@ -21,7 +21,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.nio.file.*;
-import java.security.SecureRandom;
 import java.time.Year;
 import java.util.*;
 import java.util.regex.Pattern;
@@ -35,8 +34,6 @@ public class RequestService {
     private static final Pattern MARKETPLACE_SLUG_PATTERN = Pattern.compile("^[a-z0-9-]+$");
     private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("^#[0-9A-Fa-f]{6}$");
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
-    private static final String PASSWORD_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz23456789@#$%";
-    private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
     private final RequestRepository requestRepository;
     private final ObjectMapper objectMapper = new ObjectMapper();
@@ -51,6 +48,7 @@ public class RequestService {
     private final MarketplaceStoreModuleRepository marketplaceStoreModuleRepository;
     private final AuditLogger auditLogger;
     private final NotificationService notificationService;
+    private final BankAdminCredentialsService bankAdminCredentialsService;
 
     @Value("${app.upload.dir:uploads/logos}")
     private String uploadDir;
@@ -105,7 +103,7 @@ public class RequestService {
         Request request = new Request();
         applyRequestFields(request, dto, storeIds, moduleIds);
         applySelectionDetails(request, dto, storeIds, moduleIds);
-        request.setLogoUrl(hasText(dto.getLogoUrl()) ? dto.getLogoUrl() : null);
+        request.setLogoUrl(hasText(dto.getLogoUrl()) ? dto.getLogoUrl() : resolveBankLogo(request));
         request.setContactImageUrl(hasText(dto.getContactImageUrl()) ? dto.getContactImageUrl() : null);
 
         Request saved = requestRepository.save(request);
@@ -117,7 +115,7 @@ public class RequestService {
 
     @Transactional
     public Request createMultipartRequest(
-            String bankName, String bankEmail, MultipartFile logo,
+            String bankName, String bankEmail, String bankPhone, MultipartFile logo,
             MultipartFile banniere, String banniereUrl,
             String country, String website,
             String contactName, String contactEmail, String contactPhone,
@@ -132,6 +130,7 @@ public class RequestService {
         RequestDto dto = new RequestDto();
         dto.setBankName(bankName);
         dto.setBankEmail(bankEmail);
+        dto.setBankPhone(bankPhone);
         dto.setCountry(country);
         dto.setWebsite(website);
         dto.setContactName(contactName);
@@ -197,12 +196,20 @@ public class RequestService {
         request.setStatus(RequestStatusEnum.approved);
         request.setBank(bank);
         Request saved = requestRepository.save(request);
-        auditLogger.logAsync(requestAudit(saved, "join_request.approved", AuditCategoryEnum.billing, AuditStatusEnum.success, null));
+        String approvalAction = saved.getRequestType() == RequestTypeEnum.renewal
+                ? "subscription.renewal_request.approved" : "join_request.approved";
+        auditLogger.logAsync(requestAudit(saved, approvalAction, AuditCategoryEnum.billing, AuditStatusEnum.success, null));
         notificationService.createRequestApprovedNotification(saved);
 
-        if (request.getRequestType() != RequestTypeEnum.subscription) {
+        if (request.getRequestType() == RequestTypeEnum.renewal) {
+            paymentService.createPaymentForApprovedRenewalRequest(saved);
+            notificationService.createBankRenewalApprovedNotification(saved);
+        } else if (request.getRequestType() != RequestTypeEnum.subscription) {
             String paymentLink = paymentService.initiatePayment(saved);
             emailService.sendPaymentInstructions(saved, paymentLink);
+            if (saved.getBank() != null) {
+                notificationService.createBankRequestApprovedNotification(saved);
+            }
         }
         return saved;
     }
@@ -221,7 +228,9 @@ public class RequestService {
         request.setStatus(RequestStatusEnum.rejected);
         request.setRejectionReason(normalizeRejectionReason(rejectionReason));
         Request saved = requestRepository.save(request);
-        auditLogger.logAsync(requestAudit(saved, "join_request.rejected", AuditCategoryEnum.core, AuditStatusEnum.success,
+        String rejectionAction = saved.getRequestType() == RequestTypeEnum.renewal
+                ? "subscription.renewal_request.rejected" : "join_request.rejected";
+        auditLogger.logAsync(requestAudit(saved, rejectionAction, AuditCategoryEnum.core, AuditStatusEnum.success,
                 buildRejectionAuditDiff(saved.getRejectionReason())));
 
         notificationService.createRequestRejectedNotification(saved, saved.getRejectionReason());
@@ -253,6 +262,12 @@ public class RequestService {
                 "{\"before\":{\"status\":\"" + before + "\"},\"after\":{\"status\":\"" + status + "\"}}"));
         if (status == RequestStatusEnum.approved) {
             notificationService.createRequestApprovedNotification(saved);
+            if (saved.getRequestType() == RequestTypeEnum.renewal) {
+                paymentService.createPaymentForApprovedRenewalRequest(saved);
+                notificationService.createBankRenewalApprovedNotification(saved);
+            } else if (saved.getBank() != null) {
+                notificationService.createBankRequestApprovedNotification(saved);
+            }
         } else if (status == RequestStatusEnum.rejected) {
             notificationService.createRequestRejectedNotification(saved, saved.getRejectionReason());
             if (requiresBankNotification(saved)) {
@@ -276,12 +291,16 @@ public class RequestService {
         Request request = findOrThrow(requestId);
         log.info("Provisionnement de la banque '{}' en cours...", request.getBankName());
 
+        boolean paymentWasAlreadyCompleted = paymentService.isRequestPaymentAlreadyPaid(requestId);
         paymentService.markRequestPaymentPaid(requestId);
         if (request.getRequestType() == RequestTypeEnum.store) {
             return request.getBank();
         }
 
         Bank bank = provisionApprovedRequest(request);
+        if (!paymentWasAlreadyCompleted) {
+            bankAdminCredentialsService.issueAfterSuccessfulMarketplacePayment(request);
+        }
         log.info("Banque '{}' provisionnee avec succes.", bank.getName());
         return bank;
     }
@@ -309,6 +328,7 @@ public class RequestService {
         request.setCreatedBy(hasText(dto.getCreatedBy()) ? dto.getCreatedBy() : "public_join_form");
         request.setBankName(dto.getBankName());
         request.setBankEmail(dto.getBankEmail());
+        request.setBankPhone(dto.getBankPhone());
         request.setCountry(dto.getCountry());
         request.setWebsite(dto.getWebsite());
         request.setContactName(dto.getContactName());
@@ -381,7 +401,9 @@ public class RequestService {
     }
 
     private void attachExistingBankIfNeeded(Request request, RequestDto dto, RequestTypeEnum requestType) {
-        if (requestType != RequestTypeEnum.store && requestType != RequestTypeEnum.subscription) {
+        if (requestType != RequestTypeEnum.store
+                && requestType != RequestTypeEnum.module
+                && requestType != RequestTypeEnum.subscription) {
             return;
         }
 
@@ -397,27 +419,38 @@ public class RequestService {
 
     private Bank resolveOrCreateBank(Request request) {
         if (request.getBank() != null && request.getBank().getId() != null) {
-            return request.getBank();
+            return updateBankPhone(request.getBank(), request.getBankPhone());
         }
 
         String slug = hasText(request.getMarketplaceSlug()) ? request.getMarketplaceSlug() : toSlug(request.getBankName());
-        return bankRepository.findBySlug(slug)
-                .orElseGet(() -> {
-                    Bank bank = new Bank();
-                    bank.setName(request.getBankName());
-                    bank.setSlug(slug);
-                    bank.setLogoUrl(request.getLogoUrl());
-                    bank.setCountry(request.getCountry());
-                    bank.setWebsiteUrl(request.getWebsite());
-                    bank.setEmail(request.getBankEmail());
-                    bank.setDescription(hasText(request.getBankDescription())
-                            ? request.getBankDescription()
-                            : "Marketplace de la banque " + request.getBankName());
-                    bank.setEstablishedYear(request.getEstablishmentYear());
-                    bank.setStatus(BankStatusEnum.active);
-                    bank.setTotalUsers(1);
-                    return bankRepository.save(bank);
-                });
+        var existingBank = bankRepository.findBySlug(slug);
+        if (existingBank.isPresent()) {
+            return updateBankPhone(existingBank.get(), request.getBankPhone());
+        }
+
+        Bank bank = new Bank();
+        bank.setName(request.getBankName());
+        bank.setSlug(slug);
+        bank.setLogoUrl(request.getLogoUrl());
+        bank.setCountry(request.getCountry());
+        bank.setWebsiteUrl(request.getWebsite());
+        bank.setEmail(request.getBankEmail());
+        bank.setPhone(request.getBankPhone());
+        bank.setDescription(hasText(request.getBankDescription())
+                ? request.getBankDescription()
+                : "Marketplace de la banque " + request.getBankName());
+        bank.setEstablishedYear(request.getEstablishmentYear());
+        bank.setStatus(BankStatusEnum.active);
+        bank.setTotalUsers(1);
+        return bankRepository.save(bank);
+    }
+
+    private Bank updateBankPhone(Bank bank, String bankPhone) {
+        if (!hasText(bankPhone) || bankPhone.equals(bank.getPhone())) {
+            return bank;
+        }
+        bank.setPhone(bankPhone);
+        return bankRepository.save(bank);
     }
 
     private Marketplace createMarketplace(Bank bank, Request request) {
@@ -546,15 +579,18 @@ public class RequestService {
     private AuditLogRequest requestAudit(Request request, String action, AuditCategoryEnum category, AuditStatusEnum status, String diff) {
         AuditLogRequest audit = new AuditLogRequest();
         audit.setTenantId("saas");
-        audit.setActorId(request.getContactEmail());
-        audit.setActorName(request.getContactName());
-        audit.setActorRole("bank_contact");
         audit.setAction(action);
         audit.setCategory(category);
-        audit.setResourceType("join_request");
+        audit.setResourceType(request.getRequestType() != null ? request.getRequestType().name().toLowerCase() + "_request" : "request");
         audit.setResourceId(request.getId() != null ? String.valueOf(request.getId()) : null);
         audit.setStatus(status);
         audit.setDiff(diff);
+        audit.setAffectedUserName(request.getContactName());
+        audit.setEmailRecipient(request.getContactEmail());
+        audit.setBankId(request.getBank() != null && request.getBank().getId() != null ? String.valueOf(request.getBank().getId()) : null);
+        audit.setMarketplaceId(request.getBank() != null && request.getBank().getMarketplace() != null
+                && request.getBank().getMarketplace().getId() != null ? String.valueOf(request.getBank().getMarketplace().getId()) : null);
+        audit.setCorrelationId(request.getId() != null ? "request-" + request.getId() : null);
         audit.setMetadata("{\"bankName\":\"" + safeJson(request.getBankName()) + "\",\"marketplaceSlug\":\"" + safeJson(request.getMarketplaceSlug()) + "\"}");
         return audit;
     }
@@ -563,7 +599,7 @@ public class RequestService {
         return value == null ? "" : value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
-    private void createAdminUser(Bank bank, Request request) {
+    private User createAdminUser(Bank bank, Request request) {
         String email = hasText(request.getContactEmail()) ? request.getContactEmail() : request.getBankEmail();
         Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
@@ -577,11 +613,7 @@ public class RequestService {
             }
             user.setRole(RoleEnum.ADMIN_BANK);
             user.setStatus(UserStatusEnum.active);
-            if (!hasText(user.getPassword())) {
-                user.setPassword(generateTemporaryPassword()); // TODO: encoder avec BCrypt
-            }
-            userRepository.save(user);
-            return;
+            return userRepository.save(user);
         }
 
         log.info("Creation utilisateur admin banque pour '{}'.", email);
@@ -593,16 +625,7 @@ public class RequestService {
         admin.setContactImageUrl(request.getContactImageUrl());
         admin.setRole(RoleEnum.ADMIN_BANK);
         admin.setStatus(UserStatusEnum.active);
-        admin.setPassword(generateTemporaryPassword()); // TODO: encoder avec BCrypt
-        userRepository.save(admin);
-    }
-
-    private String generateTemporaryPassword() {
-        StringBuilder password = new StringBuilder();
-        for (int index = 0; index < 12; index++) {
-            password.append(PASSWORD_CHARS.charAt(SECURE_RANDOM.nextInt(PASSWORD_CHARS.length())));
-        }
-        return password.toString();
+        return userRepository.save(admin);
     }
 
     private void assignStoresAndModules(Marketplace marketplace, Request request) {
@@ -650,7 +673,8 @@ public class RequestService {
         }
         return request.getRequestType() == RequestTypeEnum.store
                 || request.getRequestType() == RequestTypeEnum.module
-                || request.getRequestType() == RequestTypeEnum.subscription;
+                || request.getRequestType() == RequestTypeEnum.subscription
+                || request.getRequestType() == RequestTypeEnum.renewal;
     }
 
     private void sendRejectionEmail(Request request, String rejectionReason) {
@@ -672,7 +696,7 @@ public class RequestService {
             emailService.sendModuleRequestRejectedEmail(request, rejectionReason);
             return;
         }
-        if (requestType == RequestTypeEnum.subscription) {
+        if (requestType == RequestTypeEnum.subscription || requestType == RequestTypeEnum.renewal) {
             emailService.sendSubscriptionRequestRejectedEmail(request, rejectionReason);
             return;
         }
@@ -771,8 +795,17 @@ public class RequestService {
     }
 
     private void initializeRequestSelections(Request request) {
+        if (request.getBank() != null) {
+            Hibernate.initialize(request.getBank());
+        }
         Hibernate.initialize(request.getSelectedStoreDetails());
         request.getSelectedStoreDetails().forEach(store -> Hibernate.initialize(store.getModules()));
+    }
+
+    private String resolveBankLogo(Request request) {
+        return request != null && request.getBank() != null && hasText(request.getBank().getLogoUrl())
+                ? request.getBank().getLogoUrl()
+                : null;
     }
 
     private String toSlug(String value) {

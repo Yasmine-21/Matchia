@@ -2,13 +2,17 @@ package org.matchia.matchiabackend.service;
 
 import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.StoreDto;
+import org.matchia.matchiabackend.dto.StoreMarketplaceCountDto;
 import org.matchia.matchiabackend.entity.Store;
+import org.matchia.matchiabackend.entity.enums.MarketplaceStatusEnum;
 import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 import org.matchia.matchiabackend.entity.enums.StoreStatusEnum;
 import org.matchia.matchiabackend.mapper.StoreMapper;
 import org.matchia.matchiabackend.repository.ModuleStoreRepository;
+import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
 import org.matchia.matchiabackend.repository.StoreRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -21,6 +25,7 @@ public class StoreService {
     private final StoreRepository storeRepository;
     private final StoreMapper storeMapper;
     private final ModuleStoreRepository moduleStoreRepository;
+    private final MarketplaceStoreRepository marketplaceStoreRepository;
 
     public List<StoreDto> getAllStores() {
         return getAllStores(null);
@@ -39,6 +44,11 @@ public class StoreService {
                     return dto;
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<StoreMarketplaceCountDto> getDistinctMarketplaceCountsByStore() {
+        return marketplaceStoreRepository.countDistinctMarketplacesByStore(MarketplaceStatusEnum.active);
     }
 
     public StoreDto createStore(StoreDto storeDto) {

@@ -2,6 +2,7 @@ package org.matchia.matchiabackend.repository;
 
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.enums.RequestStatusEnum;
+import org.matchia.matchiabackend.entity.enums.RequestTypeEnum;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
@@ -13,4 +14,5 @@ public interface RequestRepository extends JpaRepository<Request,Long> {
     List<Request> findByStatusOrderByCreatedAtDesc(RequestStatusEnum status);
     List<Request> findByBank_IdOrderByCreatedAtDesc(Long bankId);
     Optional<Request> findFirstByMarketplaceSlugIgnoreCaseAndStatusOrderByUpdatedAtDesc(String marketplaceSlug, RequestStatusEnum status);
+    boolean existsBySubscription_IdAndRequestTypeAndStatus(Long subscriptionId, RequestTypeEnum requestType, RequestStatusEnum status);
 }

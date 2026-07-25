@@ -51,8 +51,6 @@ public class ModuleController {
     private AuditLogRequest audit(String action, String resourceId, AuditStatusEnum status, HttpServletRequest request) {
         AuditLogRequest audit = new AuditLogRequest();
         audit.setTenantId("saas");
-        audit.setActorName("Admin");
-        audit.setActorRole("ADMIN_SAAS");
         audit.setAction(action);
         audit.setCategory(AuditCategoryEnum.data_config);
         audit.setResourceType("module");
@@ -60,6 +58,7 @@ public class ModuleController {
         audit.setStatus(status);
         audit.setIpAddress(request.getRemoteAddr());
         audit.setUserAgent(request.getHeader("User-Agent"));
+        audit.setSource("SAAS_BACK_OFFICE");
         return audit;
     }
 }

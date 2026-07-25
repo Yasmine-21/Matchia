@@ -9,6 +9,7 @@ public class AuditLogRequest {
     private String tenantId;
     private String actorId;
     private String actorName;
+    private String actorEmail;
     private String actorRole;
     private String action;
     private AuditCategoryEnum category;
@@ -19,4 +20,11 @@ public class AuditLogRequest {
     private String userAgent;
     private String diff;
     private String metadata;
+    private String affectedUserId;
+    private String affectedUserName;
+    private String bankId;
+    private String marketplaceId;
+    private String emailRecipient;
+    private String source;
+    private String correlationId;
 }

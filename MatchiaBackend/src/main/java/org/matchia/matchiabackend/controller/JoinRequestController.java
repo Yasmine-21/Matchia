@@ -61,6 +61,7 @@ public class JoinRequestController {
             @RequestParam(value = "banniereUrl", required = false) String banniereUrl,
             @RequestParam("bankName") String bankName,
             @RequestParam("bankEmail") String bankEmail,
+            @RequestParam(value = "bankPhone", required = false) String bankPhone,
             @RequestParam("country") String country,
             @RequestParam(value = "website", required = false) String website,
             @RequestParam("contactName") String contactName,
@@ -81,7 +82,7 @@ public class JoinRequestController {
     ) {
         try {
             Request request = requestService.createMultipartRequest(
-                    bankName, bankEmail, logo, banniere, banniereUrl, country, website,
+                    bankName, bankEmail, bankPhone, logo, banniere, banniereUrl, country, website,
                     contactName, contactEmail, contactPhone, contactImage,
                     description, bankDescription, establishmentYear,
                     selectedStores, selectedModules != null ? selectedModules : "[]",
@@ -171,6 +172,7 @@ public class JoinRequestController {
         dto.setCreatedBy(asString(payload.get("createdBy")));
         dto.setBankName(asString(payload.get("bankName")));
         dto.setBankEmail(asString(payload.get("bankEmail")));
+        dto.setBankPhone(asString(payload.get("bankPhone")));
         dto.setCountry(asString(payload.get("country")));
         dto.setWebsite(asString(payload.get("website")));
         dto.setLogoUrl(asString(payload.get("logoUrl")));

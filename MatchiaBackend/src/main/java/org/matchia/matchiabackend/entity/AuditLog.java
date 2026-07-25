@@ -31,6 +31,9 @@ public class AuditLog {
     @Column(name = "actor_name")
     private String actorName;
 
+    @Column(name = "actor_email")
+    private String actorEmail;
+
     @Column(name = "actor_role")
     private String actorRole;
 
@@ -62,6 +65,27 @@ public class AuditLog {
 
     @Column(columnDefinition = "TEXT")
     private String metadata;
+
+    @Column(name = "affected_user_id")
+    private String affectedUserId;
+
+    @Column(name = "affected_user_name")
+    private String affectedUserName;
+
+    @Column(name = "bank_id")
+    private String bankId;
+
+    @Column(name = "marketplace_id")
+    private String marketplaceId;
+
+    @Column(name = "email_recipient")
+    private String emailRecipient;
+
+    @Column(name = "source")
+    private String source;
+
+    @Column(name = "correlation_id")
+    private String correlationId;
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)

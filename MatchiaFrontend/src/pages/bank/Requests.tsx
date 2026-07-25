@@ -22,9 +22,11 @@ const requestTypeLabel: Record<RequestType, string> = {
   store: 'Demande de store',
   module: 'Demande de module',
   subscription: "Renouvellement d'abonnement",
+  renewal: "Renouvellement d'abonnement",
 };
 
-const isSubscriptionRequest = (request?: RequestDto | null) => request?.requestType === 'subscription';
+const isSubscriptionRequest = (request?: RequestDto | null) =>
+  request?.requestType === 'subscription' || request?.requestType === 'renewal';
 
 const statusVariant = (status: RequestStatus) => (
   status === 'pending' ? 'warning' : status === 'approved' ? 'success' : 'danger'
@@ -80,7 +82,7 @@ export function BankRequests() {
       setRequests(
         response.data.filter((request) =>
           request.requestType === 'store' || request.requestType === 'module'
-          || request.requestType === 'subscription'
+          || request.requestType === 'subscription' || request.requestType === 'renewal'
         ),
       );
     } catch (loadError) {

@@ -6,6 +6,7 @@ import org.matchia.matchiabackend.entity.User;
 import org.matchia.matchiabackend.mapper.UserMapper;
 import org.matchia.matchiabackend.repository.BankRepository;
 import org.matchia.matchiabackend.service.UserService;
+import org.matchia.matchiabackend.service.PasswordService;
 import org.matchia.matchiabackend.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -34,23 +35,31 @@ public class UserController {
     private final UserMapper mapper;
     private final BankRepository bankRepository;
     private final JwtUtil jwtUtil;
+    private final PasswordService passwordService;
 
     @Value("${app.upload.dir:uploads/logos}")
     private String uploadDir;
 
-    public UserController(UserService service, UserMapper mapper, BankRepository bankRepository, JwtUtil jwtUtil) {
+    public UserController(UserService service, UserMapper mapper, BankRepository bankRepository, JwtUtil jwtUtil, PasswordService passwordService) {
         this.service = service;
         this.mapper = mapper;
         this.bankRepository = bankRepository;
         this.jwtUtil = jwtUtil;
+        this.passwordService = passwordService;
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> create(@RequestBody UserDto dto, HttpServletRequest request) {
+    public ResponseEntity<?> create(@RequestBody UserDto dto, HttpServletRequest request) {
+        String encodedPassword;
+        try {
+            encodedPassword = passwordService.encode(dto.getPassword());
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+        }
         User entity = mapper.toEntity(dto);
         Bank bank = resolveBank(dto.getBankId());
         if (bank == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(Map.of("message", "La banque selectionnee est introuvable."));
         }
         String tenantBankSlug = resolveTenantBankSlug(request);
         if (tenantBankSlug != null && (bank.getSlug() == null || !tenantBankSlug.equals(bank.getSlug()))) {
@@ -63,6 +72,7 @@ public class UserController {
         if (entity.getStatus() == null) {
             entity.setStatus(org.matchia.matchiabackend.entity.enums.UserStatusEnum.active);
         }
+        entity.setPassword(encodedPassword);
         User savedEntity = service.save(entity);
         return new ResponseEntity<>(mapper.toDto(savedEntity), HttpStatus.CREATED);
     }
@@ -98,7 +108,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody UserDto dto, HttpServletRequest request) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UserDto dto, HttpServletRequest request) {
         String tenantBankSlug = resolveTenantBankSlug(request);
         Optional<User> existingUser = service.findDetailedByIdAndBankSlug(id, tenantBankSlug);
         if (existingUser.isEmpty()) {
@@ -108,7 +118,7 @@ public class UserController {
         User entity = existingUser.get();
         Bank bank = resolveBank(dto.getBankId());
         if (bank == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+            return ResponseEntity.badRequest().body(Map.of("message", "La banque selectionnee est introuvable."));
         }
         if (tenantBankSlug != null && (bank.getSlug() == null || !tenantBankSlug.equals(bank.getSlug()))) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
@@ -134,7 +144,11 @@ public class UserController {
             entity.setStatus(dto.getStatus());
         }
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
-            entity.setPassword(dto.getPassword());
+            try {
+                entity.setPassword(passwordService.encode(dto.getPassword()));
+            } catch (IllegalArgumentException exception) {
+                return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
+            }
         }
 
         User updatedEntity = service.save(entity);

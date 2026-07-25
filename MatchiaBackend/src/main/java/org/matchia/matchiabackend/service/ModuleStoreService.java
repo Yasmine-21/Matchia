@@ -79,7 +79,8 @@ public class ModuleStoreService {
         ModuleStore moduleStore = new ModuleStore();
         moduleStore.setStore(store);
         moduleStore.setModule(module);
-        moduleStore.setActif(request.getActif() != null ? request.getActif() : true);
+        moduleStore.setActif(module.getStatus() == ModuleStatusEnum.active
+                && (request.getActif() == null || request.getActif()));
         moduleStore.setOrdre(request.getOrdre() != null ? request.getOrdre() : 0);
         moduleStore.setPrice(validatePrice(request.getPrice(), "Le prix du module est requis et doit etre superieur ou egal a 0."));
 
@@ -121,6 +122,7 @@ public class ModuleStoreService {
     public ModuleStoreResponseDto toggleModule(Long storeId, Long moduleId, boolean actif) {
         ModuleStore ms = moduleStoreRepository.findByStoreIdAndModuleId(storeId, moduleId)
                 .orElseThrow(() -> new RuntimeException("Assignation non trouvée pour storeId: " + storeId + " et moduleId: " + moduleId));
+        ensureGloballyActiveBeforeActivation(ms, actif);
         ms.setActif(actif);
         return moduleStoreMapper.toDto(moduleStoreRepository.save(ms));
     }
@@ -139,6 +141,7 @@ public class ModuleStoreService {
     public ModuleStoreResponseDto updateModuleStore(Long id, ModuleStore details) {
         ModuleStore ms = moduleStoreRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("ModuleStore non trouvé avec l'id : " + id));
+        ensureGloballyActiveBeforeActivation(ms, Boolean.TRUE.equals(details.getActif()));
         ms.setActif(details.getActif());
         ms.setOrdre(details.getOrdre());
         if (details.getPrice() != null) {
@@ -253,6 +256,13 @@ public class ModuleStoreService {
 
     private boolean hasText(String value) {
         return value != null && !value.isBlank();
+    }
+
+    private void ensureGloballyActiveBeforeActivation(ModuleStore moduleStore, boolean requestedActive) {
+        if (requestedActive && moduleStore.getModule() != null
+                && moduleStore.getModule().getStatus() != ModuleStatusEnum.active) {
+            throw new IllegalArgumentException("Un module globalement inactif ne peut pas etre active dans un store.");
+        }
     }
 
     private String normalizeParameterValue(String value) {

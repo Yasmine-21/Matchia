@@ -95,6 +95,7 @@ public class RequestController {
             @RequestParam(value = "banniereUrl", required = false) String banniereUrl,
             @RequestParam("bankName") String bankName,
             @RequestParam("bankEmail") String bankEmail,
+            @RequestParam(value = "bankPhone", required = false) String bankPhone,
             @RequestParam("country") String country,
             @RequestParam(value = "website", required = false) String website,
             @RequestParam("contactName") String contactName,
@@ -115,7 +116,7 @@ public class RequestController {
     ) {
         try {
             Request entity = service.createMultipartRequest(
-                    bankName, bankEmail, logo, banniere, banniereUrl, country, website,
+                    bankName, bankEmail, bankPhone, logo, banniere, banniereUrl, country, website,
                     contactName, contactEmail, contactPhone, contactImage,
                     description, bankDescription, establishmentYear,
                     selectedStores, selectedModules != null ? selectedModules : "[]",

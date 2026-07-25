@@ -59,6 +59,7 @@ export function JoinPage() {
   const [formData, setFormData] = useState({
     bankName: '',
     bankEmail: '',
+    bankPhone: '',
     country: 'Tunisie',
     website: '',
     bankDescription: '',
@@ -226,6 +227,7 @@ export function JoinPage() {
     const errors: Record<string, string> = {};
     const bankName = formData.bankName.trim();
     const bankEmail = formData.bankEmail.trim();
+    const bankPhone = formData.bankPhone.trim();
     const website = formData.website.trim();
     const bankDescription = formData.bankDescription.trim();
     const currentYear = new Date().getFullYear();
@@ -236,6 +238,9 @@ export function JoinPage() {
     }
     if (!bankEmail) {
       errors.bankEmail = "L'email de la banque est obligatoire.";
+    }
+    if (!bankPhone) {
+      errors.bankPhone = 'Le téléphone de la banque est obligatoire.';
     }
     if (!website) {
       errors.website = "L'URL du site web est obligatoire.";
@@ -340,7 +345,7 @@ export function JoinPage() {
   });
 
   const getFirstInvalidStep = (errors: Record<string, string>) => {
-    const bankFields = ['bankName', 'bankEmail', 'country', 'website', 'bankDescription', 'establishmentYear', 'logo'];
+    const bankFields = ['bankName', 'bankEmail', 'bankPhone', 'country', 'website', 'bankDescription', 'establishmentYear', 'logo'];
     const contactFields = ['contactName', 'email', 'phone', 'contactImage'];
     const marketplaceFields = ['marketplaceSlug', 'marketplaceDescription', 'primaryColor', 'secondaryColor', 'banniere'];
 
@@ -490,6 +495,7 @@ export function JoinPage() {
       await requestService.createRequest({
         bankName: formData.bankName,
         bankEmail: formData.bankEmail,
+        bankPhone: formData.bankPhone,
         country: formData.country,
         website: formData.website,
         description: formData.bankDescription.trim(),
@@ -585,12 +591,25 @@ export function JoinPage() {
                   }} />
                   {formErrors.bankName && <p className="join-error-text">{formErrors.bankName}</p>}
                 </div>
-                <div>
-                  <Input label="Email de la banque" type="email" placeholder="contact@banque.tn" value={formData.bankEmail} onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, bankEmail: e.target.value }));
-                    setFormErrors((prev) => ({ ...prev, bankEmail: '' }));
-                  }} />
-                  {formErrors.bankEmail && <p className="join-error-text">{formErrors.bankEmail}</p>}
+                <div className="join-form-grid">
+                  <div>
+                    <Input label="Email de la banque" type="email" placeholder="contact@banque.tn" value={formData.bankEmail} onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, bankEmail: e.target.value }));
+                      setFormErrors((prev) => ({ ...prev, bankEmail: '' }));
+                    }} />
+                    {formErrors.bankEmail && <p className="join-error-text">{formErrors.bankEmail}</p>}
+                  </div>
+                  <Input
+                    label="Téléphone de la banque"
+                    type="tel"
+                    placeholder="+216 70 000 000"
+                    value={formData.bankPhone}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, bankPhone: e.target.value }));
+                      setFormErrors((prev) => ({ ...prev, bankPhone: '' }));
+                    }}
+                  />
+                  {formErrors.bankPhone && <p className="join-error-text">{formErrors.bankPhone}</p>}
                 </div>
                 <div className="join-form-grid">
                   <Select
@@ -1063,6 +1082,7 @@ export function JoinPage() {
                     <div className="join-review-list">
                       <div className="join-review-item"><span className="join-review-label">Banque :</span><span className="join-upload-filename">{formData.bankName || '-'}</span></div>
                       <div className="join-review-item"><span className="join-review-label">Email banque :</span><span className="join-upload-filename">{formData.bankEmail || '-'}</span></div>
+                      <div className="join-review-item"><span className="join-review-label">Téléphone banque :</span><span className="join-upload-filename">{formData.bankPhone || '-'}</span></div>
                       <div className="join-review-item"><span className="join-review-label">Pays :</span><span className="join-upload-filename">{formData.country}</span></div>
                       <div className="join-review-item"><span className="join-review-label">Site web :</span><span className="join-upload-filename">{formData.website || '-'}</span></div>
                       <div className="join-review-item"><span className="join-review-label">Annee :</span><span className="join-upload-filename">{formData.establishmentYear || '-'}</span></div>

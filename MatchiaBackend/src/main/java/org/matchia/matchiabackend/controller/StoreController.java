@@ -3,6 +3,7 @@ package org.matchia.matchiabackend.controller;
 import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.AuditLogRequest;
 import org.matchia.matchiabackend.dto.StoreDto;
+import org.matchia.matchiabackend.dto.StoreMarketplaceCountDto;
 import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
 import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
 import org.matchia.matchiabackend.entity.enums.StoreStatusEnum;
@@ -29,6 +30,11 @@ public class StoreController {
             @RequestParam(value = "status", required = false) StoreStatusEnum status
     ) {
         return ResponseEntity.ok(storeService.getAllStores(status));
+    }
+
+    @GetMapping("/marketplace-counts")
+    public ResponseEntity<List<StoreMarketplaceCountDto>> getMarketplaceCounts() {
+        return ResponseEntity.ok(storeService.getDistinctMarketplaceCountsByStore());
     }
 
     @PostMapping
@@ -64,8 +70,6 @@ public class StoreController {
     private AuditLogRequest audit(String action, String resourceType, String resourceId, AuditStatusEnum status, HttpServletRequest request) {
         AuditLogRequest audit = new AuditLogRequest();
         audit.setTenantId("saas");
-        audit.setActorName("Admin");
-        audit.setActorRole("ADMIN_SAAS");
         audit.setAction(action);
         audit.setCategory(AuditCategoryEnum.data_config);
         audit.setResourceType(resourceType);
@@ -73,6 +77,7 @@ public class StoreController {
         audit.setStatus(status);
         audit.setIpAddress(request.getRemoteAddr());
         audit.setUserAgent(request.getHeader("User-Agent"));
+        audit.setSource("SAAS_BACK_OFFICE");
         return audit;
     }
 }

@@ -11,6 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CreatePaymentIntentRequest {
     private Long requestId;
+    private Long paymentId;
     private String bankName;
     private BigDecimal amount;
     private String currency;

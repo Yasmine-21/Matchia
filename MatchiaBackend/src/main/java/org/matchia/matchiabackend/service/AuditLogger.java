@@ -2,7 +2,6 @@ package org.matchia.matchiabackend.service;
 
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.AuditLogDto;
 import org.matchia.matchiabackend.dto.AuditLogRequest;
 import org.matchia.matchiabackend.dto.AuditStatsDto;
@@ -14,7 +13,6 @@ import org.matchia.matchiabackend.repository.AuditLogRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,23 +21,23 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class AuditLogger {
 
     private final AuditLogRepository auditLogRepository;
     private final AuditLogMapper auditLogMapper;
+    private final AuditActorResolver auditActorResolver;
+    private final AuditLogAsyncWriter auditLogAsyncWriter;
 
-    @Async
     public void logAsync(AuditLogRequest request) {
-        try {
-            auditLogRepository.save(auditLogMapper.toEntity(request));
-        } catch (Exception error) {
-            log.warn("Audit log ignored: {}", error.getMessage());
-        }
+        auditLogAsyncWriter.write(auditActorResolver.resolve(request));
     }
 
     public AuditLog log(AuditLogRequest request) {
-        return auditLogRepository.save(auditLogMapper.toEntity(request));
+        return auditLogRepository.save(auditLogMapper.toEntity(auditActorResolver.resolve(request)));
+    }
+
+    public void logSystemAsync(AuditLogRequest request, String source) {
+        auditLogAsyncWriter.write(auditActorResolver.systemEvent(request, source));
     }
 
     public Page<AuditLogDto> search(
@@ -74,18 +72,22 @@ public class AuditLogger {
     }
 
     public String exportCsv(List<AuditLogDto> logs) {
-        StringBuilder csv = new StringBuilder("id,createdAt,tenantId,actorName,actorRole,action,category,resourceType,resourceId,status,ipAddress\n");
+        StringBuilder csv = new StringBuilder("id,createdAt,tenantId,actorId,actorName,actorEmail,actorRole,action,category,resourceType,resourceId,status,source,emailRecipient,ipAddress\n");
         for (AuditLogDto log : logs) {
             csv.append(escape(log.getId()))
                     .append(',').append(escape(log.getCreatedAt()))
                     .append(',').append(escape(log.getTenantId()))
+                    .append(',').append(escape(log.getActorId()))
                     .append(',').append(escape(log.getActorName()))
+                    .append(',').append(escape(log.getActorEmail()))
                     .append(',').append(escape(log.getActorRole()))
                     .append(',').append(escape(log.getAction()))
                     .append(',').append(escape(log.getCategory()))
                     .append(',').append(escape(log.getResourceType()))
                     .append(',').append(escape(log.getResourceId()))
                     .append(',').append(escape(log.getStatus()))
+                    .append(',').append(escape(log.getSource()))
+                    .append(',').append(escape(log.getEmailRecipient()))
                     .append(',').append(escape(log.getIpAddress()))
                     .append('\n');
         }

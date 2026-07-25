@@ -2,7 +2,10 @@ package org.matchia.matchiabackend.repository;
 
 import org.matchia.matchiabackend.entity.ModuleStore;
 import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
@@ -31,5 +34,24 @@ public interface ModuleStoreRepository extends JpaRepository<ModuleStore, Long> 
     void deleteByStoreIdAndModuleId(Long storeId, Long moduleId);
 
     long countByStoreIdAndActifTrueAndModuleStatus(Long storeId, ModuleStatusEnum status);
+
+    /** Disables every store assignment for a globally inactive module in the caller's transaction. */
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+            update ModuleStore moduleStore
+            set moduleStore.actif = false
+            where moduleStore.module.id = :moduleId
+              and (moduleStore.actif = true or moduleStore.actif is null)
+            """)
+    int deactivateAssignmentsByModuleId(@Param("moduleId") Long moduleId);
+
+    @Modifying(flushAutomatically = true, clearAutomatically = true)
+    @Query("""
+            update ModuleStore moduleStore
+            set moduleStore.actif = false
+            where moduleStore.module.status = :moduleStatus
+              and (moduleStore.actif = true or moduleStore.actif is null)
+            """)
+    int deactivateAssignmentsForModulesWithStatus(@Param("moduleStatus") ModuleStatusEnum moduleStatus);
 
 }

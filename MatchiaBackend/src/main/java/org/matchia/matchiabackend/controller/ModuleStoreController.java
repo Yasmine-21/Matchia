@@ -2,8 +2,12 @@ package org.matchia.matchiabackend.controller;
 
 import org.matchia.matchiabackend.dto.ModuleStoreRequest;
 import org.matchia.matchiabackend.dto.ModuleStoreResponseDto;
+import org.matchia.matchiabackend.dto.AuditLogRequest;
 import org.matchia.matchiabackend.entity.ModuleStore;
 import org.matchia.matchiabackend.entity.ModuleStoreParameter;
+import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
+import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
+import org.matchia.matchiabackend.service.AuditLogger;
 import org.matchia.matchiabackend.service.ModuleStoreService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,9 +23,11 @@ import java.util.Map;
 public class ModuleStoreController {
 
     private final ModuleStoreService moduleStoreService;
+    private final AuditLogger auditLogger;
 
-    public ModuleStoreController(ModuleStoreService moduleStoreService) {
+    public ModuleStoreController(ModuleStoreService moduleStoreService, AuditLogger auditLogger) {
         this.moduleStoreService = moduleStoreService;
+        this.auditLogger = auditLogger;
     }
 
     @GetMapping("/store/{storeId}")
@@ -49,10 +55,9 @@ public class ModuleStoreController {
     public ResponseEntity<ModuleStoreResponseDto> assignFull(@RequestBody ModuleStoreRequest request) {
 
         try {
-            return new ResponseEntity<>(
-                    moduleStoreService.assignFullModuleToStore(request),
-                    HttpStatus.CREATED
-            );
+            ModuleStoreResponseDto assignment = moduleStoreService.assignFullModuleToStore(request);
+            audit("module_store.assigned", assignment.getId());
+            return new ResponseEntity<>(assignment, HttpStatus.CREATED);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -67,7 +72,13 @@ public class ModuleStoreController {
             @PathVariable Long moduleId,
             @RequestBody Map<String, Boolean> payload) {
         boolean actif = payload.getOrDefault("actif", true);
-        return ResponseEntity.ok(moduleStoreService.toggleModule(storeId, moduleId, actif));
+        try {
+            ModuleStoreResponseDto assignment = moduleStoreService.toggleModule(storeId, moduleId, actif);
+            audit("module_store.activation_updated", assignment.getId());
+            return ResponseEntity.ok(assignment);
+        } catch (IllegalArgumentException exception) {
+            return ResponseEntity.badRequest().build();
+        }
     }
 
     // Mettre à jour l'ordre d'un module
@@ -77,7 +88,9 @@ public class ModuleStoreController {
             @PathVariable Long moduleId,
             @RequestBody Map<String, Integer> payload) {
         int ordre = payload.getOrDefault("ordre", 0);
-        return ResponseEntity.ok(moduleStoreService.updateOrder(storeId, moduleId, ordre));
+        ModuleStoreResponseDto assignment = moduleStoreService.updateOrder(storeId, moduleId, ordre);
+        audit("module_store.order_updated", assignment.getId());
+        return ResponseEntity.ok(assignment);
     }
 
     // Mettre à jour un module store par ID
@@ -86,7 +99,9 @@ public class ModuleStoreController {
             @PathVariable Long id,
             @RequestBody ModuleStore details) {
         try {
-            return ResponseEntity.ok(moduleStoreService.updateModuleStore(id, details));
+            ModuleStoreResponseDto assignment = moduleStoreService.updateModuleStore(id, details);
+            audit("module_store.updated", id);
+            return ResponseEntity.ok(assignment);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
@@ -97,7 +112,9 @@ public class ModuleStoreController {
             @PathVariable Long moduleStoreId,
             @RequestBody Map<String, BigDecimal> payload) {
         try {
-            return ResponseEntity.ok(moduleStoreService.updateModuleStorePrice(moduleStoreId, payload.get("price")));
+            ModuleStoreResponseDto assignment = moduleStoreService.updateModuleStorePrice(moduleStoreId, payload.get("price"));
+            audit("module_store.price_updated", moduleStoreId);
+            return ResponseEntity.ok(assignment);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (RuntimeException e) {
@@ -111,6 +128,7 @@ public class ModuleStoreController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteModuleStore(@PathVariable Long id) {
         moduleStoreService.deleteModuleStore(id);
+        audit("module_store.deleted", id);
         return ResponseEntity.noContent().build();
     }
 
@@ -120,6 +138,7 @@ public class ModuleStoreController {
             @PathVariable Long storeId,
             @PathVariable Long moduleId) {
         moduleStoreService.deleteAssignment(storeId, moduleId);
+        audit("module_store.deleted", storeId + ":" + moduleId);
         return ResponseEntity.noContent().build();
     }
 
@@ -168,6 +187,18 @@ public class ModuleStoreController {
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    private void audit(String action, Object resourceId) {
+        AuditLogRequest audit = new AuditLogRequest();
+        audit.setTenantId("saas");
+        audit.setAction(action);
+        audit.setCategory(AuditCategoryEnum.data_config);
+        audit.setResourceType("module_store");
+        audit.setResourceId(resourceId != null ? String.valueOf(resourceId) : null);
+        audit.setStatus(AuditStatusEnum.success);
+        audit.setSource("SAAS_BACK_OFFICE");
+        auditLogger.logAsync(audit);
     }
 
 

@@ -26,7 +26,9 @@ export function AdminLayout({ type }: AdminLayoutProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
-  const notificationRecipientId = type === 'bank' ? (bankTenant.marketplace?.bankId ?? currentBank?.id) : null;
+  const notificationRecipientId = type === 'bank'
+    ? (bankTenant.marketplace?.bankId || currentBank?.id || null)
+    : null;
 
   const loadNotificationData = async () => {
     if (type === 'bank' && !notificationRecipientId) {
@@ -61,8 +63,6 @@ export function AdminLayout({ type }: AdminLayoutProps) {
   }, [type, notificationRecipientId]);
 
   useEffect(() => {
-    if (type !== 'saas') return;
-
     const refreshNotifications = () => {
       loadNotificationData();
     };

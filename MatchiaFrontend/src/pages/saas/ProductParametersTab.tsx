@@ -7,7 +7,7 @@ import { Input } from '../../components/ui/Input';
 import { Modal } from '../../components/ui/Modal';
 import { Select } from '../../components/ui/Select';
 import { KpiCard } from '../../components/ui/KpiCard';
-import { Loader2, Plus, Pencil, RefreshCcw, Sparkles, Store, Trash2 } from 'lucide-react';
+import { CircleAlert, CircleCheck, Loader2, Plus, Pencil, RefreshCcw, SlidersHorizontal, Sparkles, Store, Trash2 } from 'lucide-react';
 import { storeService } from '../../services/storeService';
 import { productParameterService } from '../../services/productParameterService';
 import type { ProductParameterDefinitionDto, StoreDto } from '../../types/apiTypes';
@@ -90,10 +90,34 @@ export function ProductParametersTab() {
     const activeStores = stores.filter((store) => store.status === 'active').length;
 
     return [
-      { label: 'Parametres', value: definitions.length, description: 'definitions disponibles' },
-      { label: 'Stores configures', value: configuredStores, description: 'stores avec au moins un parametre' },
-      { label: 'Stores actifs', value: activeStores, description: 'stores disponibles' },
-      { label: 'Stores sans parametres', value: Math.max(stores.length - configuredStores, 0), description: 'a configurer' },
+      {
+        label: 'Parametres',
+        value: definitions.length,
+        description: 'definitions disponibles',
+        tone: 'primary' as const,
+        icon: <SlidersHorizontal className="h-5 w-5" />,
+      },
+      {
+        label: 'Stores configures',
+        value: configuredStores,
+        description: 'stores avec au moins un parametre',
+        tone: 'success' as const,
+        icon: <Store className="h-5 w-5" />,
+      },
+      {
+        label: 'Stores actifs',
+        value: activeStores,
+        description: 'stores disponibles',
+        tone: 'primary' as const,
+        icon: <CircleCheck className="h-5 w-5" />,
+      },
+      {
+        label: 'Stores sans parametres',
+        value: Math.max(stores.length - configuredStores, 0),
+        description: 'a configurer',
+        tone: 'warning' as const,
+        icon: <CircleAlert className="h-5 w-5" />,
+      },
     ];
   }, [definitions, stores]);
 
@@ -206,8 +230,8 @@ export function ProductParametersTab() {
             key={stat.label}
             label={stat.label}
             value={stat.value}
-            icon={<Sparkles className="h-5 w-5" />}
-            tone="primary"
+            icon={stat.icon}
+            tone={stat.tone}
             badge={stat.description}
           />
         ))}

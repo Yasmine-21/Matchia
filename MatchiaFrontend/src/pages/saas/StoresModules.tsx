@@ -1068,6 +1068,14 @@ export function SaaSStoresModules() {
 
       setModulesList(updatedModulesList as ModuleUIDto[]);
 
+      if (!editModuleIsActive) {
+        setAssignedModules((previous) => previous.map((assignment) =>
+          assignment.module.id === moduleToEdit.id
+            ? { ...assignment, actif: false }
+            : assignment
+        ));
+      }
+
       if (selectedStore && assignedModules.length > 0) {
         const activeCount = assignedModules.filter(a => {
           const globalModule = updatedModulesList.find(m => m.id === a.module.id);

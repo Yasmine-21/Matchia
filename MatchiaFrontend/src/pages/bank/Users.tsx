@@ -192,6 +192,11 @@ export function BankUsers() {
       return;
     }
 
+    if (password && password.length < 8) {
+      setFormError('Le mot de passe doit contenir au moins 8 caractères.');
+      return;
+    }
+
     try {
       setIsSaving(true);
       setFormError('');
@@ -542,6 +547,7 @@ export function BankUsers() {
                 placeholder={editingUserId ? 'Laisser vide pour conserver le mot de passe actuel' : 'Saisir le mot de passe'}
                 value={userForm.password}
                 onChange={(e) => setUserForm((prev) => ({ ...prev, password: e.target.value }))}
+                minLength={8}
                 className="pr-12"
               />
               <button

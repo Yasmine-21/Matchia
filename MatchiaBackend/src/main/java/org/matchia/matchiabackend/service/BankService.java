@@ -3,9 +3,11 @@ package org.matchia.matchiabackend.service;
 import org.matchia.matchiabackend.dto.BankDto;
 import org.matchia.matchiabackend.entity.Bank;
 import org.matchia.matchiabackend.entity.enums.BankStatusEnum;
+import org.matchia.matchiabackend.entity.enums.RoleEnum;
 import org.matchia.matchiabackend.mapper.BankMapper;
 import org.matchia.matchiabackend.repository.BankRepository;
 import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
+import org.matchia.matchiabackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,14 +32,21 @@ public class BankService {
     private final BankRepository bankRepository;
     private final MarketplaceStoreRepository marketplaceStoreRepository;
     private final BankMapper bankMapper;
+    private final UserRepository userRepository;
 
     @Value("${app.upload.dir:uploads/logos}")
     private String uploadDir;
 
-    public BankService(BankRepository bankRepository, MarketplaceStoreRepository marketplaceStoreRepository, BankMapper bankMapper) {
+    public BankService(
+            BankRepository bankRepository,
+            MarketplaceStoreRepository marketplaceStoreRepository,
+            BankMapper bankMapper,
+            UserRepository userRepository
+    ) {
         this.bankRepository = bankRepository;
         this.marketplaceStoreRepository = marketplaceStoreRepository;
         this.bankMapper = bankMapper;
+        this.userRepository = userRepository;
     }
 
     public List<BankDto> getAllBanks() {
@@ -64,6 +73,7 @@ public class BankService {
             MultipartFile logo,
             String name,
             String email,
+            String phone,
             String country,
             String slug,
             String websiteUrl,
@@ -74,6 +84,7 @@ public class BankService {
         Bank bank = new Bank();
         bank.setName(name);
         bank.setEmail(email);
+        bank.setPhone(phone);
         bank.setCountry(country);
         bank.setSlug(slug);
         bank.setWebsiteUrl(websiteUrl);
@@ -93,6 +104,7 @@ public class BankService {
         existingBank.setName(bankDto.getName());
         existingBank.setSlug(bankDto.getSlug());
         existingBank.setEmail(bankDto.getEmail());
+        existingBank.setPhone(bankDto.getPhone());
         existingBank.setDescription(bankDto.getDescription());
         existingBank.setCountry(bankDto.getCountry());
         existingBank.setWebsiteUrl(bankDto.getWebsiteUrl());
@@ -115,6 +127,7 @@ public class BankService {
             MultipartFile logo,
             String name,
             String email,
+            String phone,
             String country,
             String slug,
             String websiteUrl,
@@ -127,6 +140,7 @@ public class BankService {
 
         existingBank.setName(name);
         existingBank.setEmail(email);
+        existingBank.setPhone(phone);
         existingBank.setCountry(country);
         existingBank.setSlug(slug);
         existingBank.setWebsiteUrl(websiteUrl);
@@ -185,6 +199,12 @@ public class BankService {
     private BankDto toDtoWithCounts(Bank bank) {
         BankDto dto = bankMapper.toDto(bank);
         dto.setAssignedStoresCount(bank.getId() != null ? (int) marketplaceStoreRepository.countByMarketplace_Bank_Id(bank.getId()) : 0);
+        dto.setContactPhone(bank.getId() == null ? null : userRepository.findByBank_IdOrderByCreatedAtAsc(bank.getId()).stream()
+                .filter(user -> user.getRole() == RoleEnum.ADMIN_BANK)
+                .map(user -> user.getPhone())
+                .filter(phone -> phone != null && !phone.isBlank())
+                .findFirst()
+                .orElse(null));
         return dto;
     }
 

@@ -9,6 +9,9 @@ import org.matchia.matchiabackend.dto.ConfirmPaymentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentResponse;
 import org.matchia.matchiabackend.dto.PaymentConfigResponse;
+import org.matchia.matchiabackend.dto.MonthlyRevenueDto;
+import org.matchia.matchiabackend.dto.SubscriptionExpiryAlertDto;
+import org.matchia.matchiabackend.dto.SubscriptionRenewalResponse;
 import org.matchia.matchiabackend.service.PaymentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,5 +99,29 @@ public class PaymentController {
     @GetMapping("/paid-subscriptions")
     public ResponseEntity<java.util.List<org.matchia.matchiabackend.dto.PaidSubscriptionDto>> getPaidSubscriptions() {
         return ResponseEntity.ok(paymentService.getPaidSubscriptions());
+    }
+
+    @GetMapping("/monthly-revenue")
+    public ResponseEntity<java.util.List<MonthlyRevenueDto>> getMonthlyRevenue() {
+        return ResponseEntity.ok(paymentService.getMonthlyRevenue());
+    }
+
+    @GetMapping("/expiring-subscriptions")
+    public ResponseEntity<java.util.List<SubscriptionExpiryAlertDto>> getExpiringSubscriptions() {
+        return ResponseEntity.ok(paymentService.getExpiringSubscriptionAlerts());
+    }
+
+    @PostMapping("/{paymentId}/renewal")
+    public ResponseEntity<SubscriptionRenewalResponse> renewSubscription(@PathVariable Long paymentId) {
+        try {
+            return ResponseEntity.ok(paymentService.createSubscriptionRenewal(paymentId));
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            return ResponseEntity.badRequest().build();
+        } catch (NoSuchElementException exception) {
+            return ResponseEntity.notFound().build();
+        } catch (StripeException exception) {
+            log.error("Unable to create renewal checkout session for payment {}", paymentId, exception);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+        }
     }
 }

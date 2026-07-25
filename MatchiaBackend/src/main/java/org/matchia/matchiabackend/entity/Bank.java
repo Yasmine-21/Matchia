@@ -35,6 +35,7 @@ public class Bank {
     private String name;
     private String slug;
     private String email;
+    private String phone;
     private String logoText;
     private String logoUrl;
     private String country;

@@ -745,6 +745,26 @@ export function Marketplaces() {
                         </td>
                         <td className="px-3 py-4">
                           <div className="flex items-center justify-end gap-7">
+                            {bank.slug ? (
+                              <a
+                                href={`http://${bank.slug}.lvh.me:5173/bank/dashboard`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-slate-800 transition-colors hover:text-blue-600"
+                                aria-label={`Ouvrir le back office de ${bank.name}`}
+                                title="Ouvrir le back office"
+                              >
+                                <ExternalLink className="h-5 w-5" />
+                              </a>
+                            ) : (
+                              <span
+                                className="cursor-not-allowed text-slate-300"
+                                aria-label="Back office indisponible : slug manquant"
+                                title="Back office indisponible : slug manquant"
+                              >
+                                <ExternalLink className="h-5 w-5" />
+                              </span>
+                            )}
                             <button
                               type="button"
                               onClick={() => openEditModal(marketplace, bank)}

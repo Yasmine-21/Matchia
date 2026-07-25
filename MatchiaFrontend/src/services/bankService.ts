@@ -5,6 +5,7 @@ import { BankStatus } from '../types/apiTypes';
 export interface BankFormPayload {
   name: string;
   email?: string;
+  phone?: string;
   country?: string;
   slug?: string;
   websiteUrl?: string;
@@ -18,6 +19,7 @@ const toFormData = (payload: BankFormPayload) => {
   const formData = new FormData();
   formData.append('name', payload.name);
   formData.append('email', payload.email || '');
+  formData.append('phone', payload.phone || '');
   formData.append('country', payload.country || '');
   formData.append('slug', payload.slug || '');
   formData.append('websiteUrl', payload.websiteUrl || '');

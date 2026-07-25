@@ -1,44 +1,24 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { BarChart3, CalendarX2, Clock3, Eye } from 'lucide-react';
 import apiClient from '../../api/apiClient';
+import { subscriptionService } from '../../services/subscriptionService';
+import { SubscriptionDto } from '../../types/apiTypes';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { Modal } from '../../components/ui/Modal';
 
-interface OrganizationRequestSubscriptionDto {
-  paymentId: number;
-  requestId: number | null;
-  bankName: string;
-  bankLogoUrl?: string | null;
-  marketplaceSlug: string | null;
-  amount?: number | string | null;
-  currency?: string | null;
-  paidAt?: string | null;
-  stores?: {
-    storeId: number;
-    storeName?: string | null;
-    storeDescription?: string | null;
-    storePrice?: number | string | null;
-    modules?: {
-      moduleId: number;
-      moduleName?: string | null;
-      moduleDescription?: string | null;
-      moduleCategory?: string | null;
-      modulePrice?: number | string | null;
-    }[];
-  }[];
-}
+type OrganizationRequestSubscriptionDto = SubscriptionDto;
 
-const formatTnd = (value?: number | null) => {
+const formatAmount = (value?: number | null, currency?: string | null) => {
   if (value === undefined || value === null || Number.isNaN(value)) {
     return '-';
   }
 
   return new Intl.NumberFormat('fr-TN', {
     style: 'currency',
-    currency: 'TND',
+    currency: (currency || 'TND').toUpperCase(),
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(value);
@@ -80,42 +60,6 @@ const formatDateTime = (value?: string | null) => {
   }).format(date);
 };
 
-const formatDateFromDate = (value?: Date | null) => {
-  if (!value || Number.isNaN(value.getTime())) {
-    return '-';
-  }
-
-  return new Intl.DateTimeFormat('fr-TN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(value);
-};
-
-const addOneMonth = (value?: string | null) => {
-  if (!value) {
-    return null;
-  }
-
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
-
-  const expiration = new Date(date);
-  expiration.setMonth(expiration.getMonth() + 1);
-  return expiration;
-};
-
-const getDaysRemaining = (expirationDate: Date | null) => {
-  if (!expirationDate) {
-    return null;
-  }
-
-  const diffMs = expirationDate.getTime() - new Date().getTime();
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-};
-
 const getBackendAssetUrl = (url?: string | null) => {
   if (!url) {
     return '';
@@ -128,11 +72,15 @@ const getBackendAssetUrl = (url?: string | null) => {
 
 export function OffersAndSubscriptions() {
   const [subscriptions, setSubscriptions] = useState<OrganizationRequestSubscriptionDto[]>([]);
+  const [subscriptionStats, setSubscriptionStats] = useState({ active: 0, expired: 0, total: 0 });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchParams] = useSearchParams();
   const [selectedSubscription, setSelectedSubscription] = useState<OrganizationRequestSubscriptionDto | null>(null);
   const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [renewalSubscription, setRenewalSubscription] = useState<OrganizationRequestSubscriptionDto | null>(null);
+  const [isRenewalOpen, setIsRenewalOpen] = useState(false);
+  const [isRenewing, setIsRenewing] = useState(false);
   const autoOpenedRequestRef = useRef<string | null>(null);
   const requestedRequestId = searchParams.get('requestId');
 
@@ -144,17 +92,17 @@ export function OffersAndSubscriptions() {
         setLoading(true);
         setError(null);
 
-        const response = await apiClient.get<OrganizationRequestSubscriptionDto[]>('/api/payments/paid-subscriptions');
-
-        const paidSubscriptions = (response.data || [])
-          .sort((a, b) => {
-            const left = new Date(b.paidAt || 0).getTime();
-            const right = new Date(a.paidAt || 0).getTime();
-            return left - right;
-          });
+        const response = await subscriptionService.getOverview();
+        const overview = response.data;
+        const paidSubscriptions = overview.subscriptions || [];
 
         if (isMounted) {
           setSubscriptions(paidSubscriptions);
+          setSubscriptionStats({
+            active: overview.activeCount,
+            expired: overview.expiredCount,
+            total: overview.totalCount,
+          });
         }
       } catch (err) {
         console.error('Failed to load paid subscriptions', err);
@@ -195,28 +143,6 @@ export function OffersAndSubscriptions() {
     }
   }, [requestedRequestId, subscriptions]);
 
-  const subscriptionStats = useMemo(() => {
-    let active = 0;
-    let expired = 0;
-
-    subscriptions.forEach((subscription) => {
-      const expirationDate = addOneMonth(subscription.paidAt);
-      const daysRemaining = getDaysRemaining(expirationDate);
-
-      if (daysRemaining !== null && daysRemaining >= 0) {
-        active += 1;
-      } else if (daysRemaining !== null && daysRemaining < 0) {
-        expired += 1;
-      }
-    });
-
-    return {
-      active,
-      expired,
-      total: subscriptions.length,
-    };
-  }, [subscriptions]);
-
   const openDetails = (subscription: OrganizationRequestSubscriptionDto) => {
     setSelectedSubscription(subscription);
     setIsDetailsOpen(true);
@@ -226,13 +152,35 @@ export function OffersAndSubscriptions() {
     setIsDetailsOpen(false);
   };
 
+  const openRenewal = (subscription: OrganizationRequestSubscriptionDto) => {
+    setRenewalSubscription(subscription);
+    setIsRenewalOpen(true);
+  };
+
+  const confirmRenewal = async () => {
+    if (!renewalSubscription?.paymentId) return;
+    try {
+      setIsRenewing(true);
+      await apiClient.post(`/api/payments/${renewalSubscription.paymentId}/renewal`);
+      setSubscriptions((current) => current.map((subscription) => subscription.subscriptionId === renewalSubscription.subscriptionId
+        ? { ...subscription, renewalPending: true, renewalEligible: false, status: 'PENDING_RENEWAL' }
+        : subscription));
+      setIsRenewalOpen(false);
+      setRenewalSubscription(null);
+    } catch (renewalError) {
+      console.error('Impossible de créer le renouvellement', renewalError);
+    } finally {
+      setIsRenewing(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-start justify-between gap-4">
         <div>
           <h2 className="text-2xl font-bold text-foreground">Offres et abonnements</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Liste des abonnements dont le paiement est marque comme paye.
+            Liste des souscriptions et de leur cycle de vie courant.
           </p>
         </div>
       </div>
@@ -303,31 +251,28 @@ export function OffersAndSubscriptions() {
               </thead>
               <tbody className="divide-y divide-border">
                 {subscriptions.map((subscription) => {
-                  const expirationDate = addOneMonth(subscription.paidAt);
-                  const daysRemaining = getDaysRemaining(expirationDate);
+                  const daysRemaining = subscription.daysRemaining ?? null;
                   const progressPercent =
                     daysRemaining === null
                       ? 0
                       : Math.max(0, Math.min(100, Math.round((daysRemaining / 30) * 100)));
                   const statusVariant =
-                    daysRemaining === null
+                    subscription.status === 'PENDING_PAYMENT'
                       ? 'default'
-                      : daysRemaining < 0
+                      : subscription.status === 'EXPIRED'
                         ? 'danger'
-                        : daysRemaining <= 7
+                        : subscription.status === 'PENDING_RENEWAL' || (daysRemaining !== null && daysRemaining <= 7)
                           ? 'warning'
                           : 'success';
                   const statusLabel =
-                    daysRemaining === null
-                      ? 'Inconnu'
-                      : daysRemaining < 0
-                        ? 'Expiré'
-                        : daysRemaining <= 7
-                          ? 'Expiré bientôt'
-                          : 'Actif';
+                    subscription.status === 'PENDING_PAYMENT' ? 'En attente de paiement'
+                      : subscription.status === 'PENDING_RENEWAL' ? 'Renouvellement en attente'
+                      : subscription.status === 'EXPIRED' ? 'Expiré'
+                      : daysRemaining !== null && daysRemaining <= 7 ? 'Expire bientôt'
+                      : 'Actif';
 
                   return (
-                    <tr key={subscription.paymentId} className="hover:bg-accent/30 transition-colors">
+                    <tr key={subscription.subscriptionId} className="hover:bg-accent/30 transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           {subscription.bankLogoUrl ? (
@@ -348,13 +293,13 @@ export function OffersAndSubscriptions() {
                         {subscription.marketplaceSlug || '-'}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-foreground">
-                        {formatTnd(Number(subscription.amount))}
+                        {formatAmount(Number(subscription.amount), subscription.currency)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
                         {formatDate(subscription.paidAt)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-muted-foreground">
-                        {formatDateFromDate(expirationDate)}
+                        {formatDate(subscription.expirationDate)}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="w-full max-w-[120px]">
@@ -363,7 +308,7 @@ export function OffersAndSubscriptions() {
                               className={`text-sm font-medium ${
                                 daysRemaining === null
                                   ? 'text-muted-foreground'
-                                  : daysRemaining < 0
+                                  : subscription.status === 'EXPIRED'
                                     ? 'text-error'
                                     : daysRemaining <= 7
                                       ? 'text-warning'
@@ -378,7 +323,7 @@ export function OffersAndSubscriptions() {
                               className={`h-1.5 rounded-full ${
                                 daysRemaining === null
                                   ? 'bg-gray-300'
-                                  : daysRemaining < 0
+                                  : subscription.status === 'EXPIRED'
                                     ? 'bg-error'
                                     : daysRemaining <= 7
                                       ? 'bg-warning'
@@ -398,11 +343,14 @@ export function OffersAndSubscriptions() {
                             <Eye className="h-4 w-4" />
                             <span className="sr-only">Voir détails</span>
                           </Button>
-                          <Button size="sm" variant="outline">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            disabled={!subscription.renewalEligible || subscription.renewalPending || !subscription.paymentId}
+                            onClick={() => openRenewal(subscription)}
+                            className={!subscription.renewalEligible || subscription.renewalPending || !subscription.paymentId ? 'cursor-not-allowed opacity-50' : ''}
+                          >
                             Renouveler
-                          </Button>
-                          <Button size="sm" variant="ghost">
-                            Upgrader
                           </Button>
                         </div>
                       </td>
@@ -453,7 +401,7 @@ export function OffersAndSubscriptions() {
               <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
                 <p className="text-xs uppercase tracking-wide text-muted-foreground">Montant payé</p>
                 <p className="mt-1 text-base font-semibold text-foreground">
-                  {formatTnd(Number(selectedSubscription.amount))}
+                  {formatAmount(Number(selectedSubscription.amount), selectedSubscription.currency)}
                 </p>
               </div>
               <div className="rounded-xl border border-border bg-surface p-4 shadow-sm">
@@ -498,7 +446,7 @@ export function OffersAndSubscriptions() {
                         <div className="text-right">
                           <p className="text-xs uppercase tracking-wide text-muted-foreground">Prix store</p>
                           <p className="text-sm font-semibold text-foreground">
-                            {formatTnd(Number(store.storePrice))}
+                            {formatAmount(Number(store.storePrice), selectedSubscription.currency)}
                           </p>
                         </div>
                       </div>
@@ -527,7 +475,7 @@ export function OffersAndSubscriptions() {
                                   <div className="text-right">
                                     <p className="text-xs uppercase tracking-wide text-muted-foreground">Prix</p>
                                     <p className="text-sm font-semibold text-foreground">
-                                      {formatTnd(Number(module.modulePrice))}
+                                      {formatAmount(Number(module.modulePrice), selectedSubscription.currency)}
                                     </p>
                                   </div>
                                 </div>
@@ -548,6 +496,41 @@ export function OffersAndSubscriptions() {
             </div>
           </div>
         )}
+      </Modal>
+
+      <Modal
+        isOpen={isRenewalOpen}
+        onClose={() => !isRenewing && setIsRenewalOpen(false)}
+        title="Renouveler l’abonnement"
+        size="lg"
+      >
+        {renewalSubscription && (() => {
+          const daysRemaining = renewalSubscription.daysRemaining ?? null;
+          return (
+            <div className="space-y-5">
+              <div className="grid gap-3 sm:grid-cols-2">
+                <div className="rounded-lg border border-border p-3"><p className="text-xs text-muted-foreground">Banque</p><p className="font-semibold">{renewalSubscription.bankName}</p></div>
+                <div className="rounded-lg border border-border p-3"><p className="text-xs text-muted-foreground">Marketplace</p><p className="font-semibold">{renewalSubscription.marketplaceSlug || '-'}</p></div>
+                <div className="rounded-lg border border-border p-3"><p className="text-xs text-muted-foreground">Expiration</p><p className="font-semibold">{formatDate(renewalSubscription.expirationDate)}</p></div>
+                <div className="rounded-lg border border-border p-3"><p className="text-xs text-muted-foreground">Jours restants</p><p className="font-semibold">{daysRemaining ?? '-'} jour(s)</p></div>
+              </div>
+              <div className="space-y-3">
+                <p className="font-semibold">Stores et modules inclus</p>
+                {(renewalSubscription.stores || []).map((store) => (
+                  <div key={store.storeId} className="rounded-lg border border-border p-3">
+                    <p className="font-medium">{store.storeName || 'Store'}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">{(store.modules || []).map((module) => module.moduleName || 'Module').join(', ') || 'Aucun module'}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-sm text-muted-foreground">Un lien de paiement sécurisé sera envoyé à l’administrateur de la banque. L’abonnement ne sera renouvelé qu’après confirmation du paiement.</p>
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" disabled={isRenewing} onClick={() => setIsRenewalOpen(false)}>Annuler</Button>
+                <Button disabled={isRenewing} onClick={confirmRenewal}>{isRenewing ? 'Création...' : 'Renouveler'}</Button>
+              </div>
+            </div>
+          );
+        })()}
       </Modal>
     </div>
   );

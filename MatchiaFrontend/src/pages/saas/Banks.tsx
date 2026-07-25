@@ -11,6 +11,9 @@ import {
   ExternalLink,
   Eye,
   Loader2,
+  Mail,
+  MapPin,
+  Phone,
   Plus,
   Search,
   Trash2,
@@ -28,6 +31,7 @@ type BankFormState = BankFormPayload & {
 const emptyBankForm = (): BankFormState => ({
   name: '',
   email: '',
+  phone: '',
   country: '',
   slug: '',
   websiteUrl: '',
@@ -123,6 +127,7 @@ const BankLogo = ({ bank, size = 'sm' }: { bank: Bank; size?: 'sm' | 'lg' }) => 
 const toPayload = (form: BankFormState): BankFormPayload => ({
   name: form.name.trim(),
   email: form.email?.trim(),
+  phone: form.phone?.trim(),
   country: form.country?.trim(),
   slug: form.slug?.trim(),
   websiteUrl: form.websiteUrl?.trim(),
@@ -214,6 +219,7 @@ export function SaaSBanks() {
     setEditForm({
       name: bank.name || '',
       email: bank.email || '',
+      phone: bank.phone || '',
       country: bank.country || '',
       slug: bank.slug || '',
       websiteUrl: bank.websiteUrl || '',
@@ -294,6 +300,7 @@ export function SaaSBanks() {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Input label="Nom de la banque *" value={form.name} onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))} required />
         <Input label="Email banque" type="email" value={form.email} onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))} placeholder="contact@banque.tn" />
+        <Input label="Téléphone" type="tel" value={form.phone} onChange={(e) => setForm((prev) => ({ ...prev, phone: e.target.value }))} placeholder="+216 00 000 000" />
         <Input label="Pays" value={form.country} onChange={(e) => setForm((prev) => ({ ...prev, country: e.target.value }))} placeholder="Tunisie" />
         <Input label="Slug" value={form.slug} onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value.toLowerCase().replace(/\s+/g, '-') }))} placeholder="wifak-bank" />
         <Input label="Site web" type="url" value={form.websiteUrl} onChange={(e) => setForm((prev) => ({ ...prev, websiteUrl: e.target.value }))} placeholder="https://www.exemple.com" />
@@ -413,7 +420,7 @@ export function SaaSBanks() {
               <thead>
                 <tr className="border-b border-border text-muted-foreground">
                   <th className="px-4 py-3 text-left">Banque</th>
-                  <th className="px-4 py-3 text-left">Pays</th>
+                  <th className="px-4 py-3 text-left">Contact</th>
                   <th className="px-4 py-3 text-left">Stores assignes</th>
                   <th className="px-4 py-3 text-left">Statut</th>
                   <th className="px-4 py-3 text-left">Creation</th>
@@ -428,11 +435,25 @@ export function SaaSBanks() {
                         <BankLogo bank={bank} />
                         <div>
                           <div className="font-medium">{bank.name}</div>
-                          <div className="text-sm text-muted-foreground">{bank.email || bank.slug}</div>
+                          <div className="mt-0.5 flex items-center gap-1 text-sm text-muted-foreground">
+                            <MapPin className="h-3.5 w-3.5" aria-hidden="true" />
+                            <span>{bank.country || '-'}</span>
+                          </div>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-3">{bank.country || '-'}</td>
+                    <td className="px-4 py-3">
+                      <div className="space-y-1 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-1.5">
+                          <Mail className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                          <span>{bank.email || '-'}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5">
+                          <Phone className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
+                          <span>{bank.phone || '-'}</span>
+                        </div>
+                      </div>
+                    </td>
                     <td className="px-4 py-3">
                       <div className="font-medium">{getAssignedStores(bank)} stores</div>
                     </td>

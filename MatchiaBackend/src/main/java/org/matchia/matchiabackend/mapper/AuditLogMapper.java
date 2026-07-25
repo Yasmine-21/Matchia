@@ -16,8 +16,9 @@ public class AuditLogMapper {
         AuditLog log = new AuditLog();
         log.setTenantId(defaultText(request.getTenantId(), "saas"));
         log.setActorId(request.getActorId());
-        log.setActorName(defaultText(request.getActorName(), "system"));
-        log.setActorRole(defaultText(request.getActorRole(), "system"));
+        log.setActorName(defaultText(request.getActorName(), "Anonymous"));
+        log.setActorEmail(request.getActorEmail());
+        log.setActorRole(defaultText(request.getActorRole(), "ANONYMOUS"));
         log.setAction(defaultText(request.getAction(), "system.event"));
         log.setCategory(request.getCategory() != null ? request.getCategory() : AuditCategoryEnum.core);
         log.setResourceType(request.getResourceType());
@@ -27,6 +28,13 @@ public class AuditLogMapper {
         log.setUserAgent(request.getUserAgent());
         log.setDiff(request.getDiff());
         log.setMetadata(request.getMetadata());
+        log.setAffectedUserId(request.getAffectedUserId());
+        log.setAffectedUserName(request.getAffectedUserName());
+        log.setBankId(request.getBankId());
+        log.setMarketplaceId(request.getMarketplaceId());
+        log.setEmailRecipient(request.getEmailRecipient());
+        log.setSource(request.getSource());
+        log.setCorrelationId(request.getCorrelationId());
         return log;
     }
 
@@ -38,6 +46,7 @@ public class AuditLogMapper {
                 log.getTenantId(),
                 log.getActorId(),
                 log.getActorName(),
+                log.getActorEmail(),
                 log.getActorRole(),
                 log.getAction(),
                 log.getCategory(),
@@ -48,6 +57,13 @@ public class AuditLogMapper {
                 log.getUserAgent(),
                 log.getDiff(),
                 log.getMetadata(),
+                log.getAffectedUserId(),
+                log.getAffectedUserName(),
+                log.getBankId(),
+                log.getMarketplaceId(),
+                log.getEmailRecipient(),
+                log.getSource(),
+                log.getCorrelationId(),
                 log.getCreatedAt()
         );
     }

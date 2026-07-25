@@ -15,6 +15,7 @@ public class BankMapper {
         dto.setName(bank.getName());
         dto.setSlug(bank.getSlug());
         dto.setEmail(bank.getEmail());
+        dto.setPhone(bank.getPhone());
         dto.setLogoUrl(bank.getLogoUrl());
         dto.setCountry(bank.getCountry());
         dto.setDescription(bank.getDescription());
@@ -34,6 +35,7 @@ public class BankMapper {
         bank.setName(dto.getName());
         bank.setSlug(dto.getSlug());
         bank.setEmail(dto.getEmail());
+        bank.setPhone(dto.getPhone());
         bank.setLogoUrl(dto.getLogoUrl());
         bank.setCountry(dto.getCountry());
         bank.setDescription(dto.getDescription());

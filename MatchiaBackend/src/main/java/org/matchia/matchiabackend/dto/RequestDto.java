@@ -16,6 +16,8 @@ import java.util.List;
 public class RequestDto {
     private Long id;
     private Long bankId;
+    private Long originalRequestId;
+    private Long subscriptionId;
     private RequestTypeEnum requestType;
     private RequestStatusEnum status;
     private String priority;
@@ -23,6 +25,7 @@ public class RequestDto {
     private String createdBy;
     private String bankName;
     private String bankEmail;
+    private String bankPhone;
     private String logoUrl;
     private String country;
     private String website;

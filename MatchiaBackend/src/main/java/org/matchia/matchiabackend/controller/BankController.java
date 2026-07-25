@@ -1,7 +1,11 @@
 package org.matchia.matchiabackend.controller;
 
 import org.matchia.matchiabackend.dto.BankDto;
+import org.matchia.matchiabackend.dto.AuditLogRequest;
+import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
+import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
 import org.matchia.matchiabackend.entity.enums.BankStatusEnum;
+import org.matchia.matchiabackend.service.AuditLogger;
 import org.matchia.matchiabackend.service.BankService;
 
 import org.springframework.http.HttpStatus;
@@ -21,10 +25,11 @@ import java.util.Map;
 public class BankController {
 
     private final BankService bankService;
+    private final AuditLogger auditLogger;
 
-    public BankController(BankService bankService) {
-
+    public BankController(BankService bankService, AuditLogger auditLogger) {
         this.bankService = bankService;
+        this.auditLogger = auditLogger;
     }
 
     @GetMapping
@@ -35,7 +40,9 @@ public class BankController {
     @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE)
     public BankDto createBank(@RequestBody BankDto bankDto) {
 
-        return bankService.createBank(bankDto);
+        BankDto created = bankService.createBank(bankDto);
+        audit("bank.created", created.getId());
+        return created;
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -43,6 +50,7 @@ public class BankController {
             @RequestParam(value = "logo", required = false) MultipartFile logo,
             @RequestParam("name") String name,
             @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "country", required = false) String country,
             @RequestParam(value = "slug", required = false) String slug,
             @RequestParam(value = "websiteUrl", required = false) String websiteUrl,
@@ -51,9 +59,11 @@ public class BankController {
             @RequestParam(value = "status", required = false) BankStatusEnum status
     ) {
         try {
-            return ResponseEntity.status(HttpStatus.CREATED).body(bankService.createBankMultipart(
-                    logo, name, email, country, slug, websiteUrl, description, establishmentYear, status
-            ));
+            BankDto created = bankService.createBankMultipart(
+                    logo, name, email, phone, country, slug, websiteUrl, description, establishmentYear, status
+            );
+            audit("bank.created", created.getId());
+            return ResponseEntity.status(HttpStatus.CREATED).body(created);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (IOException e) {
@@ -63,7 +73,9 @@ public class BankController {
 
     @PutMapping(value = "/{id}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public BankDto updateBank(@PathVariable Long id, @RequestBody BankDto bankDto) {
-        return bankService.updateBank(id, bankDto);
+        BankDto updated = bankService.updateBank(id, bankDto);
+        audit("bank.updated", id);
+        return updated;
     }
 
     @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -72,6 +84,7 @@ public class BankController {
             @RequestParam(value = "logo", required = false) MultipartFile logo,
             @RequestParam("name") String name,
             @RequestParam(value = "email", required = false) String email,
+            @RequestParam(value = "phone", required = false) String phone,
             @RequestParam(value = "country", required = false) String country,
             @RequestParam(value = "slug", required = false) String slug,
             @RequestParam(value = "websiteUrl", required = false) String websiteUrl,
@@ -80,9 +93,11 @@ public class BankController {
             @RequestParam(value = "status", required = false) BankStatusEnum status
     ) {
         try {
-            return ResponseEntity.ok(bankService.updateBankMultipart(
-                    id, logo, name, email, country, slug, websiteUrl, description, establishmentYear, status
-            ));
+            BankDto updated = bankService.updateBankMultipart(
+                    id, logo, name, email, phone, country, slug, websiteUrl, description, establishmentYear, status
+            );
+            audit("bank.updated", id);
+            return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         } catch (IOException e) {
@@ -103,7 +118,9 @@ public class BankController {
 
         try {
             BankStatusEnum status = BankStatusEnum.valueOf(rawStatus.trim().toLowerCase());
-            return ResponseEntity.ok(bankService.updateStatus(id, status));
+            BankDto updated = bankService.updateStatus(id, status);
+            audit("bank.status_updated", id);
+            return ResponseEntity.ok(updated);
         } catch (IllegalArgumentException e) {
             // ✅ Ajoute ce log pour voir ce qui arrive exactement
             System.out.println("❌ Status invalide reçu : '" + rawStatus + "'");
@@ -114,5 +131,19 @@ public class BankController {
     @DeleteMapping("/{id}")
     public void deleteBank(@PathVariable Long id) {
         bankService.deleteBank(id);
+        audit("bank.deleted", id);
+    }
+
+    private void audit(String action, Long bankId) {
+        AuditLogRequest audit = new AuditLogRequest();
+        audit.setTenantId("saas");
+        audit.setAction(action);
+        audit.setCategory(AuditCategoryEnum.data_config);
+        audit.setResourceType("bank");
+        audit.setResourceId(bankId != null ? String.valueOf(bankId) : null);
+        audit.setBankId(bankId != null ? String.valueOf(bankId) : null);
+        audit.setStatus(AuditStatusEnum.success);
+        audit.setSource("SAAS_BACK_OFFICE");
+        auditLogger.logAsync(audit);
     }
 }

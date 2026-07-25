@@ -14,6 +14,8 @@ public class BankDto {
     private String name;
     private String slug;
     private String email;
+    private String phone;
+    private String contactPhone;
     private String logoUrl;
     private String country;
     private String description;

@@ -172,7 +172,7 @@ function EmbeddedPaymentForm({
         return;
       }
 
-      setSuccessMessage('Payment completed successfully. Your request is now being activated.');
+      setSuccessMessage('Paiement confirme. Votre souscription est maintenant activee ou renouvelee.');
     } catch (paymentError) {
       console.error('Embedded Stripe payment failed:', paymentError);
       setError('Impossible de finaliser le paiement. Veuillez reessayer.');
@@ -372,6 +372,7 @@ export function PaymentDemoPage() {
 
         const response = await apiClient.post<PaymentIntentResponse>('/api/payments/create-payment-intent', {
           requestId: Number(searchParams.get('request_id') || '27'),
+          paymentId: Number(searchParams.get('payment_id')) || undefined,
           bankName,
           amount,
           currency,

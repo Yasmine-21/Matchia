@@ -185,5 +185,6 @@ public class DatabaseSchemaService {
         public String columnType(String table, String column) {
             return columnTypes.getOrDefault(table, Map.of()).get(column);
         }
+
     }
 }

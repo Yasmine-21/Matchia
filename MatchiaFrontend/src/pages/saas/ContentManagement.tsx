@@ -12,7 +12,7 @@ import { contentService } from '../../services/contentService';
 import { storeService } from '../../services/storeService';
 import type { ContentDto, ContentStatus, StoreDto } from '../../types/apiTypes';
 import { getBackendAssetUrl } from '../../utils/tenant';
-import { Plus, Image as ImageIcon, Loader2, RefreshCcw, Sparkles, Store as StoreIcon, Pencil, Trash2 } from 'lucide-react';
+import { Plus, Image as ImageIcon, Loader2, RefreshCcw, Sparkles, Store as StoreIcon, Pencil, Trash2, FileText, Eye, EyeOff } from 'lucide-react';
 
 const statusLabel: Record<ContentStatus, string> = {
   active: 'Actif',
@@ -112,9 +112,27 @@ export function ContentManagement() {
     const active = contents.filter((content) => content.status === 'active').length;
     const inactive = contents.filter((content) => content.status === 'inactive').length;
     return [
-      { label: 'Contenus', value: contents.length, badge: 'tous les contenus', tone: 'primary' as const },
-      { label: 'Actifs', value: active, badge: 'contenus visibles', tone: 'success' as const },
-      { label: 'Inactifs', value: inactive, badge: 'contenus masqués', tone: 'warning' as const },
+      {
+        label: 'Contenus',
+        value: contents.length,
+        badge: 'tous les contenus',
+        tone: 'primary' as const,
+        icon: <FileText className="h-5 w-5" />,
+      },
+      {
+        label: 'Actifs',
+        value: active,
+        badge: 'contenus visibles',
+        tone: 'success' as const,
+        icon: <Eye className="h-5 w-5" />,
+      },
+      {
+        label: 'Inactifs',
+        value: inactive,
+        badge: 'contenus masqués',
+        tone: 'warning' as const,
+        icon: <EyeOff className="h-5 w-5" />,
+      },
     ];
   }, [contents]);
 
@@ -276,7 +294,7 @@ export function ContentManagement() {
             key={stat.label}
             label={stat.label}
             value={stat.value}
-            icon={<Sparkles className="h-5 w-5" />}
+            icon={stat.icon}
             tone={stat.tone}
             badge={stat.badge}
           />

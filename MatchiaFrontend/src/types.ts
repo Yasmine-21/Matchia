@@ -15,6 +15,8 @@ export interface Bank {
   created_at: string;
   updated_at: string;
   email?: string | null;
+  phone?: string | null;
+  contactPhone?: string | null;
   logoUrl: string;
   websiteUrl: string;
   establishedYear: number;

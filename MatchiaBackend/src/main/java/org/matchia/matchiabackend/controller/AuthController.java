@@ -11,6 +11,7 @@ import org.matchia.matchiabackend.entity.enums.UserStatusEnum;
 import org.matchia.matchiabackend.repository.UserRepository;
 import org.matchia.matchiabackend.security.JwtUtil;
 import org.matchia.matchiabackend.service.AuditLogger;
+import org.matchia.matchiabackend.service.PasswordService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,11 +25,13 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final AuditLogger auditLogger;
     private final UserRepository userRepository;
+    private final PasswordService passwordService;
 
-    public AuthController(JwtUtil jwtUtil, AuditLogger auditLogger, UserRepository userRepository) {
+    public AuthController(JwtUtil jwtUtil, AuditLogger auditLogger, UserRepository userRepository, PasswordService passwordService) {
         this.jwtUtil = jwtUtil;
         this.auditLogger = auditLogger;
         this.userRepository = userRepository;
+        this.passwordService = passwordService;
     }
 
     @PostMapping("/login")
@@ -43,7 +46,7 @@ public class AuthController {
                 auditLogger.logAsync(loginAudit(email, null, "user.login_failed", AuditStatusEnum.failure, httpRequest, "{\"reason\":\"inactive_user\"}"));
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
             }
-            if (dbUser.getPassword() == null || !dbUser.getPassword().equals(password)) {
+            if (!passwordService.matches(password, dbUser.getPassword())) {
                 auditLogger.logAsync(loginAudit(email, null, "user.login_failed", AuditStatusEnum.failure, httpRequest, "{\"reason\":\"bad_password\"}"));
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
             }
@@ -68,43 +71,8 @@ public class AuthController {
             return ResponseEntity.ok(response);
         }
 
-        if (!"admin123".equals(password)) {
-            auditLogger.logAsync(loginAudit(email, null, "user.login_failed", AuditStatusEnum.failure, httpRequest, "{\"reason\":\"bad_password\"}"));
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
-
-        String role = null;
-        String bankSlug = null;
-        String name = "";
-
-        if ("admin@matchia.com".equals(email)) {
-            role = "ADMIN_SAAS";
-            name = "Mariem Trabelsi";
-        } else if ("ahmed@zitouna.com".equals(email)) {
-            role = "ADMIN_SAAS";
-            bankSlug = "zitouna";
-            name = "Ahmed Ben Ali";
-        } else if ("fatma@bhbank.com".equals(email)) {
-            role = "ADMIN_BANK";
-            bankSlug = "bh";
-            name = "Fatma Gharbi";
-        } else {
-            auditLogger.logAsync(loginAudit(email, null, "user.login_failed", AuditStatusEnum.failure, httpRequest, "{\"reason\":\"unknown_user\"}"));
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-        }
-
-        String token = jwtUtil.generateToken(email, role, bankSlug);
-
-        AuthResponse response = new AuthResponse();
-        response.setToken(token);
-        response.setEmail(email);
-        response.setRole(role);
-        response.setBankSlug(bankSlug);
-        response.setBankId(bankSlug == null ? null : ("zitouna".equals(bankSlug) ? "1" : ("bh".equals(bankSlug) ? "2" : null)));
-        response.setName(name);
-
-        auditLogger.logAsync(loginAudit(email, role, "user.login", AuditStatusEnum.success, httpRequest, null));
-        return ResponseEntity.ok(response);
+        auditLogger.logAsync(loginAudit(email, null, "user.login_failed", AuditStatusEnum.failure, httpRequest, "{\"reason\":\"unknown_user\"}"));
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
     }
 
     private String toAuthRole(RoleEnum role) {
@@ -115,11 +83,14 @@ public class AuthController {
     }
 
     private AuditLogRequest loginAudit(String email, String role, String action, AuditStatusEnum status, HttpServletRequest request, String metadata) {
+        User knownUser = userRepository.findByEmail(email).orElse(null);
         AuditLogRequest audit = new AuditLogRequest();
         audit.setTenantId("saas");
-        audit.setActorId(email);
-        audit.setActorName(email);
-        audit.setActorRole(role);
+        audit.setActorId(knownUser != null && knownUser.getId() != null ? String.valueOf(knownUser.getId()) : email);
+        audit.setActorName(knownUser != null && knownUser.getFullName() != null && !knownUser.getFullName().isBlank()
+                ? knownUser.getFullName() : email);
+        audit.setActorEmail(email);
+        audit.setActorRole("ADMIN_BANK".equals(role) ? "BANK_ADMIN" : role);
         audit.setAction(action);
         audit.setCategory(AuditCategoryEnum.security);
         audit.setResourceType("session");
@@ -128,6 +99,7 @@ public class AuthController {
         audit.setIpAddress(request.getRemoteAddr());
         audit.setUserAgent(request.getHeader("User-Agent"));
         audit.setMetadata(metadata);
+        audit.setSource("AUTHENTICATION");
         return audit;
     }
 }

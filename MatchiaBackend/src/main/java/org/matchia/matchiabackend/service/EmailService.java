@@ -1,8 +1,11 @@
 package org.matchia.matchiabackend.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.matchia.matchiabackend.dto.AuditLogRequest;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.User;
+import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
+import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
 import org.matchia.matchiabackend.entity.enums.RoleEnum;
 import org.matchia.matchiabackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +29,9 @@ public class EmailService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AuditLogger auditLogger;
+
     @Value("${spring.mail.host:}")
     private String mailHost;
 
@@ -39,6 +45,7 @@ public class EmailService {
         String recipient = resolveContactRecipient(request);
         if (recipient == null) {
             log.warn("Impossible d'envoyer la confirmation de demande: email de contact manquant.");
+            auditEmail(request, null, "request_confirmation_email.sent", AuditStatusEnum.failure);
             return false;
         }
         String requestType = request != null && request.getRequestType() != null
@@ -86,7 +93,9 @@ public class EmailService {
                         "L'equipe Matchia"
                 ),
                 "confirmation demande marketplace",
-                "CONFIRMATION DEMANDE MARKETPLACE"
+                "CONFIRMATION DEMANDE MARKETPLACE",
+                request,
+                "request_confirmation_email.sent"
         );
     }
 
@@ -94,7 +103,11 @@ public class EmailService {
         String recipient = resolvePaymentRecipient(request);
         if (recipient == null) {
             log.warn("Impossible d'envoyer les instructions de paiement: email de contact manquant.");
+            auditEmail(request, null, "payment_link_email.sent", AuditStatusEnum.failure);
             return false;
+        }
+        if (request != null && request.getRequestType() == org.matchia.matchiabackend.entity.enums.RequestTypeEnum.subscription) {
+            return sendSubscriptionRenewalPaymentInstructions(request, recipient, paymentLink);
         }
         String requestType = request != null && request.getRequestType() != null
                 ? request.getRequestType().name().toLowerCase()
@@ -140,41 +153,103 @@ public class EmailService {
                         "L'equipe Matchia"
                 ),
                 "email paiement",
-                "PAIEMENT MATCHIA"
+                "PAIEMENT MATCHIA",
+                request,
+                "payment_link_email.sent"
         );
     }
 
-    public boolean sendBankCredentialsEmail(Request request) {
-        User adminUser = resolveBankAdminUser(request);
-        if (adminUser == null || !hasText(adminUser.getEmail())) {
-            log.warn("Impossible d'envoyer les identifiants banque: utilisateur admin introuvable.");
+    public boolean sendSubscriptionRenewalPaymentInstructions(Request request, String paymentLink) {
+        String recipient = resolveBankRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer le lien de renouvellement: Bank Admin introuvable.");
+            auditEmail(request, null, "subscription_renewal_payment_link_email.sent", AuditStatusEnum.failure);
             return false;
         }
-        if (!hasText(adminUser.getPassword())) {
-            log.warn("Impossible d'envoyer les identifiants banque: mot de passe manquant pour l'utilisateur {}.", adminUser.getEmail());
+        return sendSubscriptionRenewalPaymentInstructions(request, recipient, paymentLink);
+    }
+
+    private boolean sendSubscriptionRenewalPaymentInstructions(Request request, String recipient, String paymentLink) {
+        String marketplaceName = hasText(request.getMarketplaceSlug()) ? request.getMarketplaceSlug().trim() : "votre marketplace";
+        String amount = request.getTotalAmount() != null ? request.getTotalAmount().toString() : "0";
+        String subscriptionDetails = buildSubscriptionDetails(request);
+
+        return sendTemplatedEmail(
+                recipient,
+                "Renouvellement de votre abonnement Matchia - paiement requis",
+                buildTemplate(
+                        "Renouvellement d'abonnement",
+                        "Votre renouvellement est en attente de paiement",
+                        "L’abonnement de la marketplace « %s » sera renouvelé uniquement après confirmation réussie du paiement."
+                                .formatted(marketplaceName),
+                        "Proceder au paiement securise",
+                        paymentLink,
+                        "Montant du renouvellement",
+                        amount + " TND",
+                        "Details de l'abonnement",
+                        subscriptionDetails,
+                        "Le paiement est requis pour activer la nouvelle periode d'abonnement.",
+                        "La nouvelle periode commencera a la date de confirmation du paiement."
+                ).withoutHeroTitle(),
+                "email renouvellement abonnement",
+                "RENOUVELLEMENT ABONNEMENT MATCHIA",
+                request,
+                "subscription_renewal_payment_link_email.sent"
+        );
+    }
+
+    private String buildSubscriptionDetails(Request request) {
+        if (request.getSelectedStoreDetails() == null || request.getSelectedStoreDetails().isEmpty()) {
+            String stores = request.getStores() == null ? "" : request.getStores().stream()
+                    .filter(java.util.Objects::nonNull)
+                    .map(store -> hasText(store.getName()) ? store.getName() : "Store")
+                    .collect(java.util.stream.Collectors.joining(", "));
+            String modules = request.getModules() == null ? "" : request.getModules().stream()
+                    .filter(java.util.Objects::nonNull)
+                    .map(module -> hasText(module.getName()) ? module.getName() : "Module")
+                    .collect(java.util.stream.Collectors.joining(", "));
+            if (hasText(stores) || hasText(modules)) {
+                return "Stores : " + (hasText(stores) ? stores : "-")
+                        + " | Modules : " + (hasText(modules) ? modules : "-");
+            }
+            return "Marketplace : " + (hasText(request.getMarketplaceSlug()) ? request.getMarketplaceSlug() : "-");
+        }
+
+        return request.getSelectedStoreDetails().stream()
+                .filter(java.util.Objects::nonNull)
+                .map(store -> {
+                    String modules = store.getModules() == null ? "Aucun module" : store.getModules().stream()
+                            .filter(java.util.Objects::nonNull)
+                            .map(module -> hasText(module.getModuleName()) ? module.getModuleName() : "Module")
+                            .collect(java.util.stream.Collectors.joining(", "));
+                    return (hasText(store.getStoreName()) ? store.getStoreName() : "Store") + " : "
+                            + (hasText(modules) ? modules : "Aucun module");
+                })
+                .collect(java.util.stream.Collectors.joining(" | "));
+    }
+
+    public boolean sendBankCredentialsEmail(Request request, User adminUser, String temporaryPassword) {
+        if (adminUser == null || !hasText(adminUser.getEmail())) {
+            log.warn("Impossible d'envoyer les identifiants banque: utilisateur admin introuvable.");
+            auditEmail(request, null, "credentials_email.sent", AuditStatusEnum.failure);
+            return false;
+        }
+        if (!hasText(temporaryPassword)) {
+            log.warn("Impossible d'envoyer les identifiants banque: mot de passe temporaire absent pour l'utilisateur {}.", adminUser.getEmail());
+            auditEmail(request, adminUser.getEmail(), "credentials_email.sent", AuditStatusEnum.failure);
             return false;
         }
 
         String subject = "Vos identifiants Matchia pour le back office bancaire";
-        String message = "Votre paiement a ete confirme avec succes. Voici vos identifiants de connexion au back office bancaire.";
-        return sendTemplatedEmail(
+        return sendEmail(
                 adminUser.getEmail(),
                 subject,
-                buildTemplate(
-                        "Acces back office",
-                        "Vos identifiants Matchia sont disponibles",
-                        message,
-                        "Ouvrir le back office",
-                        frontendUrl + "/bank/login",
-                        "Login",
-                        adminUser.getEmail(),
-                        "Mot de passe",
-                        adminUser.getPassword(),
-                        "Merci de changer ce mot de passe lors de votre premiere connexion.",
-                        "L'equipe Matchia"
-                ),
+                buildCredentialsEmailHtml(request, adminUser, temporaryPassword),
+                buildCredentialsPlainText(request, adminUser, temporaryPassword),
                 "identifiants banque",
-                "IDENTIFIANTS BANQUE"
+                "IDENTIFIANTS BANQUE",
+                request,
+                "credentials_email.sent"
         );
     }
 
@@ -189,6 +264,7 @@ public class EmailService {
         }
         if (recipient == null) {
             log.warn("Impossible d'envoyer le rejet de demande join: email du contact manquant.");
+            auditEmail(request, null, "rejection_email.sent", AuditStatusEnum.failure);
             return false;
         }
 
@@ -210,7 +286,9 @@ public class EmailService {
                         "L'equipe Matchia"
                 ),
                 "rejet demande join",
-                "REJET DEMANDE JOIN"
+                "REJET DEMANDE JOIN",
+                request,
+                "rejection_email.sent"
         );
     }
 
@@ -218,6 +296,7 @@ public class EmailService {
         String recipient = resolveBankRecipient(request);
         if (recipient == null) {
             log.warn("Impossible d'envoyer le rejet de demande store: email de la banque manquant.");
+            auditEmail(request, null, "rejection_email.sent", AuditStatusEnum.failure);
             return false;
         }
 
@@ -239,7 +318,9 @@ public class EmailService {
                         "L'equipe Matchia"
                 ),
                 "rejet demande store",
-                "REJET DEMANDE STORE"
+                "REJET DEMANDE STORE",
+                request,
+                "rejection_email.sent"
         );
     }
 
@@ -247,6 +328,7 @@ public class EmailService {
         String recipient = resolveBankRecipient(request);
         if (recipient == null) {
             log.warn("Impossible d'envoyer le rejet de demande module: email de la banque manquant.");
+            auditEmail(request, null, "rejection_email.sent", AuditStatusEnum.failure);
             return false;
         }
 
@@ -268,7 +350,9 @@ public class EmailService {
                         "L'equipe Matchia"
                 ),
                 "rejet demande module",
-                "REJET DEMANDE MODULE"
+                "REJET DEMANDE MODULE",
+                request,
+                "rejection_email.sent"
         );
     }
 
@@ -276,6 +360,7 @@ public class EmailService {
         String recipient = resolveBankRecipient(request);
         if (recipient == null) {
             log.warn("Impossible d'envoyer le rejet de demande abonnement: email de la banque manquant.");
+            auditEmail(request, null, "rejection_email.sent", AuditStatusEnum.failure);
             return false;
         }
 
@@ -297,13 +382,36 @@ public class EmailService {
                         "L'equipe Matchia"
                 ),
                 "rejet demande abonnement",
-                "REJET DEMANDE ABONNEMENT"
+                "REJET DEMANDE ABONNEMENT",
+                request,
+                "rejection_email.sent"
         );
     }
 
-    private boolean sendTemplatedEmail(String recipient, String subject, EmailTemplate template, String logLabel, String simulatedLabel) {
+    private boolean sendTemplatedEmail(
+            String recipient,
+            String subject,
+            EmailTemplate template,
+            String logLabel,
+            String simulatedLabel,
+            Request relatedRequest,
+            String auditAction
+    ) {
         String html = buildEmailHtmlV2(template);
         String text = buildPlainText(template);
+        return sendEmail(recipient, subject, html, text, logLabel, simulatedLabel, relatedRequest, auditAction);
+    }
+
+    private boolean sendEmail(
+            String recipient,
+            String subject,
+            String html,
+            String text,
+            String logLabel,
+            String simulatedLabel,
+            Request relatedRequest,
+            String auditAction
+    ) {
         if (mailSender != null && hasText(mailHost)) {
             try {
                 MimeMessage message = mailSender.createMimeMessage();
@@ -316,9 +424,11 @@ public class EmailService {
                 helper.setText(text, html);
                 mailSender.send(message);
                 log.info("Email {} envoye a {}", logLabel, recipient);
+                auditEmail(relatedRequest, recipient, auditAction, AuditStatusEnum.success);
                 return true;
             } catch (Exception e) {
                 log.error("Erreur lors de l'envoi de l'email {} : {}", logLabel, e.getMessage(), e);
+                auditEmail(relatedRequest, recipient, auditAction, AuditStatusEnum.failure);
                 return false;
             }
         }
@@ -327,7 +437,116 @@ public class EmailService {
         log.info("Destinataire : {}", recipient);
         log.info("Sujet : {}", subject);
         log.info("Body : {}", text);
+        auditEmail(relatedRequest, recipient, auditAction, AuditStatusEnum.failure);
         return false;
+    }
+
+    private void auditEmail(Request request, String recipient, String action, AuditStatusEnum status) {
+        AuditLogRequest audit = new AuditLogRequest();
+        audit.setTenantId("saas");
+        audit.setAction(action);
+        audit.setCategory(AuditCategoryEnum.core);
+        audit.setResourceType("email");
+        audit.setResourceId(request != null && request.getId() != null ? String.valueOf(request.getId()) : null);
+        audit.setStatus(status);
+        audit.setEmailRecipient(recipient);
+        audit.setAffectedUserName(request != null ? request.getContactName() : null);
+        audit.setBankId(request != null && request.getBank() != null && request.getBank().getId() != null
+                ? String.valueOf(request.getBank().getId()) : null);
+        audit.setMarketplaceId(request != null && request.getBank() != null && request.getBank().getMarketplace() != null
+                && request.getBank().getMarketplace().getId() != null
+                ? String.valueOf(request.getBank().getMarketplace().getId()) : null);
+        audit.setCorrelationId(request != null && request.getId() != null ? "request-" + request.getId() : null);
+        auditLogger.logSystemAsync(audit, "EMAIL_AUTOMATION");
+    }
+
+    private String buildCredentialsEmailHtml(Request request, User adminUser, String temporaryPassword) {
+        String recipientName = hasText(adminUser.getFullName()) ? adminUser.getFullName() : "Administrateur";
+        String marketplaceName = request != null && hasText(request.getMarketplaceSlug())
+                ? request.getMarketplaceSlug() : "votre marketplace";
+        String loginUrl = frontendUrl + "/bank/login";
+
+        return """
+                <!doctype html>
+                <html lang="fr">
+                <head>
+                  <meta charset="UTF-8" />
+                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                  <title>Vos identifiants Matchia</title>
+                </head>
+                <body style="margin:0;padding:0;background:#f3f6fb;font-family:Arial,Helvetica,sans-serif;color:#334155;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f6fb;">
+                    <tr><td align="center" style="padding:28px 12px;">
+                      <table role="presentation" width="560" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:560px;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;">
+                        <tr><td style="padding:18px 26px;background:#173f92;color:#ffffff;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
+                            <td style="font-size:23px;font-weight:900;letter-spacing:2px;">MATCHIA</td>
+                            <td align="right" style="font-size:12px;font-weight:600;">Banking Marketplaces</td>
+                          </tr></table>
+                        </td></tr>
+                        <tr><td align="center" style="padding:30px 30px 14px;">
+                          <div style="width:68px;height:68px;line-height:68px;border-radius:50%;background:#e7f8f2;border:8px solid #b9eadc;color:#0aa36f;font-size:33px;font-weight:700;">&#10003;</div>
+                          <div style="margin:16px auto 13px;width:62px;height:14px;border-radius:20px;background:#0aa36f;"></div>
+                          <div style="font-size:30px;line-height:1.15;font-weight:800;color:#13295c;">Votre compte est pr&ecirc;t</div>
+                          <div style="margin-top:10px;font-size:17px;font-weight:700;color:#0aa36f;">Votre paiement a &eacute;t&eacute; confirm&eacute; avec succ&egrave;s</div>
+                        </td></tr>
+                        <tr><td style="padding:6px 32px 0;font-size:15px;line-height:1.7;color:#475569;">
+                          <p style="margin:0 0 10px;">Bonjour {{RECIPIENT_NAME}},</p>
+                          <p style="margin:0;">Votre banque, la marketplace &laquo; {{MARKETPLACE_NAME}} &raquo; et votre espace administrateur sont maintenant actifs.</p>
+                        </td></tr>
+                        <tr><td style="padding:24px 32px 0;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #d8e5ff;border-radius:15px;overflow:hidden;background:#ffffff;">
+                            <tr><td colspan="2" style="padding:15px 18px;background:#f8fbff;border-bottom:1px solid #d8e5ff;font-size:15px;font-weight:800;color:#13295c;">Connexion au back office</td></tr>
+                            <tr><td style="padding:14px 18px;border-bottom:1px solid #e5edf9;font-size:13px;font-weight:700;color:#718096;">Login</td><td style="padding:14px 18px;border-bottom:1px solid #e5edf9;font-size:14px;font-weight:700;"><a href="{{LOGIN_URL}}" style="color:#2563eb;text-decoration:underline;">{{LOGIN}}</a></td></tr>
+                            <tr><td style="padding:14px 18px;font-size:13px;font-weight:700;color:#718096;">Mot de passe</td><td style="padding:14px 18px;font-size:14px;font-weight:800;color:#13295c;word-break:break-all;">{{PASSWORD}}</td></tr>
+                          </table>
+                        </td></tr>
+                        <tr><td style="padding:22px 32px 0;">
+                          <div style="border:1px solid #a9e1d1;background:#eefbf6;border-radius:14px;padding:16px 18px;">
+                            <div style="font-size:15px;font-weight:800;color:#13295c;margin-bottom:8px;">Important</div>
+                            <div style="font-size:14px;line-height:1.65;color:#475569;">Merci de changer ce mot de passe lors de votre premi&egrave;re connexion afin de s&eacute;curiser votre espace.</div>
+                          </div>
+                        </td></tr>
+                        <tr><td align="center" style="padding:24px 32px 10px;border-bottom:1px solid #e8eef8;font-size:13px;line-height:1.6;color:#64748b;">
+                          <div>Gardez ces informations confidentielles.</div>
+                          <div style="font-weight:800;font-size:15px;color:#0aa36f;">L&apos;&eacute;quipe Matchia</div>
+                        </td></tr>
+                        <tr><td style="padding:14px 22px 20px;">
+                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f7faff;border-radius:12px;color:#5b6b83;font-size:12px;"><tr>
+                            <td align="center" style="padding:12px 4px;"><a href="{{LOGIN_URL}}" style="color:#2563eb;">{{WEBSITE}}</a></td>
+                            <td align="center" style="padding:12px 4px;">{{SUPPORT_EMAIL}}</td>
+                            <td align="center" style="padding:12px 4px;">+216 70 123 456</td>
+                          </tr></table>
+                        </td></tr>
+                      </table>
+                    </td></tr>
+                  </table>
+                </body>
+                </html>
+                """
+                .replace("{{RECIPIENT_NAME}}", escapeHtml(recipientName))
+                .replace("{{MARKETPLACE_NAME}}", escapeHtml(marketplaceName))
+                .replace("{{LOGIN_URL}}", escapeHtml(loginUrl))
+                .replace("{{LOGIN}}", escapeHtml(adminUser.getEmail()))
+                .replace("{{PASSWORD}}", escapeHtml(temporaryPassword))
+                .replace("{{WEBSITE}}", escapeHtml(resolveBrandWebsite()))
+                .replace("{{SUPPORT_EMAIL}}", escapeHtml(hasText(mailUsername) ? mailUsername : "contact@matchia.com"));
+    }
+
+    private String buildCredentialsPlainText(Request request, User adminUser, String temporaryPassword) {
+        String marketplaceName = request != null && hasText(request.getMarketplaceSlug())
+                ? request.getMarketplaceSlug() : "votre marketplace";
+        return """
+                Votre compte Matchia est pret.
+                Votre paiement a ete confirme avec succes.
+
+                Marketplace : %s
+                Login : %s
+                Mot de passe : %s
+
+                Connectez-vous : %s/bank/login
+                Important : changez ce mot de passe lors de votre premiere connexion.
+                """.formatted(marketplaceName, adminUser.getEmail(), temporaryPassword, frontendUrl);
     }
 
     private EmailTemplate buildTemplate(
@@ -344,6 +563,7 @@ public class EmailService {
             String secondaryNote
     ) {
         return new EmailTemplate(
+                "Félicitations !",
                 eyebrow,
                 title,
                 message,
@@ -499,7 +719,7 @@ public class EmailService {
                         </div>
                         <div style="margin-top:16px;width:62px;height:16px;border-radius:999px;background:#2563eb;display:inline-block;"></div>
 
-                        <div style="margin-top:10px;font-size:30px;line-height:1.1;font-weight:800;color:#111827;">Félicitations !</div>
+                        <div style="{{HERO_STYLE}}margin-top:10px;font-size:30px;line-height:1.1;font-weight:800;color:#111827;">{{HERO_TITLE}}</div>
                         <div style="margin-top:8px;font-size:17px;line-height:1.45;font-weight:700;color:#2563eb;">{{TITLE}}</div>
                       </div>
 
@@ -547,6 +767,8 @@ public class EmailService {
                 """;
 
         return html
+                .replace("{{HERO_STYLE}}", hasText(template.heroTitle()) ? "" : "display:none;")
+                .replace("{{HERO_TITLE}}", escapeHtml(template.heroTitle()))
                 .replace("{{TITLE}}", escapeHtml(template.title()))
                 .replace("{{MESSAGE}}", buildMessageHtml(template.message()))
                 .replace("{{HIGHLIGHT_LABEL}}", escapeHtml(highlightLabel))
@@ -677,7 +899,8 @@ public class EmailService {
     }
 
     private String resolvePaymentRecipient(Request request) {
-        if (request != null && request.getRequestType() == org.matchia.matchiabackend.entity.enums.RequestTypeEnum.store) {
+        if (request != null && (request.getRequestType() == org.matchia.matchiabackend.entity.enums.RequestTypeEnum.store
+                || request.getRequestType() == org.matchia.matchiabackend.entity.enums.RequestTypeEnum.subscription)) {
             String bankRecipient = resolveBankRecipient(request);
             if (hasText(bankRecipient)) {
                 return bankRecipient;
@@ -721,6 +944,7 @@ public class EmailService {
     }
 
     private record EmailTemplate(
+            String heroTitle,
             String eyebrow,
             String title,
             String message,
@@ -733,6 +957,22 @@ public class EmailService {
             String footerNote,
             String secondaryNote
     ) {
+        private EmailTemplate withoutHeroTitle() {
+            return new EmailTemplate(
+                    null,
+                    eyebrow,
+                    title,
+                    message,
+                    actionLabel,
+                    actionUrl,
+                    highlightLabel,
+                    highlightValue,
+                    infoTitle,
+                    infoText,
+                    footerNote,
+                    secondaryNote
+            );
+        }
     }
 }
 

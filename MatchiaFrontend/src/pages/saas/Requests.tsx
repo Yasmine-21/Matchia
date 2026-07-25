@@ -29,12 +29,14 @@ import {
 import { requestService } from '../../services/requestService';
 import { notifyNotificationsUpdated } from '../../services/notificationService';
 import { RequestDto, RequestStatus, RequestType } from '../../types/apiTypes';
+import { getBackendAssetUrl } from '../../utils/tenant';
 
 const requestTypeLabel: Record<RequestType, string> = {
   join: "Demande d'inscription",
   store: 'Demande de store',
   module: 'Demande de module',
   subscription: "Renouvellement d'abonnement",
+  renewal: "Renouvellement d'abonnement",
 };
 
 const statusLabel: Record<RequestStatus, string> = {
@@ -70,6 +72,8 @@ const getRejectModalTitle = (request?: RequestDto | null) => {
       return 'Rejeter la demande de module';
     case 'subscription':
       return "Rejeter la demande de renouvellement";
+    case 'renewal':
+      return "Rejeter la demande de renouvellement";
     case 'join':
     default:
       return "Rejeter la demande d'inscription";
@@ -104,9 +108,7 @@ const getSelectedStoresCount = (request: RequestDto) => (
 );
 
 const getLogoUrl = (logoUrl?: string | null) => {
-  if (!logoUrl) return null;
-  if (logoUrl.startsWith('http')) return logoUrl;
-  return `http://localhost:8081${logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}`;
+  return getBackendAssetUrl(logoUrl) || null;
 };
 
 const BankLogo = ({
@@ -483,7 +485,7 @@ export function Requests() {
               </div>
             )}
 
-            {selectedRequest.requestType === 'subscription' ? (
+            {selectedRequest.requestType === 'subscription' || selectedRequest.requestType === 'renewal' ? (
               <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
                 <RequestDetailSectionTitle icon={<CreditCard className="h-5 w-5" />} title="Détails du renouvellement" iconClassName="text-orange-500" />
                 <div className="grid gap-4 md:grid-cols-2">

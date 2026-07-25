@@ -318,6 +318,40 @@ public class NotificationService {
         );
     }
 
+    @Transactional
+    public Notification createBankRenewalApprovedNotification(Request request) {
+        Long recipientId = resolveRecipientId(request);
+        if (recipientId == null) {
+            log.warn("Impossible de creer la notification banque: banque introuvable pour le renouvellement {}.", request.getId());
+            return null;
+        }
+        return createNotification(
+                "Demande de renouvellement approuvee",
+                "Votre demande de renouvellement a ete approuvee. Le paiement est requis pour renouveler l'abonnement.",
+                NotificationTypeEnum.SUCCESS,
+                NotificationStatusEnum.UNREAD,
+                request.getId(),
+                recipientId
+        );
+    }
+
+    @Transactional
+    public Notification createBankRequestApprovedNotification(Request request) {
+        Long recipientId = resolveRecipientId(request);
+        if (recipientId == null) {
+            log.warn("Impossible de creer la notification banque: banque introuvable pour la demande {}.", request.getId());
+            return null;
+        }
+        return createNotification(
+                "Demande approuvee",
+                "Votre demande a ete approuvee. Consultez vos demandes et finalisez le paiement si celui-ci est requis.",
+                NotificationTypeEnum.SUCCESS,
+                NotificationStatusEnum.UNREAD,
+                request.getId(),
+                recipientId
+        );
+    }
+
     private String buildCreatedTitle(String requestType) {
         return switch (requestType) {
             case "join" -> "Nouvelle demande d'inscription";
@@ -414,7 +448,12 @@ public class NotificationService {
     }
 
     private Long resolveRecipientId(Request request) {
-        return request != null && request.getBank() != null ? request.getBank().getId() : null;
+        if (request == null || request.getBank() == null || request.getBank().getId() == null) {
+            return null;
+        }
+        // Bank notifications are intentionally shared by the bank back office.
+        // recipient_id therefore always stores Bank.id, never an individual user id.
+        return request.getBank().getId();
     }
 
     private Long resolveSaasRecipientId() {

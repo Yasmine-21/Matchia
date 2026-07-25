@@ -30,6 +30,8 @@ public class RequestMapper {
         RequestDto dto = new RequestDto();
         dto.setId(entity.getId());
         dto.setBankId(entity.getBank() != null ? entity.getBank().getId() : null);
+        dto.setOriginalRequestId(entity.getOriginalRequest() != null ? entity.getOriginalRequest().getId() : null);
+        dto.setSubscriptionId(entity.getSubscription() != null ? entity.getSubscription().getId() : null);
         dto.setRequestType(entity.getRequestType());
         dto.setStatus(entity.getStatus());
         dto.setPriority(entity.getPriority());
@@ -37,7 +39,10 @@ public class RequestMapper {
         dto.setCreatedBy(entity.getCreatedBy());
         dto.setBankName(entity.getBankName());
         dto.setBankEmail(entity.getBankEmail());
-        dto.setLogoUrl(entity.getLogoUrl());
+        dto.setBankPhone(entity.getBankPhone());
+        dto.setLogoUrl(hasText(entity.getLogoUrl())
+                ? entity.getLogoUrl()
+                : entity.getBank() != null ? entity.getBank().getLogoUrl() : null);
         dto.setCountry(entity.getCountry());
         dto.setWebsite(entity.getWebsite());
         dto.setContactName(entity.getContactName());
@@ -89,6 +94,7 @@ public class RequestMapper {
         entity.setCreatedBy(dto.getCreatedBy());
         entity.setBankName(dto.getBankName());
         entity.setBankEmail(dto.getBankEmail());
+        entity.setBankPhone(dto.getBankPhone());
         entity.setLogoUrl(dto.getLogoUrl());
         entity.setCountry(dto.getCountry());
         entity.setWebsite(dto.getWebsite());
@@ -154,6 +160,10 @@ public class RequestMapper {
             }
         }
         return ids;
+    }
+
+    private boolean hasText(String value) {
+        return value != null && !value.isBlank();
     }
 
     private void populateAdminContact(Request entity, RequestDto dto) {

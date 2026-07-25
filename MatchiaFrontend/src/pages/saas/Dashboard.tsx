@@ -1,8 +1,8 @@
 import '../../styles/SaaSDashboard.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
-import { Building2, FileText, Loader2, LogOut, Store, Users } from 'lucide-react';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, LineChart } from 'recharts';
+import { AlertTriangle, Building2, CalendarDays, FileText, Loader2, LogOut, Store, Users } from 'lucide-react';
 
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -12,14 +12,9 @@ import { useApp } from '../../context/AppContext';
 import { bankService } from '../../services/bankService';
 import { requestService } from '../../services/requestService';
 import { storeService } from '../../services/storeService';
+import { paymentService } from '../../services/paymentService';
 import { Bank } from '../../types';
-import { RequestDto, StoreDto } from '../../types/apiTypes';
-
-const getBackendAssetUrl = (url?: string | null) => {
-  if (!url) return null;
-  if (url.startsWith('http')) return url;
-  return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
-};
+import { MonthlyRevenueDto, RequestDto, StoreDto, StoreMarketplaceCountDto, SubscriptionExpiryAlertDto } from '../../types/apiTypes';
 
 const getRequestTypeLabel = (requestType: RequestDto['requestType']) => {
   switch (requestType) {
@@ -39,6 +34,9 @@ const getRequestTypeLabel = (requestType: RequestDto['requestType']) => {
 export function SaaSDashboard() {
   const [realBanks, setRealBanks] = useState<Bank[]>([]);
   const [realStores, setRealStores] = useState<StoreDto[]>([]);
+  const [marketplacesPerStore, setMarketplacesPerStore] = useState<StoreMarketplaceCountDto[]>([]);
+  const [monthlyRevenue, setMonthlyRevenue] = useState<MonthlyRevenueDto[]>([]);
+  const [subscriptionAlerts, setSubscriptionAlerts] = useState<SubscriptionExpiryAlertDto[]>([]);
   const [realRequests, setRealRequests] = useState<RequestDto[]>([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const { logout } = useApp();
@@ -52,15 +50,21 @@ export function SaaSDashboard() {
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [banksData, storesResponse, requestsResponse] = await Promise.all([
+        const [banksData, storesResponse, requestsResponse, marketplaceCountsResponse, monthlyRevenueResponse, subscriptionAlertsResponse] = await Promise.all([
           bankService.getAllBanks(),
           storeService.getAllStores(),
           requestService.getRequests(),
+          storeService.getMarketplaceCounts(),
+          paymentService.getMonthlyRevenue(),
+          paymentService.getExpiringSubscriptions(),
         ]);
 
         setRealBanks(banksData);
         setRealStores(storesResponse.data);
         setRealRequests(requestsResponse.data);
+        setMarketplacesPerStore(marketplaceCountsResponse.data);
+        setMonthlyRevenue(monthlyRevenueResponse.data);
+        setSubscriptionAlerts(subscriptionAlertsResponse.data);
       } catch (error) {
         console.error('Erreur lors de la récupération des données du dashboard:', error);
       } finally {
@@ -119,26 +123,37 @@ export function SaaSDashboard() {
     },
   ];
 
-  const monthlyData = [
-    { month: 'Jan', banks: 15, users: 45000 },
-    { month: 'Fév', banks: 18, users: 52000 },
-    { month: 'Mar', banks: 22, users: 61000 },
-    { month: 'Avr', banks: 28, users: 75000 },
-  ];
+  const monthlyRevenueData = monthlyRevenue.map((item) => {
+    const [year, month] = item.month.split('-').map(Number);
+    return {
+      month: new Date(year, month - 1).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' }),
+      revenue: item.revenue,
+    };
+  });
 
-  const storeUsage = realStores.map((store) => ({
-    name: store.name,
-    usage: store.modulesCount ?? 0,
+  const formatTnd = (amount: number) => `${amount.toLocaleString('fr-TN', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })} TND`;
+
+  const marketplaceCountsByStore = marketplacesPerStore.map((store) => ({
+    name: store.storeName,
+    marketplaces: store.marketplaceCount,
   }));
 
-  const pendingRequests = realRequests.filter((request) => request.status === 'pending');
+  const pendingRequests = realRequests
+    .filter((request) => request.status === 'pending')
+    .sort((firstRequest, secondRequest) => (
+      new Date(secondRequest.createdAt || 0).getTime() - new Date(firstRequest.createdAt || 0).getTime()
+    ))
+    .slice(0, 5);
 
   return (
     <div className="saas-dashboard-container">
       <div className="saas-dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
-          <h1 className="saas-dashboard-title">Tableau de bord SaaS</h1>
-          <p className="saas-dashboard-subtitle">Vue d'ensemble de la plateforme Matchia</p>
+          <h1 className="saas-dashboard-title">Tableau de bord </h1>
+
         </div>
         <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
           <LogOut className="w-4 h-4" />
@@ -162,18 +177,21 @@ export function SaaSDashboard() {
       <div className="saas-charts-grid">
         <Card>
           <CardHeader>
-            <CardTitle>Croissance mensuelle</CardTitle>
-            <CardDescription>Banques et utilisateurs par mois</CardDescription>
+            <CardTitle>Revenu mensuel</CardTitle>
+            <CardDescription>Revenu total mensuel en TND</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <LineChart data={monthlyData}>
+              <LineChart data={monthlyRevenueData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="month" stroke="#64748b" />
-                <YAxis stroke="#64748b" />
-                <Tooltip />
-                <Line type="monotone" dataKey="banks" stroke="#2563eb" strokeWidth={2} name="Banques" />
-                <Line type="monotone" dataKey="users" stroke="#f97316" strokeWidth={2} name="Utilisateurs" />
+                <XAxis dataKey="month" stroke="#64748b"  />
+                <YAxis
+                  stroke="#64748b"
+
+                  tickFormatter={(value) => `${value}`}
+                />
+                <Tooltip formatter={(value) => [formatTnd(Number(value ?? 0)), 'Revenu total']} />
+                <Line type="monotone" dataKey="revenue" name="Revenu total" stroke="#2563eb" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -181,17 +199,17 @@ export function SaaSDashboard() {
 
         <Card>
           <CardHeader>
-            <CardTitle>Utilisation des stores</CardTitle>
-            <CardDescription>Nombre d'utilisations par store</CardDescription>
+            <CardTitle>Marketplaces par store</CardTitle>
+            <CardDescription>Nombre de marketplaces utilisant chaque store</CardDescription>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={storeUsage}>
+              <BarChart data={marketplaceCountsByStore}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="name" stroke="#64748b" />
-                <YAxis stroke="#64748b" />
+                <YAxis stroke="#64748b" allowDecimals={false} />
                 <Tooltip />
-                <Bar dataKey="usage" fill="#2563eb" />
+                <Bar dataKey="marketplaces" name="Marketplaces" fill="#f97316" />
               </BarChart>
             </ResponsiveContainer>
           </CardContent>
@@ -201,36 +219,46 @@ export function SaaSDashboard() {
       <div className="saas-lists-grid">
         <Card>
           <CardHeader>
-            <CardTitle>Banques récentes</CardTitle>
-            <CardDescription>Dernières banques ajoutées</CardDescription>
+            <CardTitle>Alertes</CardTitle>
+
           </CardHeader>
           <CardContent>
             <div className="saas-list-container">
               {isLoadingData ? (
                 <div className="flex justify-center p-4"><Loader2 className="animate-spin" /></div>
+              ) : subscriptionAlerts.length === 0 ? (
+                <p className="p-4 text-center text-sm text-muted-foreground">
+                  Aucun abonnement n’expire prochainement.
+                </p>
               ) : (
-                realBanks.slice(-5).reverse().map((bank) => (
-                  <div key={bank.id} className="saas-bank-item">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white">
-                      {getBackendAssetUrl(bank.logoUrl) ? (
-                        <img
-                          src={getBackendAssetUrl(bank.logoUrl) || ''}
-                          alt={bank.name}
-                          className="h-full w-full object-contain p-1"
-                        />
-                      ) : (
-                        <Building2 className="h-5 w-5 text-slate-400" />
-                      )}
+                subscriptionAlerts.map((alert) => {
+                  const isUrgent = alert.alertLevel === 'Urgent';
+                  const expirationDate = new Date(`${alert.expirationDate}T00:00:00`).toLocaleDateString('fr-FR');
+
+                  return (
+                    <div
+                      key={alert.subscriptionId}
+                      className={`flex items-start gap-3 rounded-lg border p-3 ${isUrgent ? 'border-red-200 bg-red-50/60' : 'border-orange-200 bg-orange-50/60'}`}
+                    >
+                      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${isUrgent ? 'bg-red-100 text-red-600' : 'bg-orange-100 text-orange-600'}`}>
+                        <AlertTriangle className="h-5 w-5" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-2">
+                          <p className="font-medium text-slate-900">Banque « {alert.bankName} »</p>
+                          <Badge variant={isUrgent ? 'danger' : 'warning'}>{alert.alertLevel}</Badge>
+                        </div>
+                        <p className="mt-1 text-sm text-slate-600">
+                          L’abonnement de la marketplace « {alert.marketplaceSlug || alert.bankName} » expire le {expirationDate}, soit dans {alert.daysRemaining} {alert.daysRemaining > 1 ? 'jours' : 'jour'}.
+                        </p>
+                        <div className="mt-2 flex items-center gap-1 text-xs font-medium text-slate-500">
+                          <CalendarDays className="h-3.5 w-3.5" />
+                          Expiration : {expirationDate}
+                        </div>
+                      </div>
                     </div>
-                    <div className="saas-bank-info">
-                      <div className="saas-bank-name">{bank.name}</div>
-                      <div className="saas-bank-country text-xs text-muted-foreground">{bank.country}</div>
-                    </div>
-                    <Badge variant={bank.status === 'active' ? 'success' : 'warning'}>
-                      {bank.status === 'active' ? 'Actif' : 'En attente'}
-                    </Badge>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
           </CardContent>
@@ -239,7 +267,7 @@ export function SaaSDashboard() {
         <Card>
           <CardHeader>
             <CardTitle>Demandes en attente</CardTitle>
-            <CardDescription>Actions requises</CardDescription>
+
           </CardHeader>
           <CardContent>
             <div className="saas-list-container">

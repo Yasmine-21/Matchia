@@ -39,6 +39,7 @@ public class Request {
     private String createdBy;
     private String bankName;
     private String bankEmail;
+    private String bankPhone;
     private String logoUrl;
     private String country;
     private String website;
@@ -72,6 +73,16 @@ public class Request {
     private String selectedModules;
 
     private Double totalAmount;
+
+    /** The initial request retained as the commercial source of a renewal. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "original_request_id")
+    private Request originalRequest;
+
+    /** Present only for a renewal request. */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "subscription_id")
+    private Subscription subscription;
 
     @OneToMany(mappedBy = "request", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<RequestStoreSelection> selectedStoreDetails = new ArrayList<>();

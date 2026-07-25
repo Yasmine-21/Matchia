@@ -9,21 +9,24 @@ import com.stripe.param.checkout.SessionCreateParams;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.PaidSubscriptionDto;
+import org.matchia.matchiabackend.dto.MonthlyRevenueDto;
+import org.matchia.matchiabackend.dto.SubscriptionExpiryAlertDto;
+import org.matchia.matchiabackend.dto.SubscriptionRenewalResponse;
+import org.matchia.matchiabackend.dto.AuditLogRequest;
 import org.matchia.matchiabackend.dto.CheckoutSessionRequest;
 import org.matchia.matchiabackend.dto.ConfirmPaymentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentResponse;
-import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.Payment;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.RequestModuleSelection;
-import org.matchia.matchiabackend.entity.RequestStoreSelection;
 import org.matchia.matchiabackend.entity.enums.PaymentStatusEnum;
-import org.matchia.matchiabackend.entity.enums.MarketplaceStatusEnum;
+import org.matchia.matchiabackend.entity.enums.PaymentTypeEnum;
 import org.matchia.matchiabackend.entity.enums.RequestTypeEnum;
+import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
+import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
 import org.matchia.matchiabackend.repository.PaymentRepository;
 import org.matchia.matchiabackend.repository.RequestRepository;
-import org.matchia.matchiabackend.repository.MarketplaceRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,14 +37,13 @@ import java.math.RoundingMode;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
+import java.time.YearMonth;
 import java.util.List;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.Objects;
+import java.util.ArrayList;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,9 +59,12 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final RequestRepository requestRepository;
-    private final MarketplaceRepository marketplaceRepository;
     private final NotificationService notificationService;
     private final StoreRequestActivationService storeRequestActivationService;
+    private final AuditLogger auditLogger;
+    private final EmailService emailService;
+    private final SubscriptionService subscriptionService;
+    private final BankAdminCredentialsService bankAdminCredentialsService;
 
     @Value("${payment.demo-url:http://lvh.me:5173/payment/demo}")
     private String demoPaymentUrl;
@@ -103,18 +108,18 @@ public class PaymentService {
                 .orElseThrow(() -> new NoSuchElementException("Demande non trouvee : " + paymentIntentRequest.getRequestId()));
 
         String requestId = String.valueOf(paymentIntentRequest.getRequestId());
-        String bankName = hasText(paymentIntentRequest.getBankName()) ? paymentIntentRequest.getBankName().trim() : joinRequest.getBankName();
+        Payment payment = resolvePendingPayment(paymentIntentRequest.getPaymentId(), joinRequest);
+        payment.setSubscription(subscriptionService.resolveOrCreateForPayment(payment));
+        String bankName = hasText(payment.getBankName()) ? payment.getBankName()
+                : (hasText(paymentIntentRequest.getBankName()) ? paymentIntentRequest.getBankName().trim() : joinRequest.getBankName());
         if (!hasText(bankName)) {
             bankName = "Matchia";
         }
-        String currency = normalizeCurrency(paymentIntentRequest.getCurrency());
-        BigDecimal amount = paymentIntentRequest.getAmount().setScale(2, RoundingMode.HALF_UP);
-
-        Payment payment = new Payment();
-        payment.setRequest(joinRequest);
-        payment.setAmount(amount);
-        payment.setCurrency(currency);
-        payment.setStatus(PaymentStatusEnum.pending);
+        String currency = normalizeCurrency(payment.getCurrency());
+        BigDecimal amount = payment.getAmount().setScale(2, RoundingMode.HALF_UP);
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Le montant du renouvellement doit etre superieur a zero.");
+        }
         payment.setBankName(bankName);
         Payment savedPayment = paymentRepository.save(payment);
 
@@ -131,6 +136,7 @@ public class PaymentService {
         PaymentIntent paymentIntent = PaymentIntent.create(params);
         savedPayment.setStripePaymentIntentId(paymentIntent.getId());
         Payment updatedPayment = paymentRepository.save(savedPayment);
+        auditPayment(updatedPayment, "payment.initiated", AuditStatusEnum.success);
 
         return new CreatePaymentIntentResponse(
                 paymentIntent.getClientSecret(),
@@ -181,12 +187,15 @@ public class PaymentService {
             status = PaymentStatusEnum.pending;
         }
 
+        boolean wasAlreadyPaid = payment.getStatus() == PaymentStatusEnum.paid && payment.getPaidAt() != null;
         payment.setStatus(status);
         if (status == PaymentStatusEnum.paid && payment.getPaidAt() == null) {
             payment.setPaidAt(LocalDateTime.now());
         }
         Payment savedPayment = paymentRepository.save(payment);
-        if (savedPayment.getStatus() == PaymentStatusEnum.paid) {
+        auditPayment(savedPayment, savedPayment.getStatus() == PaymentStatusEnum.paid ? "payment.completed" : "payment.status_updated", AuditStatusEnum.success);
+        if (savedPayment.getStatus() == PaymentStatusEnum.paid && !wasAlreadyPaid) {
+            auditAutomaticPaymentAction(savedPayment, "payment.status_updated");
             try {
                 notificationService.createPaymentSuccessNotification(savedPayment.getRequest());
             } catch (Exception e) {
@@ -194,9 +203,12 @@ public class PaymentService {
             }
             try {
                 activateStoreRequestIfNeeded(savedPayment);
+                auditAutomaticPaymentAction(savedPayment, "subscription.activation_processed");
             } catch (Exception e) {
                 log.error("Impossible d'activer la demande store apres paiement {}.", savedPayment.getId(), e);
             }
+            activateSubscriptionIfNeeded(savedPayment);
+            bankAdminCredentialsService.issueAfterSuccessfulMarketplacePayment(savedPayment.getRequest());
         }
 
         return new CreatePaymentIntentResponse(
@@ -252,6 +264,7 @@ public class PaymentService {
 
         Payment payment = new Payment();
         payment.setRequest(joinRequest);
+        payment.setSubscription(subscriptionService.resolveOrCreateForRequest(joinRequest));
         payment.setStripeSessionId(session.getId());
         payment.setStripePaymentIntentId(session.getPaymentIntent());
         payment.setAmount(checkoutRequest.getAmount().setScale(2, RoundingMode.HALF_UP));
@@ -259,7 +272,8 @@ public class PaymentService {
         payment.setStatus(PaymentStatusEnum.pending);
         payment.setCheckoutUrl(session.getUrl());
         payment.setBankName(bankName);
-        paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
+        auditPayment(savedPayment, "payment.initiated", AuditStatusEnum.success);
 
         return session.getUrl();
     }
@@ -273,6 +287,7 @@ public class PaymentService {
                 .orElseGet(() -> {
                     Payment newPayment = new Payment();
                     newPayment.setRequest(joinRequest);
+                    newPayment.setSubscription(subscriptionService.resolveOrCreateForRequest(joinRequest));
                     newPayment.setAmount(BigDecimal.valueOf(joinRequest.getTotalAmount() != null ? joinRequest.getTotalAmount() : 0)
                             .setScale(2, RoundingMode.HALF_UP));
                     newPayment.setCurrency(normalizeCurrency(null));
@@ -280,9 +295,15 @@ public class PaymentService {
                     return newPayment;
                 });
 
+        if (payment.getStatus() == PaymentStatusEnum.paid && payment.getPaidAt() != null) {
+            return payment;
+        }
+
+        payment.setSubscription(subscriptionService.resolveOrCreateForPayment(payment));
         payment.setStatus(PaymentStatusEnum.paid);
         payment.setPaidAt(LocalDateTime.now());
         Payment savedPayment = paymentRepository.save(payment);
+        auditAutomaticPaymentAction(savedPayment, "payment.status_updated");
         try {
             notificationService.createPaymentSuccessNotification(savedPayment.getRequest());
         } catch (Exception e) {
@@ -293,31 +314,256 @@ public class PaymentService {
         } catch (Exception e) {
             log.error("Impossible d'activer la demande store apres paiement {}.", requestId, e);
         }
+        activateSubscriptionIfNeeded(savedPayment);
         return savedPayment;
+    }
+
+    @Transactional(readOnly = true)
+    public boolean isRequestPaymentAlreadyPaid(Long requestId) {
+        return paymentRepository.findTopByRequest_IdOrderByCreatedAtDesc(requestId)
+                .map(payment -> payment.getStatus() == PaymentStatusEnum.paid && payment.getPaidAt() != null)
+                .orElse(false);
+    }
+
+    private void activateSubscriptionIfNeeded(Payment payment) {
+        if (payment == null || payment.getStatus() != PaymentStatusEnum.paid || payment.getPaidAt() == null) {
+            return;
+        }
+        subscriptionService.activateFromSuccessfulPayment(payment);
+        auditAutomaticPaymentAction(payment,
+                payment.getPaymentType() == PaymentTypeEnum.RENEWAL ? "subscription.renewed" : "subscription.activation_processed");
+    }
+
+    @Transactional
+    public SubscriptionRenewalResponse createPaymentForApprovedRenewalRequest(Request renewalRequest) {
+        if (renewalRequest == null || renewalRequest.getId() == null
+                || renewalRequest.getRequestType() != org.matchia.matchiabackend.entity.enums.RequestTypeEnum.renewal
+                || renewalRequest.getStatus() != org.matchia.matchiabackend.entity.enums.RequestStatusEnum.approved
+                || renewalRequest.getSubscription() == null || renewalRequest.getOriginalRequest() == null) {
+            throw new IllegalArgumentException("La demande de renouvellement approuvee est invalide.");
+        }
+
+        Payment existing = paymentRepository.findByRenewalRequest_Id(renewalRequest.getId()).orElse(null);
+        if (existing != null) {
+            return new SubscriptionRenewalResponse(
+                    renewalRequest.getOriginalRequest().getId(), existing.getId(), existing.getCheckoutUrl());
+        }
+
+        var subscription = renewalRequest.getSubscription();
+        Payment previousPaidPayment = subscriptionService.getCurrentPaidPayment(subscription);
+        if (previousPaidPayment == null || previousPaidPayment.getAmount() == null
+                || previousPaidPayment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalStateException("Aucun paiement valide ne permet de calculer le renouvellement.");
+        }
+
+        Request originalRequest = renewalRequest.getOriginalRequest();
+        Payment payment = new Payment();
+        payment.setRequest(originalRequest);
+        payment.setRenewalRequest(renewalRequest);
+        payment.setSubscription(subscription);
+        payment.setRenewedPayment(previousPaidPayment);
+        payment.setPaymentType(PaymentTypeEnum.RENEWAL);
+        payment.setAmount(previousPaidPayment.getAmount().setScale(2, RoundingMode.HALF_UP));
+        payment.setCurrency(normalizeCurrency(null));
+        payment.setStatus(PaymentStatusEnum.pending);
+        payment.setBankName(hasText(previousPaidPayment.getBankName())
+                ? previousPaidPayment.getBankName() : originalRequest.getBankName());
+        Payment saved = paymentRepository.save(payment);
+
+        subscriptionService.markRenewalPending(subscription);
+        String paymentLink = fallbackPaymentLink(originalRequest, saved.getId(), saved.getAmount(), previousPaidPayment.getCurrency());
+        saved.setCheckoutUrl(paymentLink);
+        saved = paymentRepository.save(saved);
+        emailService.sendSubscriptionRenewalPaymentInstructions(originalRequest, paymentLink);
+        auditPayment(saved, "subscription.renewal_payment_requested", AuditStatusEnum.success);
+        return new SubscriptionRenewalResponse(originalRequest.getId(), saved.getId(), paymentLink);
+    }
+
+    @Transactional
+    public SubscriptionRenewalResponse createSubscriptionRenewal(Long subscriptionPaymentId) throws StripeException {
+        Payment originalPayment = paymentRepository.findById(subscriptionPaymentId)
+                .orElseThrow(() -> new NoSuchElementException("Abonnement introuvable : " + subscriptionPaymentId));
+        if (originalPayment.getStatus() != PaymentStatusEnum.paid || originalPayment.getPaidAt() == null
+                || originalPayment.getRequest() == null || originalPayment.getRequest().getBank() == null
+                || originalPayment.getAmount() == null || originalPayment.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Seul un abonnement paye peut etre renouvele.");
+        }
+
+        var subscription = subscriptionService.resolveOrCreateForPayment(originalPayment);
+        Payment currentPaidPayment = subscriptionService.getCurrentPaidPayment(subscription);
+        if (currentPaidPayment != null) {
+            originalPayment = currentPaidPayment;
+        }
+        Request original = originalPayment.getRequest();
+        Payment pendingPayment = subscriptionService.getPendingRenewal(subscription);
+        if (pendingPayment != null) {
+            String paymentLink = hasText(pendingPayment.getCheckoutUrl())
+                    ? pendingPayment.getCheckoutUrl()
+                    : fallbackPaymentLink(original, pendingPayment.getId(), pendingPayment.getAmount(), originalPayment.getCurrency());
+            return new SubscriptionRenewalResponse(original.getId(), pendingPayment.getId(), paymentLink);
+        }
+
+        Payment renewalPayment = new Payment();
+        renewalPayment.setRequest(original);
+        renewalPayment.setSubscription(subscription);
+        renewalPayment.setRenewedPayment(originalPayment);
+        renewalPayment.setPaymentType(PaymentTypeEnum.RENEWAL);
+        renewalPayment.setAmount(originalPayment.getAmount().setScale(2, RoundingMode.HALF_UP));
+        // Stripe charges renewals in the configured settlement currency (USD),
+        // while the payment link and e-mail keep showing the source price in TND.
+        renewalPayment.setCurrency(normalizeCurrency(null));
+        renewalPayment.setStatus(PaymentStatusEnum.pending);
+        renewalPayment.setBankName(hasText(originalPayment.getBankName()) ? originalPayment.getBankName() : original.getBankName());
+        Payment savedPayment = paymentRepository.save(renewalPayment);
+        subscriptionService.markRenewalPending(subscription);
+
+        String paymentLink = fallbackPaymentLink(original, savedPayment.getId(), savedPayment.getAmount(), originalPayment.getCurrency());
+        savedPayment.setCheckoutUrl(paymentLink);
+        paymentRepository.save(savedPayment);
+        emailService.sendSubscriptionRenewalPaymentInstructions(original, paymentLink);
+        AuditLogRequest audit = new AuditLogRequest();
+        audit.setTenantId("saas");
+        audit.setAction("subscription.renewal_requested");
+        audit.setCategory(AuditCategoryEnum.billing);
+        audit.setResourceType("payment_renewal");
+        audit.setResourceId(String.valueOf(savedPayment.getId()));
+        audit.setStatus(AuditStatusEnum.success);
+        audit.setCorrelationId("request-" + original.getId());
+        auditLogger.logAsync(audit);
+        return new SubscriptionRenewalResponse(original.getId(), savedPayment.getId(), paymentLink);
+    }
+
+    private void auditPayment(Payment payment, String action, AuditStatusEnum status) {
+        AuditLogRequest audit = paymentAudit(payment, action, status);
+        auditLogger.logAsync(audit);
+    }
+
+    private void auditAutomaticPaymentAction(Payment payment, String action) {
+        AuditLogRequest audit = paymentAudit(payment, action, AuditStatusEnum.success);
+        auditLogger.logSystemAsync(audit, "PAYMENT_WEBHOOK");
+    }
+
+    private AuditLogRequest paymentAudit(Payment payment, String action, AuditStatusEnum status) {
+        Request request = payment != null ? payment.getRequest() : null;
+        AuditLogRequest audit = new AuditLogRequest();
+        audit.setTenantId("saas");
+        audit.setAction(action);
+        audit.setCategory(AuditCategoryEnum.billing);
+        audit.setResourceType("payment");
+        audit.setResourceId(payment != null && payment.getId() != null ? String.valueOf(payment.getId()) : null);
+        audit.setStatus(status);
+        audit.setAffectedUserName(request != null ? request.getContactName() : null);
+        audit.setEmailRecipient(request != null ? request.getContactEmail() : null);
+        audit.setBankId(request != null && request.getBank() != null && request.getBank().getId() != null
+                ? String.valueOf(request.getBank().getId()) : null);
+        audit.setMarketplaceId(request != null && request.getBank() != null && request.getBank().getMarketplace() != null
+                && request.getBank().getMarketplace().getId() != null
+                ? String.valueOf(request.getBank().getMarketplace().getId()) : null);
+        audit.setCorrelationId(request != null && request.getId() != null ? "request-" + request.getId() : null);
+        return audit;
     }
 
     @Transactional
     public List<PaidSubscriptionDto> getPaidSubscriptions() {
-        syncMarketplaceStatusesFromPaidSubscriptions();
+        subscriptionService.synchronizeExpirationStatuses();
         return paymentRepository.findByStatusOrderByPaidAtDesc(PaymentStatusEnum.paid).stream()
                 .map(this::toPaidSubscriptionDto)
                 .toList();
     }
 
+    /**
+     * Returns the current calendar year, including months without a paid payment.
+     * Only payments in the paid state contribute to platform revenue.
+     */
+    @Transactional(readOnly = true)
+    public List<MonthlyRevenueDto> getMonthlyRevenue() {
+        YearMonth currentMonth = YearMonth.now();
+        YearMonth firstMonth = YearMonth.of(currentMonth.getYear(), 1);
+        LocalDateTime start = firstMonth.atDay(1).atStartOfDay();
+        LocalDateTime end = firstMonth.plusYears(1).atDay(1).atStartOfDay();
+
+        Map<YearMonth, BigDecimal> revenueByMonth = paymentRepository
+                .findByStatusAndPaidAtGreaterThanEqualAndPaidAtLessThan(PaymentStatusEnum.paid, start, end)
+                .stream()
+                .filter(payment -> payment.getAmount() != null && payment.getPaidAt() != null)
+                .collect(Collectors.groupingBy(
+                        payment -> YearMonth.from(payment.getPaidAt()),
+                        Collectors.reducing(BigDecimal.ZERO, Payment::getAmount, BigDecimal::add)
+                ));
+
+        List<MonthlyRevenueDto> monthlyRevenue = new ArrayList<>();
+        for (int offset = 0; offset < 12; offset++) {
+            YearMonth month = firstMonth.plusMonths(offset);
+            monthlyRevenue.add(new MonthlyRevenueDto(
+                    month.toString(),
+                    revenueByMonth.getOrDefault(month, BigDecimal.ZERO),
+                    "TND"
+            ));
+        }
+        return monthlyRevenue;
+    }
+
+    /**
+     * Returns active subscriptions that expire within the next seven calendar days.
+     * A subscription is excluded only when a successful renewal payment explicitly
+     * references it. Independent subscriptions of the same marketplace are retained.
+     */
+    @Transactional
+    public List<SubscriptionExpiryAlertDto> getExpiringSubscriptionAlerts() {
+        return subscriptionService.getExpiringAlerts();
+    }
+
     @Scheduled(fixedDelayString = "${app.subscription-status-sync-ms:3600000}")
     @Transactional
     public void syncExpiredMarketplaceSubscriptions() {
-        syncMarketplaceStatusesFromPaidSubscriptions();
+        subscriptionService.synchronizeExpirationStatuses();
     }
 
     private String fallbackPaymentLink(Request request) {
+        return fallbackPaymentLink(request, null, null, null);
+    }
+
+    private String fallbackPaymentLink(Request request, Long paymentId) {
+        return fallbackPaymentLink(request, paymentId, null, null);
+    }
+
+    private String fallbackPaymentLink(Request request, Long paymentId, BigDecimal paymentAmount, String paymentCurrency) {
         String bankName = request.getBankName() != null ? request.getBankName() : "bank";
-        String amount = request.getTotalAmount() != null ? String.valueOf(request.getTotalAmount()) : "0";
-        return demoPaymentUrl
+        String amount = paymentAmount != null ? paymentAmount.toPlainString()
+                : (request.getTotalAmount() != null ? String.valueOf(request.getTotalAmount()) : "0");
+        String currency = hasText(paymentCurrency) ? paymentCurrency.trim().toLowerCase() : normalizeCurrency(null);
+        String link = demoPaymentUrl
                 + "?request_id=" + request.getId()
                 + "&bank=" + encode(bankName)
                 + "&amount=" + encode(amount)
-                + "&currency=" + encode(stripeCurrency);
+                + "&currency=" + encode(currency);
+        return paymentId == null ? link : link + "&payment_id=" + paymentId;
+    }
+
+    private Payment resolvePendingPayment(Long paymentId, Request request) {
+        if (paymentId != null) {
+            Payment payment = paymentRepository.findById(paymentId)
+                    .orElseThrow(() -> new NoSuchElementException("Paiement introuvable : " + paymentId));
+            if (payment.getRequest() == null || !Objects.equals(payment.getRequest().getId(), request.getId())
+                    || payment.getStatus() != PaymentStatusEnum.pending) {
+                throw new IllegalArgumentException("Le paiement ne correspond pas a la demande de renouvellement.");
+            }
+            return payment;
+        }
+
+        return paymentRepository.findTopByRequest_IdOrderByCreatedAtDesc(request.getId())
+                .filter(payment -> payment.getStatus() == PaymentStatusEnum.pending)
+                .orElseGet(() -> {
+                    Payment payment = new Payment();
+                    payment.setRequest(request);
+                    payment.setSubscription(subscriptionService.resolveOrCreateForRequest(request));
+                    payment.setAmount(BigDecimal.valueOf(request.getTotalAmount() != null ? request.getTotalAmount() : 0)
+                            .setScale(2, RoundingMode.HALF_UP));
+                    payment.setCurrency(normalizeCurrency(null));
+                    payment.setStatus(PaymentStatusEnum.pending);
+                    payment.setBankName(request.getBankName());
+                    return paymentRepository.save(payment);
+                });
     }
 
     private String encode(String value) {
@@ -377,12 +623,6 @@ public class PaymentService {
         if (request == null || request.getRequestId() == null) {
             throw new IllegalArgumentException("requestId is required.");
         }
-        if (request.getAmount() == null || request.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new IllegalArgumentException("amount must be greater than 0.");
-        }
-        if (!hasText(request.getCurrency())) {
-            throw new IllegalArgumentException("currency is required.");
-        }
     }
 
     private PaymentStatusEnum mapStripeStatus(String stripeStatus) {
@@ -399,10 +639,10 @@ public class PaymentService {
     }
 
     private String normalizeCurrency(String currency) {
-        String platformCurrency = hasText(stripeCurrency) ? stripeCurrency.trim().toLowerCase() : "tnd";
-        if (hasText(currency) && !platformCurrency.equals(currency.trim().toLowerCase())) {
-            log.warn("Devise de paiement {} ignoree : la plateforme utilise {}.", currency, platformCurrency);
+        if (hasText(currency)) {
+            return currency.trim().toLowerCase();
         }
+        String platformCurrency = hasText(stripeCurrency) ? stripeCurrency.trim().toLowerCase() : "tnd";
         return platformCurrency;
     }
 
@@ -463,45 +703,6 @@ public class PaymentService {
                         module.getModulePrice()
                 ))
                 .collect(Collectors.toList());
-    }
-
-    private void syncMarketplaceStatusesFromPaidSubscriptions() {
-        List<Payment> paidPayments = paymentRepository.findByStatusOrderByPaidAtDesc(PaymentStatusEnum.paid);
-        Map<Long, Payment> latestPaymentByRequest = new LinkedHashMap<>();
-
-        for (Payment payment : paidPayments) {
-            Request request = payment.getRequest();
-            if (request == null || request.getId() == null || latestPaymentByRequest.containsKey(request.getId())) {
-                continue;
-            }
-            latestPaymentByRequest.put(request.getId(), payment);
-        }
-
-        for (Payment payment : latestPaymentByRequest.values()) {
-            Request request = payment.getRequest();
-            if (request == null || request.getBank() == null) {
-                continue;
-            }
-
-            Marketplace marketplace = request.getBank().getMarketplace();
-            if (marketplace == null) {
-                continue;
-            }
-
-            LocalDateTime paidAt = payment.getPaidAt();
-            if (paidAt == null) {
-                continue;
-            }
-
-            LocalDateTime expirationDate = paidAt.plus(1, ChronoUnit.MONTHS);
-            boolean expired = expirationDate.isBefore(LocalDateTime.now(ZoneId.systemDefault()));
-            MarketplaceStatusEnum desiredStatus = expired ? MarketplaceStatusEnum.inactive : MarketplaceStatusEnum.active;
-
-            if (marketplace.getStatus() != desiredStatus) {
-                marketplace.setStatus(desiredStatus);
-                marketplaceRepository.save(marketplace);
-            }
-        }
     }
 
     private String resolveBankLogoUrl(Payment payment, Request request) {

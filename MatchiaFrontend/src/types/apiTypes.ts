@@ -2,7 +2,7 @@ export type BankStatus = 'pending' | 'inactive' | 'active' | 'suspended' | 'reje
 export type StoreStatus = 'active' | 'inactive';
 export type ModuleStatus = 'active' | 'inactive';
 export type ContentStatus = 'active' | 'inactive';
-export type RequestType = 'join' | 'store' | 'module' | 'subscription';
+export type RequestType = 'join' | 'store' | 'module' | 'subscription' | 'renewal';
 export type RequestStatus = 'pending' | 'approved' | 'rejected';
 export type NotificationStatus = 'UNREAD' | 'READ';
 export type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR' | 'PAYMENT_SUCCESS';
@@ -12,6 +12,8 @@ export interface Bank {
   name: string;
   slug: string;
   email?: string | null;
+  phone?: string | null;
+  contactPhone?: string | null;
   logoUrl?: string | null;
   country?: string | null;
   description?: string | null;
@@ -33,6 +35,56 @@ export interface StoreDto {
   price?: number | null;
   createdAt?: string;
   modulesCount?: number;
+}
+
+export interface StoreMarketplaceCountDto {
+  storeId: number;
+  storeName: string;
+  marketplaceCount: number;
+}
+
+export interface MonthlyRevenueDto {
+  month: string;
+  revenue: number;
+  currency: 'TND';
+}
+
+export interface SubscriptionExpiryAlertDto {
+  subscriptionId: number;
+  bankName: string;
+  marketplaceSlug?: string | null;
+  expirationDate: string;
+  daysRemaining: number;
+  alertLevel: 'Urgent' | 'Attention';
+}
+
+export type SubscriptionStatus = 'PENDING_PAYMENT' | 'ACTIVE' | 'EXPIRED' | 'PENDING_RENEWAL' | 'CANCELLED';
+
+export interface SubscriptionDto {
+  subscriptionId: number;
+  requestId?: number | null;
+  paymentId?: number | null;
+  bankName: string;
+  bankLogoUrl?: string | null;
+  marketplaceSlug?: string | null;
+  amount?: number | string | null;
+  currency?: string | null;
+  paidAt?: string | null;
+  startDate?: string | null;
+  expirationDate?: string | null;
+  daysRemaining?: number | null;
+  status: SubscriptionStatus;
+  renewalEligible: boolean;
+  renewalPending: boolean;
+  stores?: PaidSubscriptionStoreDto[];
+}
+
+export interface SubscriptionOverviewDto {
+  subscriptions: SubscriptionDto[];
+  activeCount: number;
+  expiringCount: number;
+  expiredCount: number;
+  totalCount: number;
 }
 
 export interface ContentDto {
@@ -179,6 +231,7 @@ export interface RequestDto {
   createdBy?: string | null;
   bankName: string;
   bankEmail: string;
+  bankPhone?: string | null;
   logoUrl?: string | null;
   country: string;
   website?: string | null;
@@ -211,6 +264,7 @@ export interface RequestDto {
 export interface RequestPayload {
   bankName: string;
   bankEmail: string;
+  bankPhone?: string;
   country: string;
   website?: string;
   contactName: string;

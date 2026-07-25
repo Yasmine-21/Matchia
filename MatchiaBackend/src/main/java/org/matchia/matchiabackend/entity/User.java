@@ -1,6 +1,7 @@
 package org.matchia.matchiabackend.entity;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.matchia.matchiabackend.entity.converter.RoleEnumConverter;
@@ -34,6 +35,7 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatusEnum status;
 
+    @JsonIgnore
     private String password;
 
     @CreationTimestamp

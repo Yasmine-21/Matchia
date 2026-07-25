@@ -12,14 +12,13 @@ import {
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { useBankTenant } from '../../hooks/useBankTenant';
-import apiClient from '../../api/apiClient';
-import { requestService } from '../../services/requestService';
+import { subscriptionService } from '../../services/subscriptionService';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import { Modal } from '../../components/ui/Modal';
 import { getBackendAssetUrl } from '../../utils/tenant';
-import type { PaidSubscriptionDto, RequestDto } from '../../types/apiTypes';
+import type { RequestDto, SubscriptionDto } from '../../types/apiTypes';
 
 const formatTnd = (value?: number | string | null) =>
   new Intl.NumberFormat('fr-TN', {
@@ -31,37 +30,15 @@ const formatTnd = (value?: number | string | null) =>
 
 const formatDate = (value?: string | null) => {
   if (!value) return '-';
-  const date = new Date(value);
+  const date = /^\d{4}-\d{2}-\d{2}$/.test(value)
+    ? new Date(`${value}T12:00:00`)
+    : new Date(value);
   if (Number.isNaN(date.getTime())) return '-';
   return new Intl.DateTimeFormat('fr-TN', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
   }).format(date);
-};
-
-const addOneMonth = (value?: string | null) => {
-  if (!value) return null;
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return null;
-  const expiration = new Date(date);
-  expiration.setMonth(expiration.getMonth() + 1);
-  return expiration;
-};
-
-const formatDateFromDate = (value?: Date | null) => {
-  if (!value || Number.isNaN(value.getTime())) return '-';
-  return new Intl.DateTimeFormat('fr-TN', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(value);
-};
-
-const getDaysRemaining = (expirationDate: Date | null) => {
-  if (!expirationDate) return null;
-  const diffMs = expirationDate.getTime() - new Date().getTime();
-  return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
 };
 
 const getSubscriptionStatus = (daysRemaining: number | null) => {
@@ -93,13 +70,13 @@ const getBackendAmount = (value?: number | string | null) => {
 export function BankSubscription() {
   const { currentBank, currentUser } = useApp();
   const { marketplace, isLoading: isTenantLoading, error: tenantError, refresh } = useBankTenant();
-  const [subscriptions, setSubscriptions] = useState<PaidSubscriptionDto[]>([]);
+  const [subscriptions, setSubscriptions] = useState<SubscriptionDto[]>([]);
   const [isLoadingSubscriptions, setIsLoadingSubscriptions] = useState(true);
   const [error, setError] = useState('');
   const [isRenewalModalOpen, setIsRenewalModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [createdRequest, setCreatedRequest] = useState<RequestDto | null>(null);
-  const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
+  const [selectedSubscriptionId, setSelectedSubscriptionId] = useState<number | null>(null);
 
   useEffect(() => {
     const loadSubscriptions = async () => {
@@ -112,8 +89,8 @@ export function BankSubscription() {
       setIsLoadingSubscriptions(true);
       setError('');
       try {
-        const response = await apiClient.get<PaidSubscriptionDto[]>('/api/payments/paid-subscriptions');
-        setSubscriptions(response.data || []);
+        const response = await subscriptionService.getOverview();
+        setSubscriptions(response.data.subscriptions || []);
       } catch (loadError) {
         console.error('Failed to load paid subscriptions:', loadError);
         setError("Impossible de charger l'historique des abonnements.");
@@ -144,17 +121,17 @@ export function BankSubscription() {
 
   useEffect(() => {
     if (!marketplaceSubscriptions.length) {
-      if (selectedPaymentId !== null) {
-        setSelectedPaymentId(null);
+      if (selectedSubscriptionId !== null) {
+        setSelectedSubscriptionId(null);
       }
       return;
     }
 
-    const selectedExists = marketplaceSubscriptions.some((subscription) => subscription.paymentId === selectedPaymentId);
+    const selectedExists = marketplaceSubscriptions.some((subscription) => subscription.subscriptionId === selectedSubscriptionId);
     if (!selectedExists) {
-      setSelectedPaymentId(marketplaceSubscriptions[0].paymentId);
+      setSelectedSubscriptionId(marketplaceSubscriptions[0].subscriptionId);
     }
-  }, [marketplaceSubscriptions, selectedPaymentId]);
+  }, [marketplaceSubscriptions, selectedSubscriptionId]);
 
   const selectedSubscription = useMemo(() => {
     if (!marketplaceSubscriptions.length) {
@@ -162,24 +139,25 @@ export function BankSubscription() {
     }
 
     return (
-      marketplaceSubscriptions.find((subscription) => subscription.paymentId === selectedPaymentId) ||
+      marketplaceSubscriptions.find((subscription) => subscription.subscriptionId === selectedSubscriptionId) ||
       marketplaceSubscriptions[0] ||
       null
     );
-  }, [marketplaceSubscriptions, selectedPaymentId]);
+  }, [marketplaceSubscriptions, selectedSubscriptionId]);
 
   const renewalAmount = useMemo(() => {
     return getBackendAmount(selectedSubscription?.amount) ?? marketplace?.totalMonthlyPrice ?? 0;
   }, [marketplace?.totalMonthlyPrice, selectedSubscription?.amount]);
 
   const paidAtDate = selectedSubscription?.paidAt || null;
-  const expirationDate = addOneMonth(paidAtDate);
-  const daysRemaining = getDaysRemaining(expirationDate);
+  // The SaaS and Bank back offices must use the exact same calendar-day result.
+  // Both values are computed once by SubscriptionService on the backend.
+  const expirationDate = selectedSubscription?.expirationDate || null;
+  const daysRemaining = selectedSubscription?.daysRemaining ?? null;
   const statusInfo = getSubscriptionStatus(daysRemaining);
   const bankLogoUrl = marketplace?.bankLogoUrl || currentBank?.logoUrl || selectedSubscription?.bankLogoUrl || null;
   const bankName = marketplace?.bankName || currentBank?.name || selectedSubscription?.bankName || 'Votre banque';
   const tenantBankId = currentBank?.id || marketplace?.bankId || null;
-  const renewalDescription = `Renouvellement de l'abonnement marketplace pour ${bankName}.`;
 
   const submitRenewalRequest = async () => {
     if (!marketplaceSlug || !tenantBankId) {
@@ -187,14 +165,8 @@ export function BankSubscription() {
       return;
     }
 
-    if (!renewalAmount || renewalAmount <= 0) {
-      setError('Le montant du renouvellement est introuvable.');
-      return;
-    }
-
-    const contactEmail = currentUser?.email || marketplace?.bankEmail || currentBank?.email || '';
-    if (!contactEmail) {
-      setError("L'email de contact est requis pour envoyer la demande.");
+    if (!selectedSubscription?.subscriptionId) {
+      setError("Impossible d'identifier l'abonnement à renouveler.");
       return;
     }
 
@@ -202,29 +174,8 @@ export function BankSubscription() {
     setError('');
 
     try {
-      const response = await requestService.createBankStoreRequest({
+      const response = await subscriptionService.createRenewalRequest(selectedSubscription.subscriptionId, {
         bankId: tenantBankId,
-        requestType: 'subscription',
-        bankName,
-        bankEmail: currentBank?.email || marketplace?.bankEmail || contactEmail,
-        country: currentBank?.country || marketplace?.bankCountry || '',
-        website: currentBank?.websiteUrl || marketplace?.bankWebsiteUrl || undefined,
-        contactName: currentUser?.name || bankName,
-        contactEmail,
-        contactPhone: '',
-        description: "Demande de renouvellement de l'abonnement marketplace.",
-        bankDescription: renewalDescription,
-        establishmentYear: currentBank?.establishedYear || currentBank?.establishmentYear || marketplace?.bankEstablishedYear || undefined,
-        marketplaceSlug,
-        marketplaceDescription: marketplace?.bankDescription || renewalDescription,
-        primaryColor: marketplace?.primaryColor || '#0F172A',
-        secondaryColor: marketplace?.secondaryColor || '#F97316',
-        storeIds: [],
-        moduleIds: [],
-        selectedStoreDetails: [],
-        totalAmount: renewalAmount,
-        totalMonthlyPrice: renewalAmount,
-        priority: 'high',
         createdBy: currentUser?.email || currentUser?.name || 'bank_subscription_panel',
       });
 
@@ -314,7 +265,7 @@ export function BankSubscription() {
                           <Clock3 className="h-4 w-4" />
                           Expiration
                         </div>
-                        <div className="mt-2 text-2xl font-bold text-slate-900">{formatDateFromDate(expirationDate)}</div>
+                        <div className="mt-2 text-2xl font-bold text-slate-900">{formatDate(expirationDate)}</div>
                         <div className="mt-1 text-sm text-muted-foreground">{formatDaysRemaining(daysRemaining)}</div>
                       </div>
                     </div>
@@ -342,15 +293,15 @@ export function BankSubscription() {
                         Aucun paiement historique trouvé pour cette marketplace.
                       </div>
                     ) : (
-                      marketplaceSubscriptions.map((subscription) => {
-                        const rowExpirationDate = addOneMonth(subscription.paidAt);
-                        const rowDaysRemaining = getDaysRemaining(rowExpirationDate);
-                        const isSelected = subscription.paymentId === selectedSubscription?.paymentId;
+                      marketplaceSubscriptions.map((subscription, subscriptionIndex) => {
+                        const rowExpirationDate = subscription.expirationDate || null;
+                        const rowDaysRemaining = subscription.daysRemaining ?? null;
+                        const isSelected = subscription.subscriptionId === selectedSubscription?.subscriptionId;
                         return (
                           <button
-                            key={subscription.paymentId}
+                            key={`subscription-${subscription.subscriptionId}-${subscriptionIndex}`}
                             type="button"
-                            onClick={() => setSelectedPaymentId(subscription.paymentId)}
+                            onClick={() => setSelectedSubscriptionId(subscription.subscriptionId)}
                             className={`w-full rounded-2xl border px-4 py-4 text-left transition-all duration-200 ${
                               isSelected
                                 ? 'border-orange-400 bg-orange-50/70 shadow-sm'
@@ -380,7 +331,7 @@ export function BankSubscription() {
 
                               <div>
                                 <div className="text-[11px] uppercase tracking-[0.24em] text-muted-foreground">Expiration</div>
-                                <div className="mt-1 text-sm font-semibold text-slate-900">{formatDateFromDate(rowExpirationDate)}</div>
+                                <div className="mt-1 text-sm font-semibold text-slate-900">{formatDate(rowExpirationDate)}</div>
                               </div>
 
                               <div>
@@ -418,7 +369,7 @@ export function BankSubscription() {
                           </div>
                           <div>
                             <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Expiration</div>
-                            <div className="mt-1 text-base font-semibold text-foreground">{formatDateFromDate(expirationDate)}</div>
+                            <div className="mt-1 text-base font-semibold text-foreground">{formatDate(expirationDate)}</div>
                           </div>
                         </div>
                         <div className="space-y-4">
@@ -451,7 +402,10 @@ export function BankSubscription() {
                       ) : (
                         <div className="mt-4 space-y-4">
                           {(selectedSubscription.stores || []).map((store, index) => (
-                            <div key={store.storeId ?? store.storeName} className="rounded-2xl border border-border bg-surface p-4 shadow-sm">
+                            <div
+                              key={`subscription-${selectedSubscription.subscriptionId}-store-${store.storeId ?? store.storeName ?? 'unknown'}-${index}`}
+                              className="rounded-2xl border border-border bg-surface p-4 shadow-sm"
+                            >
                               <div className="flex items-start justify-between gap-3">
                                 <div className="flex min-w-0 items-start gap-3">
                                   <div
@@ -481,9 +435,9 @@ export function BankSubscription() {
                                   </div>
                                 ) : (
                                   <div className="mt-3 flex flex-wrap gap-2">
-                                    {(store.modules || []).map((module) => (
+                                    {(store.modules || []).map((module, moduleIndex) => (
                                       <span
-                                        key={module.moduleId ?? module.moduleName}
+                                        key={`store-${store.storeId ?? index}-module-${module.moduleId ?? module.moduleName ?? 'unknown'}-${moduleIndex}`}
                                         className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-medium text-slate-700"
                                       >
                                         {module.moduleName || 'Module'}
@@ -547,7 +501,7 @@ export function BankSubscription() {
               </div>
               <div>
                 <div className="text-muted-foreground">Expiration actuelle</div>
-                <div className="font-medium">{formatDateFromDate(expirationDate)}</div>
+                <div className="font-medium">{formatDate(expirationDate)}</div>
               </div>
             </div>
           </div>

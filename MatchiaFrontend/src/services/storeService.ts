@@ -1,11 +1,14 @@
 // src/services/storeService.ts
 import apiClient from '../api/apiClient';
-import { StoreDto } from '../types/apiTypes';
+import { StoreDto, StoreMarketplaceCountDto } from '../types/apiTypes';
 
 export const storeService = {
     
      getAllStores: () =>
         apiClient.get<StoreDto[]>('/stores'),
+
+    getMarketplaceCounts: () =>
+        apiClient.get<StoreMarketplaceCountDto[]>('/stores/marketplace-counts'),
 
     getStoresByStatus: (status: 'active' | 'inactive') =>
         apiClient.get<StoreDto[]>('/stores', { params: { status } }),
