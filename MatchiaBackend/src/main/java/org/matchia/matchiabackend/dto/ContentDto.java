@@ -18,6 +18,7 @@ public class ContentDto {
     private String description;
     private String imageUrl;
     private ContentStatusEnum status;
+    private Boolean visibleInMarketplace;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }

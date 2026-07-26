@@ -35,6 +35,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/payments/**").permitAll()
                         .requestMatchers("/api/ai-assistant/**").permitAll()
+                        .requestMatchers("/api/certificates", "/api/certificates/**").permitAll()
                         .requestMatchers("/chatbot/**").permitAll()
                         .anyRequest().permitAll()
                 )

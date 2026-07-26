@@ -6,6 +6,10 @@ export type RequestType = 'join' | 'store' | 'module' | 'subscription' | 'renewa
 export type RequestStatus = 'pending' | 'approved' | 'rejected';
 export type NotificationStatus = 'UNREAD' | 'READ';
 export type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR' | 'PAYMENT_SUCCESS';
+export type CertificateStatus = 'REQUESTED' | 'ACTIVE' | 'EXPIRING_SOON' | 'ROTATING' | 'ROTATED' | 'EXPIRED' | 'REVOKED' | 'FAILED';
+export type CertificateType = 'TLS_SERVER' | 'MTLS_CLIENT' | 'API_AUTHENTICATION' | 'PAYMENT_INTEGRATION' | 'DATA_SIGNING';
+export type CertificateEnvironment = 'TEST' | 'PRODUCTION';
+export type CertificateTargetType = 'BANK' | 'MARKETPLACE';
 
 export interface Bank {
   id: number;
@@ -95,6 +99,7 @@ export interface ContentDto {
   description: string;
   imageUrl?: string | null;
   status: ContentStatus;
+  visibleInMarketplace?: boolean | null;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -299,6 +304,67 @@ export interface NotificationDto {
   recipientId?: number | null;
   createdAt?: string;
   readAt?: string | null;
+}
+
+export interface CertificateDto {
+  id: number;
+  name: string;
+  type: CertificateType;
+  bankId?: number | null;
+  bankName?: string | null;
+  marketplaceId?: number | null;
+  marketplaceName?: string | null;
+  relatedService: string;
+  environment: CertificateEnvironment;
+  serialNumber?: string | null;
+  fingerprint?: string | null;
+  issuer?: string | null;
+  issueDate?: string | null;
+  expirationDate?: string | null;
+  remainingDays?: number | null;
+  status: CertificateStatus;
+  revocationReason?: string | null;
+  automaticRotationEnabled: boolean;
+  createdAt?: string | null;
+  updatedAt?: string | null;
+}
+
+export interface CertificateRequestPayload {
+  name: string;
+  type: CertificateType;
+  targetType: CertificateTargetType;
+  bankId?: number | null;
+  marketplaceId?: number | null;
+  relatedService: string;
+  environment: CertificateEnvironment;
+  serialNumber?: string | null;
+  fingerprint?: string | null;
+  issuer?: string | null;
+  issueDate?: string | null;
+  expirationDate?: string | null;
+  automaticRotationEnabled: boolean;
+}
+
+export interface CertificateHistoryDto {
+  id: number;
+  certificateId: number;
+  certificateName?: string | null;
+  action: string;
+  details?: string | null;
+  statusAfterAction?: CertificateStatus | null;
+  performedBy?: string | null;
+  performedAt?: string | null;
+}
+
+export interface CertificateTestResponseDto {
+  certificateId: number;
+  passed: boolean;
+  message: string;
+  testedAt?: string | null;
+}
+
+export interface CertificateRevokePayload {
+  reason: string;
 }
 
 export interface AiAskRequest {

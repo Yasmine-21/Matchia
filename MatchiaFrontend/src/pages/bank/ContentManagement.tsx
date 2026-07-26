@@ -13,7 +13,7 @@ import { contentService } from '../../services/contentService';
 import { marketplaceContentService } from '../../services/marketplaceContentService';
 import type { ContentDto, ContentStatus, MarketplaceContentDto, MarketplaceStoreDetailDto } from '../../types/apiTypes';
 import { getBackendAssetUrl } from '../../utils/tenant';
-import { Image as ImageIcon, Loader2, Pencil, Plus, Sparkles, Store as StoreIcon, Trash2 } from 'lucide-react';
+import { Eye, EyeOff, Image as ImageIcon, Loader2, Pencil, Plus, Sparkles, Store as StoreIcon, Trash2 } from 'lucide-react';
 
 const STORE_COLORS = [
   '#2563eb',
@@ -56,6 +56,7 @@ type BankContentItem = {
   description: string;
   imageUrl?: string | null;
   status: ContentStatus;
+  visibleInMarketplace?: boolean | null;
   createdAt?: string;
   updatedAt?: string;
 };
@@ -99,6 +100,7 @@ export function BankContentManagement() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editingContentId, setEditingContentId] = useState<number | null>(null);
   const [deletingContentId, setDeletingContentId] = useState<number | null>(null);
+  const [visibilityUpdatingContentId, setVisibilityUpdatingContentId] = useState<number | null>(null);
   const [form, setForm] = useState(initialForm);
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -126,7 +128,7 @@ export function BankContentManagement() {
         }
 
         const [standardResponse, marketplaceResponse] = await Promise.all([
-          contentService.getContentsByMarketplaceSlug(slug),
+          contentService.getContentsByMarketplaceSlugForAdmin(slug),
           marketplaceContentService.getContentsByMarketplaceSlug(slug),
         ]);
 
@@ -134,6 +136,7 @@ export function BankContentManagement() {
         const standardContents = (standardResponse.data || []).map((content: ContentDto) => ({
           ...content,
           source: 'standard' as const,
+          visibleInMarketplace: content.visibleInMarketplace ?? true,
         }));
         const marketplaceContents = (marketplaceResponse.data || []).map((content: MarketplaceContentDto) => ({
           ...content,
@@ -351,6 +354,44 @@ export function BankContentManagement() {
     }
   };
 
+  const toggleStandardVisibility = async (content: BankContentItem) => {
+    if (content.source !== 'standard') {
+      return;
+    }
+
+    const slug = marketplace?.bankSlug || tenantSlug || '';
+    if (!slug) {
+      toast.error('Marketplace introuvable.');
+      return;
+    }
+
+    const nextVisible = content.visibleInMarketplace === false;
+    setVisibilityUpdatingContentId(content.id);
+
+    try {
+      const response = await contentService.updateMarketplaceVisibility(content.id, {
+        marketplaceSlug: slug,
+        visible: nextVisible,
+      });
+
+      setContents((prev) => prev.map((item) => (
+        item.id === content.id && item.source === 'standard'
+          ? {
+              ...item,
+              visibleInMarketplace: response.data.visibleInMarketplace ?? nextVisible,
+            }
+          : item
+      )));
+
+      toast.success(nextVisible ? 'Le contenu est désormais visible dans votre marketplace.' : 'Le contenu a été masqué dans votre marketplace.');
+    } catch (updateError) {
+      console.error('Failed to update content visibility:', updateError);
+      toast.error('La mise à jour de la visibilité a échoué.');
+    } finally {
+      setVisibilityUpdatingContentId(null);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
@@ -483,7 +524,34 @@ export function BankContentManagement() {
                                 <span className="truncate">{content.storeName || storeLabel}</span>
                               </div>
 
-                              
+                              {content.source === 'standard' && (
+                                <div className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                                  <div className="flex items-center justify-between gap-3">
+                                    <div className="min-w-0">
+                                      <div className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-400">
+                                        Visibilité marketplace
+                                      </div>
+                                      <div className="mt-1 text-sm font-medium text-slate-900">
+                                        {content.visibleInMarketplace === false ? 'Masqué' : 'Visible'}
+                                      </div>
+                                    </div>
+                                    <Button
+                                      variant={content.visibleInMarketplace === false ? 'success' : 'outline'}
+                                      size="sm"
+                                      className="shrink-0"
+                                      icon={visibilityUpdatingContentId === content.id
+                                        ? <Loader2 className="h-4 w-4 animate-spin" />
+                                        : content.visibleInMarketplace === false
+                                          ? <Eye className="h-4 w-4" />
+                                          : <EyeOff className="h-4 w-4" />}
+                                      onClick={() => toggleStandardVisibility(content)}
+                                      disabled={visibilityUpdatingContentId === content.id}
+                                    >
+                                      {content.visibleInMarketplace === false ? 'Afficher' : 'Masquer'}
+                                    </Button>
+                                  </div>
+                                </div>
+                              )}
 
                               {content.source === 'marketplace' ? (
                                 <div className="mt-auto flex flex-col gap-3 sm:flex-row">

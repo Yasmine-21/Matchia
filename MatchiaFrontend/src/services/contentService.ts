@@ -12,6 +12,11 @@ export interface CreateContentPayload {
 
 export interface UpdateContentPayload extends CreateContentPayload {}
 
+export interface UpdateContentVisibilityPayload {
+  marketplaceSlug: string;
+  visible: boolean;
+}
+
 const toFormData = (payload: CreateContentPayload) => {
   const formData = new FormData();
   formData.append('storeId', String(payload.storeId));
@@ -31,6 +36,8 @@ export const contentService = {
   getAllContents: () => apiClient.get<ContentDto[]>('/api/contents'),
   getContentsByMarketplaceSlug: (marketplaceSlug: string) =>
     apiClient.get<ContentDto[]>(`/api/contents/marketplace/${encodeURIComponent(marketplaceSlug)}`),
+  getContentsByMarketplaceSlugForAdmin: (marketplaceSlug: string) =>
+    apiClient.get<ContentDto[]>(`/api/contents/marketplace/${encodeURIComponent(marketplaceSlug)}/admin`),
   createContent: (payload: CreateContentPayload) =>
     apiClient.post<ContentDto>('/api/contents', toFormData(payload), {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -39,6 +46,8 @@ export const contentService = {
     apiClient.put<ContentDto>(`/api/contents/${id}`, toFormData(payload), {
       headers: { 'Content-Type': 'multipart/form-data' },
     }),
+  updateMarketplaceVisibility: (id: number, payload: UpdateContentVisibilityPayload) =>
+    apiClient.patch<ContentDto>(`/api/contents/${id}/visibility`, payload),
   deleteContent: (id: number) =>
     apiClient.delete<void>(`/api/contents/${id}`),
 };

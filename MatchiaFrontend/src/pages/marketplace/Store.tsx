@@ -45,6 +45,7 @@ interface StoreContentItem {
   imageUrl?: string | null;
   storeId?: number | null;
   storeName?: string | null;
+  visibleInMarketplace?: boolean | null;
   createdAt?: string | null;
 }
 
@@ -551,7 +552,7 @@ export function MarketplaceStore() {
       const standardContents =
         standardResult.status === 'fulfilled'
           ? (standardResult.value.data || [])
-              .filter((content: ContentDto) => content.status === 'active' && content.storeId === currentStoreId)
+              .filter((content: ContentDto) => content.status === 'active' && content.storeId === currentStoreId && content.visibleInMarketplace !== false)
               .map((content: ContentDto): StoreContentItem => ({
                 id: `standard-${content.id}`,
                 source: 'standard',
@@ -560,6 +561,7 @@ export function MarketplaceStore() {
                 imageUrl: content.imageUrl,
                 storeId: content.storeId,
                 storeName: content.storeName,
+                visibleInMarketplace: content.visibleInMarketplace ?? true,
                 createdAt: content.createdAt ?? null,
               }))
           : [];

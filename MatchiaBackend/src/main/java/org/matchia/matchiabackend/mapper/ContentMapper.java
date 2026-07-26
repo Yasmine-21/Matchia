@@ -9,6 +9,10 @@ import org.springframework.stereotype.Component;
 public class ContentMapper {
 
     public ContentDto toDto(Content entity) {
+        return toDto(entity, null);
+    }
+
+    public ContentDto toDto(Content entity, Boolean visibleInMarketplace) {
         if (entity == null) {
             return null;
         }
@@ -21,6 +25,7 @@ public class ContentMapper {
                 entity.getDescription(),
                 entity.getImageUrl(),
                 entity.getStatus(),
+                visibleInMarketplace,
                 entity.getCreatedAt(),
                 entity.getUpdatedAt()
         );

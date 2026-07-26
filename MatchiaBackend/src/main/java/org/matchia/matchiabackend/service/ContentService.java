@@ -3,6 +3,7 @@ package org.matchia.matchiabackend.service;
 import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.ContentDto;
 import org.matchia.matchiabackend.entity.Content;
+import org.matchia.matchiabackend.entity.ContentVisibility;
 import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.Store;
 import org.matchia.matchiabackend.entity.enums.ContentStatusEnum;
@@ -22,6 +23,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.UUID;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -31,6 +33,7 @@ public class ContentService {
     private final StoreRepository storeRepository;
     private final MarketplaceRepository marketplaceRepository;
     private final ContentMapper contentMapper;
+    private final ContentVisibilityService contentVisibilityService;
 
     @Value("${app.content.upload.dir:uploads/content}")
     private String contentUploadDir;
@@ -44,6 +47,15 @@ public class ContentService {
 
     @Transactional(readOnly = true)
     public List<ContentDto> getContentsByMarketplaceSlug(String marketplaceSlug) {
+        return getContentsByMarketplaceSlugInternal(marketplaceSlug, false);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ContentDto> getContentsByMarketplaceSlugForAdmin(String marketplaceSlug) {
+        return getContentsByMarketplaceSlugInternal(marketplaceSlug, true);
+    }
+
+    private List<ContentDto> getContentsByMarketplaceSlugInternal(String marketplaceSlug, boolean includeHidden) {
         if (!hasText(marketplaceSlug)) {
             return List.of();
         }
@@ -63,8 +75,14 @@ public class ContentService {
             return List.of();
         }
 
+        Map<Long, Boolean> visibilityByContentId = contentVisibilityService.getVisibilityMapByMarketplaceSlug(marketplaceSlug);
+
         return contentRepository.findByStore_IdInOrderByCreatedAtDesc(storeIds).stream()
-                .map(contentMapper::toDto)
+                .filter((content) -> includeHidden || visibilityByContentId.getOrDefault(content.getId(), Boolean.TRUE))
+                .map((content) -> contentMapper.toDto(
+                        content,
+                        visibilityByContentId.getOrDefault(content.getId(), Boolean.TRUE)
+                ))
                 .toList();
     }
 
@@ -100,6 +118,21 @@ public class ContentService {
 
         Content saved = contentRepository.save(content);
         return contentMapper.toDto(saved);
+    }
+
+    @Transactional
+    public ContentDto updateMarketplaceVisibility(Long contentId, String marketplaceSlug, boolean visible) {
+        if (contentId == null) {
+            throw new IllegalArgumentException("Le contenu selectionne est introuvable.");
+        }
+
+        ContentVisibility visibility = contentVisibilityService.updateVisibility(contentId, marketplaceSlug, visible);
+        Content content = visibility.getContent();
+        if (content == null) {
+            throw new IllegalArgumentException("Le contenu selectionne est introuvable.");
+        }
+
+        return contentMapper.toDto(content, visibility.getVisible() == null || visibility.getVisible());
     }
 
     @Transactional

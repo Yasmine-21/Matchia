@@ -410,7 +410,7 @@ export function HomePage() {
         <div className="mx-auto max-w-7xl">
           <SectionHeading
             title="Qu’est-ce que Matchia ?"
-            subtitle="Matchia combine l’architecture SaaS, la modularité métier et une expérience bancaire moderne pour lancer des marketplaces financières performantes."
+            subtitle="Matchia est une marketplace de financement de nouvelle génération, alimentée par l’intelligence artificielle, qui permet aux banques d’accélérer la distribution de produits financiers, la simulation des offres, l’évaluation de l’éligibilité en temps réel et l’intégration digitale des clients."
           />
 
           <div className="grid gap-6 lg:grid-cols-3">

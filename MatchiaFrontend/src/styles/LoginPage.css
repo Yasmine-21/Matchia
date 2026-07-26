@@ -89,21 +89,20 @@
 }
 
 .login-logo-wrap {
-    @apply mx-auto mb-5 flex items-center justify-center rounded-full;
-    width: 72px;
-    height: 72px;
-    background: linear-gradient(145deg, rgba(239, 244, 255, 0.92), rgba(255, 255, 255, 0.78));
-    box-shadow: 0 16px 36px rgba(37, 99, 235, 0.12);
+    @apply mx-auto mb-5 flex items-center justify-center;
+    min-height: 64px;
 }
 
 .login-logo-mark {
-    width: 56px;
-    height: 56px;
+    width: auto;
+    height: 64px;
+    max-width: 220px;
 }
 
 .login-logo-image {
-    width: 52px;
-    height: 52px;
+    width: auto;
+    height: 64px;
+    max-width: 220px;
     object-fit: contain;
 }
 

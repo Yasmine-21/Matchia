@@ -2,6 +2,7 @@ package org.matchia.matchiabackend.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.ContentDto;
+import org.matchia.matchiabackend.dto.ContentVisibilityRequestDto;
 import org.matchia.matchiabackend.service.ContentService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -28,6 +29,11 @@ public class ContentController {
     @GetMapping("/marketplace/{marketplaceSlug}")
     public ResponseEntity<List<ContentDto>> getContentsByMarketplace(@PathVariable String marketplaceSlug) {
         return ResponseEntity.ok(contentService.getContentsByMarketplaceSlug(marketplaceSlug));
+    }
+
+    @GetMapping("/marketplace/{marketplaceSlug}/admin")
+    public ResponseEntity<List<ContentDto>> getContentsByMarketplaceForAdmin(@PathVariable String marketplaceSlug) {
+        return ResponseEntity.ok(contentService.getContentsByMarketplaceSlugForAdmin(marketplaceSlug));
     }
 
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -73,6 +79,23 @@ public class ContentController {
         try {
             contentService.deleteContent(id);
             return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().build();
+        }
+    }
+
+    @PatchMapping("/{id}/visibility")
+    public ResponseEntity<ContentDto> updateVisibility(
+            @PathVariable Long id,
+            @RequestBody ContentVisibilityRequestDto request
+    ) {
+        try {
+            if (request == null || request.getVisible() == null) {
+                return ResponseEntity.badRequest().build();
+            }
+            return ResponseEntity.ok(
+                    contentService.updateMarketplaceVisibility(id, request.getMarketplaceSlug(), request.getVisible())
+            );
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().build();
         }
