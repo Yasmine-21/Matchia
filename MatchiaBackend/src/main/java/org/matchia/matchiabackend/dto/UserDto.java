@@ -16,6 +16,7 @@ public class UserDto {
     private String fullName;
     private String email;
     private String phone;
+    private String address;
     private String contactImageUrl;
     private RoleEnum role;
     private UserStatusEnum status;

@@ -17,7 +17,7 @@ import {
   Users,
 } from 'lucide-react';
 import { motion } from 'motion/react';
-import { MatchiaLogo } from '../brand/MatchiaLogo';
+import { authService } from '../../services/authService';
 import { NotificationsPanel } from './NotificationsPanel';
 import {
   NOTIFICATIONS_UPDATED_EVENT,
@@ -238,6 +238,11 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     }
   };
 
+  const handleSignOut = async () => {
+    await authService.logout();
+    navigate('/connexion');
+  };
+
   return (
     <motion.aside
       animate={{ width: collapsed ? 80 : 260 }}
@@ -245,7 +250,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     >
       <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
         {!collapsed && (
-          <div className="flex items-center gap-3">
+          <div className={`flex flex-1 items-center ${type === 'saas' ? 'justify-center' : 'gap-3'}`}>
             {type === 'bank' ? (
               bankTenant.branding.logo_image_url ? (
                 <img
@@ -259,13 +264,25 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
                 </div>
               )
             ) : (
-              <MatchiaLogo showText={false} markClassName="h-10 w-auto max-w-[150px]" />
-            )}
-            <div>
-              <div className="text-sm font-semibold text-foreground">
-                {type === 'bank' && bankTenant.marketplace?.bankName ? bankTenant.marketplace.bankName : 'Matchia'}
+              <div className="flex items-center justify-center gap-2.5">
+                <img
+                  src="/logos/matchia-icon.svg"
+                  alt="Matchia"
+                  className="h-10 w-10 shrink-0 object-contain"
+                />
+                <span className="text-[1.8rem] font-bold tracking-tight leading-none">
+                  <span className="text-blue-600">Match</span>
+                  <span className="text-orange-500">ia</span>
+                </span>
               </div>
-            </div>
+            )}
+            {type === 'bank' && (
+              <div>
+                <div className="text-sm font-semibold text-foreground">
+                  {bankTenant.marketplace?.bankName || 'Banque'}
+                </div>
+              </div>
+            )}
           </div>
         )}
         <button
@@ -358,9 +375,13 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
           )}
         </div>
 
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive/10 text-destructive transition-colors">
+        <button
+          type="button"
+          onClick={handleSignOut}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-destructive/10 text-destructive transition-colors"
+        >
           <LogOut className="w-5 h-5" />
-          {!collapsed && <span className="text-sm">Sign Out</span>}
+          {!collapsed && <span className="text-sm">Déconnexion</span>}
         </button>
       </div>
     </motion.aside>

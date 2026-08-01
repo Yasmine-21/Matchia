@@ -87,6 +87,24 @@ const getBackendAssetUrl = (url?: string | null) => {
   return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
 };
 
+const hexToRgba = (hex: string, alpha: number) => {
+  const normalized = hex.trim().replace('#', '');
+
+  if (normalized.length !== 6) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+
+  const red = Number.parseInt(normalized.slice(0, 2), 16);
+  const green = Number.parseInt(normalized.slice(2, 4), 16);
+  const blue = Number.parseInt(normalized.slice(4, 6), 16);
+
+  if ([red, green, blue].some((value) => Number.isNaN(value))) {
+    return `rgba(0, 0, 0, ${alpha})`;
+  }
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+};
+
 const formatTnd = (value?: number | string | null) => {
   if (value === undefined || value === null || value === '') {
     return '-';
@@ -331,10 +349,53 @@ export function ComparatorModule() {
   }
 
   const storeLabel = store.label || store.name || `Store ${store.storeId || store.id}`;
+  const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
+  const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(
+    branding.secondary_color,
+    0.78
+  )} 100%)`;
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10">
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-slate-50">
+      <section
+        className="relative h-96 flex items-center bg-cover bg-center px-4 py-12 text-white sm:px-6 lg:px-8"
+        style={
+          storeBannerUrl
+            ? {
+                backgroundImage: `url(${storeBannerUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
+        }
+      >
+        <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />
+        <div className="relative mx-auto flex h-full w-full max-w-7xl items-center">
+          <div className="flex w-full flex-wrap items-center justify-between gap-4">
+            <div>
+              <div className="mb-3 flex items-center gap-3 text-sm text-white/75">
+                <button
+                  type="button"
+                  className="inline-flex items-center gap-2"
+                  onClick={backToStore}
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  Retour au store
+                </button>
+                <span className="text-white/25">/</span>
+                <span>Comparateur</span>
+              </div>
+              <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Comparateur de produits</h1>
+              <p className="mt-3 max-w-3xl text-base leading-7 text-white/80 sm:text-lg">
+                Comparez jusqu&apos;à 4 produits du même store et visualisez leurs caractéristiques côte à côte.
+              </p>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div className="max-w-3xl">
             <div className="inline-flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-600 shadow-sm ring-1 ring-slate-200">
@@ -358,16 +419,16 @@ export function ComparatorModule() {
             >
               Back to store
             </Button>
-            <Button
-              className="text-white"
-              disabled={!canRenderComparison}
-              onClick={clearComparison}
-              style={{ backgroundColor: branding.primary_color }}
-            >
-              Clear selection
-            </Button>
+              <Button
+                className="text-white"
+                disabled={!canRenderComparison}
+                onClick={clearComparison}
+                style={{ backgroundColor: branding.primary_color }}
+              >
+                Clear selection
+              </Button>
+            </div>
           </div>
-        </div>
 
         {!canCompare ? (
           <div className="rounded-[2rem] border border-amber-200 bg-amber-50 px-6 py-10 text-amber-900 shadow-sm">
@@ -586,7 +647,6 @@ export function ComparatorModule() {
             )}
           </div>
         )}
-
       </div>
     </div>
   );

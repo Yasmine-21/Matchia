@@ -2,10 +2,11 @@ import apiClient from '../api/apiClient';
 import type { UserDto } from '../types/apiTypes';
 
 export type UserPayload = {
-  bankId: number;
+  bankId?: number | null;
   fullName: string;
   email: string;
   phone?: string | null;
+  address?: string | null;
   contactImageUrl?: string | null;
   role?: string | null;
   status?: string | null;

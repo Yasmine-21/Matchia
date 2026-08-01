@@ -470,6 +470,7 @@ export interface UserDto {
   fullName?: string | null;
   email?: string | null;
   phone?: string | null;
+  address?: string | null;
   contactImageUrl?: string | null;
   role?: string | null;
   status?: string | null;

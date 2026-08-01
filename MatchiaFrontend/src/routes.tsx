@@ -9,6 +9,7 @@ import { BanksPage } from './pages/public/BanksPage';
 import { JoinPage } from './pages/public/JoinPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
+import { ResetPasswordPage } from './pages/public/ResetPasswordPage';
 import { PaymentDemoPage } from './pages/public/PaymentDemoPage';
 import { PaymentResultPage } from './pages/public/PaymentResultPage';
 
@@ -24,6 +25,7 @@ import { OffersAndSubscriptions } from './pages/saas/OffersAndSubscriptions';
 import { Certificates } from './pages/saas/Certificates';
 import { SaaSStoresModules } from './pages/saas/StoresModules';
 import { ContentManagement } from './pages/saas/ContentManagementTabs';
+import { ProfileSettingsPage } from './pages/shared/ProfileSettingsPage';
 
 // Imports Bank
 import { BankDashboard } from './pages/bank/Dashboard';
@@ -43,6 +45,7 @@ import { MarketplaceStore } from './pages/marketplace/Store';
 import { SimulatorModule } from './pages/marketplace/modules/Simulator';
 import { ComparatorModule } from './pages/marketplace/modules/Comparator';
 import { BlogModule } from './pages/marketplace/modules/Blog';
+import { ProtectedRoute } from './components/routing/ProtectedRoute';
 
 // ==========================================
 // 1. ROUTEUR PRINCIPAL (lvh.me:5173)
@@ -61,6 +64,10 @@ export const saasRouter = createBrowserRouter([
   {
     path: '/mot-de-passe-oublie',
     element: <ForgotPasswordPage />,
+  },
+  {
+    path: '/reinitialiser-mot-de-passe',
+    element: <ResetPasswordPage />,
   },
   {
     path: '/payment/demo',
@@ -84,7 +91,11 @@ export const saasRouter = createBrowserRouter([
   },
   {
     path: '/saas',
-    element: <AdminLayout type="saas" />,
+    element: (
+      <ProtectedRoute requiredRole="saas">
+        <AdminLayout type="saas" />
+      </ProtectedRoute>
+    ),
     children: [
       { path: 'dashboard', element: <SaaSDashboard /> },
       { path: 'banques', element: <SaaSBanks /> },
@@ -97,6 +108,7 @@ export const saasRouter = createBrowserRouter([
       { path: 'utilisateurs', element: <SaaSUsers /> },
       { path: 'audit', element: <AuditLogs /> },
       { path: 'parametres', element: <SaaSSettings /> },
+      { path: 'profil', element: <ProfileSettingsPage type="saas" /> },
     ],
   },
 ]);
@@ -133,8 +145,16 @@ export const tenantRouter = createBrowserRouter([
     element: <ForgotPasswordPage />,
   },
   {
+    path: '/reinitialiser-mot-de-passe',
+    element: <ResetPasswordPage />,
+  },
+  {
     path: '/bank',
-    element: <AdminLayout type="bank" />,
+    element: (
+      <ProtectedRoute requiredRole="bank">
+        <AdminLayout type="bank" />
+      </ProtectedRoute>
+    ),
     children: [
       { path: 'dashboard', element: <BankDashboard /> },
       { path: 'utilisateurs', element: <BankUsers /> },
@@ -146,6 +166,7 @@ export const tenantRouter = createBrowserRouter([
       { path: 'demandes', element: <BankRequests /> },
       { path: 'abonnement', element: <BankSubscription /> },
       { path: 'parametres', element: <BankParameters /> },
+      { path: 'profil', element: <ProfileSettingsPage type="bank" /> },
     ],
   },
 ]);

@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import type { User, Bank } from '../types';
+import { BANK_STORAGE_KEY, USER_STORAGE_KEY, clearStoredSession } from '../services/sessionStorage';
+import { authService } from '../services/authService';
 
 interface AppContextType {
   currentUser: User | null;
@@ -18,23 +20,20 @@ interface AppContextType {
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
-// localStorage keys
-const USER_STORAGE_KEY = 'matchia_user';
-const BANK_STORAGE_KEY = 'matchia_bank';
 const normalizeRole = (role?: string | null): User['role'] => {
-  if (role === 'ADMIN_SAAS' || role === 'ADMIN_BANK' || role === 'CLIENT') {
-    return role;
-  }
-
-  if (role === 'SUPER_ADMIN') {
+  if (role === 'ADMIN_SAAS' || role === 'SAAS_ADMIN' || role === 'SUPER_ADMIN') {
     return 'ADMIN_SAAS';
   }
 
-  if (role === 'ADMIN' || role === 'BANK_ADMIN' || role === 'MANAGER' || role === 'USER') {
+  if (role === 'ADMIN_BANK' || role === 'BANK_ADMIN' || role === 'ADMIN' || role === 'MANAGER' || role === 'USER') {
     return 'ADMIN_BANK';
   }
 
-  return (role ?? 'CLIENT') as User['role'];
+  if (role === 'CLIENT') {
+    return role;
+  }
+
+  return 'CLIENT';
 };
 
 export function AppProvider({ children }: { children: ReactNode }) {
@@ -44,22 +43,50 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   // Initialize from localStorage on mount
   useEffect(() => {
-    try {
-      const storedUser = localStorage.getItem(USER_STORAGE_KEY);
+    let mounted = true;
+
+    const bootstrap = async () => {
+      try {
       const storedBank = localStorage.getItem(BANK_STORAGE_KEY);
-      
-      if (storedUser) {
-        const parsedUser = JSON.parse(storedUser);
-        setCurrentUser({ ...parsedUser, role: normalizeRole(parsedUser.role) as User['role'] });
+
+        if (storedBank && mounted) {
+          setCurrentBankState(JSON.parse(storedBank));
+        }
+
+        let backendUser: User | null = null;
+
+        backendUser = await authService.getCurrentUser();
+        if (!backendUser) {
+          backendUser = await authService.restoreSession();
+        }
+
+        if (backendUser && mounted) {
+          setCurrentUser({ ...backendUser, role: normalizeRole(backendUser.role) as User['role'] });
+        }
+      } catch (error) {
+        console.error('Error loading session from backend:', error);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
-      if (storedBank) {
-        setCurrentBankState(JSON.parse(storedBank));
-      }
-    } catch (error) {
-      console.error('Error loading session from localStorage:', error);
-    } finally {
-      setIsLoading(false);
-    }
+    };
+
+    bootstrap();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleSessionCleared = () => {
+      setCurrentUser(null);
+      setCurrentBankState(null);
+    };
+
+    window.addEventListener('matchia-auth-cleared', handleSessionCleared);
+    return () => window.removeEventListener('matchia-auth-cleared', handleSessionCleared);
   }, []);
 
   const login = (user: User) => {
@@ -71,9 +98,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const logout = () => {
     setCurrentUser(null);
     setCurrentBankState(null);
-    localStorage.removeItem(USER_STORAGE_KEY);
-    localStorage.removeItem(BANK_STORAGE_KEY);
-    localStorage.removeItem('matchia_token');
+    clearStoredSession();
   };
 
   const setCurrentBank = (bank: Bank | null) => {

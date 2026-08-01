@@ -1,0 +1,27 @@
+<svg width="96" height="96" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Matchia icon">
+  <defs>
+    <linearGradient id="matchia-bars" x1="16" y1="28" x2="72" y2="80" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0F55F0"/>
+      <stop offset="1" stop-color="#1D6CFF"/>
+    </linearGradient>
+    <linearGradient id="matchia-arrow" x1="12" y1="74" x2="82" y2="18" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FF8A18"/>
+      <stop offset="1" stop-color="#FF6A00"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="96" height="96" fill="white"/>
+
+  <rect x="18" y="58" width="14" height="22" rx="3" fill="url(#matchia-bars)"/>
+  <rect x="38" y="42" width="14" height="38" rx="3" fill="url(#matchia-bars)"/>
+  <rect x="58" y="26" width="14" height="54" rx="3" fill="url(#matchia-bars)"/>
+  <rect x="78" y="16" width="8" height="64" rx="2.5" fill="url(#matchia-bars)"/>
+
+  <path d="M16 70C28 66 39 60 48 53C58 45 67 36 77 24" stroke="url(#matchia-arrow)" stroke-width="7" stroke-linecap="round"/>
+  <path d="M77 24L76 17L86 20Z" fill="url(#matchia-arrow)"/>
+  <circle cx="16" cy="70" r="7" fill="url(#matchia-arrow)"/>
+
+  <rect x="56" y="16" width="7" height="7" rx="1.6" fill="#1D6CFF"/>
+  <rect x="70" y="8" width="7" height="7" rx="1.6" fill="#1D6CFF"/>
+  <rect x="84" y="8" width="7" height="7" rx="1.6" fill="#1D6CFF"/>
+</svg>

@@ -27,7 +27,13 @@ export function PublicHeader() {
 
           {/* Logo — à gauche */}
           <Link to="/" className="flex items-center gap-2">
-            <MatchiaLogo />
+            <MatchiaLogo
+              variant="icon"
+              showText
+              brandText
+              markClassName="h-10 w-10"
+              textClassName="text-[1.8rem] font-bold tracking-tight leading-none"
+            />
           </Link>
 
           {/* Nav — au centre */}

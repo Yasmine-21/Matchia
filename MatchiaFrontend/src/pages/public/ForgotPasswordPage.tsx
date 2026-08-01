@@ -1,6 +1,7 @@
 import '../../styles/LoginPage.css';
 import { useState } from 'react';
 import { Link } from 'react-router';
+import { authService } from '../../services/authService';
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
@@ -12,15 +13,15 @@ export function ForgotPasswordPage() {
     e.preventDefault();
     setError('');
     setLoading(true);
-
-    // Simulate network delay
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    if (email) {
+    try {
+      if (!email) {
+        throw new Error('Veuillez entrer une adresse e-mail valide.');
+      }
+      await authService.forgotPassword(email);
       setSuccess(true);
-      setLoading(false);
-    } else {
-      setError('Veuillez entrer une adresse e-mail valide.');
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Une erreur est survenue.');
+    } finally {
       setLoading(false);
     }
   };
@@ -57,9 +58,9 @@ export function ForgotPasswordPage() {
 
                 <div className="login-input-group">
                   <input
-                    type="email"
+                    type="text"
                     className="login-custom-input"
-                    placeholder="Adresse e-mail"
+                    placeholder="Adresse e-mail ou identifiant"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required

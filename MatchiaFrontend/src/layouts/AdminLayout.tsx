@@ -1,10 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { Outlet, useNavigate } from 'react-router';
-import { Bell, Search, User } from 'lucide-react';
+import { Bell, LogOut, Search, Settings, User } from 'lucide-react';
 import { AdminSidebar } from '../components/layout/AdminSidebar';
 import { NotificationsPanel } from '../components/layout/NotificationsPanel';
 import { AiAssistantWidget } from '../components/ai/AiAssistantWidget';
 import { useBankTenant } from '../hooks/useBankTenant';
+import { getBackendAssetUrl } from '../utils/tenant';
+import { authService } from '../services/authService';
 import { NotificationDto } from '../types/apiTypes';
 import {
   NOTIFICATIONS_UPDATED_EVENT,
@@ -20,15 +22,25 @@ interface AdminLayoutProps {
 export function AdminLayout({ type }: AdminLayoutProps) {
   const navigate = useNavigate();
   const { currentBank } = useApp();
+  const { currentUser } = useApp();
   const bankTenant = useBankTenant(type === 'bank');
   const dropdownRef = useRef<HTMLDivElement | null>(null);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isProfileMenuOpen, setIsProfileMenuOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
   const notificationRecipientId = type === 'bank'
     ? (bankTenant.marketplace?.bankId || currentBank?.id || null)
     : null;
+  const profileName = type === 'saas'
+    ? (currentUser?.name ?? '')
+    : (currentUser?.name || (currentBank?.name || 'Banque'));
+  const profileEmailLabel = type === 'saas'
+    ? (currentUser?.email ?? '')
+    : (currentUser?.email || 'Admin banque');
+  const profileImageUrl = getBackendAssetUrl(currentUser?.contactImageUrl || null);
 
   const loadNotificationData = async () => {
     if (type === 'bank' && !notificationRecipientId) {
@@ -88,6 +100,16 @@ export function AdminLayout({ type }: AdminLayoutProps) {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    const handleProfileClickOutside = (event: MouseEvent) => {
+      if (!profileMenuRef.current || profileMenuRef.current.contains(event.target as Node)) return;
+      setIsProfileMenuOpen(false);
+    };
+
+    document.addEventListener('mousedown', handleProfileClickOutside);
+    return () => document.removeEventListener('mousedown', handleProfileClickOutside);
+  }, []);
+
   const toggleNotifications = async () => {
     const nextOpen = !isNotificationsOpen;
     setIsNotificationsOpen(nextOpen);
@@ -97,6 +119,21 @@ export function AdminLayout({ type }: AdminLayoutProps) {
       await loadNotificationData();
       setIsLoadingNotifications(false);
     }
+  };
+
+  const toggleProfileMenu = () => {
+    setIsProfileMenuOpen((current) => !current);
+  };
+
+  const openProfileSettings = () => {
+    setIsProfileMenuOpen(false);
+    navigate(type === 'saas' ? '/saas/profil' : '/bank/profil');
+  };
+
+  const handleLogout = async () => {
+    setIsProfileMenuOpen(false);
+    await authService.logout();
+    navigate('/connexion');
   };
 
   const openNotification = async (notification: NotificationDto) => {
@@ -194,17 +231,50 @@ export function AdminLayout({ type }: AdminLayoutProps) {
               )}
             </div>
 
-            <button className="flex items-center gap-3 p-2 hover:bg-muted rounded-lg transition-colors">
-              <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-primary-foreground">
-                <User className="w-5 h-5" />
-              </div>
-              <div className="text-left hidden md:block">
-                <div className="text-sm font-medium">
-                  {type === 'bank' ? (currentBank?.name || 'Banque') : 'Admin'}
+            <div className="relative" ref={profileMenuRef}>
+              <button
+                type="button"
+                onClick={toggleProfileMenu}
+                className="flex items-center gap-3 rounded-lg p-2 transition-colors hover:bg-muted"
+              >
+              {profileImageUrl ? (
+                <img
+                  src={profileImageUrl}
+                  alt={profileName}
+                  className="h-10 w-10 rounded-full border border-border object-cover shadow-sm"
+                />
+              ) : (
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-sm">
+                  <User className="h-5 w-5" />
                 </div>
-                {type === 'saas' && <div className="text-xs text-muted-foreground">Super Admin</div>}
+              )}
+              <div className="text-left hidden md:block">
+                <div className="text-sm font-semibold leading-tight text-slate-900">{profileName}</div>
+                <div className="text-xs text-muted-foreground leading-tight">{profileEmailLabel}</div>
               </div>
-            </button>
+              </button>
+
+              {isProfileMenuOpen && (
+                <div className="absolute right-0 top-14 z-50 w-64 rounded-xl border border-border bg-white p-2 shadow-xl">
+                  <button
+                    type="button"
+                    onClick={openProfileSettings}
+                    className="flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                  >
+                    <Settings className="h-4 w-4 text-primary" />
+                    <span>Paramètres du profil</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="mt-1 flex w-full items-center gap-3 rounded-lg px-3 py-2 text-left text-sm font-medium text-red-600 transition-colors hover:bg-red-50 hover:text-red-700"
+                  >
+                    <LogOut className="h-4 w-4" />
+                    <span>Déconnexion</span>
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </header>
         <main className="flex-1 overflow-auto w-full bg-slate-50/50 px-18 py-10">

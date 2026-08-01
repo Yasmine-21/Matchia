@@ -1,17 +1,13 @@
-import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router';
+﻿import { useEffect, useMemo, useState } from 'react';
+import { Link, useLocation, useOutletContext, useParams, useSearchParams } from 'react-router';
 import {
   AlertTriangle,
   ArrowLeft,
-  Banknote,
   Calculator,
   Image as ImageIcon,
-  Info,
-  Loader2,
   RotateCcw,
   SlidersHorizontal,
   TrendingUp,
-  Wallet,
 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
@@ -132,8 +128,6 @@ const getProductSortValue = (createdAt?: string) => {
   const value = new Date(createdAt).getTime();
   return Number.isNaN(value) ? 0 : value;
 };
-
-const toFieldLabel = (parameter: ModuleParameter) => parameter.name || parameter.code || `Paramètre ${parameter.id}`;
 
 const isSimulatorModule = (module: MarketplaceModuleDetail) => {
   const keys = [module.name, module.label, module.category]
@@ -297,24 +291,6 @@ const resolveParameterNumber = (parameters: ModuleParameter[], aliases: string[]
   return parsed ?? fallback;
 };
 
-const formatParameterDisplayValue = (parameter: ModuleParameter) => {
-  if (parameter.value === null || parameter.value === undefined || `${parameter.value}`.trim() === '') {
-    if (parameter.options?.length) {
-      return parameter.options.join(' / ');
-    }
-    return '-';
-  }
-
-  if (parameter.type === 'boolean') {
-    if (typeof parameter.value === 'boolean') {
-      return parameter.value ? 'Oui' : 'Non';
-    }
-    return ['true', '1', 'yes', 'oui', 'on'].includes(String(parameter.value).toLowerCase()) ? 'Oui' : 'Non';
-  }
-
-  return String(parameter.value);
-};
-
 const buildFallbackSimulatorTypes = (isVehicle: boolean) =>
   isVehicle
     ? [
@@ -326,30 +302,48 @@ const buildFallbackSimulatorTypes = (isVehicle: boolean) =>
         { key: 'comfort', label: 'Comfort' },
       ];
 
-const financingTypeOptions = [
-  { value: 'Crédit classique', label: 'Crédit classique' },
-  { value: 'Crédit-bail', label: 'Crédit-bail' },
-  { value: 'Murabaha', label: 'Murabaha' },
-  { value: 'Sans apport', label: 'Sans apport' },
-];
+const resolveFeeSettlementMode = (parameters: ModuleParameter[], typeKey?: string) => {
+  const text = resolveParameterText(
+    parameters,
+    ['filefeemode', 'fraisdossiermode', 'feepaymentmode', 'feesmode', 'feessettlement', 'fraissepares', 'fraisseparees'],
+    typeKey
+  );
+
+  const normalized = normalizeLookupKey(text);
+  if (!normalized) {
+    return 'separate';
+  }
+
+  if (
+    ['financed', 'finance', 'capitalise', 'capitalized', 'included', 'integrated', 'rolledin'].some((alias) =>
+      normalized.includes(alias)
+    )
+  ) {
+    return 'financed';
+  }
+
+  if (['separate', 'separately', 'distinct', 'cash', 'upfront', 'paidseparately'].some((alias) => normalized.includes(alias))) {
+    return 'separate';
+  }
+
+  return 'separate';
+};
 
 export function SimulatorModule() {
   const { storeSlug } = useParams();
-  const navigate = useNavigate();
   const location = useLocation();
   const [searchParams, setSearchParams] = useSearchParams();
   const { bankData, branding, marketplace } = useOutletContext<any>();
 
   const [products, setProducts] = useState<SimulatorProductItem[]>([]);
-  const [productsLoading, setProductsLoading] = useState(true);
-  const [productsError, setProductsError] = useState(false);
+  const [, setProductsLoading] = useState(true);
+  const [, setProductsError] = useState(false);
   const [moduleAssignments, setModuleAssignments] = useState<ModuleAssignment[]>([]);
-  const [moduleLoading, setModuleLoading] = useState(true);
+  const [, setModuleLoading] = useState(true);
   const [moduleError, setModuleError] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
   const [selectedPresetId, setSelectedPresetId] = useState<string>('');
   const [acquisitionPrice, setAcquisitionPrice] = useState<number>(0);
-  const [financingType, setFinancingType] = useState<string>('Crédit classique');
   const [contributionAmount, setContributionAmount] = useState<number>(0);
   const [grossIncome, setGrossIncome] = useState<number>(0);
   const [otherMonthlyPayments, setOtherMonthlyPayments] = useState<number>(0);
@@ -524,7 +518,7 @@ export function SimulatorModule() {
             ? 'Apport minimum plus souple et durée standard.'
             : summaryType === '5 CV+'
               ? 'Apport plus élevé, taux ajusté et plafond plus strict.'
-              : 'Regles de financement generales configurees par la banque.',
+              : 'Règles de financement générales configurées par la banque.',
       };
     });
   }, [isVehicle, simulatorParameters, simulatorTypeKeys]);
@@ -681,80 +675,75 @@ export function SimulatorModule() {
 
   const selectedTypeConfig = activeSimulationType || presets[0] || null;
 
-  const derivedProductPrice = Math.max(normalizeNumber(acquisitionPrice) ?? 0, 0);
+  const derivedProductPrice = Math.max(normalizeNumber(selectedProduct?.price) ?? normalizeNumber(acquisitionPrice) ?? 0, 0);
   const minimumContributionAmount = selectedTypeConfig ? (derivedProductPrice * selectedTypeConfig.minContributionRate) / 100 : 0;
-  const requestedFinancingAmount = Math.max(derivedProductPrice - Math.max(contributionAmount, 0), 0);
-  const contributionRatio = derivedProductPrice > 0 ? (Math.max(contributionAmount, 0) / derivedProductPrice) * 100 : 0;
-  const fileFeesByRate = selectedTypeConfig ? requestedFinancingAmount * (selectedTypeConfig.fileFeePercentage / 100) : 0;
-  const studyFeesByRate = selectedTypeConfig ? requestedFinancingAmount * (selectedTypeConfig.studyFeePercentage / 100) : 0;
-  const totalFees = fileFeesByRate + studyFeesByRate + (selectedTypeConfig?.fileFeeAmount || 0) + (selectedTypeConfig?.studyFeeAmount || 0);
-  const totalFinancingAmount = requestedFinancingAmount;
+  const sanitizedContribution = Math.max(contributionAmount, 0);
+  const requestedFinancingAmount = Math.max(derivedProductPrice - sanitizedContribution, 0);
+  const dossierFeesAmount = requestedFinancingAmount * 0.02;
+  const feesSettlementMode = resolveFeeSettlementMode(simulatorParameters, selectedTypeConfig?.key);
+  const feesPaidSeparately = feesSettlementMode !== 'financed';
+  const financedAmount = requestedFinancingAmount + (feesPaidSeparately ? 0 : dossierFeesAmount);
   const numberOfMonths = Math.max(durationMonths, 1);
   const monthlyRate = selectedTypeConfig ? selectedTypeConfig.annualRate / 12 / 100 : 0;
   const monthlyInstallment =
-    requestedFinancingAmount <= 0
+    financedAmount <= 0
       ? 0
       : monthlyRate <= 0
-        ? requestedFinancingAmount / numberOfMonths
-        : requestedFinancingAmount * monthlyRate / (1 - (1 + monthlyRate) ** (-numberOfMonths));
-  const totalRepaymentAmount = monthlyInstallment * numberOfMonths;
-  const remainingAmountToRepay = totalRepaymentAmount;
-  const debtRatio = grossIncome > 0 ? ((monthlyInstallment + otherMonthlyPayments) / grossIncome) * 100 : 0;
-  const monthlyDebtCapacity = grossIncome > 0 && selectedTypeConfig ? (grossIncome * selectedTypeConfig.debtRatioLimit) / 100 : 0;
+        ? financedAmount / numberOfMonths
+        : financedAmount * monthlyRate / (1 - (1 + monthlyRate) ** (-numberOfMonths));
+  const totalMonthlyPayments = monthlyInstallment * numberOfMonths;
+  const totalAmountDue = totalMonthlyPayments + (feesPaidSeparately ? dossierFeesAmount : 0);
+  const interestCost = Math.max(totalMonthlyPayments - financedAmount, 0);
   const grossIncomeAccepted = grossIncome > 0;
-  const contributionAccepted = contributionAmount >= minimumContributionAmount;
+  const contributionAccepted = sanitizedContribution >= minimumContributionAmount;
   const financingAccepted =
     selectedTypeConfig?.maxFinancingAmount == null || requestedFinancingAmount <= selectedTypeConfig.maxFinancingAmount;
   const durationAccepted =
     selectedTypeConfig == null
       ? true
       : durationMonths >= selectedTypeConfig.minDurationMonths && durationMonths <= selectedTypeConfig.maxDurationMonths;
-  const debtRatioAccepted = selectedTypeConfig ? grossIncomeAccepted && debtRatio <= selectedTypeConfig.debtRatioLimit : grossIncomeAccepted;
-  const simulationAccepted = contributionAccepted && financingAccepted && durationAccepted && debtRatioAccepted;
+  const simulationAccepted = contributionAccepted && financingAccepted && durationAccepted && grossIncomeAccepted;
   const validationMessages = [
-    !grossIncomeAccepted ? 'Le revenu brut mensuel doit etre superieur a 0.' : null,
+    !grossIncomeAccepted ? 'Le revenu net mensuel doit être supérieur à 0.' : null,
     !contributionAccepted
       ? `L'apport personnel minimum requis est de ${formatTnd(minimumContributionAmount)} (${selectedTypeConfig?.minContributionRate.toFixed(0)}%).`
       : null,
     !financingAccepted && selectedTypeConfig?.maxFinancingAmount != null
-      ? `Le montant finance depasse le plafond autorise de ${formatTnd(selectedTypeConfig.maxFinancingAmount)}.`
+      ? `Le montant financé dépasse le plafond autorisé de ${formatTnd(selectedTypeConfig.maxFinancingAmount)}.`
       : null,
     !durationAccepted && selectedTypeConfig
-      ? `La duree doit etre comprise entre ${selectedTypeConfig.minDurationMonths} et ${selectedTypeConfig.maxDurationMonths} mois.`
-      : null,
-    !debtRatioAccepted && selectedTypeConfig
-      ? `Le taux d'endettement depasse la limite de ${selectedTypeConfig.debtRatioLimit.toFixed(0)}%.`
+      ? `La durée doit être comprise entre ${selectedTypeConfig.minDurationMonths} et ${selectedTypeConfig.maxDurationMonths} mois.`
       : null,
   ].filter((message): message is string => Boolean(message));
 
-  const annualRate = selectedTypeConfig?.annualRate ?? 0;
-  const configuredAnnualRate = annualRate;
-  const configuredMinContributionRate = selectedTypeConfig?.minContributionRate ?? 0;
-  const sanitizedContribution = Math.max(contributionAmount, 0);
+  const configuredAnnualRate = selectedTypeConfig?.annualRate ?? 0;
   const estimatedMonthlyPayment = monthlyInstallment;
-  const financedCapital = requestedFinancingAmount;
-  const interestCost = Math.max(totalRepaymentAmount - requestedFinancingAmount, 0);
-  const totalToRepay = totalRepaymentAmount;
-  const contributionTooLow = sanitizedContribution < minimumContributionAmount;
-  const remainingMonthlyCapacity = Math.max(monthlyDebtCapacity - (monthlyInstallment + otherMonthlyPayments), 0);
-  const fileFees = totalFees;
-  const simulatorParameterSummary = simulatorParameters.map((parameter) => ({
-    label: toFieldLabel(parameter),
-    value: formatParameterDisplayValue(parameter),
-    required: Boolean(parameter.required),
-  }));
+  const financedCapital = financedAmount;
+  const totalToRepay = totalMonthlyPayments;
 
   const productOptions = useMemo(
     () => products.map((product) => ({ value: String(product.id), label: product.name })),
     [products]
   );
 
-  const productParameterSummary = useMemo(() => {
-    const parameters = selectedProduct?.parameterValues || [];
-    return parameters.slice(0, 8).map((parameter) => ({
-      label: parameter.parameterName || `Paramètre ${parameter.parameterDefinitionId}`,
-      value: parameter.value || '-',
-    }));
+  const productCharacteristics = useMemo(() => {
+    const seen = new Set<string>();
+
+    return (selectedProduct?.parameterValues || [])
+      .map((parameter) => ({
+        label: parameter.parameterName || `Paramètre ${parameter.parameterDefinitionId}`,
+        value: String(parameter.value ?? '').trim(),
+      }))
+      .filter((item) => item.value !== '')
+      .filter((item) => {
+        const signature = `${item.label}:${item.value}`.toLowerCase();
+        if (seen.has(signature)) {
+          return false;
+        }
+        seen.add(signature);
+        return true;
+      })
+      .slice(0, 6);
   }, [selectedProduct?.parameterValues]);
 
   const resetToPreset = () => {
@@ -762,7 +751,6 @@ export function SimulatorModule() {
 
     const productPrice = normalizeNumber(selectedProduct?.price) ?? 0;
     setAcquisitionPrice(productPrice);
-    setFinancingType('Crédit classique');
     setContributionAmount(Math.max((productPrice * selectedTypeConfig.minContributionRate) / 100, 0));
     setGrossIncome(Math.max(productPrice * 2.2, 1500));
     setOtherMonthlyPayments(0);
@@ -775,13 +763,26 @@ export function SimulatorModule() {
 
   const simulatorImage = getBackendAssetUrl(selectedProduct?.imageUrl);
   const displaySelectedProduct = selectedProduct || products[0] || null;
+  const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
+  const storeHeroOverlay = `linear-gradient(135deg, ${branding.primary_color}CC 0%, ${branding.secondary_color}C6 100%)`;
 
   return (
     <div className="min-h-screen bg-background">
-      <section className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-primary/90 px-4 py-12 text-white sm:px-6 lg:px-8">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,rgba(255,255,255,0.12),transparent_34%),radial-gradient(circle_at_bottom_left,rgba(255,255,255,0.1),transparent_28%)]" />
-        <div className="relative mx-auto flex max-w-7xl flex-col gap-6">
-          <div className="flex flex-wrap items-center justify-between gap-4">
+      <section
+        className="relative h-96 flex items-center bg-cover bg-center px-4 py-12 text-white sm:px-6 lg:px-8"
+        style={
+          storeBannerUrl
+            ? {
+                backgroundImage: `url(${storeBannerUrl})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+              }
+            : { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
+        }
+      >
+        <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />
+        <div className="relative mx-auto flex h-full w-full max-w-7xl items-center">
+          <div className="flex w-full flex-wrap items-center justify-between gap-4">
             <div>
               <div className="mb-3 flex items-center gap-3 text-sm text-white/75">
                 <Link to={`/store/${encodeURIComponent(storeSlug || '')}`} className="inline-flex items-center gap-2">
@@ -789,7 +790,7 @@ export function SimulatorModule() {
                   Retour au store
                 </Link>
                 <span className="text-white/25">/</span>
-                <span>Simulator</span>
+                <span>Simulateur</span>
               </div>
               <h1 className="text-4xl font-bold tracking-tight sm:text-5xl">Simulateur de financement</h1>
               <p className="mt-3 max-w-3xl text-base leading-7 text-white/80 sm:text-lg">
@@ -806,7 +807,7 @@ export function SimulatorModule() {
                 {products.length} produit{products.length > 1 ? 's' : ''} disponible{products.length > 1 ? 's' : ''}
               </div>
               <Badge variant="secondary" className="bg-white/15 text-white">
-                {canSimulate ? 'Simulator actif' : 'Simulator non disponible'}
+                {canSimulate ? 'Simulateur actif' : 'Simulateur non disponible'}
               </Badge>
             </div>
           </div>
@@ -815,516 +816,330 @@ export function SimulatorModule() {
 
       <section className="px-4 py-10 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-7xl">
-          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr]">
-            <div className="space-y-8">
-              <Card className="overflow-hidden border-slate-200 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
-                <CardHeader className="flex flex-col gap-4 border-b border-slate-100 bg-slate-50/80">
-                  <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div>
-                      <div className="mb-2 flex items-center gap-2 text-sm uppercase tracking-[0.24em] text-slate-400">
-                        <Calculator className="h-4 w-4" />
-                        Produit sélectionné
-                      </div>
-                      <CardTitle className="text-2xl font-semibold text-slate-900">
-                        {displaySelectedProduct?.name || 'Aucun produit sélectionné'}
-                      </CardTitle>
-                      <CardDescription className="mt-2 max-w-2xl text-base leading-7">
-                        {displaySelectedProduct?.description || 'Selectionnez un produit pour afficher les details et lancer la simulation.'}
-                      </CardDescription>
-                    </div>
+          {moduleError && (
+            <div className="mb-6 rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+              La configuration du simulateur n'a pas pu être chargée. Les valeurs par défaut sont utilisées.
+            </div>
+          )}
 
-                    <div className="min-w-[240px]">
-                      <Select
-                        label="Choisir un produit"
-                        value={selectedProductId ? String(selectedProductId) : ''}
-                        onChange={(event) => {
-                          const value = normalizeNumber(event.target.value);
-                          if (value !== null) {
-                            setSelectedProductId(value);
-                          }
-                        }}
-                        options={productOptions.length ? productOptions : [{ value: '', label: 'Aucun produit' }]}
-                        disabled={!productOptions.length}
-                      />
-                    </div>
-                  </div>
-                </CardHeader>
+          <div className="grid gap-8 xl:grid-cols-3">
+            <Card className="border-slate-200 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm uppercase tracking-[0.24em] text-slate-400">
+                  <Calculator className="h-4 w-4" />
+                  Informations du produit
+                </div>
+                <CardTitle className="text-2xl font-semibold text-slate-900">
+                  {displaySelectedProduct?.name || 'Aucun produit sélectionné'}
+                </CardTitle>
+                <CardDescription className="text-base leading-7">
+                  L'image, le prix et les caractéristiques principales du produit sélectionné sont affichés ici.
+                </CardDescription>
+              </CardHeader>
 
-                <CardContent className="grid gap-6 p-6 lg:grid-cols-[1.02fr_0.98fr]">
-                  <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
-                    {simulatorImage ? (
-                      <img
-                        src={simulatorImage}
-                        alt={displaySelectedProduct?.name || 'Produit'}
-                        className="h-[340px] w-full object-contain bg-white p-4"
-                      />
-                    ) : (
-                      <div className="flex h-[340px] items-center justify-center bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-400">
-                        <ImageIcon className="h-14 w-14" />
-                      </div>
-                    )}
+              <CardContent className="space-y-5">
+                {productOptions.length > 1 && (
+                  <Select
+                    label="Produit à simuler"
+                    value={selectedProductId ? String(selectedProductId) : ''}
+                    onChange={(event) => {
+                      const value = normalizeNumber(event.target.value);
+                      if (value !== null) {
+                        setSelectedProductId(value);
+                      }
+                    }}
+                    options={productOptions}
+                  />
+                )}
 
-                    <div className="border-t border-slate-200 bg-white px-5 py-4">
-                      <div className="flex flex-wrap items-center gap-3">
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-700">
-                          {displaySelectedProduct?.storeName || storeLabel}
-                        </Badge>
-                        <Badge variant="secondary" className="bg-red-50 text-red-700">
-                          {formatTnd(displaySelectedProduct?.price)}
-                        </Badge>
-                      </div>
-
-                      {productParameterSummary.length > 0 ? (
-                        <div className="mt-4 rounded-[1.25rem] border border-slate-200 bg-slate-50 p-4">
-                          <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Caracteristiques produit</div>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {productParameterSummary.map((row) => (
-                              <div key={row.label} className="rounded-full bg-white px-3 py-1.5 text-xs text-slate-600 ring-1 ring-slate-200">
-                                <span className="font-medium text-slate-500">{row.label}</span>
-                                <span className="mx-1 text-slate-300">•</span>
-                                <span className="font-semibold text-slate-800">{row.value}</span>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <div className="rounded-[1.5rem] border border-slate-200 bg-white p-5 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                      <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
-                        <SlidersHorizontal className="h-4 w-4 text-primary" />
-                        Type de simulation
-                      </div>
-
-                      <div className="grid gap-3 sm:grid-cols-2">
-                        {presets.map((preset) => {
-                          const active = selectedPreset?.id === preset.id;
-                          return (
-                            <button
-                              key={preset.id}
-                              type="button"
-                              onClick={() => setSelectedPresetId(preset.id)}
-                              className={`rounded-2xl border px-4 py-4 text-left transition-all ${
-                                active
-                                  ? 'border-primary bg-primary/5 shadow-[0_10px_24px_rgba(37,99,235,0.12)]'
-                                  : 'border-slate-200 bg-slate-50 hover:border-slate-300'
-                              }`}
-                            >
-                              <div className="flex items-center justify-between gap-3">
-                                <div className="text-base font-semibold text-slate-900">{preset.label}</div>
-                                {active && <Badge className="bg-primary text-white">Actif</Badge>}
-                              </div>
-                              <div className="mt-2 text-sm leading-6 text-slate-600">{preset.summary}</div>
-                              <div className="mt-3 flex flex-wrap gap-2 text-xs text-slate-500">
-                                <span className="rounded-full bg-white px-2 py-1 ring-1 ring-slate-200">
-                                  Apport min. {preset.minContributionRate}%
-                                </span>
-                                <span className="rounded-full bg-white px-2 py-1 ring-1 ring-slate-200">
-                                  Taux {preset.annualRate}%
-                                </span>
-                              </div>
-                            </button>
-                          );
-                        })}
-                      </div>
-                    </div>
-
-                    <div className="grid gap-4 sm:grid-cols-2">
-                      <Input
-                        label="Prix d'acquisition"
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={acquisitionPrice}
-                        onChange={(event) => setAcquisitionPrice(Number(event.target.value || 0))}
-                      />
-                      <Select
-                        label="Type de financement"
-                        value={financingType}
-                        onChange={(event) => setFinancingType(event.target.value)}
-                        options={financingTypeOptions}
-                      />
-                      <Input
-                        label="Apport personnel"
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={contributionAmount}
-                        onChange={(event) => setContributionAmount(Number(event.target.value || 0))}
-                      />
-                      <Input
-                        label="Revenu brut mensuel"
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={grossIncome}
-                        onChange={(event) => setGrossIncome(Number(event.target.value || 0))}
-                      />
-                      <Input
-                        label="Autres mensualités"
-                        type="number"
-                        min={0}
-                        step="0.01"
-                        value={otherMonthlyPayments}
-                        onChange={(event) => setOtherMonthlyPayments(Number(event.target.value || 0))}
-                      />
-                      <Input
-                        label="Durée (mois)"
-                        type="number"
-                        min={selectedTypeConfig?.minDurationMonths || 1}
-                        max={selectedTypeConfig?.maxDurationMonths || undefined}
-                        step={1}
-                        value={durationMonths}
-                        onChange={(event) => setDurationMonths(Math.max(Number(event.target.value || 1), 1))}
-                      />
-                      <div className="sm:col-span-2 flex flex-col gap-3 sm:flex-row">
-                        <Button
-                          type="button"
-                          className="w-full text-white sm:flex-1"
-                          icon={<Calculator className="h-4 w-4" />}
-                          onClick={() => {
-                            const target = document.getElementById('simulation-result');
-                            target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                          }}
-                          style={{ backgroundColor: branding.primary_color }}
-                          disabled={!displaySelectedProduct}
-                        >
-                          Simuler
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          className="w-full border-slate-300 sm:flex-1"
-                          icon={<RotateCcw className="h-4 w-4" />}
-                          onClick={resetToPreset}
-                        >
-                          Réinitialiser
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card id="simulation-result" className="border-slate-200 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
-                <CardHeader>
-                  <div className="flex items-center gap-2 text-sm uppercase tracking-[0.24em] text-slate-400">
-                    <Wallet className="h-4 w-4" />
-                    Paramètres du simulateur
-                  </div>
-                  <CardTitle className="text-2xl font-semibold text-slate-900">
-                    Configuration dynamique du store
-                  </CardTitle>
-                  <CardDescription className="text-base leading-7">
-                    Les parametres ci-dessous proviennent de la configuration active du module Simulator pour ce store.
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  {productsLoading ? (
-                    <div className="flex items-center justify-center rounded-[1.5rem] border border-slate-200 bg-slate-50 px-6 py-10 text-slate-500">
-                      <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                      Chargement des produits...
-                    </div>
-                  ) : productsError ? (
-                    <div className="rounded-[1.5rem] border border-rose-200 bg-rose-50 px-5 py-4 text-rose-700">
-                      Impossible de charger les produits disponibles pour ce store.
-                    </div>
-                  ) : moduleLoading ? (
-                    <div className="flex items-center justify-center rounded-[1.5rem] border border-slate-200 bg-slate-50 px-6 py-10 text-slate-500">
-                      <Loader2 className="mr-3 h-5 w-5 animate-spin" />
-                      Chargement de la configuration...
-                    </div>
-                  ) : moduleError ? (
-                    <div className="rounded-[1.5rem] border border-amber-200 bg-amber-50 px-5 py-4 text-amber-800">
-                      La configuration du simulateur n&apos;a pas pu etre chargee. Les valeurs par defaut sont utilisees.
-                    </div>
-                  ) : simulatorParameters.length > 0 ? (
-                    <div className="space-y-4">
-                      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-                        <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                          <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Taux annuel</div>
-                          <div className="mt-2 text-2xl font-semibold text-slate-900">{annualRate.toFixed(2)}%</div>
-                        </div>
-                        <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                          <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Apport minimum</div>
-                          <div className="mt-2 text-2xl font-semibold text-slate-900">
-                            {configuredMinContributionRate.toFixed(0)}%
-                          </div>
-                        </div>
-                        <div className="rounded-[1.25rem] border border-slate-200 bg-white p-4 shadow-[0_10px_24px_rgba(15,23,42,0.04)]">
-                          <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Frais configurés</div>
-                          <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(fileFees)}</div>
-                          <div className="mt-1 text-sm text-slate-500">Frais de dossier + frais d&apos;etude</div>
-                        </div>
-                      </div>
-
-                      <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white">
-                        <table className="w-full border-collapse text-left">
-                          <thead>
-                            <tr className="bg-slate-50">
-                              <th className="border-b border-slate-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                                Parametre
-                              </th>
-                              <th className="border-b border-slate-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                                Valeur
-                              </th>
-                              <th className="border-b border-slate-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                                Type
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {simulatorParameterSummary.map((row, index) => (
-                              <tr key={`${row.label}-${index}`} className="odd:bg-white even:bg-slate-50/70">
-                                <td className="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-700">
-                                  {row.label}
-                                  {row.required ? <span className="ml-1 text-red-500">*</span> : null}
-                                </td>
-                                <td className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">
-                                  {row.value}
-                                </td>
-                                <td className="border-b border-slate-100 px-4 py-3 text-sm text-slate-500">
-                                  {simulatorParameters[index]?.type || '-'}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
+                <div className="overflow-hidden rounded-[1.75rem] border border-slate-200 bg-slate-100">
+                  {simulatorImage ? (
+                    <img
+                      src={simulatorImage}
+                      alt={displaySelectedProduct?.name || 'Produit'}
+                      className="h-[280px] w-full object-contain bg-white p-4"
+                    />
                   ) : (
-                    <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-slate-50 px-5 py-8 text-center text-slate-500">
-                      Aucun parametre de configuration n&apos;est defini pour ce module. Le simulateur fonctionne avec les
-                      valeurs par defaut.
+                    <div className="flex h-[280px] items-center justify-center bg-gradient-to-br from-slate-100 via-white to-slate-200 text-slate-400">
+                      <ImageIcon className="h-14 w-14" />
                     </div>
                   )}
-                </CardContent>
-              </Card>
-            </div>
+                </div>
 
-            <div className="space-y-8">
-              <Card className="border-slate-200 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
-                <CardHeader>
-                  <div className="flex items-center gap-2 text-sm uppercase tracking-[0.24em] text-slate-400">
-                    <TrendingUp className="h-4 w-4" />
-                    Resultats de la simulation
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Nom du produit</div>
+                    <div className="mt-2 text-xl font-semibold text-slate-900">{displaySelectedProduct?.name || '-'}</div>
                   </div>
-                  <CardTitle className="text-2xl font-semibold text-slate-900">
-                    Estimation mensuelle
-                  </CardTitle>
-                  <CardDescription className="text-base leading-7">
-                    Les montants ci-dessous sont estimes a partir du produit et des regles du store selectionne.
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="rounded-[1.75rem] border border-primary/20 bg-primary/5 p-5">
-                    <div className="flex items-start justify-between gap-4">
-                      <div>
-                        <div className="text-sm font-medium text-slate-500">Mensualité estimée</div>
-                        <div className="mt-2 text-4xl font-bold tracking-tight text-slate-900">
-                          {formatTnd(estimatedMonthlyPayment)}
-                        </div>
-                        <div className="mt-2 text-sm text-slate-600">
-                          Basée sur {durationMonths} mois et un taux annuel de {configuredAnnualRate.toFixed(2)}%.
-                        </div>
-                      </div>
-                      <Badge
-                        className={`mt-1 ${
-                          simulationAccepted ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'
-                        }`}
-                      >
-                        {simulationAccepted ? 'Suffisant' : 'Insuffisant'}
-                      </Badge>
-                    </div>
+                  <div className="rounded-full bg-primary/10 px-4 py-2 text-sm font-semibold text-primary">
+                    {formatTnd(derivedProductPrice)}
                   </div>
+                </div>
 
-                  {validationMessages.length > 0 ? (
-                    <div className="space-y-2 rounded-[1.35rem] border border-amber-200 bg-amber-50 px-4 py-4 text-amber-800">
-                      {validationMessages.map((message) => (
-                        <div key={message} className="flex items-start gap-2 text-sm leading-6">
-                          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
-                          <span>{message}</span>
+                <p className="text-sm leading-7 text-slate-600">
+                  {displaySelectedProduct?.description || 'Aucune description disponible pour ce produit.'}
+                </p>
+
+                <div>
+                  <div className="mb-3 text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">
+                    Caractéristiques principales
+                  </div>
+                  {productCharacteristics.length > 0 ? (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      {productCharacteristics.map((item) => (
+                        <div key={`${item.label}-${item.value}`} className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3">
+                          <div className="text-xs uppercase tracking-[0.2em] text-slate-400">{item.label}</div>
+                          <div className="mt-1 text-sm font-semibold text-slate-900">{item.value}</div>
                         </div>
                       ))}
                     </div>
-                  ) : null}
-
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Montant financé</div>
-                      <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(totalFinancingAmount)}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Frais dossier + étude</div>
-                      <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(totalFees)}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Taux d&apos;endettement</div>
-                      <div className="mt-2 text-2xl font-semibold text-slate-900">{debtRatio.toFixed(1)}%</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Total à rembourser</div>
-                      <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(totalToRepay)}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Capital financé</div>
-                      <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(financedCapital)}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Coût du crédit</div>
-                      <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(interestCost)}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Reste à rembourser</div>
-                      <div className="mt-2 text-2xl font-semibold text-slate-900">
-                        {formatTnd(remainingAmountToRepay)}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="rounded-[1.5rem] border border-slate-200 bg-white p-4">
-                    <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-slate-900">
-                      <Banknote className="h-4 w-4 text-primary" />
-                      Synthese rapide
-                    </div>
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                        <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Apport personnel</div>
-                        <div className="mt-1 text-lg font-semibold text-slate-900">{formatTnd(sanitizedContribution)}</div>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                        <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Part de l&apos;apport</div>
-                        <div className="mt-1 text-lg font-semibold text-slate-900">{contributionRatio.toFixed(1)}%</div>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                        <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Capacité mensuelle restante</div>
-                        <div className="mt-1 text-lg font-semibold text-slate-900">
-                          {formatTnd(remainingMonthlyCapacity)}
-                        </div>
-                      </div>
-                      <div className="rounded-2xl bg-slate-50 px-4 py-3">
-                        <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Apport minimum requis</div>
-                        <div className="mt-1 text-lg font-semibold text-slate-900">
-                          {formatTnd(minimumContributionAmount)}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {contributionTooLow && (
-                    <div className="flex items-start gap-3 rounded-[1.5rem] border border-amber-200 bg-amber-50 px-4 py-4 text-amber-800">
-                      <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" />
-                      <div className="text-sm leading-6">
-                        L&apos;apport personnel est en dessous du minimum recommandé pour ce type de simulation. Le minimum
-                        attendu est {configuredMinContributionRate.toFixed(0)}% du prix du produit.
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-
-              <Card className="border-slate-200 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
-                <CardHeader>
-                  <div className="flex items-center gap-2 text-sm uppercase tracking-[0.24em] text-slate-400">
-                    <Info className="h-4 w-4" />
-                    Configuration active
-                  </div>
-                  <CardTitle className="text-2xl font-semibold text-slate-900">Paramètres utilisés pour le calcul</CardTitle>
-                  <CardDescription className="text-base leading-7">
-                    Les valeurs ci-dessous sont dérivées du module Simulator actif pour ce store, avec les valeurs saisies à
-                    l&apos;ecran.
-                  </CardDescription>
-                </CardHeader>
-
-                <CardContent className="space-y-4">
-                  <div className="grid gap-3 sm:grid-cols-2">
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Store</div>
-                      <div className="mt-2 font-semibold text-slate-900">{storeLabel}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Produit</div>
-                      <div className="mt-2 font-semibold text-slate-900">{displaySelectedProduct?.name || '-'}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Prix d'acquisition</div>
-                      <div className="mt-2 font-semibold text-slate-900">{formatTnd(derivedProductPrice)}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Type de simulation</div>
-                      <div className="mt-2 font-semibold text-slate-900">{selectedPreset?.label || '-'}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Type de financement</div>
-                      <div className="mt-2 font-semibold text-slate-900">{financingType}</div>
-                    </div>
-                    <div className="rounded-2xl border border-slate-200 bg-white p-4">
-                      <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Durée</div>
-                      <div className="mt-2 font-semibold text-slate-900">{durationMonths} mois</div>
-                    </div>
-                  </div>
-
-                  {simulatorParameterSummary.length > 0 ? (
-                    <div className="overflow-hidden rounded-[1.5rem] border border-slate-200 bg-white">
-                      <table className="w-full border-collapse text-left">
-                        <thead>
-                          <tr className="bg-slate-50">
-                            <th className="border-b border-slate-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                              Paramètre
-                            </th>
-                            <th className="border-b border-slate-200 px-4 py-3 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500">
-                              Valeur
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {simulatorParameterSummary.map((row) => (
-                            <tr key={row.label} className="odd:bg-white even:bg-slate-50/70">
-                              <td className="border-b border-slate-100 px-4 py-3 text-sm font-medium text-slate-700">
-                                {row.label}
-                                {row.required ? <span className="ml-1 text-red-500">*</span> : null}
-                              </td>
-                              <td className="border-b border-slate-100 px-4 py-3 text-sm font-semibold text-slate-900">
-                                {row.value}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
                   ) : (
-                    <div className="rounded-[1.5rem] border border-dashed border-slate-200 bg-slate-50 px-4 py-6 text-sm text-slate-500">
-                      Aucune configuration détaillée n&apos;est disponible pour ce module.
+                    <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 px-4 py-5 text-sm text-slate-500">
+                      Aucune caractéristique disponible pour ce produit.
                     </div>
                   )}
+                </div>
+              </CardContent>
+            </Card>
 
-                  <div className="flex flex-wrap gap-3">
-                    <Button
-                      type="button"
-                      className="min-w-[180px] text-white"
-                      icon={<Calculator className="h-4 w-4" />}
-                      onClick={resetToPreset}
-                      style={{ backgroundColor: branding.primary_color }}
-                      disabled={!displaySelectedProduct}
-                    >
-                      Recalculer
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      className="min-w-[180px] border-slate-300"
-                      onClick={() => navigate(`/store/${encodeURIComponent(storeSlug || '')}`)}
-                    >
-                      Retour au store
-                    </Button>
+            <Card className="border-slate-200 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm uppercase tracking-[0.24em] text-slate-400">
+                  <SlidersHorizontal className="h-4 w-4" />
+                  Données saisies par le client
+                </div>
+                <CardTitle className="text-2xl font-semibold text-slate-900">Paramètres de simulation</CardTitle>
+                <CardDescription className="text-base leading-7">
+                  Les résultats se mettent à jour automatiquement à chaque modification.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-5">
+                <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                  <div className="text-xs uppercase tracking-[0.24em] text-slate-400">Prix d'acquisition</div>
+                  <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(derivedProductPrice)}</div>
+                  <div className="mt-1 text-sm text-slate-500">Récupéré automatiquement depuis le produit.</div>
+                </div>
+
+                {presets.length > 0 && (
+                  <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50 p-4">
+                    <div className="mb-4 flex items-center gap-2 text-sm font-semibold text-slate-900">
+                      <SlidersHorizontal className="h-4 w-4 text-primary" />
+                      Type de simulation
+                    </div>
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      {presets.map((preset) => {
+                        const isActive = preset.id === selectedTypeConfig?.id;
+
+                        return (
+                          <button
+                            key={preset.id}
+                            type="button"
+                            onClick={() => setSelectedPresetId(preset.id)}
+                            className={`group relative flex h-full min-h-[260px] flex-col rounded-[1.35rem] border p-4 text-left transition-all duration-200 ${
+                              isActive
+                                ? 'border-primary bg-white shadow-[0_14px_30px_rgba(37,99,235,0.12)] ring-1 ring-primary/30'
+                                : 'border-slate-200 bg-white hover:border-primary/40 hover:shadow-[0_10px_24px_rgba(15,23,42,0.08)]'
+                            }`}
+                          >
+                            <div className="mb-4 flex items-start justify-between gap-3">
+                              <div>
+                                <div
+                                  className={`text-xl font-semibold tracking-tight ${
+                                    isActive ? 'text-primary' : 'text-slate-900'
+                                  }`}
+                                >
+                                  {preset.label}
+                                </div>
+                                <div className="mt-2 text-sm leading-6 text-slate-500">{preset.summary}</div>
+                              </div>
+                              {isActive && (
+                                <span className="rounded-full bg-primary px-3 py-1 text-xs font-semibold text-white shadow-sm">
+                                  Actif
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="mt-auto space-y-2">
+                              <div className="rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                                Apport min. {preset.minContributionRate.toFixed(0)}%
+                              </div>
+                              <div className="rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                                Taux {preset.annualRate.toFixed(1)}%
+                              </div>
+                              <div className="rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                                Durée {preset.minDurationMonths} - {preset.maxDurationMonths} mois
+                              </div>
+                              {preset.maxFinancingAmount != null && (
+                                <div className="rounded-2xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
+                                  Plafond {formatTnd(preset.maxFinancingAmount)}
+                                </div>
+                              )}
+                            </div>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
-                </CardContent>
-              </Card>
-            </div>
+                )}
+
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <Input
+                    label="Apport personnel"
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={contributionAmount}
+                    onChange={(event) => setContributionAmount(Number(event.target.value || 0))}
+                  />
+                  <Input
+                    label="Revenu net mensuel"
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={grossIncome}
+                    onChange={(event) => setGrossIncome(Number(event.target.value || 0))}
+                  />
+                  <Input
+                    label="Autres mensualités en cours"
+                    type="number"
+                    min={0}
+                    step="0.01"
+                    value={otherMonthlyPayments}
+                    onChange={(event) => setOtherMonthlyPayments(Number(event.target.value || 0))}
+                  />
+                  <Input
+                    label="Durée de remboursement"
+                    type="number"
+                    min={selectedTypeConfig?.minDurationMonths || 1}
+                    max={selectedTypeConfig?.maxDurationMonths || undefined}
+                    step={1}
+                    value={durationMonths}
+                    onChange={(event) => {
+                      const nextValue = Math.max(Number(event.target.value || 1), 1);
+                      setDurationMonths(
+                        selectedTypeConfig
+                          ? Math.min(Math.max(nextValue, selectedTypeConfig.minDurationMonths), selectedTypeConfig.maxDurationMonths)
+                          : nextValue
+                      );
+                    }}
+                  />
+                </div>
+
+                {validationMessages.length > 0 && (
+                  <div className="space-y-2 rounded-[1.35rem] border border-amber-200 bg-amber-50 px-4 py-4 text-amber-800">
+                    {validationMessages.map((message) => (
+                      <div key={message} className="flex items-start gap-2 text-sm leading-6">
+                        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                        <span>{message}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex flex-wrap gap-3">
+                  <Button
+                    type="button"
+                    className="min-w-[180px] text-white"
+                    icon={<Calculator className="h-4 w-4" />}
+                    onClick={() => {
+                      const target = document.getElementById('simulation-result');
+                      target?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }}
+                    style={{ backgroundColor: branding.primary_color }}
+                    disabled={!displaySelectedProduct}
+                  >
+                    Voir les résultats
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="min-w-[180px] border-slate-300"
+                    icon={<RotateCcw className="h-4 w-4" />}
+                    onClick={resetToPreset}
+                  >
+                    Réinitialiser
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card id="simulation-result" className="border-slate-200 shadow-[0_20px_44px_rgba(15,23,42,0.08)]">
+              <CardHeader>
+                <div className="flex items-center gap-2 text-sm uppercase tracking-[0.24em] text-slate-400">
+                  <TrendingUp className="h-4 w-4" />
+                  Résultats de la simulation
+                </div>
+                <CardTitle className="text-2xl font-semibold text-slate-900">Résumé financier</CardTitle>
+                <CardDescription className="text-base leading-7">
+                  Les résultats sont recalculés immédiatement à chaque modification des champs.
+                </CardDescription>
+              </CardHeader>
+
+              <CardContent className="space-y-5">
+                <div
+                  className={`rounded-[1.75rem] border p-5 ${
+                    simulationAccepted ? 'border-emerald-200 bg-emerald-50' : 'border-rose-200 bg-rose-50'
+                  }`}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div>
+                      <div className="text-sm font-medium text-slate-500">Statut d'éligibilité</div>
+                      <div className={`mt-2 text-2xl font-bold ${simulationAccepted ? 'text-emerald-700' : 'text-rose-700'}`}>
+                        {simulationAccepted ? 'Éligible' : 'Non éligible'}
+                      </div>
+                      <div className="mt-2 text-sm leading-6 text-slate-600">
+                        {simulationAccepted
+                          ? 'La simulation respecte les règles configurées par la banque.'
+                          : validationMessages[0] || 'Les valeurs saisies ne permettent pas encore de valider la simulation.'}
+                      </div>
+                    </div>
+                    <Badge className={`${simulationAccepted ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}`}>
+                      {simulationAccepted ? 'Conforme' : 'À corriger'}
+                    </Badge>
+                  </div>
+                </div>
+
+                <div className="rounded-[1.75rem] border border-primary/20 bg-primary/5 p-5">
+                  <div className="text-sm font-medium text-slate-500">Mensualité estimée</div>
+                  <div className="mt-2 text-4xl font-bold tracking-tight text-slate-900">
+                    {formatTnd(estimatedMonthlyPayment)}
+                  </div>
+                  <div className="mt-2 text-sm text-slate-600">
+                    Calculée sur {durationMonths} mois avec un taux annuel de {configuredAnnualRate.toFixed(2)}%.
+                  </div>
+                </div>
+
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Montant financé</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(financedCapital)}</div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Intérêts</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(interestCost)}</div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Frais de dossier</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(dossierFeesAmount)}</div>
+                    <div className="mt-1 text-sm text-slate-500">
+                      {feesPaidSeparately ? 'Payés séparément' : 'Intégrés au capital'}
+                    </div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Total des mensualités</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(totalToRepay)}</div>
+                  </div>
+                  <div className="rounded-2xl border border-slate-200 bg-white p-4">
+                    <div className="text-xs uppercase tracking-[0.22em] text-slate-400">Montant total dû</div>
+                    <div className="mt-2 text-2xl font-semibold text-slate-900">{formatTnd(totalAmountDue)}</div>
+                    <div className="mt-1 text-sm text-slate-500">
+                      {feesPaidSeparately ? 'Inclut les frais payés à part.' : 'Les frais sont déjà inclus dans le capital.'}
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </section>

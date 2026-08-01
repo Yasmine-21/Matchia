@@ -187,9 +187,9 @@ public class RequestService {
 
         Bank bank;
         if (request.getRequestType() == RequestTypeEnum.join) {
-            bank = provisionApprovedRequest(request);
+            bank = provisionApprovedRequest(request, false);
         } else if (request.getRequestType() == RequestTypeEnum.module) {
-            bank = provisionApprovedRequest(request);
+            bank = provisionApprovedRequest(request, false);
         } else {
             bank = request.getBank();
         }
@@ -252,7 +252,7 @@ public class RequestService {
 
         if (status == RequestStatusEnum.approved
                 && (request.getRequestType() == RequestTypeEnum.join || request.getRequestType() == RequestTypeEnum.module)) {
-            Bank bank = provisionApprovedRequest(request);
+            Bank bank = provisionApprovedRequest(request, false);
             request.setBank(bank);
         }
 
@@ -297,7 +297,7 @@ public class RequestService {
             return request.getBank();
         }
 
-        Bank bank = provisionApprovedRequest(request);
+        Bank bank = provisionApprovedRequest(request, true);
         if (!paymentWasAlreadyCompleted) {
             bankAdminCredentialsService.issueAfterSuccessfulMarketplacePayment(request);
         }
@@ -391,11 +391,11 @@ public class RequestService {
         }
     }
 
-    private Bank provisionApprovedRequest(Request request) {
-        Bank bank = resolveOrCreateBank(request);
+    private Bank provisionApprovedRequest(Request request, boolean activateAfterPayment) {
+        Bank bank = resolveOrCreateBank(request, activateAfterPayment);
         request.setBank(bank);
-        Marketplace marketplace = createMarketplace(bank, request);
-        createAdminUser(bank, request);
+        Marketplace marketplace = createMarketplace(bank, request, activateAfterPayment);
+        createAdminUser(bank, request, activateAfterPayment);
         assignStoresAndModules(marketplace, request);
         return bank;
     }
@@ -417,15 +417,25 @@ public class RequestService {
         request.setBank(bank);
     }
 
-    private Bank resolveOrCreateBank(Request request) {
+    private Bank resolveOrCreateBank(Request request, boolean activateAfterPayment) {
         if (request.getBank() != null && request.getBank().getId() != null) {
-            return updateBankPhone(request.getBank(), request.getBankPhone());
+            Bank bank = updateBankPhone(request.getBank(), request.getBankPhone());
+            if (request.getRequestType() == RequestTypeEnum.join) {
+                bank.setStatus(activateAfterPayment ? BankStatusEnum.active : BankStatusEnum.inactive);
+                return bankRepository.save(bank);
+            }
+            return bank;
         }
 
         String slug = hasText(request.getMarketplaceSlug()) ? request.getMarketplaceSlug() : toSlug(request.getBankName());
         var existingBank = bankRepository.findBySlug(slug);
         if (existingBank.isPresent()) {
-            return updateBankPhone(existingBank.get(), request.getBankPhone());
+            Bank bank = updateBankPhone(existingBank.get(), request.getBankPhone());
+            if (request.getRequestType() == RequestTypeEnum.join) {
+                bank.setStatus(activateAfterPayment ? BankStatusEnum.active : BankStatusEnum.inactive);
+                return bankRepository.save(bank);
+            }
+            return bank;
         }
 
         Bank bank = new Bank();
@@ -440,7 +450,9 @@ public class RequestService {
                 ? request.getBankDescription()
                 : "Marketplace de la banque " + request.getBankName());
         bank.setEstablishedYear(request.getEstablishmentYear());
-        bank.setStatus(BankStatusEnum.active);
+        bank.setStatus(request.getRequestType() == RequestTypeEnum.join
+                ? (activateAfterPayment ? BankStatusEnum.active : BankStatusEnum.inactive)
+                : BankStatusEnum.active);
         bank.setTotalUsers(1);
         return bankRepository.save(bank);
     }
@@ -453,7 +465,7 @@ public class RequestService {
         return bankRepository.save(bank);
     }
 
-    private Marketplace createMarketplace(Bank bank, Request request) {
+    private Marketplace createMarketplace(Bank bank, Request request, boolean activateAfterPayment) {
         Marketplace marketplace = bank.getId() != null
                 ? marketplaceRepository.findByBankId(bank.getId()).orElseGet(Marketplace::new)
                 : new Marketplace();
@@ -471,7 +483,9 @@ public class RequestService {
         if (request.getTotalAmount() != null) {
             marketplace.setTotalMonthlyPrice(BigDecimal.valueOf(request.getTotalAmount()));
         }
-        if (marketplace.getStatus() == null) {
+        if (request.getRequestType() == RequestTypeEnum.join) {
+            marketplace.setStatus(activateAfterPayment ? MarketplaceStatusEnum.active : MarketplaceStatusEnum.inactive);
+        } else if (marketplace.getStatus() == null) {
             marketplace.setStatus(MarketplaceStatusEnum.active);
         }
         return marketplaceRepository.save(marketplace);
@@ -599,7 +613,7 @@ public class RequestService {
         return value == null ? "" : value.replace("\\", "\\\\").replace("\"", "\\\"");
     }
 
-    private User createAdminUser(Bank bank, Request request) {
+    private User createAdminUser(Bank bank, Request request, boolean activateAfterPayment) {
         String email = hasText(request.getContactEmail()) ? request.getContactEmail() : request.getBankEmail();
         Optional<User> existingUser = userRepository.findByEmail(email);
         if (existingUser.isPresent()) {
@@ -612,7 +626,9 @@ public class RequestService {
                 user.setContactImageUrl(request.getContactImageUrl());
             }
             user.setRole(RoleEnum.ADMIN_BANK);
-            user.setStatus(UserStatusEnum.active);
+            if (request.getRequestType() == RequestTypeEnum.join) {
+                user.setStatus(activateAfterPayment ? UserStatusEnum.active : UserStatusEnum.inactive);
+            }
             return userRepository.save(user);
         }
 
@@ -624,7 +640,9 @@ public class RequestService {
         admin.setPhone(request.getContactPhone());
         admin.setContactImageUrl(request.getContactImageUrl());
         admin.setRole(RoleEnum.ADMIN_BANK);
-        admin.setStatus(UserStatusEnum.active);
+        admin.setStatus(request.getRequestType() == RequestTypeEnum.join
+                ? (activateAfterPayment ? UserStatusEnum.active : UserStatusEnum.inactive)
+                : UserStatusEnum.active);
         return userRepository.save(admin);
     }
 

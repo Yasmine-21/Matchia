@@ -1,7 +1,7 @@
 import '../../styles/LoginPage.css';
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
 import { Link, useNavigate } from 'react-router';
-import { Eye, Lock, Mail, UserRound } from 'lucide-react';
+import { Eye, EyeOff, Lock, Mail, UserRound } from 'lucide-react';
 import { MatchiaLogo } from '../../components/brand/MatchiaLogo';
 import { useApp } from '../../context/AppContext';
 import { authService } from '../../services/authService';
@@ -10,14 +10,6 @@ import apiClient from '../../api/apiClient';
 import type { MarketplacePublicDto } from '../../types/apiTypes';
 import { getBackendAssetUrl, getTenantSlugFromLocation } from '../../utils/tenant';
 
-type DemoAccountConfig = { role: string; name: string; bankSlug?: string };
-
-const DEMO_ACCOUNTS_LIST: Record<string, DemoAccountConfig> = {
-  'admin@matchia.com': { role: 'ADMIN_SAAS', name: 'Mariem Trabelsi' },
-  'ahmed@zitouna.com': { role: 'ADMIN_SAAS', name: 'Ahmed Ben Ali', bankSlug: 'zitouna' },
-  'fatma@bhbank.com': { role: 'ADMIN_BANK', name: 'Fatma Gharbi', bankSlug: 'bh' },
-};
-
 export function LoginPage() {
   const navigate = useNavigate();
   const { login, setCurrentBank } = useApp();
@@ -25,6 +17,7 @@ export function LoginPage() {
   const [marketplace, setMarketplace] = useState<MarketplacePublicDto | null>(null);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -95,23 +88,11 @@ export function LoginPage() {
           setCurrentBank(null);
         }
         
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        // Find if this account is associated with a bank
-        const accountEntry = Object.entries(DEMO_ACCOUNTS_LIST).find(([key]) => key === email);
-        const demoAccountConfig = accountEntry ? accountEntry[1] : null;
-
-        if (demoAccountConfig && demoAccountConfig.bankSlug && demoAccountConfig.role !== 'ADMIN_SAAS') {
-          // If bank admin, force subdomain redirect
-          window.location.href = `http://${demoAccountConfig.bankSlug}.lvh.me:5173/bank/dashboard`;
-          return;
-        }
-
         const redirectUrl = authService.getRedirectUrl(user);
         navigate(redirectUrl, { replace: true });
 
       } else {
-        setError('Identifiants invalides. Utilisez l\'un des comptes de demonstration (mdp: admin123).');
+        setError('Identifiants invalides.');
         setLoading(false);
       }
     } catch {
@@ -140,7 +121,13 @@ export function LoginPage() {
                   className="login-logo-image"
                 />
               ) : (
-                <MatchiaLogo variant="icon" showText={false} markClassName="login-logo-mark" />
+                <MatchiaLogo
+                  variant="icon"
+                  showText
+                  brandText
+                  markClassName="login-logo-mark"
+                  textClassName="text-[2rem] font-bold tracking-tight leading-none"
+                />
               )}
             </div>
 
@@ -163,9 +150,9 @@ export function LoginPage() {
               <div className="login-input-group">
                 <Mail className="login-input-icon" />
                 <input
-                  type="email"
+                  type="text"
                   className="login-custom-input"
-                  placeholder="Adresse e-mail"
+                  placeholder="Identifiant ou e-mail"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -176,7 +163,7 @@ export function LoginPage() {
               <div className="login-input-group">
                 <Lock className="login-input-icon" />
                 <input
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   className="login-custom-input login-password-input"
                   placeholder="Mot de passe"
                   value={password}
@@ -184,7 +171,20 @@ export function LoginPage() {
                   required
                   disabled={loading}
                 />
-                <Eye className="login-password-icon" />
+                <button
+                  type="button"
+                  className="login-password-toggle"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+                  aria-pressed={showPassword}
+                  disabled={loading}
+                >
+                  {showPassword ? (
+                    <EyeOff className="login-password-icon" />
+                  ) : (
+                    <Eye className="login-password-icon" />
+                  )}
+                </button>
               </div>
 
               <div className="login-form-options">

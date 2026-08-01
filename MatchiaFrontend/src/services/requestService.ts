@@ -42,7 +42,7 @@ const toFormData = (payload: RequestPayload) => {
   formData.append('website', payload.website || '');
   formData.append('contactName', payload.contactName);
   formData.append('contactEmail', payload.contactEmail);
-  formData.append('contactPhone', payload.contactPhone);
+  formData.append('contactPhone', payload.contactPhone || '');
   if (payload.contactImage) {
     formData.append('contactImage', payload.contactImage);
   }
@@ -58,8 +58,8 @@ const toFormData = (payload: RequestPayload) => {
   if (payload.banniereUrl) {
     formData.append('banniereUrl', payload.banniereUrl);
   }
-  formData.append('selectedStores', JSON.stringify(payload.selectedStores || payload.storeIds));
-  formData.append('selectedModules', JSON.stringify(payload.moduleIds));
+  formData.append('selectedStores', JSON.stringify(payload.selectedStores ?? payload.storeIds ?? []));
+  formData.append('selectedModules', JSON.stringify(payload.moduleIds ?? []));
   formData.append('totalAmount', String(payload.totalAmount));
   formData.append('totalMonthlyPrice', String(payload.totalMonthlyPrice ?? payload.totalAmount));
 
@@ -76,9 +76,7 @@ const toFormData = (payload: RequestPayload) => {
 
 export const requestService = {
   createRequest: (payload: RequestPayload) =>
-    apiClient.post<RequestDto>('/api/join-requests', toFormData(payload), {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    }),
+    apiClient.post<RequestDto>('/api/join-requests', toFormData(payload)),
 
   createBankStoreRequest: (payload: BankStoreRequestPayload) =>
     apiClient.post<RequestDto>('/api/requests', payload),

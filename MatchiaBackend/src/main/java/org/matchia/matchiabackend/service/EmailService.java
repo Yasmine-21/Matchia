@@ -10,18 +10,25 @@ import org.matchia.matchiabackend.entity.enums.RoleEnum;
 import org.matchia.matchiabackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.io.IOException;
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
+import java.util.Base64;
 
 @Service
 @Slf4j
 public class EmailService {
+
+    private static final String MATCHIA_LOGO_CID = "matchiaLogo";
+    private static final String MATCHIA_LOGO_RESOURCE = "email/matchia-logo.b64";
 
     @Autowired(required = false)
     private JavaMailSender mailSender;
@@ -41,10 +48,13 @@ public class EmailService {
     @Value("${app.frontend.url:http://localhost:5173}")
     private String frontendUrl;
 
+    @Value("${app.public.url:https://matchia.com}")
+    private String publicUrl;
+
     public boolean sendMarketplaceRequestConfirmationEmail(Request request) {
-        String recipient = resolveContactRecipient(request);
+        String recipient = resolveBankRecipient(request);
         if (recipient == null) {
-            log.warn("Impossible d'envoyer la confirmation de demande: email de contact manquant.");
+            log.warn("Impossible d'envoyer la confirmation de demande: email de l'admin banque manquant.");
             auditEmail(request, null, "request_confirmation_email.sent", AuditStatusEnum.failure);
             return false;
         }
@@ -100,9 +110,9 @@ public class EmailService {
     }
 
     public boolean sendPaymentInstructions(Request request, String paymentLink) {
-        String recipient = resolvePaymentRecipient(request);
+        String recipient = resolveBankRecipient(request);
         if (recipient == null) {
-            log.warn("Impossible d'envoyer les instructions de paiement: email de contact manquant.");
+            log.warn("Impossible d'envoyer les instructions de paiement: email de l'admin banque manquant.");
             auditEmail(request, null, "payment_link_email.sent", AuditStatusEnum.failure);
             return false;
         }
@@ -190,7 +200,7 @@ public class EmailService {
                         subscriptionDetails,
                         "Le paiement est requis pour activer la nouvelle periode d'abonnement.",
                         "La nouvelle periode commencera a la date de confirmation du paiement."
-                ).withoutHeroTitle(),
+                ),
                 "email renouvellement abonnement",
                 "RENOUVELLEMENT ABONNEMENT MATCHIA",
                 request,
@@ -253,15 +263,48 @@ public class EmailService {
         );
     }
 
+    public boolean sendPasswordResetEmail(User user, String resetUrl) {
+        if (user == null || !hasText(user.getEmail()) || !hasText(resetUrl)) {
+            return false;
+        }
+
+        String subject = "Reinitialisation de votre mot de passe Matchia";
+        String recipientName = hasText(user.getFullName()) ? user.getFullName() : user.getEmail();
+        return sendTemplatedEmail(
+                user.getEmail(),
+                subject,
+                buildTemplate(
+                        "Reinitialisation de mot de passe",
+                        "Un lien de reinitialisation a ete genere",
+                        """
+                                Bonjour %s,
+
+                                Vous avez demande la reinitialisation de votre mot de passe Matchia.
+                                Cliquez sur le bouton ci-dessous pour definir un nouveau mot de passe.
+                                Ce lien est personnel et expire rapidement.
+                                """.formatted(recipientName),
+                        "Reinitialiser le mot de passe",
+                        resetUrl,
+                        "Action requise",
+                        "Definir un nouveau mot de passe",
+                        "Conseil de securite",
+                        "Si vous n'etes pas a l'origine de cette demande, ignorez cet email.",
+                        "L'equipe Matchia",
+                        "Support Matchia"
+                ),
+                "mot de passe oublie",
+                "PASSWORD_RESET",
+                null,
+                "password_reset_email.sent"
+        );
+    }
+
     public boolean sendRequestRejectedEmail(Request request) {
         return sendJoinRequestRejectedEmail(request, null);
     }
 
     public boolean sendJoinRequestRejectedEmail(Request request, String rejectionReason) {
-        String recipient = resolveBankRecipient(request);
-        if (recipient == null) {
-            recipient = resolveJoinRecipient(request);
-        }
+        String recipient = resolveJoinRecipient(request);
         if (recipient == null) {
             log.warn("Impossible d'envoyer le rejet de demande join: email du contact manquant.");
             auditEmail(request, null, "rejection_email.sent", AuditStatusEnum.failure);
@@ -422,6 +465,7 @@ public class EmailService {
                 helper.setTo(recipient);
                 helper.setSubject(subject);
                 helper.setText(text, html);
+                addMatchiaLogo(helper);
                 mailSender.send(message);
                 log.info("Email {} envoye a {}", logLabel, recipient);
                 auditEmail(relatedRequest, recipient, auditAction, AuditStatusEnum.success);
@@ -439,6 +483,19 @@ public class EmailService {
         log.info("Body : {}", text);
         auditEmail(relatedRequest, recipient, auditAction, AuditStatusEnum.failure);
         return false;
+    }
+
+    private void addMatchiaLogo(MimeMessageHelper helper) throws IOException, MessagingException {
+        ClassPathResource encodedLogo = new ClassPathResource(MATCHIA_LOGO_RESOURCE);
+        String base64Logo;
+        try (var input = encodedLogo.getInputStream()) {
+            base64Logo = new String(input.readAllBytes(), StandardCharsets.US_ASCII).trim();
+        }
+        helper.addInline(
+                MATCHIA_LOGO_CID,
+                new ByteArrayResource(Base64.getDecoder().decode(base64Logo)),
+                "image/png"
+        );
     }
 
     private void auditEmail(Request request, String recipient, String action, AuditStatusEnum status) {
@@ -464,73 +521,45 @@ public class EmailService {
         String recipientName = hasText(adminUser.getFullName()) ? adminUser.getFullName() : "Administrateur";
         String marketplaceName = request != null && hasText(request.getMarketplaceSlug())
                 ? request.getMarketplaceSlug() : "votre marketplace";
-        String loginUrl = frontendUrl + "/bank/login";
+        String intro = """
+                <p style="margin:0 0 10px;">Bonjour %s,</p>
+                <p style="margin:0;">Votre banque, la marketplace &laquo; %s &raquo; et votre espace administrateur sont maintenant actifs.</p>
+                """.formatted(
+                escapeHtml(recipientName),
+                escapeHtml(marketplaceName)
+        );
 
-        return """
-                <!doctype html>
-                <html lang="fr">
-                <head>
-                  <meta charset="UTF-8" />
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                  <title>Vos identifiants Matchia</title>
-                </head>
-                <body style="margin:0;padding:0;background:#f3f6fb;font-family:Arial,Helvetica,sans-serif;color:#334155;">
-                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f3f6fb;">
-                    <tr><td align="center" style="padding:28px 12px;">
-                      <table role="presentation" width="560" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:560px;background:#ffffff;border:1px solid #e2e8f0;border-radius:18px;overflow:hidden;">
-                        <tr><td style="padding:18px 26px;background:#173f92;color:#ffffff;">
-                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"><tr>
-                            <td style="font-size:23px;font-weight:900;letter-spacing:2px;">MATCHIA</td>
-                            <td align="right" style="font-size:12px;font-weight:600;">Banking Marketplaces</td>
-                          </tr></table>
-                        </td></tr>
-                        <tr><td align="center" style="padding:30px 30px 14px;">
-                          <div style="width:68px;height:68px;line-height:68px;border-radius:50%;background:#e7f8f2;border:8px solid #b9eadc;color:#0aa36f;font-size:33px;font-weight:700;">&#10003;</div>
-                          <div style="margin:16px auto 13px;width:62px;height:14px;border-radius:20px;background:#0aa36f;"></div>
-                          <div style="font-size:30px;line-height:1.15;font-weight:800;color:#13295c;">Votre compte est pr&ecirc;t</div>
-                          <div style="margin-top:10px;font-size:17px;font-weight:700;color:#0aa36f;">Votre paiement a &eacute;t&eacute; confirm&eacute; avec succ&egrave;s</div>
-                        </td></tr>
-                        <tr><td style="padding:6px 32px 0;font-size:15px;line-height:1.7;color:#475569;">
-                          <p style="margin:0 0 10px;">Bonjour {{RECIPIENT_NAME}},</p>
-                          <p style="margin:0;">Votre banque, la marketplace &laquo; {{MARKETPLACE_NAME}} &raquo; et votre espace administrateur sont maintenant actifs.</p>
-                        </td></tr>
-                        <tr><td style="padding:24px 32px 0;">
-                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="border:1px solid #d8e5ff;border-radius:15px;overflow:hidden;background:#ffffff;">
-                            <tr><td colspan="2" style="padding:15px 18px;background:#f8fbff;border-bottom:1px solid #d8e5ff;font-size:15px;font-weight:800;color:#13295c;">Connexion au back office</td></tr>
-                            <tr><td style="padding:14px 18px;border-bottom:1px solid #e5edf9;font-size:13px;font-weight:700;color:#718096;">Login</td><td style="padding:14px 18px;border-bottom:1px solid #e5edf9;font-size:14px;font-weight:700;"><a href="{{LOGIN_URL}}" style="color:#2563eb;text-decoration:underline;">{{LOGIN}}</a></td></tr>
-                            <tr><td style="padding:14px 18px;font-size:13px;font-weight:700;color:#718096;">Mot de passe</td><td style="padding:14px 18px;font-size:14px;font-weight:800;color:#13295c;word-break:break-all;">{{PASSWORD}}</td></tr>
-                          </table>
-                        </td></tr>
-                        <tr><td style="padding:22px 32px 0;">
-                          <div style="border:1px solid #a9e1d1;background:#eefbf6;border-radius:14px;padding:16px 18px;">
-                            <div style="font-size:15px;font-weight:800;color:#13295c;margin-bottom:8px;">Important</div>
-                            <div style="font-size:14px;line-height:1.65;color:#475569;">Merci de changer ce mot de passe lors de votre premi&egrave;re connexion afin de s&eacute;curiser votre espace.</div>
-                          </div>
-                        </td></tr>
-                        <tr><td align="center" style="padding:24px 32px 10px;border-bottom:1px solid #e8eef8;font-size:13px;line-height:1.6;color:#64748b;">
-                          <div>Gardez ces informations confidentielles.</div>
-                          <div style="font-weight:800;font-size:15px;color:#0aa36f;">L&apos;&eacute;quipe Matchia</div>
-                        </td></tr>
-                        <tr><td style="padding:14px 22px 20px;">
-                          <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="background:#f7faff;border-radius:12px;color:#5b6b83;font-size:12px;"><tr>
-                            <td align="center" style="padding:12px 4px;"><a href="{{LOGIN_URL}}" style="color:#2563eb;">{{WEBSITE}}</a></td>
-                            <td align="center" style="padding:12px 4px;">{{SUPPORT_EMAIL}}</td>
-                            <td align="center" style="padding:12px 4px;">+216 70 123 456</td>
-                          </tr></table>
-                        </td></tr>
-                      </table>
-                    </td></tr>
-                  </table>
-                </body>
-                </html>
-                """
-                .replace("{{RECIPIENT_NAME}}", escapeHtml(recipientName))
-                .replace("{{MARKETPLACE_NAME}}", escapeHtml(marketplaceName))
-                .replace("{{LOGIN_URL}}", escapeHtml(loginUrl))
-                .replace("{{LOGIN}}", escapeHtml(adminUser.getEmail()))
-                .replace("{{PASSWORD}}", escapeHtml(temporaryPassword))
-                .replace("{{WEBSITE}}", escapeHtml(resolveBrandWebsite()))
-                .replace("{{SUPPORT_EMAIL}}", escapeHtml(hasText(mailUsername) ? mailUsername : "contact@matchia.com"));
+        String bodyHtml = """
+                <table role="presentation" width="100%%" cellspacing="0" cellpadding="0" border="0">
+                  <tr>
+                    <td style="padding:18px 20px;border:1px solid #d7e4fb;background-color:#f5f9ff;border-radius:10px;">
+                      <div style="font-size:14px;line-height:20px;color:#52627a;">Login</div>
+                      <div style="padding-top:5px;font-size:19px;line-height:26px;font-weight:700;color:#0758f5;word-break:break-all;">%s</div>
+                    </td>
+                  </tr>
+                  <tr><td height="12" style="height:12px;font-size:0;line-height:0;">&nbsp;</td></tr>
+                  <tr>
+                    <td style="padding:15px 20px;border:1px solid #9fc1ff;background-color:#ffffff;border-radius:10px;text-align:center;">
+                      <div style="font-size:14px;line-height:20px;font-weight:700;color:#14213d;">Mot de passe</div>
+                      <div style="padding-top:5px;font-size:18px;line-height:25px;color:#34445f;word-break:break-all;">%s</div>
+                    </td>
+                  </tr>
+                </table>
+                """.formatted(
+                escapeHtml(adminUser.getEmail()),
+                escapeHtml(temporaryPassword)
+        );
+
+        return buildMatchiaEmailShell(
+                "Félicitations !",
+                "Vos identifiants Matchia sont disponibles",
+                intro,
+                bodyHtml,
+                "Ouvrir le back office",
+                buildBackOfficeUrl(request),
+                "Merci de changer ce mot de passe lors de votre première connexion.",
+                "L'équipe Matchia"
+        );
     }
 
     private String buildCredentialsPlainText(Request request, User adminUser, String temporaryPassword) {
@@ -544,9 +573,8 @@ public class EmailService {
                 Login : %s
                 Mot de passe : %s
 
-                Connectez-vous : %s/bank/login
                 Important : changez ce mot de passe lors de votre premiere connexion.
-                """.formatted(marketplaceName, adminUser.getEmail(), temporaryPassword, frontendUrl);
+                """.formatted(marketplaceName, adminUser.getEmail(), temporaryPassword);
     }
 
     private EmailTemplate buildTemplate(
@@ -563,7 +591,7 @@ public class EmailService {
             String secondaryNote
     ) {
         return new EmailTemplate(
-                "Félicitations !",
+                resolveHeroTitle(eyebrow, title),
                 eyebrow,
                 title,
                 message,
@@ -578,89 +606,6 @@ public class EmailService {
         );
     }
 
-    private String buildEmailHtml(EmailTemplate template) {
-        String actionUrl = hasText(template.actionUrl()) ? template.actionUrl() : frontendUrl;
-        String highlightLabel = hasText(template.highlightLabel()) ? template.highlightLabel() : "Information";
-        String highlightValue = hasText(template.highlightValue()) ? template.highlightValue() : "-";
-        String infoTitle = hasText(template.infoTitle()) ? template.infoTitle() : "Information";
-        String infoText = hasText(template.infoText()) ? template.infoText() : "Aucun complement disponible.";
-        String footerNote = hasText(template.footerNote()) ? template.footerNote() : "Merci pour votre confiance.";
-        String secondaryNote = hasText(template.secondaryNote()) ? template.secondaryNote() : "L'equipe Matchia";
-
-        String html = """
-                <!doctype html>
-                <html lang="fr">
-                <head>
-                  <meta charset="UTF-8" />
-                  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-                  <title>{{TITLE}}</title>
-                </head>
-                <body style="margin:0;padding:0;background:#f5f7fb;font-family:Arial,Helvetica,sans-serif;color:#0f172a;">
-                  <div style="max-width:760px;margin:0 auto;padding:24px;">
-                    <div style="border-radius:24px;overflow:hidden;background:#ffffff;box-shadow:0 20px 60px rgba(15,23,42,.08);border:1px solid #e5e7eb;">
-                      <div style="background:linear-gradient(135deg,#0f172a 0%%,#1d4ed8 55%%,#f97316 100%%);padding:28px 32px;color:#fff;">
-                        <div style="font-size:13px;letter-spacing:.22em;text-transform:uppercase;opacity:.8;">Matchia</div>
-                        <div style="font-size:28px;font-weight:700;margin-top:10px;">Banking Marketplaces</div>
-                        <div style="font-size:15px;opacity:.92;margin-top:8px;">{{EYEBROW}}</div>
-                      </div>
-                      <div style="padding:32px;">
-                        <div style="text-align:center;margin-bottom:24px;">
-                          <div style="display:inline-flex;align-items:center;justify-content:center;width:74px;height:74px;border-radius:999px;background:#dcfce7;color:#16a34a;font-size:34px;font-weight:700;">ÃƒÂ¢Ã…â€œÃ¢â‚¬Å“</div>
-                          <div style="margin-top:18px;font-size:30px;line-height:1.2;font-weight:800;color:#0f172a;">{{TITLE}}</div>
-                          <div style="margin-top:8px;font-size:18px;line-height:1.5;font-weight:700;color:#1d4ed8;">{{SUBTITLE}}</div>
-                        </div>
-
-                        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:24px;">
-                          {{MESSAGE}}
-                        </div>
-
-                        <div style="margin-top:22px;border-radius:18px;border:1px solid #dbeafe;background:#eff6ff;padding:18px 20px;">
-                          <div style="font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#2563eb;">{{HIGHLIGHT_LABEL}}</div>
-                          <div style="margin-top:8px;font-size:18px;font-weight:800;color:#0f172a;">{{HIGHLIGHT_VALUE}}</div>
-                        </div>
-
-                        <div style="margin-top:20px;border-radius:18px;border:1px solid #e5e7eb;background:#fffaf0;padding:18px 20px;">
-                          <div style="font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:#d97706;">{{INFO_TITLE}}</div>
-                          <div style="margin-top:8px;font-size:15px;line-height:1.7;color:#334155;">{{INFO_TEXT}}</div>
-                        </div>
-
-                        <div style="text-align:center;margin-top:24px;">
-                          <a href="{{ACTION_URL}}" style="display:inline-block;background:linear-gradient(135deg,#1d4ed8 0%%,#2563eb 100%%);color:#fff;text-decoration:none;padding:14px 28px;border-radius:999px;font-size:16px;font-weight:700;box-shadow:0 10px 30px rgba(37,99,235,.25);">{{ACTION_LABEL}}</a>
-                        </div>
-
-                        <div style="margin-top:26px;padding-top:20px;border-top:1px solid #e5e7eb;font-size:14px;line-height:1.7;color:#475569;">
-                          <div style="font-weight:700;color:#0f172a;">{{FOOTER_NOTE}}</div>
-                          <div style="margin-top:6px;">{{SECONDARY_NOTE}}</div>
-                        </div>
-
-                        <div style="margin-top:26px;text-align:center;font-size:14px;line-height:1.7;color:#64748b;">
-                          <div>{{SUPPORT_LINE}}</div>
-                          <div style="margin-top:6px;font-weight:700;color:#1d4ed8;">{{BRAND_LINE}}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </body>
-                </html>
-                """;
-
-        return html
-                .replace("{{TITLE}}", escapeHtml(template.title()))
-                .replace("{{EYEBROW}}", escapeHtml(template.eyebrow()))
-                .replace("{{SUBTITLE}}", escapeHtml(template.title()))
-                .replace("{{MESSAGE}}", buildMessageHtml(template.message()))
-                .replace("{{HIGHLIGHT_LABEL}}", escapeHtml(highlightLabel))
-                .replace("{{HIGHLIGHT_VALUE}}", escapeHtml(highlightValue))
-                .replace("{{INFO_TITLE}}", escapeHtml(infoTitle))
-                .replace("{{INFO_TEXT}}", escapeHtml(infoText))
-                .replace("{{ACTION_URL}}", escapeHtml(actionUrl))
-                .replace("{{ACTION_LABEL}}", escapeHtml(hasText(template.actionLabel()) ? template.actionLabel() : "Ouvrir"))
-                .replace("{{FOOTER_NOTE}}", escapeHtml(footerNote))
-                .replace("{{SECONDARY_NOTE}}", escapeHtml(secondaryNote))
-                .replace("{{SUPPORT_LINE}}", escapeHtml(footerNote))
-                .replace("{{BRAND_LINE}}", escapeHtml(secondaryNote));
-    }
-
     private String buildPlainText(EmailTemplate template) {
         StringBuilder builder = new StringBuilder()
                 .append(template.eyebrow()).append('\n')
@@ -672,8 +617,8 @@ public class EmailService {
         if (hasText(template.infoTitle()) || hasText(template.infoText())) {
             builder.append(template.infoTitle()).append(" : ").append(template.infoText()).append('\n');
         }
-        if (hasText(template.actionUrl())) {
-            builder.append(template.actionUrl()).append('\n');
+        if (hasText(template.actionLabel())) {
+            builder.append("Action : ").append(template.actionLabel()).append('\n');
         }
         if (hasText(template.footerNote())) {
             builder.append(template.footerNote()).append('\n');
@@ -681,21 +626,90 @@ public class EmailService {
         if (hasText(template.secondaryNote())) {
             builder.append(template.secondaryNote()).append('\n');
         }
+        builder.append("Email : matchia@gmail.com\n")
+               .append("Téléphone : +216 71 200 300\n");
         return builder.toString();
     }
 
     private String buildEmailHtmlV2(EmailTemplate template) {
-        String actionUrl = hasText(template.actionUrl()) ? template.actionUrl() : frontendUrl;
-        String highlightLabel = hasText(template.highlightLabel()) ? template.highlightLabel() : "Montant total a regler";
-        String highlightValue = hasText(template.highlightValue()) ? template.highlightValue() : "-";
-        String infoTitle = hasText(template.infoTitle()) ? template.infoTitle() : "Apres le paiement";
-        String infoText = hasText(template.infoText()) ? template.infoText() : "Une fois le paiement effectue avec succes, vous recevrez un second email contenant les identifiants de connexion au back office bancaire.";
-        String footerNote = hasText(template.footerNote()) ? template.footerNote() : "Paiement securise via Stripe.";
-        String secondaryNote = hasText(template.secondaryNote()) ? template.secondaryNote() : "L'equipe Matchia";
-        String brandWebsite = resolveBrandWebsite();
-        String brandEmail = hasText(mailUsername) ? mailUsername : "contact@matchia.com";
-        String brandPhone = "+216 70 123 456";
-        String actionLabel = hasText(template.actionLabel()) ? template.actionLabel() : "Proceder au paiement";
+        String actionUrl = sanitizeEmailActionUrl(template.actionUrl());
+        String introHtml = buildMessageHtml(template.message());
+        String bodyHtml = buildDynamicInformationCards(template);
+
+        return buildMatchiaEmailShell(
+                template.heroTitle(),
+                template.title(),
+                introHtml,
+                bodyHtml,
+                template.actionLabel(),
+                actionUrl,
+                template.footerNote(),
+                template.secondaryNote()
+        );
+    }
+
+    private String buildDynamicInformationCards(EmailTemplate template) {
+        StringBuilder cards = new StringBuilder();
+        boolean hasHighlight = hasText(template.highlightLabel()) || hasText(template.highlightValue());
+        boolean hasInfo = hasText(template.infoTitle()) || hasText(template.infoText());
+
+        if (hasHighlight) {
+            cards.append("""
+                    <tr>
+                      <td style="padding:18px 20px;border:1px solid #d7e4fb;background-color:#f5f9ff;border-radius:10px;">
+                        <div style="font-size:13px;line-height:19px;color:#52627a;">%s</div>
+                        <div style="padding-top:6px;font-size:25px;line-height:32px;font-weight:700;color:#0758f5;">%s</div>
+                      </td>
+                    </tr>
+                    """.formatted(escapeHtml(template.highlightLabel()), escapeHtml(template.highlightValue())));
+        }
+        if (hasHighlight && hasInfo) {
+            cards.append("<tr><td height=\"12\" style=\"height:12px;font-size:0;line-height:0;\">&nbsp;</td></tr>");
+        }
+        if (hasInfo) {
+            cards.append("""
+                    <tr>
+                      <td style="padding:16px 20px;border:1px solid #d7e4fb;background-color:#ffffff;border-radius:10px;">
+                        <div style="font-size:14px;line-height:20px;font-weight:700;color:#14213d;">%s</div>
+                        <div style="padding-top:6px;font-size:14px;line-height:22px;color:#52627a;">%s</div>
+                      </td>
+                    </tr>
+                    """.formatted(escapeHtml(template.infoTitle()), escapeHtml(template.infoText())));
+        }
+        return cards.isEmpty()
+                ? ""
+                : "<table role=\"presentation\" width=\"100%\" cellspacing=\"0\" cellpadding=\"0\" border=\"0\">"
+                + cards + "</table>";
+    }
+
+    private String buildMatchiaEmailShell(
+            String heroTitle,
+            String heroSubtitle,
+            String bodyIntroHtml,
+            String bodyHtml,
+            String actionLabel,
+            String actionUrl,
+            String footerNote,
+            String secondaryNote
+    ) {
+        String safeHeroTitle = hasText(heroTitle) ? escapeHtml(heroTitle) : "Matchia";
+        String safeHeroSubtitle = hasText(heroSubtitle) ? escapeHtml(heroSubtitle) : "";
+        String icon = buildEmailIcon(heroTitle, heroSubtitle);
+        String actionButton = buildEmailActionButton(actionLabel, sanitizeEmailActionUrl(actionUrl));
+        String notes = buildEmailNotes(footerNote, secondaryNote);
+        String introSection = hasText(bodyIntroHtml)
+                ? "<tr><td style=\"padding:0 42px 4px 42px;font-size:15px;line-height:24px;color:#34445f;text-align:center;\">"
+                + bodyIntroHtml + "</td></tr>"
+                : "";
+        String bodySection = hasText(bodyHtml)
+                ? "<tr><td style=\"padding:16px 42px 0 42px;\">" + bodyHtml + "</td></tr>"
+                : "";
+        String actionSection = hasText(actionButton)
+                ? "<tr><td align=\"center\" style=\"padding:18px 42px 0 42px;\">" + actionButton + "</td></tr>"
+                : "";
+        String notesSection = hasText(notes)
+                ? "<tr><td align=\"center\" style=\"padding:18px 42px 22px 42px;\">" + notes + "</td></tr>"
+                : "";
 
         String html = """
                 <!doctype html>
@@ -703,85 +717,195 @@ public class EmailService {
                 <head>
                   <meta charset="UTF-8" />
                   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+                  <meta name="x-apple-disable-message-reformatting" />
                   <title>{{TITLE}}</title>
                 </head>
-                <body style="margin:0;padding:0;background:#f4f7ff;font-family:Arial,Helvetica,sans-serif;color:#1e293b;">
-                  <div style="max-width:560px;margin:0 auto;padding:14px;">
-                    <div style="overflow:hidden;border-radius:16px;background:#ffffff;border:1px solid #e5eaf6;box-shadow:0 20px 48px rgba(15,23,42,.10);">
-                      <div style="background:linear-gradient(180deg,#123b89 0%,#173f92 100%);padding:16px 18px;color:#ffffff;display:flex;justify-content:space-between;align-items:center;">
-                        <div style="font-size:22px;font-weight:900;letter-spacing:.10em;">MATCHIA</div>
-                        <div style="font-size:12px;font-weight:600;opacity:.95;">Banking Marketplaces</div>
-                      </div>
-
-                      <div style="padding:28px 26px 22px;text-align:center;position:relative;">
-                        <div style="display:inline-flex;align-items:center;justify-content:center;width:74px;height:74px;border-radius:999px;background:#ecf2ff;border:8px solid #c9d8ff;box-sizing:border-box;">
-                          <div style="width:42px;height:42px;border-radius:999px;background:#2563eb;color:#ffffff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;line-height:1;">&#10003;</div>
-                        </div>
-                        <div style="margin-top:16px;width:62px;height:16px;border-radius:999px;background:#2563eb;display:inline-block;"></div>
-
-                        <div style="{{HERO_STYLE}}margin-top:10px;font-size:30px;line-height:1.1;font-weight:800;color:#111827;">{{HERO_TITLE}}</div>
-                        <div style="margin-top:8px;font-size:17px;line-height:1.45;font-weight:700;color:#2563eb;">{{TITLE}}</div>
-                      </div>
-
-                      <div style="padding:0 26px 8px;font-size:15px;line-height:1.8;color:#475569;">
-                        {{MESSAGE}}
-                      </div>
-
-                      <div style="padding:10px 24px 0;">
-                        <div style="border-radius:16px;border:1px solid #e4ebff;background:linear-gradient(180deg,#f7fbff 0%,#ffffff 100%);padding:16px 16px 14px;box-shadow:0 10px 26px rgba(37,99,235,.05);">
-                          <div style="font-size:13px;font-weight:700;color:#64748b;margin-bottom:4px;">{{HIGHLIGHT_LABEL}}</div>
-                          <div style="font-size:26px;line-height:1.1;font-weight:900;color:#2563eb;">{{HIGHLIGHT_VALUE}}</div>
-                          <div style="margin-top:4px;font-size:12px;color:#94a3b8;">Paiement securise via Stripe</div>
-                        </div>
-                      </div>
-
-                      <div style="padding:18px 24px 0;text-align:center;">
-                        <a href="{{ACTION_URL}}" style="display:inline-block;min-width:180px;background:linear-gradient(180deg,#2563eb 0%,#1d4ed8 100%);color:#ffffff;text-decoration:none;padding:12px 26px;border-radius:999px;font-size:15px;font-weight:800;box-shadow:0 10px 20px rgba(37,99,235,.24);">
-                          {{ACTION_LABEL}}
-                        </a>
-                      </div>
-
-                      <div style="padding:14px 24px 0;text-align:center;">
-                        <div style="display:inline-block;padding:10px 16px;border-radius:12px;border:1px solid #bfd0ff;background:#f8fbff;color:#1e3a8a;font-size:14px;line-height:1.6;text-align:left;max-width:100%;">
-                          <div style="font-weight:800;color:#1e293b;margin-bottom:4px;">{{INFO_TITLE}}</div>
-                          <div style="color:#475569;">{{INFO_TEXT}}</div>
-                        </div>
-                      </div>
-
-                      <div style="padding:24px 24px 10px;text-align:center;color:#475569;font-size:14px;line-height:1.7;">
-                        <div>{{FOOTER_NOTE}}</div>
-                        <div style="margin-top:4px;font-weight:700;color:#2563eb;">{{SECONDARY_NOTE}}</div>
-                      </div>
-
-                      <div style="padding:0 18px 18px;">
-                        <div style="border-top:1px solid #edf2ff;padding-top:14px;display:flex;gap:8px;justify-content:space-between;font-size:12px;color:#64748b;text-align:center;">
-                          <div style="flex:1;">{{BRAND_WEBSITE}}</div>
-                          <div style="flex:1;">{{BRAND_EMAIL}}</div>
-                          <div style="flex:1;">{{BRAND_PHONE}}</div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
+                <body style="margin:0;padding:0;background-color:#f4f7fc;font-family:Arial,Helvetica,sans-serif;color:#10203b;">
+                  <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" bgcolor="#f4f7fc">
+                    <tr>
+                      <td align="center" style="padding:20px 10px;">
+                        <!--[if mso]><table role="presentation" width="640" cellspacing="0" cellpadding="0" border="0"><tr><td><![endif]-->
+                        <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;background-color:#ffffff;border:1px solid #d9e4f7;border-radius:14px;overflow:hidden;">
+                          <tr><td height="12" bgcolor="#0648c9" style="height:12px;background-color:#0648c9;font-size:0;line-height:0;">&nbsp;</td></tr>
+                          <tr>
+                            <td align="left" style="padding:20px 40px 18px 40px;border-bottom:2px solid #0758f5;">
+                              <img src="cid:matchiaLogo" width="205" alt="Matchia" style="display:block;width:205px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;" />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td align="center" style="padding:26px 42px 18px 42px;">
+                              {{ICON}}
+                              <div style="padding-top:15px;font-size:32px;line-height:39px;font-weight:700;color:#0d172a;text-align:center;">{{HERO_TITLE}}</div>
+                              <div style="padding-top:5px;font-size:18px;line-height:25px;font-weight:700;color:#0758f5;text-align:center;">{{HERO_SUBTITLE}}</div>
+                              <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center" style="margin:14px auto 0 auto;"><tr><td width="42" height="3" bgcolor="#0758f5" style="width:42px;height:3px;background-color:#0758f5;font-size:0;line-height:0;">&nbsp;</td></tr></table>
+                            </td>
+                          </tr>
+                          {{INTRO_SECTION}}
+                          {{BODY_SECTION}}
+                          {{ACTION_SECTION}}
+                          {{NOTES_SECTION}}
+                          <tr><td height="2" bgcolor="#0758f5" style="height:2px;background-color:#0758f5;font-size:0;line-height:0;">&nbsp;</td></tr>
+                          <tr>
+                            <td bgcolor="#f3f7ff" style="padding:18px 30px;background-color:#f3f7ff;">
+                              <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0">
+                                <tr>
+                                  <td width="50%" align="center" style="padding:5px 8px;font-size:14px;line-height:20px;color:#34445f;border-right:1px solid #cddcf5;">&#9993;&nbsp;&nbsp; matchia@gmail.com</td>
+                                  <td width="50%" align="center" style="padding:5px 8px;font-size:14px;line-height:20px;color:#34445f;">&#9742;&nbsp;&nbsp; +216 71 200 300</td>
+                                </tr>
+                              </table>
+                            </td>
+                          </tr>
+                        </table>
+                        <!--[if mso]></td></tr></table><![endif]-->
+                      </td>
+                    </tr>
+                  </table>
                 </body>
                 </html>
                 """;
 
         return html
-                .replace("{{HERO_STYLE}}", hasText(template.heroTitle()) ? "" : "display:none;")
-                .replace("{{HERO_TITLE}}", escapeHtml(template.heroTitle()))
-                .replace("{{TITLE}}", escapeHtml(template.title()))
-                .replace("{{MESSAGE}}", buildMessageHtml(template.message()))
-                .replace("{{HIGHLIGHT_LABEL}}", escapeHtml(highlightLabel))
-                .replace("{{HIGHLIGHT_VALUE}}", escapeHtml(highlightValue))
-                .replace("{{ACTION_URL}}", escapeHtml(actionUrl))
-                .replace("{{ACTION_LABEL}}", escapeHtml(actionLabel))
-                .replace("{{INFO_TITLE}}", escapeHtml(infoTitle))
-                .replace("{{INFO_TEXT}}", escapeHtml(infoText))
-                .replace("{{FOOTER_NOTE}}", escapeHtml(footerNote))
-                .replace("{{SECONDARY_NOTE}}", escapeHtml(secondaryNote))
-                .replace("{{BRAND_WEBSITE}}", escapeHtml(brandWebsite))
-                .replace("{{BRAND_EMAIL}}", escapeHtml(brandEmail))
-                .replace("{{BRAND_PHONE}}", escapeHtml(brandPhone));
+                .replace("{{TITLE}}", safeHeroTitle)
+                .replace("{{ICON}}", icon)
+                .replace("{{HERO_TITLE}}", safeHeroTitle)
+                .replace("{{HERO_SUBTITLE}}", safeHeroSubtitle)
+                .replace("{{INTRO_SECTION}}", introSection)
+                .replace("{{BODY_SECTION}}", bodySection)
+                .replace("{{ACTION_SECTION}}", actionSection)
+                .replace("{{NOTES_SECTION}}", notesSection);
+    }
+
+    private String buildEmailIcon(String title, String subtitle) {
+        String context = ((title == null ? "" : title) + " " + (subtitle == null ? "" : subtitle)).toLowerCase();
+        String symbol = "&#9993;";
+        String foreground = "#0758f5";
+        String background = "#eef4ff";
+        if (context.contains("refus") || context.contains("rejet")) {
+            symbol = "&#10005;";
+            foreground = "#dc2626";
+            background = "#fff1f2";
+        } else if (context.contains("mot de passe") || context.contains("réinitial") || context.contains("reinitial")) {
+            symbol = "&#128273;";
+            foreground = "#f97316";
+            background = "#fff7ed";
+        } else if (context.contains("paiement") || context.contains("renouvellement")) {
+            symbol = "&#128179;";
+        }
+        return """
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                  <tr>
+                    <td width="76" height="76" align="center" valign="middle" style="width:76px;height:76px;border-radius:38px;background-color:%s;color:%s;font-size:34px;line-height:76px;text-align:center;">%s</td>
+                  </tr>
+                </table>
+                """.formatted(background, foreground, symbol);
+    }
+
+    private String buildEmailActionButton(String label, String url) {
+        if (!hasText(label) || !hasText(url)) {
+            return "";
+        }
+        return """
+                <table role="presentation" cellspacing="0" cellpadding="0" border="0" align="center">
+                  <tr>
+                    <td align="center" bgcolor="#0758f5" style="background-color:#0758f5;border-radius:10px;">
+                      <a href="%s" target="_blank" style="display:inline-block;min-width:220px;padding:13px 28px;color:#ffffff;text-decoration:none;font-size:16px;line-height:22px;font-weight:700;text-align:center;">%s&nbsp;&nbsp;&#8594;</a>
+                    </td>
+                  </tr>
+                </table>
+                """.formatted(escapeHtml(url), escapeHtml(label));
+    }
+
+    private String buildEmailNotes(String footerNote, String secondaryNote) {
+        if (!hasText(footerNote) && !hasText(secondaryNote)) {
+            return "";
+        }
+        StringBuilder notes = new StringBuilder();
+        if (hasText(footerNote)) {
+            notes.append("<div style=\"font-size:14px;line-height:22px;color:#52627a;text-align:center;\">")
+                    .append(escapeHtml(footerNote)).append("</div>");
+        }
+        if (hasText(secondaryNote)) {
+            notes.append("<div style=\"padding-top:7px;font-size:15px;line-height:22px;font-weight:700;color:#0758f5;text-align:center;\">")
+                    .append(escapeHtml(secondaryNote)).append("</div>");
+        }
+        return notes.toString();
+    }
+
+    private String resolveHeroTitle(String eyebrow, String title) {
+        String context = ((eyebrow == null ? "" : eyebrow) + " " + (title == null ? "" : title)).toLowerCase();
+        if (context.contains("refus") || context.contains("rejet")) {
+            return "Demande refusée";
+        }
+        if (context.contains("réinitial") || context.contains("reinitial")) {
+            return "Réinitialisation";
+        }
+        if (context.contains("demande envoy") || context.contains("enregistr")) {
+            return "Demande reçue";
+        }
+        if (context.contains("renouvellement")) {
+            return "Renouvellement";
+        }
+        return "Félicitations !";
+    }
+
+    private String buildBackOfficeUrl(Request request) {
+        String base = safePublicUrl();
+        String slug = request != null ? request.getMarketplaceSlug() : null;
+        if (!hasText(slug) || !slug.matches("[A-Za-z0-9-]+")) {
+            return base + "/connexion";
+        }
+        try {
+            URI publicUri = URI.create(base);
+            String host = publicUri.getHost();
+            if (!hasText(host)) {
+                return base + "/connexion";
+            }
+            host = host.replaceFirst("^www\\.", "");
+            return new URI("https", null, slug.toLowerCase() + "." + host, -1, "/connexion", null, null).toString();
+        } catch (Exception exception) {
+            return base + "/connexion";
+        }
+    }
+
+    private String sanitizeEmailActionUrl(String candidate) {
+        if (!hasText(candidate)) {
+            return null;
+        }
+        try {
+            URI uri = URI.create(candidate.trim());
+            String host = uri.getHost();
+            boolean securePublicUrl = "https".equalsIgnoreCase(uri.getScheme())
+                    && hasText(host)
+                    && uri.getPort() == -1
+                    && !isDevelopmentHost(host);
+            return securePublicUrl ? uri.toString() : safePublicUrl();
+        } catch (Exception exception) {
+            return safePublicUrl();
+        }
+    }
+
+    private String safePublicUrl() {
+        if (hasText(publicUrl)) {
+            try {
+                URI uri = URI.create(publicUrl.trim().replaceAll("/+$", ""));
+                if ("https".equalsIgnoreCase(uri.getScheme()) && hasText(uri.getHost())
+                        && uri.getPort() == -1 && !isDevelopmentHost(uri.getHost())) {
+                    return uri.toString();
+                }
+            } catch (Exception ignored) {
+                // The public fallback below deliberately contains no development host or port.
+            }
+        }
+        return "https://matchia.com";
+    }
+
+    private boolean isDevelopmentHost(String host) {
+        String normalized = host.toLowerCase();
+        return normalized.equals("localhost")
+                || normalized.equals("127.0.0.1")
+                || normalized.equals("::1")
+                || normalized.equals("lvh.me")
+                || normalized.endsWith(".lvh.me");
     }
     private String buildMessageHtml(String message) {
         String[] paragraphs = message == null ? new String[0] : message.trim().split("\\R+");
@@ -824,15 +948,6 @@ public class EmailService {
             }
         }
         return "Votre demande a bien ete enregistree";
-    }
-
-    private String resolveBrandWebsite() {
-        if (hasText(frontendUrl)) {
-            return frontendUrl
-                    .replaceFirst("^https?://", "")
-                    .replaceFirst("/+$", "");
-        }
-        return "www.matchia.com";
     }
 
     private String buildJoinRequestRejectedBody(Request request, String rejectionReason) {
@@ -894,21 +1009,6 @@ public class EmailService {
                 : null;
     }
 
-    private String resolveContactRecipient(Request request) {
-        return resolveJoinRecipient(request);
-    }
-
-    private String resolvePaymentRecipient(Request request) {
-        if (request != null && (request.getRequestType() == org.matchia.matchiabackend.entity.enums.RequestTypeEnum.store
-                || request.getRequestType() == org.matchia.matchiabackend.entity.enums.RequestTypeEnum.subscription)) {
-            String bankRecipient = resolveBankRecipient(request);
-            if (hasText(bankRecipient)) {
-                return bankRecipient;
-            }
-        }
-        return resolveContactRecipient(request);
-    }
-
     private String resolveBankRecipient(Request request) {
         if (request == null) {
             return null;
@@ -957,22 +1057,6 @@ public class EmailService {
             String footerNote,
             String secondaryNote
     ) {
-        private EmailTemplate withoutHeroTitle() {
-            return new EmailTemplate(
-                    null,
-                    eyebrow,
-                    title,
-                    message,
-                    actionLabel,
-                    actionUrl,
-                    highlightLabel,
-                    highlightValue,
-                    infoTitle,
-                    infoText,
-                    footerNote,
-                    secondaryNote
-            );
-        }
     }
 }
 

@@ -15,6 +15,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByEmail(String email);
 
     @EntityGraph(attributePaths = "bank")
+    Optional<User> findByEmailIgnoreCase(String email);
+
+    @EntityGraph(attributePaths = "bank")
     List<User> findByBank_Slug(String slug);
 
     @EntityGraph(attributePaths = "bank")
@@ -30,4 +33,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findByIdAndBank_Slug(Long id, String slug);
 
     boolean existsByEmail(String email);
+
+    boolean existsByEmailIgnoreCase(String email);
 }

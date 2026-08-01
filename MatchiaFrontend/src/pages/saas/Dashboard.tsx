@@ -9,6 +9,7 @@ import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { useApp } from '../../context/AppContext';
+import { authService } from '../../services/authService';
 import { bankService } from '../../services/bankService';
 import { requestService } from '../../services/requestService';
 import { storeService } from '../../services/storeService';
@@ -42,9 +43,10 @@ export function SaaSDashboard() {
   const { logout } = useApp();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await authService.logout();
     logout();
-    navigate('/login');
+    navigate('/connexion');
   };
 
   useEffect(() => {

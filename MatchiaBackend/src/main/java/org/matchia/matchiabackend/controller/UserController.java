@@ -72,6 +72,9 @@ public class UserController {
         if (entity.getStatus() == null) {
             entity.setStatus(org.matchia.matchiabackend.entity.enums.UserStatusEnum.active);
         }
+        if (dto.getAddress() != null) {
+            entity.setAddress(dto.getAddress());
+        }
         entity.setPassword(encodedPassword);
         User savedEntity = service.save(entity);
         return new ResponseEntity<>(mapper.toDto(savedEntity), HttpStatus.CREATED);
@@ -116,12 +119,15 @@ public class UserController {
         }
 
         User entity = existingUser.get();
-        Bank bank = resolveBank(dto.getBankId());
-        if (bank == null) {
-            return ResponseEntity.badRequest().body(Map.of("message", "La banque selectionnee est introuvable."));
-        }
-        if (tenantBankSlug != null && (bank.getSlug() == null || !tenantBankSlug.equals(bank.getSlug()))) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        Bank bank = entity.getBank();
+        if (dto.getBankId() != null) {
+            bank = resolveBank(dto.getBankId());
+            if (bank == null) {
+                return ResponseEntity.badRequest().body(Map.of("message", "La banque selectionnee est introuvable."));
+            }
+            if (tenantBankSlug != null && (bank.getSlug() == null || !tenantBankSlug.equals(bank.getSlug()))) {
+                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+            }
         }
 
         entity.setBank(bank);
@@ -133,6 +139,9 @@ public class UserController {
         }
         if (dto.getPhone() != null) {
             entity.setPhone(dto.getPhone());
+        }
+        if (dto.getAddress() != null) {
+            entity.setAddress(dto.getAddress());
         }
         if (dto.getContactImageUrl() != null) {
             entity.setContactImageUrl(dto.getContactImageUrl());

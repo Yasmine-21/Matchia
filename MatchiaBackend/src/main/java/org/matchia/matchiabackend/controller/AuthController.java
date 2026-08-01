@@ -1,105 +1,75 @@
 package org.matchia.matchiabackend.controller;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.AuthRequest;
 import org.matchia.matchiabackend.dto.AuthResponse;
-import org.matchia.matchiabackend.dto.AuditLogRequest;
-import org.matchia.matchiabackend.entity.User;
-import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
-import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
-import org.matchia.matchiabackend.entity.enums.RoleEnum;
-import org.matchia.matchiabackend.entity.enums.UserStatusEnum;
-import org.matchia.matchiabackend.repository.UserRepository;
-import org.matchia.matchiabackend.security.JwtUtil;
-import org.matchia.matchiabackend.service.AuditLogger;
-import org.matchia.matchiabackend.service.PasswordService;
+import org.matchia.matchiabackend.dto.ForgotPasswordRequest;
+import org.matchia.matchiabackend.dto.ResetPasswordRequest;
+import org.matchia.matchiabackend.service.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.security.core.Authentication;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
-import jakarta.servlet.http.HttpServletRequest;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@RequiredArgsConstructor
 public class AuthController {
 
-    private final JwtUtil jwtUtil;
-    private final AuditLogger auditLogger;
-    private final UserRepository userRepository;
-    private final PasswordService passwordService;
-
-    public AuthController(JwtUtil jwtUtil, AuditLogger auditLogger, UserRepository userRepository, PasswordService passwordService) {
-        this.jwtUtil = jwtUtil;
-        this.auditLogger = auditLogger;
-        this.userRepository = userRepository;
-        this.passwordService = passwordService;
-    }
+    private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody AuthRequest request, HttpServletRequest httpRequest) {
-        String email = request.getEmail();
-        String password = request.getPassword();
-
-        var user = userRepository.findByEmail(email);
-        if (user.isPresent()) {
-            User dbUser = user.get();
-            if (dbUser.getStatus() == UserStatusEnum.inactive) {
-                auditLogger.logAsync(loginAudit(email, null, "user.login_failed", AuditStatusEnum.failure, httpRequest, "{\"reason\":\"inactive_user\"}"));
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-            }
-            if (!passwordService.matches(password, dbUser.getPassword())) {
-                auditLogger.logAsync(loginAudit(email, null, "user.login_failed", AuditStatusEnum.failure, httpRequest, "{\"reason\":\"bad_password\"}"));
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
-            }
-
-            String role = toAuthRole(dbUser.getRole());
-            String bankSlug = dbUser.getBank() != null ? dbUser.getBank().getSlug() : null;
-            String bankId = dbUser.getBank() != null && dbUser.getBank().getId() != null
-                    ? String.valueOf(dbUser.getBank().getId())
-                    : null;
-
-            String token = jwtUtil.generateToken(email, role, bankSlug);
-
-            AuthResponse response = new AuthResponse();
-            response.setToken(token);
-            response.setEmail(email);
-            response.setRole(role);
-            response.setBankSlug(bankSlug);
-            response.setBankId(bankId);
-            response.setName(dbUser.getFullName());
-
-            auditLogger.logAsync(loginAudit(email, role, "user.login", AuditStatusEnum.success, httpRequest, null));
-            return ResponseEntity.ok(response);
-        }
-
-        auditLogger.logAsync(loginAudit(email, null, "user.login_failed", AuditStatusEnum.failure, httpRequest, "{\"reason\":\"unknown_user\"}"));
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid credentials");
+    public ResponseEntity<AuthResponse> login(
+            @Valid @RequestBody AuthRequest request,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse
+    ) {
+        return ResponseEntity.ok(authService.login(request, httpRequest, httpResponse));
     }
 
-    private String toAuthRole(RoleEnum role) {
-        if (role == null) {
-            return "CLIENT";
-        }
-        return role.name();
+    @PostMapping("/refresh")
+    public ResponseEntity<AuthResponse> refresh(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        return ResponseEntity.ok(authService.refresh(httpRequest, httpResponse));
     }
 
-    private AuditLogRequest loginAudit(String email, String role, String action, AuditStatusEnum status, HttpServletRequest request, String metadata) {
-        User knownUser = userRepository.findByEmail(email).orElse(null);
-        AuditLogRequest audit = new AuditLogRequest();
-        audit.setTenantId("saas");
-        audit.setActorId(knownUser != null && knownUser.getId() != null ? String.valueOf(knownUser.getId()) : email);
-        audit.setActorName(knownUser != null && knownUser.getFullName() != null && !knownUser.getFullName().isBlank()
-                ? knownUser.getFullName() : email);
-        audit.setActorEmail(email);
-        audit.setActorRole("ADMIN_BANK".equals(role) ? "BANK_ADMIN" : role);
-        audit.setAction(action);
-        audit.setCategory(AuditCategoryEnum.security);
-        audit.setResourceType("session");
-        audit.setResourceId(email);
-        audit.setStatus(status);
-        audit.setIpAddress(request.getRemoteAddr());
-        audit.setUserAgent(request.getHeader("User-Agent"));
-        audit.setMetadata(metadata);
-        audit.setSource("AUTHENTICATION");
-        return audit;
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
+        authService.logout(httpRequest, httpResponse);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/me")
+    public ResponseEntity<AuthResponse> currentUser(
+            Authentication authentication,
+            HttpServletRequest httpRequest,
+            HttpServletResponse httpResponse
+    ) {
+        return ResponseEntity.ok(authService.getCurrentUser(authentication, httpRequest, httpResponse));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<Map<String, String>> forgotPassword(
+            @RequestBody ForgotPasswordRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        authService.sendPasswordResetLink(request, httpRequest);
+        return ResponseEntity.ok(Map.of(
+                "message", "Si un compte correspond a cette adresse, un lien de reinitialisation a ete envoye."
+        ));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<Map<String, String>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(Map.of("message", "Votre mot de passe a ete reinitialise avec succes."));
     }
 }

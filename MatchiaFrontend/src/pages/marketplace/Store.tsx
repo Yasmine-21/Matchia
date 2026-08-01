@@ -1,6 +1,19 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useParams, Link, useOutletContext, useNavigate } from 'react-router';
-import { BarChart3, Bot, Calculator, Check, FileText, Image as ImageIcon, Loader2, Plus } from 'lucide-react';
+import { useLocation, useParams, Link, useOutletContext, useNavigate } from 'react-router';
+import {
+  Bot,
+  Building2,
+  Calculator,
+  CarFront,
+  Check,
+  FileText,
+  HeartPulse,
+  Image as ImageIcon,
+  Loader2,
+  Plus,
+  Scale,
+  Smartphone,
+} from 'lucide-react';
 import { motion } from 'motion/react';
 import { contentService } from '../../services/contentService';
 import { marketplaceContentService } from '../../services/marketplaceContentService';
@@ -94,6 +107,24 @@ const getModuleRoute = (moduleName?: string | null, storeSlug?: string) => {
   return null;
 };
 
+const getStoreMeta = (name?: string | null) => {
+  const normalized = `${name || ''}`.toLowerCase();
+
+  if (normalized.includes('mobile') || normalized.includes('smart')) {
+    return { icon: Smartphone, label: 'mobile' };
+  }
+
+  if (normalized.includes('medical') || normalized.includes('médical') || normalized.includes('sant')) {
+    return { icon: HeartPulse, label: 'medical' };
+  }
+
+  if (normalized.includes('vehicle') || normalized.includes('vehicule') || normalized.includes('auto') || normalized.includes('car')) {
+    return { icon: CarFront, label: 'vehicule' };
+  }
+
+  return { icon: Building2, label: 'immobilier' };
+};
+
 const getContentSortValue = (createdAt?: string | null) => {
   if (!createdAt) return 0;
   const value = new Date(createdAt).getTime();
@@ -176,36 +207,36 @@ function ContentBlock({
   const imageUrl = getBackendAssetUrl(content.imageUrl) || fallbackImageUrl;
 
   return (
-    <motion.article
+     <motion.article
       initial={{ opacity: 0, y: 24 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.2 }}
       transition={{ duration: 0.55, delay: index * 0.08 }}
-      className={`flex flex-col items-center gap-12 lg:gap-16 ${reversed ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}
+      className={`flex flex-col items-start gap-8 lg:items-stretch lg:gap-8 ${reversed ? 'lg:flex-row-reverse' : 'lg:flex-row'}`}
     >
-      <div className="w-full lg:w-[60%]">
+      <div className="w-full lg:w-[58%]">
         <div className="relative overflow-hidden rounded-[2.25rem] border border-slate-200 bg-slate-100 shadow-[0_24px_52px_rgba(15,23,42,0.12)]">
           {imageUrl ? (
             <img
               src={imageUrl}
               alt={content.title}
-              className="h-[320px] w-full object-cover sm:h-[390px] lg:h-[440px]"
+              className="h-[350px] w-full object-cover sm:h-[430px] lg:h-[510px]"
               loading="lazy"
             />
           ) : (
-            <div className="flex h-[320px] items-center justify-center bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 text-slate-500 sm:h-[390px] lg:h-[440px]">
+            <div className="flex h-[350px] items-center justify-center bg-gradient-to-br from-slate-100 via-slate-200 to-slate-300 text-slate-500 sm:h-[430px] lg:h-[510px]">
               Aucun visuel disponible
             </div>
           )}
         </div>
       </div>
 
-      <div className={`w-full space-y-6 lg:w-[40%] ${reversed ? 'lg:pr-2' : 'lg:pl-2'}`}>
-        <h3 className="max-w-none font-serif text-3xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-[2.5rem]">
+      <div className={`w-full space-y-6 lg:w-[42%] ${reversed ? 'lg:pr-0' : 'lg:pl-0'}`}>
+        <h3 className="max-w-none font-serif text-3xl font-semibold leading-tight tracking-tight text-slate-900 sm:text-[2.6rem] lg:max-w-[620px]">
           {content.title}
         </h3>
 
-        <p className="max-w-none text-justify text-[15px] leading-8 text-slate-600 sm:text-[1.08rem]">
+        <p className="max-w-none text-justify text-[15px] leading-8 text-slate-600 sm:text-[1.08rem] lg:max-w-[680px]">
           {content.description}
         </p>
 
@@ -218,32 +249,55 @@ function ModuleSidebar({
   modules,
   storeSlug,
   moduleIcons,
+  primaryColor,
+  secondaryColor,
 }: {
   modules: MarketplaceModuleDetail[];
   storeSlug?: string;
   moduleIcons: Record<string, any>;
+  primaryColor: string;
+  secondaryColor: string;
 }) {
+  const location = useLocation();
+
   if (!modules.length) {
     return null;
   }
 
   return (
-    <aside className="w-full lg:fixed lg:left-4 lg:top-[420px] lg:z-30 lg:w-[150px]">
+    <aside className="w-full lg:fixed lg:left-0 lg:top-[420px] lg:z-30 lg:w-[170px]">
       <div className="rounded-[2rem] bg-transparent p-0 lg:bg-transparent">
-        <div className="flex flex-wrap gap-3 lg:flex-col lg:gap-3">
+        <div className="flex flex-wrap gap-3 lg:flex-col lg:items-end lg:gap-3">
           {modules.map((module) => {
             const moduleName = module.name || module.label;
             const label = module.label || module.name || 'Module';
             const normalizedName = normalizeSlug(moduleName);
             const Icon = moduleIcons[normalizedName] || Calculator;
             const moduleRoute = getModuleRoute(moduleName, storeSlug);
-
+            const isActive = moduleRoute ? location.pathname === moduleRoute : false;
             const pill = (
-              <div className="flex h-[48px] w-[150px] items-center gap-2 rounded-full bg-white px-3 shadow-[0_10px_24px_rgba(15,23,42,0.12)] ring-1 ring-black/5 transition-shadow hover:shadow-[0_14px_28px_rgba(15,23,42,0.16)]">
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-lime-600">
+              <div
+                className="flex h-[48px] w-[150px] items-center gap-2 rounded-full bg-white px-3 shadow-[0_10px_24px_rgba(15,23,42,0.12)] ring-1 ring-black/5 transition-all hover:shadow-[0_14px_28px_rgba(15,23,42,0.16)]"
+                style={
+                  isActive
+                    ? {
+                        background: `linear-gradient(135deg, ${primaryColor}, ${secondaryColor})`,
+                        boxShadow: `0 10px 24px ${hexToRgba(primaryColor, 0.24)}`,
+                      }
+                    : undefined
+                }
+              >
+                <div
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${isActive ? 'text-white' : ''}`}
+                  style={!isActive ? { color: primaryColor } : undefined}
+                >
                   <Icon className="h-6 w-6" />
                 </div>
-                <div className="min-w-0 text-[13px] font-medium leading-tight text-slate-600">
+                <div
+                  className={`min-w-0 text-[13px] font-medium leading-tight ${
+                    isActive ? 'text-white' : 'text-slate-600'
+                  }`}
+                >
                   <div className="truncate">{label}</div>
                 </div>
               </div>
@@ -257,6 +311,70 @@ function ModuleSidebar({
               <div key={module.id} className="block">
                 {pill}
               </div>
+            );
+          })}
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+function StoreSidebar({
+  stores,
+  activeStoreSlug,
+  primaryColor,
+}: {
+  stores: MarketplaceStoreDetail[];
+  activeStoreSlug?: string;
+  primaryColor: string;
+}) {
+  if (!stores.length) {
+    return null;
+  }
+
+  return (
+    <aside className="w-full lg:fixed lg:right-0 lg:top-[420px] lg:z-30 lg:w-[150px]">
+      <div className="rounded-[2rem] bg-transparent p-0 lg:bg-transparent">
+        <div className="flex flex-wrap gap-3 lg:flex-col lg:gap-3">
+          {stores.map((candidate) => {
+            const candidateSlug = candidate.slug || normalizeSlug(candidate.name || candidate.label);
+            const meta = getStoreMeta(candidate.name || candidate.label);
+            const ActiveIcon = meta.icon;
+            const isActive = candidateSlug === activeStoreSlug;
+
+            const pill = (
+              <div
+                className="inline-flex h-[48px] min-w-[150px] w-fit items-center gap-2 rounded-full bg-white px-3 shadow-[0_10px_24px_rgba(15,23,42,0.12)] ring-1 ring-black/5 transition-all hover:shadow-[0_14px_28px_rgba(15,23,42,0.16)]"
+                style={
+                  isActive
+                    ? {
+                        backgroundColor: primaryColor,
+                        color: '#ffffff',
+                        boxShadow: `0 10px 24px ${hexToRgba(primaryColor, 0.24)}`,
+                      }
+                    : undefined
+                }
+              >
+                <div
+                  className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${isActive ? 'text-white' : ''}`}
+                  style={!isActive ? { color: primaryColor } : undefined}
+                >
+                  <ActiveIcon className="h-6 w-6" />
+                </div>
+                <div
+                  className={`min-w-0 text-[13px] font-medium leading-tight ${
+                    isActive ? 'text-white' : 'text-slate-600'
+                  }`}
+                >
+                  <div className="truncate">{candidate.label || candidate.name || 'Store'}</div>
+                </div>
+              </div>
+            );
+
+            return (
+              <Link key={candidate.id} to={`/store/${encodeURIComponent(candidateSlug)}`} className="block">
+                {pill}
+              </Link>
             );
           })}
         </div>
@@ -369,7 +487,7 @@ function ProductCard({
                     onToggleCompare(product);
                   }}
                 >
-                  {isInCompare ? 'Retirer de la comparaison' : 'Ajouter à la comparaison'}
+                  {isInCompare ? 'Retirer de la comparaison' : 'Ajouter à comparer'}
                 </Button>
               )}
             </div>
@@ -657,12 +775,13 @@ export function MarketplaceStore() {
   const storeLabel = store?.label || store?.name || `Store ${store?.storeId || store?.id || ''}`;
   const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
   const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(branding.secondary_color, 0.78)} 100%)`;
+  const activeStoreSlug = store?.slug || normalizeSlug(storeSlug);
   const modules = (store?.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
   const canSimulate = modules.some(isSimulatorModule);
   const canCompare = modules.some(isComparatorModule);
   const moduleIcons: Record<string, any> = {
     simulator: Calculator,
-    comparator: BarChart3,
+    comparator: Scale,
     blog: FileText,
     bot: Bot,
   };
@@ -815,15 +934,24 @@ export function MarketplaceStore() {
             <h2 className="mt-3 font-serif text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
               Contenus liés à {storeLabel}
             </h2>
-            <p className="mt-4 max-w-none text-lg leading-8 text-slate-600">
-              Les contenus standards et personnalisés publiés pour cette boutique s&apos;affichent ici selon le même style éditorial que votre exemple.
-            </p>
+            
           </div>
 
-          <div className="flex flex-col gap-10 lg:flex-row lg:items-start">
-            <ModuleSidebar modules={modules} storeSlug={storeSlug} moduleIcons={moduleIcons} />
+          <div className="relative">
+            <ModuleSidebar
+              modules={modules}
+              storeSlug={storeSlug}
+              moduleIcons={moduleIcons}
+              primaryColor={branding.primary_color}
+              secondaryColor={branding.secondary_color}
+            />
+            <StoreSidebar
+              stores={bankData?.stores || []}
+              activeStoreSlug={activeStoreSlug}
+              primaryColor={branding.primary_color}
+            />
 
-            <div className="min-w-0 flex-1 lg:pl-0">
+            <div className="min-w-0 lg:px-[8px] xl:px-[28px] 2xl:px-[64px]">
               {contentsLoading ? (
                 <div className="flex items-center justify-center rounded-[2rem] border border-slate-200 bg-white/80 px-6 py-16 text-slate-500 shadow-[0_18px_40px_rgba(15,23,42,0.06)]">
                   <Loader2 className="mr-3 h-5 w-5 animate-spin" />
@@ -927,4 +1055,3 @@ export function MarketplaceStore() {
     </div>
   );
 }
-
