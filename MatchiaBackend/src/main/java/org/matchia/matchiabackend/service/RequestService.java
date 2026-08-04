@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolation;
+import jakarta.validation.Validator;
 import org.hibernate.Hibernate;
 import org.matchia.matchiabackend.dto.AuditLogRequest;
 import org.matchia.matchiabackend.dto.RequestDto;
@@ -13,6 +15,7 @@ import org.matchia.matchiabackend.entity.*;
 import org.matchia.matchiabackend.entity.Module;
 import org.matchia.matchiabackend.entity.enums.*;
 import org.matchia.matchiabackend.repository.*;
+import org.matchia.matchiabackend.validation.JoinRequestValidation;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -34,8 +37,10 @@ public class RequestService {
     private static final Pattern MARKETPLACE_SLUG_PATTERN = Pattern.compile("^[a-z0-9-]+$");
     private static final Pattern HEX_COLOR_PATTERN = Pattern.compile("^#[0-9A-Fa-f]{6}$");
     private static final Pattern EMAIL_PATTERN = Pattern.compile("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$");
+    private static final Pattern TUNISIAN_BANK_PHONE_PATTERN = Pattern.compile("^\\+216\\d{8}$");
 
     private final RequestRepository requestRepository;
+    private final Validator validator;
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final EmailService emailService;
     private final PaymentService paymentService;
@@ -97,6 +102,9 @@ public class RequestService {
 
     @Transactional
     public Request createJsonRequest(RequestDto dto) {
+        if (resolveRequestType(dto) == RequestTypeEnum.join && !hasText(dto.getLogoUrl())) {
+            throw new IllegalArgumentException("Le logo de la banque est obligatoire.");
+        }
         List<Long> storeIds  = dto.getStoreIds()  != null ? dto.getStoreIds()  : parseIds(dto.getSelectedStores());
         List<Long> moduleIds = dto.getModuleIds() != null ? dto.getModuleIds() : parseIds(dto.getSelectedModules());
 
@@ -106,6 +114,7 @@ public class RequestService {
         request.setLogoUrl(hasText(dto.getLogoUrl()) ? dto.getLogoUrl() : resolveBankLogo(request));
         request.setContactImageUrl(hasText(dto.getContactImageUrl()) ? dto.getContactImageUrl() : null);
 
+        validateJoinRequestEntity(request);
         Request saved = requestRepository.save(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.created", AuditCategoryEnum.core, AuditStatusEnum.success, null));
         notificationService.createRequestCreatedNotification(saved);
@@ -127,11 +136,15 @@ public class RequestService {
             Double totalAmount
     ) throws IOException {
 
+        if (logo == null || logo.isEmpty()) {
+            throw new IllegalArgumentException("Le logo de la banque est obligatoire.");
+        }
+
         RequestDto dto = new RequestDto();
         dto.setBankName(bankName);
         dto.setBankEmail(bankEmail);
         dto.setBankPhone(bankPhone);
-        dto.setCountry(country);
+        dto.setCountry("Tunisie");
         dto.setWebsite(website);
         dto.setContactName(contactName);
         dto.setContactEmail(contactEmail);
@@ -171,6 +184,7 @@ public class RequestService {
             request.setBanniereUrl(uploadedBanniereUrl);
         }
 
+        validateJoinRequestEntity(request);
         Request saved = requestRepository.save(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.created", AuditCategoryEnum.core, AuditStatusEnum.success, null));
         notificationService.createRequestCreatedNotification(saved);
@@ -328,8 +342,8 @@ public class RequestService {
         request.setCreatedBy(hasText(dto.getCreatedBy()) ? dto.getCreatedBy() : "public_join_form");
         request.setBankName(dto.getBankName());
         request.setBankEmail(dto.getBankEmail());
-        request.setBankPhone(dto.getBankPhone());
-        request.setCountry(dto.getCountry());
+        request.setBankPhone(hasText(dto.getBankPhone()) ? dto.getBankPhone().trim() : null);
+        request.setCountry(requestType == RequestTypeEnum.join ? "Tunisie" : dto.getCountry());
         request.setWebsite(dto.getWebsite());
         request.setContactName(dto.getContactName());
         request.setContactEmail(dto.getContactEmail());
@@ -524,6 +538,12 @@ public class RequestService {
         if (!isEmail(dto.getBankEmail())) {
             throw new IllegalArgumentException("L'email de la banque est obligatoire et doit etre valide.");
         }
+        if (requestType == RequestTypeEnum.join) {
+            String bankPhone = hasText(dto.getBankPhone()) ? dto.getBankPhone().trim() : "";
+            if (!TUNISIAN_BANK_PHONE_PATTERN.matcher(bankPhone).matches()) {
+                throw new IllegalArgumentException("Le telephone de la banque doit commencer par +216 et contenir exactement 8 chiffres.");
+            }
+        }
         if (!hasText(dto.getContactName())) {
             throw new IllegalArgumentException("Le nom du contact est obligatoire.");
         }
@@ -539,8 +559,8 @@ public class RequestService {
         }
         Integer establishmentYear = dto.getEstablishmentYear();
         int currentYear = Year.now().getValue();
-        if (establishmentYear != null && (establishmentYear < 1800 || establishmentYear > currentYear)) {
-            throw new IllegalArgumentException("L'annee d'etablissement doit etre entre 1800 et " + currentYear + ".");
+        if (establishmentYear != null && (establishmentYear <= 1900 || establishmentYear > currentYear)) {
+            throw new IllegalArgumentException("L'annee d'etablissement doit comporter 4 chiffres, etre superieure a 1900 et inferieure ou egale a " + currentYear + ".");
         }
     }
 
@@ -644,6 +664,22 @@ public class RequestService {
                 ? (activateAfterPayment ? UserStatusEnum.active : UserStatusEnum.inactive)
                 : UserStatusEnum.active);
         return userRepository.save(admin);
+    }
+
+    private void validateJoinRequestEntity(Request request) {
+        if (request.getRequestType() != RequestTypeEnum.join) {
+            return;
+        }
+
+        Set<ConstraintViolation<Request>> violations = validator.validate(request, JoinRequestValidation.class);
+        if (!violations.isEmpty()) {
+            String message = violations.stream()
+                    .sorted(Comparator.comparing(violation -> violation.getPropertyPath().toString()))
+                    .map(ConstraintViolation::getMessage)
+                    .findFirst()
+                    .orElse("Les informations bancaires sont invalides.");
+            throw new IllegalArgumentException(message);
+        }
     }
 
     private void assignStoresAndModules(Marketplace marketplace, Request request) {

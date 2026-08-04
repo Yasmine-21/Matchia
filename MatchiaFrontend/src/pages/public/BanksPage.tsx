@@ -3,9 +3,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
 import { Button } from '../../components/ui/Button';
-import { Badge } from '../../components/ui/Badge';
 import { Search, MapPin, Store, Grid, List, ExternalLink, Loader2, Building2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
@@ -54,7 +52,6 @@ export function BanksPage() {
   const [banks, setBanks] = useState<Bank[]>([]); // Liste venant de la DB
   const [isLoading, setIsLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCountry, setSelectedCountry] = useState('all');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
 
   // CHARGEMENT DES DONNÉES DEPUIS LE BACKEND
@@ -75,13 +72,11 @@ export function BanksPage() {
 
   // LOGIQUE DE FILTRE
   const filteredBanks = banks.filter(bank => {
+    const isActive = String(bank.status || '').toLowerCase() === 'active';
     const matchesSearch = bank.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           bank.description.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCountry = selectedCountry === 'all' || bank.country === selectedCountry;
-    return matchesSearch && matchesCountry;
+    return isActive && matchesSearch;
   });
-
-  const countries = Array.from(new Set(banks.map(b => b.country)));
 
   
   if (isLoading) {
@@ -115,16 +110,6 @@ export function BanksPage() {
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 icon={<Search className="w-5 h-5" />}
-              />
-            </div>
-            <div className="banks-search-select">
-              <Select
-                value={selectedCountry}
-                onChange={(e) => setSelectedCountry(e.target.value)}
-                options={[
-                  { value: 'all', label: 'Tous les pays' },
-                  ...countries.map(c => ({ value: c, label: c }))
-                ]}
               />
             </div>
             <div className="banks-view-toggle">
@@ -168,11 +153,6 @@ export function BanksPage() {
                             {bank.country}
                           </div>
                         </div>
-                      </div>
-                      <div className="mt-2">
-                        <Badge variant={bank.status === 'active' ? 'success' : bank.status === 'pending' ? 'warning' : 'danger'}>
-                          {bank.status === 'active' ? 'Actif' : bank.status === 'pending' ? 'En attente' : 'Suspendu'}
-                        </Badge>
                       </div>
                       <CardDescription className="banks-card-desc">
                         {bank.description}
@@ -220,9 +200,6 @@ export function BanksPage() {
                               <MapPin className="banks-icon" />
                               {bank.country}
                             </div>
-                            <Badge variant={bank.status === 'active' ? 'success' : 'warning'}>
-                              {bank.status === 'active' ? 'Actif' : 'En attente'}
-                            </Badge>
                           </div>
                         </div>
                       </div>

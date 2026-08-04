@@ -96,7 +96,7 @@ public class RequestController {
             @RequestParam("bankName") String bankName,
             @RequestParam("bankEmail") String bankEmail,
             @RequestParam(value = "bankPhone", required = false) String bankPhone,
-            @RequestParam("country") String country,
+            @RequestParam(value = "country", required = false, defaultValue = "Tunisie") String country,
             @RequestParam(value = "website", required = false) String website,
             @RequestParam("contactName") String contactName,
             @RequestParam("contactEmail") String contactEmail,

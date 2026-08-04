@@ -1,0 +1,150 @@
+@reference "./index.css";
+
+.public-footer {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  border-color: rgba(255, 255, 255, 0.12);
+  background:
+    radial-gradient(circle at 78% 12%, rgba(103, 197, 201, 0.28), transparent 31%),
+    linear-gradient(112deg, #536176 0%, #36445b 47%, #25213f 100%);
+}
+
+.public-footer::before {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(2, 8, 23, 0.18));
+  content: '';
+}
+
+.public-footer-shapes {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.public-footer-shape {
+  position: absolute;
+  display: block;
+  filter: blur(0.2px);
+  opacity: 0.72;
+}
+
+.public-footer-shape-gold {
+  top: -7rem;
+  left: 31%;
+  width: 11rem;
+  height: 11rem;
+  border-radius: 50%;
+  background: linear-gradient(145deg, rgba(252, 211, 77, 0.9), rgba(245, 158, 11, 0.2));
+}
+
+.public-footer-shape-purple {
+  top: -10rem;
+  left: 33%;
+  width: 34rem;
+  height: 34rem;
+  border-radius: 48% 52% 44% 56%;
+  background: linear-gradient(145deg, rgba(99, 68, 181, 0.82), rgba(52, 32, 103, 0.58));
+  transform: rotate(20deg);
+}
+
+.public-footer-shape-teal {
+  top: -7rem;
+  right: 5%;
+  width: 31rem;
+  height: 22rem;
+  border-radius: 58% 42% 49% 51%;
+  background: linear-gradient(145deg, rgba(92, 182, 180, 0.62), rgba(46, 125, 134, 0.15));
+  transform: rotate(-15deg);
+}
+
+.public-footer-shape-blue {
+  right: -8rem;
+  bottom: -13rem;
+  width: 38rem;
+  height: 31rem;
+  border-radius: 53% 47% 36% 64%;
+  background: linear-gradient(145deg, rgba(70, 91, 156, 0.74), rgba(41, 28, 88, 0.76));
+  transform: rotate(12deg);
+}
+
+.public-footer-container {
+  position: relative;
+  z-index: 1;
+  padding-top: 3.5rem;
+  padding-bottom: 2.25rem;
+}
+
+.public-footer-grid {
+  align-items: start;
+}
+
+.public-footer-brand p,
+.public-footer li,
+.public-footer-bottom {
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.public-footer h4 {
+  margin-bottom: 1.25rem;
+  color: #fff;
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.public-footer ul {
+  display: grid;
+  gap: 0.7rem;
+}
+
+.public-footer li,
+.public-footer-brand p {
+  font-size: 0.86rem;
+  line-height: 1.75;
+}
+
+.public-footer a {
+  color: inherit;
+}
+
+.public-footer a:hover {
+  color: #fff;
+}
+
+.public-footer-social-link {
+  background: transparent;
+}
+
+.public-footer-social-link:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.public-footer-bottom {
+  border-color: rgba(255, 255, 255, 0.2);
+}
+
+@media (max-width: 767px) {
+  .public-footer-container {
+    padding-top: 2.75rem;
+  }
+
+  .public-footer-shape-purple {
+    left: 15%;
+    width: 25rem;
+    height: 25rem;
+  }
+
+  .public-footer-shape-teal {
+    right: -12rem;
+  }
+
+  .public-footer-shape-blue {
+    right: -20rem;
+  }
+}

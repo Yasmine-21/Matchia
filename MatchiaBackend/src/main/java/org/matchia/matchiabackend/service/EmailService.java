@@ -52,15 +52,17 @@ public class EmailService {
     private String publicUrl;
 
     public boolean sendMarketplaceRequestConfirmationEmail(Request request) {
-        String recipient = resolveBankRecipient(request);
-        if (recipient == null) {
-            log.warn("Impossible d'envoyer la confirmation de demande: email de l'admin banque manquant.");
-            auditEmail(request, null, "request_confirmation_email.sent", AuditStatusEnum.failure);
-            return false;
-        }
         String requestType = request != null && request.getRequestType() != null
                 ? request.getRequestType().name().toLowerCase()
                 : "join";
+        String recipient = "join".equals(requestType)
+                ? resolveJoinRecipient(request)
+                : resolveBankRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer la confirmation de demande: email du destinataire manquant.");
+            auditEmail(request, null, "request_confirmation_email.sent", AuditStatusEnum.failure);
+            return false;
+        }
         String subject = switch (requestType) {
             case "store" -> "Demande de store recue";
             case "module" -> "Demande de module recue";

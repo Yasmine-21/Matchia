@@ -3,9 +3,32 @@ import { type CSSProperties, type MouseEvent, useEffect, useMemo, useState } fro
 import axios from 'axios';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
-import { Select } from '../../components/ui/Select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
-import { CheckCircle, Upload, ArrowRight, Check, Loader2, Store as StoreIcon, Wrench } from 'lucide-react';
+import {
+  ArrowRight,
+  Building2,
+  CalendarDays,
+  Car,
+  Check,
+  CheckCircle,
+  FileText,
+  Globe2,
+  GraduationCap,
+  HeartPulse,
+  Image as ImageIcon,
+  Landmark,
+  Loader2,
+  Mail,
+  Palette,
+  Pencil,
+  Phone,
+  ShieldCheck,
+  Smartphone,
+  Store as StoreIcon,
+  Upload,
+  UserRound,
+  Wrench,
+} from 'lucide-react';
 import { motion } from 'motion/react';
 import { storeService } from '../../services/storeService';
 import { moduleService } from '../../services/moduleService';
@@ -17,6 +40,8 @@ const STORE_BASE_PRICE = 120;
 const MODULE_BASE_PRICE = 35;
 const SLUG_PATTERN = /^[a-z0-9-]+$/;
 const HEX_COLOR_PATTERN = /^#[0-9A-Fa-f]{6}$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const TUNISIAN_PHONE_PATTERN = /^\d{8}$/;
 
 const hsvToHex = (hue: number, saturation: number, value: number) => {
   const chroma = value * saturation;
@@ -46,6 +71,35 @@ const formatTnd = (amount: number) =>
 
 const getStorePrice = (store: StoreDto) => store.price ?? STORE_BASE_PRICE;
 const getModulePrice = (assignment: ModuleAssignment) => assignment.price ?? assignment.module.price ?? MODULE_BASE_PRICE;
+
+const getStoreContextIcon = (store: StoreDto) => {
+  const context = `${store.name || ''} ${store.description || ''}`
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+  if (/\bmobile\b|\bsmartphone\b|\btelephone\b|\btelecom\b/.test(context)) {
+    return Smartphone;
+  }
+
+  if (/medical|sante|soin|health/.test(context)) {
+    return HeartPulse;
+  }
+
+  if (/vehicule|vehicle|automobile|voiture|moto|auto\b|car\b/.test(context)) {
+    return Car;
+  }
+
+  if (/education|etude|ecole|universit|formation|school/.test(context)) {
+    return GraduationCap;
+  }
+
+  if (/immobilier|logement|maison|habitat|construction|terrain/.test(context)) {
+    return Building2;
+  }
+
+  return StoreIcon;
+};
 
 export function JoinPage() {
   const [step, setStep] = useState(1);
@@ -228,7 +282,6 @@ export function JoinPage() {
     const bankName = formData.bankName.trim();
     const bankEmail = formData.bankEmail.trim();
     const bankPhone = formData.bankPhone.trim();
-    const website = formData.website.trim();
     const bankDescription = formData.bankDescription.trim();
     const currentYear = new Date().getFullYear();
     const year = formData.establishmentYear ? Number(formData.establishmentYear) : null;
@@ -238,20 +291,16 @@ export function JoinPage() {
     }
     if (!bankEmail) {
       errors.bankEmail = "L'email de la banque est obligatoire.";
+    } else if (!EMAIL_PATTERN.test(bankEmail)) {
+      errors.bankEmail = "L'email de la banque doit etre valide.";
     }
     if (!bankPhone) {
       errors.bankPhone = 'Le téléphone de la banque est obligatoire.';
+    } else if (!TUNISIAN_PHONE_PATTERN.test(bankPhone)) {
+      errors.bankPhone = 'Saisissez exactement 8 chiffres apres +216.';
     }
-    if (!website) {
-      errors.website = "L'URL du site web est obligatoire.";
-    }
-    if (!bankDescription) {
-      errors.bankDescription = 'La description de la banque est obligatoire.';
-    }
-    if (!formData.establishmentYear.trim()) {
-      errors.establishmentYear = "L'annee d'etablissement est obligatoire.";
-    } else if (year === null || Number.isNaN(year) || year < 1800 || year > currentYear) {
-      errors.establishmentYear = `L'annee doit etre entre 1800 et ${currentYear}.`;
+    if (formData.establishmentYear.trim() && (!/^\d{4}$/.test(formData.establishmentYear) || year === null || Number.isNaN(year) || year <= 1900 || year > currentYear)) {
+      errors.establishmentYear = `Saisissez une annee de 4 chiffres, superieure a 1900 et inferieure ou egale a ${currentYear}.`;
     }
     if (!formData.logo) {
       errors.logo = 'Le logo de la banque est obligatoire.';
@@ -271,9 +320,13 @@ export function JoinPage() {
     }
     if (!formData.email.trim()) {
       errors.email = "L'adresse e-mail du contact est obligatoire.";
+    } else if (!EMAIL_PATTERN.test(formData.email.trim())) {
+      errors.email = "L'adresse e-mail du contact doit etre valide.";
     }
     if (!formData.phone.trim()) {
       errors.phone = 'Le numero de telephone est obligatoire.';
+    } else if (!TUNISIAN_PHONE_PATTERN.test(formData.phone.trim())) {
+      errors.phone = 'Saisissez exactement 8 chiffres apres +216.';
     }
     if (!formData.contactImage) {
       errors.contactImage = "L'image du contact principal est obligatoire.";
@@ -345,7 +398,7 @@ export function JoinPage() {
   });
 
   const getFirstInvalidStep = (errors: Record<string, string>) => {
-    const bankFields = ['bankName', 'bankEmail', 'bankPhone', 'country', 'website', 'bankDescription', 'establishmentYear', 'logo'];
+    const bankFields = ['bankName', 'bankEmail', 'bankPhone', 'website', 'bankDescription', 'establishmentYear', 'logo'];
     const contactFields = ['contactName', 'email', 'phone', 'contactImage'];
     const marketplaceFields = ['marketplaceSlug', 'marketplaceDescription', 'primaryColor', 'secondaryColor', 'banniere'];
 
@@ -495,7 +548,7 @@ export function JoinPage() {
       await requestService.createRequest({
         bankName: formData.bankName,
         bankEmail: formData.bankEmail,
-        bankPhone: formData.bankPhone,
+        bankPhone: `+216${formData.bankPhone}`,
         country: formData.country,
         website: formData.website,
         description: formData.bankDescription.trim(),
@@ -504,7 +557,7 @@ export function JoinPage() {
         logo: formData.logo,
         contactName: formData.contactName,
         contactEmail: formData.email,
-        contactPhone: formData.phone,
+        contactPhone: `+216${formData.phone}`,
         contactImage: formData.contactImage,
         marketplaceSlug: formData.marketplaceSlug.trim(),
         marketplaceDescription: formData.marketplaceDescription.trim(),
@@ -550,7 +603,11 @@ export function JoinPage() {
       <div className="join-wrapper">
         <div className="join-header">
           <h1 className="join-title">Rejoindre Matchia</h1>
-          <p className="join-subtitle">Lancez votre marketplace bancaire en quelques etapes simples</p>
+          <p className="join-subtitle">
+            {step === 4
+              ? 'Verifiez les informations avant de soumettre votre demande.'
+              : 'Lancez votre marketplace bancaire en quelques etapes simples'}
+          </p>
         </div>
 
         <div className="join-stepper-container">
@@ -585,7 +642,8 @@ export function JoinPage() {
               </CardHeader>
               <CardContent className="join-form-spacing">
                 <div>
-                  <Input label="Nom de la banque" placeholder="Entrez le nom de votre banque" value={formData.bankName} onChange={(e) => {
+                  <label className="join-label" htmlFor="bank-name">Nom de la banque <span className="join-required">*</span></label>
+                  <Input id="bank-name" required placeholder="Entrez le nom de votre banque" value={formData.bankName} onChange={(e) => {
                     setFormData((prev) => ({ ...prev, bankName: e.target.value }));
                     setFormErrors((prev) => ({ ...prev, bankName: '' }));
                   }} />
@@ -593,48 +651,43 @@ export function JoinPage() {
                 </div>
                 <div className="join-form-grid">
                   <div>
-                    <Input label="Email de la banque" type="email" placeholder="contact@banque.tn" value={formData.bankEmail} onChange={(e) => {
+                    <label className="join-label" htmlFor="bank-email">Email de la banque <span className="join-required">*</span></label>
+                    <Input id="bank-email" required type="email" placeholder="contact@banque.tn" value={formData.bankEmail} onChange={(e) => {
                       setFormData((prev) => ({ ...prev, bankEmail: e.target.value }));
                       setFormErrors((prev) => ({ ...prev, bankEmail: '' }));
                     }} />
                     {formErrors.bankEmail && <p className="join-error-text">{formErrors.bankEmail}</p>}
                   </div>
-                  <Input
-                    label="Téléphone de la banque"
-                    type="tel"
-                    placeholder="+216 70 000 000"
-                    value={formData.bankPhone}
-                    onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, bankPhone: e.target.value }));
-                      setFormErrors((prev) => ({ ...prev, bankPhone: '' }));
-                    }}
-                  />
-                  {formErrors.bankPhone && <p className="join-error-text">{formErrors.bankPhone}</p>}
+                  <div>
+                    <label className="join-label" htmlFor="bank-phone">Telephone de la banque <span className="join-required">*</span></label>
+                    <Input
+                      id="bank-phone"
+                      required
+                      type="tel"
+                      inputMode="numeric"
+                      autoComplete="tel-national"
+                      maxLength={8}
+                      pattern="[0-9]{8}"
+                      placeholder="70 345 678"
+                      icon={<span className="join-phone-prefix">+216</span>}
+                      className="!pl-[4.5rem]"
+                      value={formData.bankPhone}
+                      onChange={(e) => {
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+                        setFormData((prev) => ({ ...prev, bankPhone: digits }));
+                        setFormErrors((prev) => ({ ...prev, bankPhone: '' }));
+                      }}
+                    />
+                    {formErrors.bankPhone && <p className="join-error-text">{formErrors.bankPhone}</p>}
+                  </div>
                 </div>
-                <div className="join-form-grid">
-                  <Select
-                    label="Pays"
-                    value={formData.country}
-                    required
-                    error={formErrors.country}
-                    onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, country: e.target.value }));
-                      setFormErrors((prev) => ({ ...prev, country: '' }));
-                    }}
-                    options={[
-                      { value: 'Tunisie', label: 'Tunisie' },
-                      { value: 'Maroc', label: 'Maroc' },
-                      { value: 'Algerie', label: 'Algerie' },
-                      { value: 'France', label: 'France' },
-                      { value: 'Emirats Arabes Unis', label: 'Emirats Arabes Unis' },
-                    ]}
-                  />
+                <div>
+                  <label className="join-label" htmlFor="bank-website">URL du site web</label>
                   <Input
-                    label="URL du site web"
+                    id="bank-website"
                     type="url"
                     placeholder="https://www.exemple.com"
                     value={formData.website}
-                    required
                     error={formErrors.website}
                     onChange={(e) => {
                       setFormData((prev) => ({ ...prev, website: e.target.value }));
@@ -651,7 +704,6 @@ export function JoinPage() {
                       maxLength={1000}
                       placeholder="Decrivez brievement votre institution"
                       value={formData.bankDescription}
-                      required
                       onChange={(e) => {
                         setFormData((prev) => ({ ...prev, bankDescription: e.target.value }));
                         setFormErrors((prev) => ({ ...prev, bankDescription: '' }));
@@ -663,16 +715,18 @@ export function JoinPage() {
                     </div>
                   </div>
                   <div>
+                    <label className="join-label" htmlFor="establishment-year">Annee d'etablissement</label>
                     <Input
-                      label="Annee d'etablissement"
-                      type="number"
-                      min="1800"
-                      max={new Date().getFullYear()}
+                      id="establishment-year"
+                      type="text"
+                      inputMode="numeric"
+                      maxLength={4}
+                      pattern="[0-9]{4}"
                       placeholder="Ex: 1984"
                       value={formData.establishmentYear}
-                      required
                       onChange={(e) => {
-                        setFormData((prev) => ({ ...prev, establishmentYear: e.target.value }));
+                        const digits = e.target.value.replace(/\D/g, '').slice(0, 4);
+                        setFormData((prev) => ({ ...prev, establishmentYear: digits }));
                         setFormErrors((prev) => ({ ...prev, establishmentYear: '' }));
                       }}
                     />
@@ -680,7 +734,7 @@ export function JoinPage() {
                   </div>
                 </div>
                 <div>
-                  <label className="join-label" htmlFor="bank-logo">Logo de la banque</label>
+                  <label className="join-label" htmlFor="bank-logo">Logo de la banque <span className="join-required">*</span></label>
                   <label className="join-upload-area block" htmlFor="bank-logo">
                     <input id="bank-logo" type="file" accept="image/png,image/jpeg,image/svg+xml" className="sr-only" required onChange={handleLogoChange} />
                     {formData.logo ? (
@@ -730,43 +784,59 @@ export function JoinPage() {
                 <CardDescription>Contact principal pour votre compte</CardDescription>
               </CardHeader>
               <CardContent className="join-form-spacing">
-                <Input
-                  label="Nom complet"
-                  placeholder="Jean Dupont"
-                  value={formData.contactName}
-                  required
-                  error={formErrors.contactName}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, contactName: e.target.value }));
-                    setFormErrors((prev) => ({ ...prev, contactName: '' }));
-                  }}
-                />
-                <Input
-                  label="Adresse e-mail"
-                  type="email"
-                  placeholder="jean.dupont@exemple.com"
-                  value={formData.email}
-                  required
-                  error={formErrors.email}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, email: e.target.value }));
-                    setFormErrors((prev) => ({ ...prev, email: '' }));
-                  }}
-                />
-                <Input
-                  label="Numero de telephone"
-                  type="tel"
-                  placeholder="+216 55 123 456"
-                  value={formData.phone}
-                  required
-                  error={formErrors.phone}
-                  onChange={(e) => {
-                    setFormData((prev) => ({ ...prev, phone: e.target.value }));
-                    setFormErrors((prev) => ({ ...prev, phone: '' }));
-                  }}
-                />
                 <div>
-                  <label className="join-label" htmlFor="contact-image">Image du contact principal</label>
+                  <label className="join-label" htmlFor="contact-name">Nom complet <span className="join-required">*</span></label>
+                  <Input
+                    id="contact-name"
+                    placeholder="Jihed ben sallah"
+                    value={formData.contactName}
+                    required
+                    error={formErrors.contactName}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, contactName: e.target.value }));
+                      setFormErrors((prev) => ({ ...prev, contactName: '' }));
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="join-label" htmlFor="contact-email">Adresse e-mail <span className="join-required">*</span></label>
+                  <Input
+                    id="contact-email"
+                    type="email"
+                    placeholder="jihed.bensallah@exemple.com"
+                    value={formData.email}
+                    required
+                    error={formErrors.email}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, email: e.target.value }));
+                      setFormErrors((prev) => ({ ...prev, email: '' }));
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="join-label" htmlFor="contact-phone">Numero de telephone <span className="join-required">*</span></label>
+                  <Input
+                    id="contact-phone"
+                    required
+                    type="tel"
+                    inputMode="numeric"
+                    autoComplete="tel-national"
+                    maxLength={8}
+                    pattern="[0-9]{8}"
+                    placeholder="97 345 678"
+                    icon={<span className="join-phone-prefix">+216</span>}
+                    className="!pl-[4.5rem]"
+                    value={formData.phone}
+                    error={formErrors.phone}
+                    onChange={(e) => {
+                      const digits = e.target.value.replace(/\D/g, '').slice(0, 8);
+                      setFormData((prev) => ({ ...prev, phone: digits }));
+                      setFormErrors((prev) => ({ ...prev, phone: '' }));
+                    }}
+                  />
+                </div>
+                <div>
+                  <label className="join-label" htmlFor="contact-image">Image du contact principal <span className="join-required">*</span></label>
                   <label className="join-upload-area block" htmlFor="contact-image">
                     <input id="contact-image" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" required onChange={handleContactImageChange} />
                     {formData.contactImage ? (
@@ -810,7 +880,7 @@ export function JoinPage() {
           )}
 
           {step === 3 && (
-            <div className="join-step-spacing">
+            <div className="join-step-spacing join-step-three">
               <Card>
                 <CardHeader>
                   <CardTitle>Configuration marketplace</CardTitle>
@@ -819,8 +889,9 @@ export function JoinPage() {
                 <CardContent className="join-step-spacing">
                   <div className="join-form-grid">
                     <div>
+                      <label className="join-label" htmlFor="marketplace-slug">Slug marketplace <span className="join-required">*</span></label>
                       <Input
-                        label="Slug marketplace"
+                        id="marketplace-slug"
                         placeholder="matchia-bank"
                         value={formData.marketplaceSlug}
                         required
@@ -830,7 +901,7 @@ export function JoinPage() {
                       {formErrors.marketplaceSlug && <p className="join-error-text">{formErrors.marketplaceSlug}</p>}
                     </div>
                     <div>
-                      <label className="join-label" htmlFor="marketplace-description">Description marketplace</label>
+                      <label className="join-label" htmlFor="marketplace-description">Description marketplace <span className="join-required">*</span></label>
                       <textarea
                         id="marketplace-description"
                         className="join-textarea"
@@ -852,7 +923,7 @@ export function JoinPage() {
 
                   <div className="join-color-grid">
                   <div>
-                    <label className="join-label">Primary color</label>
+                    <label className="join-label">Primary color <span className="join-required">*</span></label>
                     <div className="join-custom-color-picker">
                         <button
                           type="button"
@@ -890,7 +961,7 @@ export function JoinPage() {
                     </div>
 
                     <div>
-                      <label className="join-label">Secondary color</label>
+                      <label className="join-label">Secondary color <span className="join-required">*</span></label>
                       <div className="join-custom-color-picker">
                         <button
                           type="button"
@@ -929,7 +1000,7 @@ export function JoinPage() {
                   </div>
 
                   <div>
-                    <label className="join-label" htmlFor="marketplace-banniere">Banniere marketplace</label>
+                    <label className="join-label" htmlFor="marketplace-banniere">Banniere marketplace <span className="join-required">*</span></label>
                     <label className="join-upload-area block" htmlFor="marketplace-banniere">
                       <input id="marketplace-banniere" type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" className="sr-only" required onChange={handleBanniereChange} />
                       {formData.banniere ? (
@@ -974,7 +1045,7 @@ export function JoinPage() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle>Selectionner les boutiques</CardTitle>
+                  <CardTitle>Selectionner les boutiques <span className="join-required">*</span></CardTitle>
                   <CardDescription>Choisissez les stores actifs et leurs modules associes</CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -988,11 +1059,12 @@ export function JoinPage() {
                     <div className="join-form-grid">
                       {stores.map((store) => {
                         const isSelected = formData.selectedStores.includes(store.id);
+                        const StoreContextIcon = getStoreContextIcon(store);
                         return (
                           <button key={store.id} type="button" onClick={() => toggleStore(store.id)} className={`join-selection-card text-left ${isSelected ? 'join-selection-card-active' : ''}`} style={marketplaceStyle}>
                             <div className="join-selection-content">
                               <div className={`join-selection-icon-wrapper ${isSelected ? 'join-selection-icon-wrapper-active' : ''}`}>
-                                {isSelected ? <CheckCircle className="join-selection-icon" /> : <StoreIcon className="join-selection-icon" />}
+                                <StoreContextIcon className="join-selection-icon" />
                               </div>
                               <div>
                                 <div className="join-selection-title-row">
@@ -1020,7 +1092,7 @@ export function JoinPage() {
                 return (
                   <Card key={store.id}>
                     <CardHeader>
-                      <CardTitle>Modules pour {store.name}</CardTitle>
+                      <CardTitle>Modules pour {store.name} <span className="join-required">*</span></CardTitle>
                       <CardDescription>Seuls les modules actifs lies a ce store sont affiches</CardDescription>
                     </CardHeader>
                     <CardContent>
@@ -1070,84 +1142,122 @@ export function JoinPage() {
           )}
 
           {step === 4 && (
-            <Card>
-              <CardHeader>
-                <CardTitle>Verifiez votre demande</CardTitle>
-                <CardDescription>Veuillez verifier les informations avant de soumettre</CardDescription>
-              </CardHeader>
-              <CardContent className="join-step-spacing">
-                <div className="join-review-grid">
-                  <div>
-                    <h3 className="join-review-title">Informations bancaires</h3>
-                    <div className="join-review-list">
-                      <div className="join-review-item"><span className="join-review-label">Banque :</span><span className="join-upload-filename">{formData.bankName || '-'}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">Email banque :</span><span className="join-upload-filename">{formData.bankEmail || '-'}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">Téléphone banque :</span><span className="join-upload-filename">{formData.bankPhone || '-'}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">Pays :</span><span className="join-upload-filename">{formData.country}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">Site web :</span><span className="join-upload-filename">{formData.website || '-'}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">Annee :</span><span className="join-upload-filename">{formData.establishmentYear || '-'}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">Description :</span><span className="join-upload-filename">{formData.bankDescription || '-'}</span></div>
+            <div className="join-finalization-grid">
+              <div className="join-finalization-main">
+                <Card className="join-final-card !p-0">
+                  <div className="join-final-card-header">
+                    <div className="join-final-card-heading"><Landmark className="join-final-heading-icon" /><h3>Informations bancaires</h3></div>
+                    <button type="button" className="join-final-edit-button" onClick={() => setStep(1)}><Pencil /> Modifier</button>
+                  </div>
+                  <div className="join-final-card-body">
+                    <div className="join-final-detail-column">
+                      <div className="join-final-detail-row">
+                        <div className="join-final-detail-icon">{logoPreviewUrl ? <img src={logoPreviewUrl} alt="Logo de la banque" /> : <Landmark />}</div>
+                        <div><span>Banque</span><strong>{formData.bankName || '-'}</strong></div>
+                      </div>
+                      <div className="join-final-detail-row"><Mail /><div><span>Email banque</span><strong>{formData.bankEmail || '-'}</strong></div></div>
+                      <div className="join-final-detail-row"><Phone /><div><span>Telephone banque</span><strong>{formData.bankPhone ? `+216 ${formData.bankPhone}` : '-'}</strong></div></div>
+                      <div className="join-final-detail-row"><Globe2 /><div><span>Site web</span><strong>{formData.website || '-'}</strong></div></div>
+                    </div>
+                    <div className="join-final-detail-column">
+                      <div className="join-final-detail-row"><CalendarDays /><div><span>Annee</span><strong>{formData.establishmentYear || '-'}</strong></div></div>
+                      <div className="join-final-detail-row join-final-detail-row-top"><FileText /><div><span>Description</span><strong>{formData.bankDescription || '-'}</strong></div></div>
                     </div>
                   </div>
-                  <div>
-                    <h3 className="join-review-title">Coordonnees</h3>
-                    <div className="join-review-list">
-                      <div className="join-review-item"><span className="join-review-label">Nom :</span><span className="join-upload-filename">{formData.contactName || '-'}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">E-mail :</span><span className="join-upload-filename">{formData.email || '-'}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">Telephone :</span><span className="join-upload-filename">{formData.phone || '-'}</span></div>
-                      <div className="join-review-item"><span className="join-review-label">Image :</span><span className="join-upload-filename">{formData.contactImage?.name || '-'}</span></div>
+                  <div className="join-final-complete"><CheckCircle /> Complete</div>
+                </Card>
+
+                <Card className="join-final-card !p-0">
+                  <div className="join-final-card-header">
+                    <div className="join-final-card-heading"><UserRound className="join-final-heading-icon" /><h3>Coordonnees</h3></div>
+                    <button type="button" className="join-final-edit-button" onClick={() => setStep(2)}><Pencil /> Modifier</button>
+                  </div>
+                  <div className="join-final-card-body">
+                    <div className="join-final-detail-column">
+                      <div className="join-final-detail-row"><UserRound /><div><span>Nom</span><strong>{formData.contactName || '-'}</strong></div></div>
+                      <div className="join-final-detail-row"><Mail /><div><span>Email</span><strong>{formData.email || '-'}</strong></div></div>
+                      <div className="join-final-detail-row"><Phone /><div><span>Telephone</span><strong>{formData.phone ? `+216 ${formData.phone}` : '-'}</strong></div></div>
+                    </div>
+                    <div className="join-final-detail-column">
+                      <div className="join-final-detail-row">
+                        <div className="join-final-detail-icon join-final-file-preview">{contactImagePreviewUrl ? <img src={contactImagePreviewUrl} alt="Contact principal" /> : <ImageIcon />}</div>
+                        <div><span>Image</span><strong>{formData.contactImage?.name || '-'}</strong></div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                  <div className="join-final-complete"><CheckCircle /> Complete</div>
+                </Card>
 
-                <div>
-                  <h3 className="join-review-title">Marketplace</h3>
-                  <div className="join-review-list">
-                    <div className="join-review-item"><span className="join-review-label">Slug :</span><span className="join-upload-filename">{formData.marketplaceSlug || '-'}</span></div>
-                    <div className="join-review-item"><span className="join-review-label">Primary color :</span><span className="join-color-review"><span style={{ backgroundColor: formData.primaryColor }} />{formData.primaryColor}</span></div>
-                    <div className="join-review-item"><span className="join-review-label">Secondary color :</span><span className="join-color-review"><span style={{ backgroundColor: formData.secondaryColor }} />{formData.secondaryColor}</span></div>
-                    <div className="join-review-item"><span className="join-review-label">Banniere :</span><span className="join-upload-filename">{formData.banniere?.name || '-'}</span></div>
-                    <div className="join-review-item"><span className="join-review-label">Description :</span><span className="join-upload-filename">{formData.marketplaceDescription || '-'}</span></div>
+                <Card className="join-final-card !p-0">
+                  <div className="join-final-card-header">
+                    <div className="join-final-card-heading"><StoreIcon className="join-final-heading-icon" /><h3>Marketplace</h3></div>
+                    <button type="button" className="join-final-edit-button" onClick={() => setStep(3)}><Pencil /> Modifier</button>
                   </div>
-                </div>
+                  <div className="join-final-card-body">
+                    <div className="join-final-detail-column">
+                      <div className="join-final-detail-row"><StoreIcon /><div><span>Slug</span><strong>{formData.marketplaceSlug || '-'}</strong></div></div>
+                      <div className="join-final-detail-row"><Palette /><div><span>Primary color</span><strong className="join-final-color-value"><i style={{ backgroundColor: formData.primaryColor }} />{formData.primaryColor}</strong></div></div>
+                      <div className="join-final-detail-row"><Palette /><div><span>Secondary color</span><strong className="join-final-color-value"><i style={{ backgroundColor: formData.secondaryColor }} />{formData.secondaryColor}</strong></div></div>
+                    </div>
+                    <div className="join-final-detail-column">
+                      <div className="join-final-detail-row">
+                        <div className="join-final-detail-icon join-final-file-preview">{bannierePreviewUrl ? <img src={bannierePreviewUrl} alt="Banniere marketplace" /> : <ImageIcon />}</div>
+                        <div><span>Banniere</span><strong>{formData.banniere?.name || '-'}</strong></div>
+                      </div>
+                      <div className="join-final-detail-row join-final-detail-row-top"><FileText /><div><span>Description</span><strong>{formData.marketplaceDescription || '-'}</strong></div></div>
+                    </div>
+                  </div>
+                  <div className="join-final-complete"><CheckCircle /> Complete</div>
+                </Card>
+              </div>
 
-                <div>
-                  <h3 className="join-review-title">Configuration selectionnee</h3>
-                  <div className="join-recap-list">
-                    {selectedStores.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Aucune boutique selectionnee.</p>
-                    ) : selectedStores.map((store) => {
-                      const selectedForStore = formData.selectedModulesByStore[store.id] || [];
-                      const selectedAssignments = (modulesByStore[store.id] || []).filter((assignment) => selectedForStore.includes(assignment.module.id));
+              <Card className="join-final-config-card !p-0">
+                <div className="join-final-config-header"><h3>Configuration selectionnee</h3><span><ShieldCheck /></span></div>
+
+                <div className="join-final-config-section">
+                  <h4>Boutiques selectionnees</h4>
+                  <div className="join-final-config-list">
+                    {selectedStores.length === 0 ? <p className="join-final-empty">Aucune boutique selectionnee.</p> : selectedStores.map((store) => {
+                      const StoreContextIcon = getStoreContextIcon(store);
                       return (
-                        <div key={store.id} className="join-recap-item">
-                          <div className="join-recap-header">
-                            <strong>{store.name}</strong>
-                            <span>{formatTnd(getStorePrice(store))}</span>
-                          </div>
-                          <p className="join-upload-hint">{store.description || 'Store bancaire'}</p>
-                          <div className="join-recap-modules">
-                            {selectedAssignments.length === 0 ? (
-                              <span>Aucun module choisi</span>
-                            ) : selectedAssignments.map((assignment) => (
-                              <div key={assignment.id} className="join-recap-module">
-                                <span>{assignment.module.label || assignment.module.name}</span>
-                                <span>{formatTnd(getModulePrice(assignment))}</span>
-                              </div>
-                            ))}
-                          </div>
+                        <div key={store.id} className="join-final-config-item">
+                          <span className="join-final-config-icon"><StoreContextIcon /></span>
+                          <div className="join-final-config-copy"><strong>{store.name}</strong><small>{store.description || 'Store bancaire'}</small></div>
+                          <b>{formatTnd(getStorePrice(store))}</b>
                         </div>
                       );
                     })}
                   </div>
                 </div>
 
-                <div className="join-total-row">
-                  <span>Total mensuel</span>
-                  <strong>{formatTnd(totalAmount)}</strong>
+                <div className="join-final-config-section">
+                  <h4>Modules selectionnes</h4>
+                  <div className="join-final-config-list">
+                    {selectedStoreDetails.flatMap((store) => store.modules).length === 0 ? <p className="join-final-empty">Aucun module choisi.</p> : selectedStoreDetails.flatMap((store) => store.modules.map((module) => (
+                      <div key={`${store.storeId}-${module.moduleId}`} className="join-final-config-item">
+                        <span className="join-final-config-icon join-final-module-icon"><Wrench /></span>
+                        <div className="join-final-config-copy"><strong>{module.moduleName}</strong><small>{module.moduleDescription || `Module de ${store.storeName}`}</small></div>
+                        <b>{formatTnd(module.modulePrice)}</b>
+                      </div>
+                    )))}
+                  </div>
                 </div>
-              </CardContent>
-            </Card>
+
+                <div className="join-final-config-section join-final-costs">
+                  <h4>Recapitulatif des couts</h4>
+                  {selectedStoreDetails.map((store) => (
+                    <div key={`cost-store-${store.storeId}`}>
+                      <div className="join-final-cost-row"><span>{store.storeName}</span><strong>{formatTnd(store.storePrice)}</strong></div>
+                      {store.modules.map((module) => (
+                        <div key={`cost-module-${store.storeId}-${module.moduleId}`} className="join-final-cost-row join-final-cost-module"><span>{module.moduleName}</span><strong>{formatTnd(module.modulePrice)}</strong></div>
+                      ))}
+                    </div>
+                  ))}
+                  <div className="join-final-total-row"><span>Total mensuel</span><strong>{formatTnd(totalAmount)}</strong></div>
+                  
+                </div>
+              </Card>
+            </div>
           )}
         </motion.div>
 
@@ -1155,6 +1265,8 @@ export function JoinPage() {
           <Button variant="outline" onClick={() => setStep(step - 1)} disabled={step === 1} className="!border-secondary !text-secondary hover:!bg-secondary/10 font-medium px-6">
             Precedent
           </Button>
+
+          
 
           {step < totalSteps ? (
             <Button onClick={goToNextStep} className="!bg-primary hover:!bg-primary-hover !text-primary-foreground font-medium px-6">

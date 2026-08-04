@@ -7,7 +7,6 @@
 .banks-subtitle { @apply text-xl text-muted-foreground max-w-2xl mx-auto; }
 .banks-search-container { @apply flex flex-col md:flex-row gap-4 max-w-4xl mx-auto; }
 .banks-search-input { @apply flex-1; }
-.banks-search-select { @apply md:w-48; }
 .banks-view-toggle { @apply flex gap-2 bg-white rounded-lg p-1 border border-border; }
 .banks-toggle-btn { @apply p-2 rounded transition-colors hover:bg-muted; }
 .banks-toggle-btn-active { @apply bg-primary text-white hover:bg-primary; }
