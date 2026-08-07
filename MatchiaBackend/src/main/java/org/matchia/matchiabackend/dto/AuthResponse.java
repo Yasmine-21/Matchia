@@ -13,6 +13,7 @@ public class AuthResponse {
     private String role;
     private String bankSlug;
     private String bankId;
+    private String dealerId;
     private String name;
     private String contactImageUrl;
 }

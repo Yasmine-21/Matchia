@@ -16,7 +16,7 @@ import {
 import { useApp } from '../context/AppContext';
 
 interface AdminLayoutProps {
-  type: 'saas' | 'bank';
+  type: 'saas' | 'bank' | 'dealer';
 }
 
 export function AdminLayout({ type }: AdminLayoutProps) {
@@ -33,7 +33,7 @@ export function AdminLayout({ type }: AdminLayoutProps) {
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
   const notificationRecipientId = type === 'bank'
     ? (bankTenant.marketplace?.bankId || currentBank?.id || null)
-    : null;
+    : type === 'dealer' ? Number(currentUser?.id || 0) || null : null;
   const profileName = type === 'saas'
     ? (currentUser?.name ?? '')
     : (currentUser?.name || (currentBank?.name || 'Banque'));
@@ -43,7 +43,7 @@ export function AdminLayout({ type }: AdminLayoutProps) {
   const profileImageUrl = getBackendAssetUrl(currentUser?.contactImageUrl || null);
 
   const loadNotificationData = async () => {
-    if (type === 'bank' && !notificationRecipientId) {
+    if (type !== 'saas' && !notificationRecipientId) {
       setUnreadCount(0);
       setNotifications([]);
       return;
@@ -55,7 +55,10 @@ export function AdminLayout({ type }: AdminLayoutProps) {
             notificationService.getBankUnreadCount(notificationRecipientId!),
             notificationService.getBankNotifications(notificationRecipientId!),
           ])
-        : await Promise.all([
+        : type === 'dealer' ? await Promise.all([
+            notificationService.getDealerUnreadCount(),
+            notificationService.getDealerNotifications(),
+          ]) : await Promise.all([
             notificationService.getUnreadCount(),
             notificationService.getNotifications(),
           ]);
@@ -127,7 +130,7 @@ export function AdminLayout({ type }: AdminLayoutProps) {
 
   const openProfileSettings = () => {
     setIsProfileMenuOpen(false);
-    navigate(type === 'saas' ? '/saas/profil' : '/bank/profil');
+    navigate(type === 'saas' ? '/saas/profil' : type === 'bank' ? '/bank/profil' : '/dealer/profil');
   };
 
   const handleLogout = async () => {
@@ -140,6 +143,8 @@ export function AdminLayout({ type }: AdminLayoutProps) {
     try {
       if (type === 'bank') {
         await notificationService.markBankNotificationAsRead(notification.id, notificationRecipientId!);
+      } else if (type === 'dealer') {
+        await notificationService.markDealerNotificationAsRead(notification.id);
       } else {
         await notificationService.markAsRead(notification.id);
       }
@@ -151,6 +156,8 @@ export function AdminLayout({ type }: AdminLayoutProps) {
       setIsNotificationsOpen(false);
       if (type === 'bank') {
         navigate(requestId ? `/bank/demandes?requestId=${requestId}` : '/bank/demandes');
+      } else if (type === 'dealer') {
+        navigate('/dealer/publications');
       } else if (notification.type === 'PAYMENT_SUCCESS') {
         navigate(requestId ? `/saas/offers-subscriptions?requestId=${requestId}` : '/saas/offers-subscriptions');
       } else {
@@ -163,6 +170,8 @@ export function AdminLayout({ type }: AdminLayoutProps) {
     try {
       if (type === 'bank') {
         await notificationService.markAllBankNotificationsAsRead(notificationRecipientId!);
+      } else if (type === 'dealer') {
+        await notificationService.markAllDealerNotificationsAsRead();
       } else {
         await notificationService.markAllAsRead();
       }
@@ -177,6 +186,8 @@ export function AdminLayout({ type }: AdminLayoutProps) {
     try {
       if (type === 'bank') {
         await notificationService.deleteBankNotification(notificationId, notificationRecipientId!);
+      } else if (type === 'dealer') {
+        await notificationService.deleteDealerNotification(notificationId);
       } else {
         await notificationService.deleteNotification(notificationId);
       }

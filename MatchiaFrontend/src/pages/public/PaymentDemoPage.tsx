@@ -9,7 +9,7 @@ import {
   useStripe,
 } from '@stripe/react-stripe-js';
 import { loadStripe, Stripe } from '@stripe/stripe-js';
-import { AlertCircle, CheckCircle, CreditCard, Lock, ShieldCheck, XCircle } from 'lucide-react';
+import { AlertCircle, CheckCircle, CreditCard, Lock, Mail, MapPin, ShieldCheck, UserRound, XCircle } from 'lucide-react';
 import apiClient from '../../api/apiClient';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -45,14 +45,24 @@ const stripeCardElementStyle = {
 
 interface EmbeddedPaymentFormProps {
   amount: number;
-  bankName: string;
   clientSecret: string;
   currency: string;
+  initialEmail: string;
   paymentId: number;
   requestId: string;
 }
 
-const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
+const paymentCountries = [
+  { code: 'TN', label: 'Tunisie' },
+  { code: 'FR', label: 'France' },
+  { code: 'DZ', label: 'Algérie' },
+  { code: 'MA', label: 'Maroc' },
+  { code: 'DE', label: 'Allemagne' },
+  { code: 'IT', label: 'Italie' },
+  { code: 'ES', label: 'Espagne' },
+  { code: 'GB', label: 'Royaume-Uni' },
+  { code: 'US', label: 'États-Unis' },
+];
 
 const formatAmount = (amount: number, currency: string) => {
   if (currency.toLowerCase() === 'tnd') {
@@ -106,9 +116,9 @@ function AcceptedCardBrands({ cardBrand }: { cardBrand: CardBrand }) {
 
 function EmbeddedPaymentForm({
   amount,
-  bankName,
   clientSecret,
   currency,
+  initialEmail,
   paymentId,
   requestId,
 }: EmbeddedPaymentFormProps) {
@@ -118,6 +128,10 @@ function EmbeddedPaymentForm({
   const [error, setError] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
   const [cardBrand, setCardBrand] = useState<CardBrand>('unknown');
+  const [email, setEmail] = useState(initialEmail);
+  const [cardholderName, setCardholderName] = useState('');
+  const [country, setCountry] = useState('TN');
+  const [billingErrors, setBillingErrors] = useState({ email: '', cardholderName: '', country: '' });
   const [fieldErrors, setFieldErrors] = useState({
     cardNumber: '',
     expirationDate: '',
@@ -137,6 +151,19 @@ function EmbeddedPaymentForm({
       return;
     }
 
+    const normalizedEmail = email.trim();
+    const normalizedCardholderName = cardholderName.trim();
+    const nextBillingErrors = {
+      email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail) ? '' : 'Saisissez une adresse e-mail valide.',
+      cardholderName: normalizedCardholderName.length >= 2 ? '' : 'Saisissez le nom complet du titulaire de la carte.',
+      country: country ? '' : 'Sélectionnez un pays ou une région.',
+    };
+    setBillingErrors(nextBillingErrors);
+    if (Object.values(nextBillingErrors).some(Boolean)) {
+      setError('Veuillez compléter correctement les coordonnées de paiement.');
+      return;
+    }
+
     try {
       setIsPaying(true);
       setError('');
@@ -146,7 +173,11 @@ function EmbeddedPaymentForm({
         payment_method: {
           card: cardNumber,
           billing_details: {
-            name: bankName,
+            name: normalizedCardholderName,
+            email: normalizedEmail,
+            address: {
+              country,
+            },
           },
         },
       });
@@ -183,6 +214,29 @@ function EmbeddedPaymentForm({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      <div className="grid gap-4">
+        <label className="grid gap-2">
+          <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <Mail className="h-4 w-4 text-orange-500" />
+            E-mail
+          </span>
+          <input
+            type="email"
+            value={email}
+            onChange={(event) => {
+              setEmail(event.target.value);
+              setBillingErrors((current) => ({ ...current, email: '' }));
+            }}
+            autoComplete="email"
+            placeholder="email@exemple.com"
+            className={`min-h-[48px] rounded-lg border bg-white px-4 text-sm text-slate-900 outline-none transition-colors focus:border-orange-400 focus:ring-2 focus:ring-orange-100 ${
+              billingErrors.email ? 'border-red-300' : 'border-slate-200'
+            }`}
+          />
+          {billingErrors.email && <p className="text-xs font-medium text-red-600">{billingErrors.email}</p>}
+        </label>
+      </div>
+
       <div className="rounded-xl border border-slate-200 bg-white p-4">
         <div className="mb-3 flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
@@ -196,7 +250,7 @@ function EmbeddedPaymentForm({
         </div>
         <div className="grid gap-4">
           <label className="grid gap-2">
-            <span className="text-sm font-medium text-slate-500">Card number</span>
+            <span className="text-sm font-medium text-slate-700">Numéro de carte</span>
             <div
               className={`flex min-h-[48px] items-center gap-3 rounded-md border bg-white px-3 py-2.5 transition-colors focus-within:border-slate-300 focus-within:ring-1 focus-within:ring-slate-200 ${
                 fieldErrors.cardNumber ? 'border-red-300' : 'border-slate-200'
@@ -228,7 +282,7 @@ function EmbeddedPaymentForm({
 
           <div className="grid gap-4 sm:grid-cols-2">
             <label className="grid gap-2">
-              <span className="text-sm font-semibold text-slate-900">Expiration Date (MM/YY)</span>
+              <span className="text-sm font-semibold text-slate-900">Date d'expiration (MM/AA)</span>
               <div
                 className={`rounded-lg border bg-slate-50 px-4 py-3 transition-colors focus-within:border-orange-400 focus-within:ring-2 focus-within:ring-orange-100 ${
                   fieldErrors.expirationDate ? 'border-red-300' : 'border-slate-200'
@@ -275,6 +329,52 @@ function EmbeddedPaymentForm({
               {fieldErrors.cvc && <p className="text-xs font-medium text-red-600">{fieldErrors.cvc}</p>}
             </label>
           </div>
+
+          <label className="grid gap-2">
+            <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <UserRound className="h-4 w-4 text-orange-500" />
+              Nom du titulaire de la carte
+            </span>
+            <input
+              type="text"
+              value={cardholderName}
+              onChange={(event) => {
+                setCardholderName(event.target.value);
+                setBillingErrors((current) => ({ ...current, cardholderName: '' }));
+              }}
+              autoComplete="cc-name"
+              placeholder="Nom complet"
+              className={`min-h-[48px] rounded-lg border bg-white px-4 text-sm text-slate-900 outline-none transition-colors focus:border-orange-400 focus:ring-2 focus:ring-orange-100 ${
+                billingErrors.cardholderName ? 'border-red-300' : 'border-slate-200'
+              }`}
+            />
+            {billingErrors.cardholderName && (
+              <p className="text-xs font-medium text-red-600">{billingErrors.cardholderName}</p>
+            )}
+          </label>
+
+          <label className="grid gap-2">
+            <span className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+              <MapPin className="h-4 w-4 text-orange-500" />
+              Pays ou région
+            </span>
+            <select
+              value={country}
+              onChange={(event) => {
+                setCountry(event.target.value);
+                setBillingErrors((current) => ({ ...current, country: '' }));
+              }}
+              autoComplete="country"
+              className={`min-h-[48px] rounded-lg border bg-white px-4 text-sm text-slate-900 outline-none transition-colors focus:border-orange-400 focus:ring-2 focus:ring-orange-100 ${
+                billingErrors.country ? 'border-red-300' : 'border-slate-200'
+              }`}
+            >
+              {paymentCountries.map((item) => (
+                <option key={item.code} value={item.code}>{item.label}</option>
+              ))}
+            </select>
+            {billingErrors.country && <p className="text-xs font-medium text-red-600">{billingErrors.country}</p>}
+          </label>
         </div>
         <p className="mt-3 text-xs text-slate-500">
           Test: 4242 4242 4242 4242, date future, CVC 123.
@@ -330,9 +430,7 @@ function normalizeCardBrand(brand: string): CardBrand {
 export function PaymentDemoPage() {
   const [searchParams] = useSearchParams();
   const [paymentIntent, setPaymentIntent] = useState<PaymentIntentResponse | null>(null);
-  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(
-    stripePublishableKey ? loadStripe(stripePublishableKey) : null
-  );
+  const [stripePromise, setStripePromise] = useState<Promise<Stripe | null> | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const hasCreatedIntent = useRef(false);
@@ -340,6 +438,7 @@ export function PaymentDemoPage() {
   const bankName = searchParams.get('bank') || 'Marketplace Matchia';
   const currency = (searchParams.get('currency') || 'tnd').toLowerCase();
   const planName = searchParams.get('plan') || 'Abonnement Matchia';
+  const initialEmail = searchParams.get('email') || '';
   const amount = useMemo(() => {
     const parsed = Number(searchParams.get('amount') || '0');
     return Number.isFinite(parsed) ? parsed : 0;
@@ -358,11 +457,8 @@ export function PaymentDemoPage() {
       try {
         setIsLoading(true);
         setError('');
-        let publishableKey = stripePublishableKey;
-        if (!publishableKey) {
-          const configResponse = await apiClient.get<PaymentConfigResponse>('/api/payments/config');
-          publishableKey = configResponse.data.publishableKey;
-        }
+        const configResponse = await apiClient.get<PaymentConfigResponse>('/api/payments/config');
+        const publishableKey = configResponse.data.publishableKey;
 
         if (!publishableKey) {
           throw new Error('Stripe publishable key is missing.');
@@ -385,7 +481,7 @@ export function PaymentDemoPage() {
         setPaymentIntent(response.data);
       } catch (intentError) {
         console.error('PaymentIntent creation failed:', intentError);
-        setError("Impossible de preparer le paiement Stripe. Verifiez stripe.public.key, stripe.secret.key, la devise et le backend.");
+        setError("Impossible de preparer le paiement Stripe. Verifiez stripe.publishable.key, stripe.secret-key, la devise et le backend.");
       } finally {
         setIsLoading(false);
       }
@@ -395,7 +491,7 @@ export function PaymentDemoPage() {
   }, [amount, bankName, currency, searchParams]);
 
   const displayedAmount = paymentIntent?.amount ?? amount;
-  const displayedCurrency = 'tnd';
+  const displayedCurrency = paymentIntent?.currency || currency;
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">
@@ -405,8 +501,10 @@ export function PaymentDemoPage() {
             <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-xl bg-orange-50 text-orange-500">
               <CreditCard className="h-6 w-6" />
             </div>
-            <CardTitle className="text-2xl font-bold text-slate-950">Paiement Matchia - TND</CardTitle>
-            <p className="text-sm text-slate-500">Paiement integre et securise par Stripe, affiche en dinar tunisien.</p>
+            <CardTitle className="text-2xl font-bold text-slate-950">
+              Paiement Matchia - {displayedCurrency.toUpperCase()}
+            </CardTitle>
+            <p className="text-sm text-slate-500">Paiement intégré et sécurisé par Stripe.</p>
           </CardHeader>
           <CardContent>
             <div className="space-y-4 rounded-xl border border-slate-200 bg-slate-50 p-5">
@@ -447,9 +545,9 @@ export function PaymentDemoPage() {
               <Elements stripe={stripePromise} options={{ clientSecret: paymentIntent.clientSecret }}>
                 <EmbeddedPaymentForm
                   amount={paymentIntent.amount}
-                  bankName={bankName}
                   clientSecret={paymentIntent.clientSecret}
                   currency={displayedCurrency}
+                  initialEmail={initialEmail}
                   paymentId={paymentIntent.paymentId}
                   requestId={searchParams.get('request_id') || '27'}
                 />

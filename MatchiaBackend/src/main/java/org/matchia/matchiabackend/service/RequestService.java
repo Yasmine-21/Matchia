@@ -54,6 +54,7 @@ public class RequestService {
     private final AuditLogger auditLogger;
     private final NotificationService notificationService;
     private final BankAdminCredentialsService bankAdminCredentialsService;
+    private final JoinEmailVerificationService joinEmailVerificationService;
 
     @Value("${app.upload.dir:uploads/logos}")
     private String uploadDir;
@@ -115,14 +116,20 @@ public class RequestService {
         request.setContactImageUrl(hasText(dto.getContactImageUrl()) ? dto.getContactImageUrl() : null);
 
         validateJoinRequestEntity(request);
-        Request saved = requestRepository.save(request);
+        if (request.getRequestType() == RequestTypeEnum.join) {
+            joinEmailVerificationService.consumeForJoinRequest(
+                    request.getContactEmail(),
+                    dto.getContactEmailVerificationToken()
+            );
+        }
+        Request saved = requestRepository.saveAndFlush(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.created", AuditCategoryEnum.core, AuditStatusEnum.success, null));
         notificationService.createRequestCreatedNotification(saved);
         emailService.sendMarketplaceRequestConfirmationEmail(saved);
         return saved;
     }
 
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Request createMultipartRequest(
             String bankName, String bankEmail, String bankPhone, MultipartFile logo,
             MultipartFile banniere, String banniereUrl,
@@ -133,12 +140,15 @@ public class RequestService {
             String selectedStores, String selectedModules,
             String marketplaceSlug, String marketplaceDescription,
             String primaryColor, String secondaryColor,
-            Double totalAmount
+            Double totalAmount,
+            String contactEmailVerificationToken
     ) throws IOException {
 
         if (logo == null || logo.isEmpty()) {
             throw new IllegalArgumentException("Le logo de la banque est obligatoire.");
         }
+
+        joinEmailVerificationService.consumeForJoinRequest(contactEmail, contactEmailVerificationToken);
 
         RequestDto dto = new RequestDto();
         dto.setBankName(bankName);
@@ -185,7 +195,7 @@ public class RequestService {
         }
 
         validateJoinRequestEntity(request);
-        Request saved = requestRepository.save(request);
+        Request saved = requestRepository.saveAndFlush(request);
         auditLogger.logAsync(requestAudit(saved, "join_request.created", AuditCategoryEnum.core, AuditStatusEnum.success, null));
         notificationService.createRequestCreatedNotification(saved);
         emailService.sendMarketplaceRequestConfirmationEmail(saved);
@@ -502,7 +512,11 @@ public class RequestService {
         } else if (marketplace.getStatus() == null) {
             marketplace.setStatus(MarketplaceStatusEnum.active);
         }
-        return marketplaceRepository.save(marketplace);
+        Marketplace savedMarketplace = marketplaceRepository.save(marketplace);
+
+        // Keep both sides synchronized for the subscription created in this transaction.
+        bank.setMarketplace(savedMarketplace);
+        return savedMarketplace;
     }
 
     private void validateMarketplaceFields(RequestDto dto) {

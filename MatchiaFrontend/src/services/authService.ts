@@ -16,6 +16,10 @@ const normalizeRole = (role?: string | null): User['role'] => {
     return 'CLIENT';
   }
 
+  if (role === 'DEALER_ADMIN') {
+    return 'DEALER_ADMIN';
+  }
+
   return 'CLIENT';
 };
 
@@ -56,6 +60,7 @@ const buildUserFromAuthPayload = (data: any, fallbackEmail?: string): User => ({
   address: data?.address || data?.adresse || null,
   role: normalizeRole(data?.role) as User['role'],
   bank_id: getBankIdFromPayload(data),
+  dealer_id: data?.dealerId != null ? String(data.dealerId) : undefined,
   contactImageUrl: data?.contactImageUrl || data?.contact_image_url || null,
   status: 'active',
   created_at: new Date().toISOString(),
@@ -169,6 +174,10 @@ export const authService = {
 
     if (user.role === 'ADMIN_BANK') {
       return '/bank/dashboard';
+    }
+
+    if (user.role === 'DEALER_ADMIN') {
+      return '/dealer/dashboard';
     }
 
     return '/';

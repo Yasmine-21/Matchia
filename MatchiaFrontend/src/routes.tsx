@@ -12,6 +12,7 @@ import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/public/ResetPasswordPage';
 import { PaymentDemoPage } from './pages/public/PaymentDemoPage';
 import { PaymentResultPage } from './pages/public/PaymentResultPage';
+import { DealerRegistrationPage } from './pages/public/DealerRegistrationPage';
 
 // Imports SaaS
 import { SaaSDashboard } from './pages/saas/Dashboard';
@@ -26,6 +27,7 @@ import { Certificates } from './pages/saas/Certificates';
 import { SaaSStoresModules } from './pages/saas/StoresModules';
 import { ContentManagement } from './pages/saas/ContentManagementTabs';
 import { ProfileSettingsPage } from './pages/shared/ProfileSettingsPage';
+import { DealerRequests } from './pages/saas/DealerRequests';
 
 // Imports Bank
 import { BankDashboard } from './pages/bank/Dashboard';
@@ -38,6 +40,8 @@ import { BankRequests } from './pages/bank/Requests';
 import { BankSubscription } from './pages/bank/Subscription';
 import { BankContentManagement } from './pages/bank/ContentManagement';
 import { ProductManagement } from './pages/bank/ProductManagement';
+import { DealerManagement } from './pages/bank/DealerManagement';
+import { DealerWorkspace } from './pages/dealer/DealerWorkspace';
 
 // Imports Marketplace
 import { MarketplaceHome } from './pages/marketplace/Home';
@@ -59,6 +63,7 @@ export const saasRouter = createBrowserRouter([
       { path: 'banques', element: <BanksPage /> },
       { path: 'rejoindre', element: <JoinPage /> },
       { path: 'connexion', element: <LoginPage /> },
+      { path: 'devenir-concessionnaire', element: <DealerRegistrationPage /> },
     ],
   },
   {
@@ -71,6 +76,10 @@ export const saasRouter = createBrowserRouter([
   },
   {
     path: '/payment/demo',
+    element: <PaymentDemoPage />,
+  },
+  {
+    path: '/paiement',
     element: <PaymentDemoPage />,
   },
   {
@@ -109,6 +118,22 @@ export const saasRouter = createBrowserRouter([
       { path: 'audit', element: <AuditLogs /> },
       { path: 'parametres', element: <SaaSSettings /> },
       { path: 'profil', element: <ProfileSettingsPage type="saas" /> },
+      { path: 'concessionnaires', element: <DealerRequests /> },
+    ],
+  },
+  {
+    path: '/dealer',
+    element: (
+      <ProtectedRoute requiredRole="dealer">
+        <AdminLayout type="dealer" />
+      </ProtectedRoute>
+    ),
+    children: [
+      { path: 'dashboard', element: <DealerWorkspace mode="dashboard" /> },
+      { path: 'partenariats', element: <DealerWorkspace mode="partnerships" /> },
+      { path: 'produits', element: <DealerWorkspace mode="products" /> },
+      { path: 'publications', element: <DealerWorkspace mode="publications" /> },
+      { path: 'profil', element: <ProfileSettingsPage type="dealer" /> },
     ],
   },
 ]);
@@ -167,6 +192,7 @@ export const tenantRouter = createBrowserRouter([
       { path: 'abonnement', element: <BankSubscription /> },
       { path: 'parametres', element: <BankParameters /> },
       { path: 'profil', element: <ProfileSettingsPage type="bank" /> },
+      { path: 'concessionnaires', element: <DealerManagement /> },
     ],
   },
 ]);

@@ -11,10 +11,12 @@ import org.matchia.matchiabackend.dto.RequestStoreSelectionDto;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.enums.RequestStatusEnum;
 import org.matchia.matchiabackend.mapper.RequestMapper;
+import org.matchia.matchiabackend.service.JoinEmailVerificationException;
 import org.matchia.matchiabackend.service.RequestService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -39,8 +41,12 @@ public class JoinRequestController {
     public ResponseEntity<?> createJoinRequest(@RequestBody Map<String, Object> payload) {
         try {
             RequestDto dto = toRequestDto(payload);
+            dto.setContactEmailVerificationToken(asString(payload.get("contactEmailVerificationToken")));
             Request request = requestService.createJsonRequest(dto);
             return ResponseEntity.status(HttpStatus.CREATED).body(requestMapper.toDto(request));
+        } catch (JoinEmailVerificationException e) {
+            log.warn("Verification e-mail refusee : {}", e.getMessage());
+            return ResponseEntity.status(e.getStatus()).body(Map.of("message", e.getMessage()));
         } catch (IllegalArgumentException e) {
             log.warn("Demande join invalide : {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
@@ -66,6 +72,7 @@ public class JoinRequestController {
             @RequestParam(value = "website", required = false) String website,
             @RequestParam("contactName") String contactName,
             @RequestParam("contactEmail") String contactEmail,
+            @RequestParam("contactEmailVerificationToken") String contactEmailVerificationToken,
             @RequestParam("contactPhone") String contactPhone,
             @RequestParam(value = "contactImage", required = false) MultipartFile contactImage,
             @RequestParam(value = "description", required = false) String description,
@@ -87,15 +94,25 @@ public class JoinRequestController {
                     description, bankDescription, establishmentYear,
                     selectedStores, selectedModules != null ? selectedModules : "[]",
                     marketplaceSlug, marketplaceDescription, primaryColor, secondaryColor,
-                    totalAmount != null ? totalAmount : totalMonthlyPrice
+                    totalAmount != null ? totalAmount : totalMonthlyPrice,
+                    contactEmailVerificationToken
             );
             return ResponseEntity.status(HttpStatus.CREATED).body(requestMapper.toDto(request));
+        } catch (JoinEmailVerificationException e) {
+            log.warn("Verification e-mail refusee : {}", e.getMessage());
+            return ResponseEntity.status(e.getStatus()).body(Map.of("message", e.getMessage()));
         } catch (IllegalArgumentException e) {
             log.warn("Demande join invalide : {}", e.getMessage());
             return ResponseEntity.badRequest().body(Map.of("message", e.getMessage()));
         } catch (IOException e) {
             log.error("Erreur upload logo : {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("message", "Erreur upload logo."));
+        } catch (DataIntegrityViolationException e) {
+            log.error("Donnees incompatibles lors de la creation de la demande join", e);
+            return ResponseEntity.badRequest().body(Map.of(
+                    "message",
+                    "Certaines informations depassent la taille autorisee ou ne respectent pas les contraintes de la demande."
+            ));
         } catch (Exception e) {
             log.error("Erreur creation demande join multipart : {}", e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)

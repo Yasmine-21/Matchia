@@ -5,7 +5,18 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../..
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
-import { CheckCircle, Loader2, Plus, Store, Wrench } from 'lucide-react';
+import {
+  Building2,
+  Car,
+  CheckCircle,
+  GraduationCap,
+  HeartPulse,
+  Loader2,
+  Plus,
+  Smartphone,
+  Store,
+  Wrench,
+} from 'lucide-react';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { useBankTenant } from '../../hooks/useBankTenant';
 import { bankTenantService } from '../../services/bankTenantService';
@@ -38,6 +49,20 @@ const getModuleLabel = (assignment: ModuleAssignment) =>
   assignment.module?.label || assignment.module?.name || `Module ${getModuleId(assignment)}`;
 const getModulePrice = (assignment: ModuleAssignment) => assignment.price ?? assignment.module?.price ?? 0;
 
+const getStoreContextIcon = (store: { name?: string | null; description?: string | null }) => {
+  const context = `${store.name || ''} ${store.description || ''}`
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase();
+
+  if (/\bmobile\b|\bsmartphone\b|\btelephone\b|\btelecom\b/.test(context)) return Smartphone;
+  if (/medical|sante|soin|health/.test(context)) return HeartPulse;
+  if (/vehicule|vehicle|automobile|voiture|moto|auto\b|car\b/.test(context)) return Car;
+  if (/education|etude|ecole|universit|formation|school/.test(context)) return GraduationCap;
+  if (/immobilier|logement|maison|habitat|construction|terrain/.test(context)) return Building2;
+  return Store;
+};
+
 export function BankStores() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -63,6 +88,7 @@ export function BankStores() {
   }, [location.search, stores]);
 
   const selectedStore = stores.find((store) => getStoreKey(store) === selectedStoreId) || stores[0];
+  const SelectedStoreIcon = selectedStore ? getStoreContextIcon(selectedStore) : Store;
   const selectedStoreKeyNumber = selectedStore ? getStoreNumericId(selectedStore) : null;
   const isSelectedStoreInactive =
     selectedStore ? selectedStore.enabled === false || selectedStore.visible === false : false;
@@ -503,7 +529,7 @@ export function BankStores() {
         <KpiCard
           label="Store sélectionné"
           value={selectedStore?.name || '-'}
-          icon={<Store className="h-5 w-5" />}
+          icon={<SelectedStoreIcon className="h-5 w-5" />}
           tone="danger"
           badge={selectedStore ? `${selectedStoreModulesCount} modules` : 'Aucun'}
         />
@@ -532,6 +558,7 @@ export function BankStores() {
                   const bannerUrl = getBackendAssetUrl(store.banniereUrl);
                   const isEnabled = store.enabled !== false;
                   const modulesCount = getVisibleModuleCountForStore(store);
+                  const StoreContextIcon = getStoreContextIcon(store);
 
                   return (
                     <div
@@ -558,7 +585,7 @@ export function BankStores() {
                           />
                         ) : (
                           <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                            <Store className="h-5 w-5" />
+                            <StoreContextIcon className="h-5 w-5" />
                           </div>
                         )}
                         <div className="min-w-0">
@@ -727,6 +754,7 @@ export function BankStores() {
                   .filter((module) => selectedModuleIds.includes(getModuleId(module)))
                   .reduce((sum, module) => sum + getModulePrice(module), 0);
                 const hasAvailableModules = requestableModules.length > 0;
+                const StoreContextIcon = getStoreContextIcon(store);
 
                 return (
                   <button
@@ -746,7 +774,7 @@ export function BankStores() {
                           isSelected ? 'bg-primary text-white' : 'bg-primary/10 text-primary'
                         }`}
                       >
-                        {isSelected ? <CheckCircle className="h-5 w-5" /> : <Store className="h-5 w-5" />}
+                        <StoreContextIcon className="h-5 w-5" />
                       </div>
                       <div className="min-w-0">
                         <div className="truncate font-semibold">{getCatalogStoreLabel(store)}</div>

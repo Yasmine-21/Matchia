@@ -3,13 +3,13 @@ import type { ReactNode } from 'react';
 import { useApp } from '../../context/AppContext';
 
 interface ProtectedRouteProps {
-  requiredRole: 'saas' | 'bank';
+  requiredRole: 'saas' | 'bank' | 'dealer';
   children: ReactNode;
 }
 
 export function ProtectedRoute({ requiredRole, children }: ProtectedRouteProps) {
   const location = useLocation();
-  const { isLoading, isAuthenticated, isSaaSAdmin, isBankAdmin } = useApp();
+  const { isLoading, isAuthenticated, isSaaSAdmin, isBankAdmin, isDealerAdmin } = useApp();
 
   if (isLoading) {
     return null;
@@ -24,6 +24,10 @@ export function ProtectedRoute({ requiredRole, children }: ProtectedRouteProps) 
   }
 
   if (requiredRole === 'bank' && !isBankAdmin() && !isSaaSAdmin()) {
+    return <Navigate to="/connexion" replace />;
+  }
+
+  if (requiredRole === 'dealer' && !isDealerAdmin()) {
     return <Navigate to="/connexion" replace />;
   }
 

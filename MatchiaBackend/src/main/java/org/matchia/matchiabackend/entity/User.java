@@ -24,6 +24,10 @@ public class User {
     @JoinColumn(name = "bank_id")
     private Bank bank;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dealer_id")
+    private Dealer dealer;
+
     private String fullName;
     private String email;
     private String phone;

@@ -88,6 +88,7 @@ public class Request {
     private String contactImageUrl;
 
 
+    @Column(length = 1000)
     private String description;
     @Column(length = 3000)
     @Size(groups = JoinRequestValidation.class, max = 1000, message = "La description de la banque ne doit pas depasser 1000 caracteres.")

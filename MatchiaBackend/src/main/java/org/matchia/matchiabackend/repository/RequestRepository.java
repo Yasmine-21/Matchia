@@ -15,4 +15,9 @@ public interface RequestRepository extends JpaRepository<Request,Long> {
     List<Request> findByBank_IdOrderByCreatedAtDesc(Long bankId);
     Optional<Request> findFirstByMarketplaceSlugIgnoreCaseAndStatusOrderByUpdatedAtDesc(String marketplaceSlug, RequestStatusEnum status);
     boolean existsBySubscription_IdAndRequestTypeAndStatus(Long subscriptionId, RequestTypeEnum requestType, RequestStatusEnum status);
+    boolean existsByContactEmailIgnoreCaseAndRequestTypeAndStatusIn(
+            String contactEmail,
+            RequestTypeEnum requestType,
+            List<RequestStatusEnum> statuses
+    );
 }

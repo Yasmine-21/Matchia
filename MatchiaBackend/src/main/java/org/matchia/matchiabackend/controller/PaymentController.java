@@ -96,6 +96,21 @@ public class PaymentController {
         }
     }
 
+    @PostMapping("/checkout-session/{sessionId}/confirm")
+    public ResponseEntity<CreatePaymentIntentResponse> confirmCheckoutSession(@PathVariable String sessionId) {
+        try {
+            return ResponseEntity.ok(paymentService.confirmCheckoutSession(sessionId));
+        } catch (IllegalArgumentException | IllegalStateException exception) {
+            log.warn("Invalid Stripe checkout confirmation: {}", exception.getMessage());
+            return ResponseEntity.badRequest().build();
+        } catch (NoSuchElementException exception) {
+            return ResponseEntity.notFound().build();
+        } catch (StripeException exception) {
+            log.error("Stripe checkout session lookup failed for {}", sessionId, exception);
+            return ResponseEntity.status(HttpStatus.BAD_GATEWAY).build();
+        }
+    }
+
     @GetMapping("/paid-subscriptions")
     public ResponseEntity<java.util.List<org.matchia.matchiabackend.dto.PaidSubscriptionDto>> getPaidSubscriptions() {
         return ResponseEntity.ok(paymentService.getPaidSubscriptions());

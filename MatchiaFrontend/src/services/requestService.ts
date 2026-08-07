@@ -5,6 +5,18 @@ export interface RequestRejectionPayload {
   rejectionReason?: string;
 }
 
+export interface JoinEmailVerificationSendResponse {
+  message: string;
+  expiresInSeconds: number;
+  resendAvailableInSeconds: number;
+}
+
+export interface JoinEmailVerificationVerifyResponse {
+  verified: boolean;
+  verificationToken: string;
+  message: string;
+}
+
 export interface BankStoreRequestPayload {
   bankId: number;
   requestType: RequestDto['requestType'];
@@ -42,6 +54,7 @@ const toFormData = (payload: RequestPayload) => {
   formData.append('website', payload.website || '');
   formData.append('contactName', payload.contactName);
   formData.append('contactEmail', payload.contactEmail);
+  formData.append('contactEmailVerificationToken', payload.contactEmailVerificationToken);
   formData.append('contactPhone', payload.contactPhone || '');
   if (payload.contactImage) {
     formData.append('contactImage', payload.contactImage);
@@ -75,6 +88,12 @@ const toFormData = (payload: RequestPayload) => {
 };
 
 export const requestService = {
+  sendJoinEmailVerificationCode: (email: string) =>
+    apiClient.post<JoinEmailVerificationSendResponse>('/api/join-requests/email-verification/send', { email }),
+
+  verifyJoinEmailCode: (email: string, code: string) =>
+    apiClient.post<JoinEmailVerificationVerifyResponse>('/api/join-requests/email-verification/verify', { email, code }),
+
   createRequest: (payload: RequestPayload) =>
     apiClient.post<RequestDto>('/api/join-requests', toFormData(payload)),
 

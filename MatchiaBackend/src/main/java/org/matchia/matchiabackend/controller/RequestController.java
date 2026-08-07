@@ -100,6 +100,7 @@ public class RequestController {
             @RequestParam(value = "website", required = false) String website,
             @RequestParam("contactName") String contactName,
             @RequestParam("contactEmail") String contactEmail,
+            @RequestParam(value = "contactEmailVerificationToken", required = false) String contactEmailVerificationToken,
             @RequestParam("contactPhone") String contactPhone,
             @RequestParam(value = "contactImage", required = false) MultipartFile contactImage,
             @RequestParam(value = "description", required = false) String description,
@@ -121,7 +122,8 @@ public class RequestController {
                     description, bankDescription, establishmentYear,
                     selectedStores, selectedModules != null ? selectedModules : "[]",
                     marketplaceSlug, marketplaceDescription, primaryColor, secondaryColor,
-                    totalAmount != null ? totalAmount : totalMonthlyPrice
+                    totalAmount != null ? totalAmount : totalMonthlyPrice,
+                    contactEmailVerificationToken
             );
             return ResponseEntity.status(HttpStatus.CREATED)
                     .body(mapper.toDto(entity));

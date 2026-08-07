@@ -10,7 +10,7 @@ import type { UserDto } from '../../types/apiTypes';
 import { getBackendAssetUrl } from '../../utils/tenant';
 
 interface ProfileSettingsPageProps {
-  type: 'saas' | 'bank';
+  type: 'saas' | 'bank' | 'dealer';
 }
 
 type ProfileFormState = {
@@ -24,6 +24,7 @@ type ProfileFormState = {
 const getRoleLabel = (role?: string | null) => {
   if (role === 'ADMIN_SAAS' || role === 'SAAS_ADMIN' || role === 'SUPER_ADMIN') return 'Super Admin';
   if (role === 'ADMIN_BANK' || role === 'BANK_ADMIN' || role === 'ADMIN' || role === 'MANAGER') return 'Admin banque';
+  if (role === 'DEALER_ADMIN') return 'Admin concessionnaire';
   if (role === 'CLIENT') return 'Client';
   return 'Utilisateur';
 };
@@ -60,6 +61,7 @@ const normalizeRole = (role?: string | null): AppUser['role'] => {
   if (role === 'ADMIN_SAAS' || role === 'SAAS_ADMIN' || role === 'SUPER_ADMIN') return 'ADMIN_SAAS';
   if (role === 'ADMIN_BANK' || role === 'BANK_ADMIN' || role === 'ADMIN' || role === 'MANAGER' || role === 'USER') return 'ADMIN_BANK';
   if (role === 'CLIENT') return 'CLIENT';
+  if (role === 'DEALER_ADMIN') return 'DEALER_ADMIN';
   return 'CLIENT';
 };
 
@@ -261,7 +263,7 @@ export function ProfileSettingsPage({ type }: ProfileSettingsPageProps) {
           type="button"
           variant="outline"
           icon={<ArrowLeft className="h-4 w-4" />}
-          onClick={() => navigate(type === 'saas' ? '/saas/dashboard' : '/bank/dashboard')}
+          onClick={() => navigate(type === 'saas' ? '/saas/dashboard' : type === 'bank' ? '/bank/dashboard' : '/dealer/dashboard')}
         >
           Retour au tableau de bord
         </Button>

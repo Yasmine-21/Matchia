@@ -199,12 +199,6 @@ export function BankDashboard() {
     [storeModuleCounts],
   );
 
-  const busiestStore = storeChartData[0] || null;
-  const averageModules = storeChartData.length
-    ? Math.round(storeChartData.reduce((sum, entry) => sum + entry.modules, 0) / storeChartData.length)
-    : 0;
-  const activeStoreRatio = stores.length ? Math.round((activeStores.length / stores.length) * 100) : 0;
-
   const topModules = useMemo(() => {
     const moduleUsage = new Map<number, { id: number; name: string; usage: number }>();
 
@@ -358,7 +352,6 @@ export function BankDashboard() {
             </div>
             <div className="bank-chart-badges">
               <span className="bank-chart-badge">{activeStores.length} actifs</span>
-              <span className="bank-chart-badge">{activeStoreRatio}% couverture</span>
             </div>
           </CardHeader>
           <CardContent>
@@ -393,6 +386,7 @@ export function BankDashboard() {
                   tickLine={false}
                   axisLine={false}
                   stroke="#64748b"
+                  allowDecimals={false}
                 />
                 <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
                 <Area
@@ -404,19 +398,6 @@ export function BankDashboard() {
                 />
               </AreaChart>
             </ChartContainer>
-
-            <div className="bank-chart-mini-metrics">
-              <div className="bank-chart-mini-metric">
-                <div className="bank-chart-mini-label">Store le plus charge</div>
-                <div className="bank-chart-mini-value">{busiestStore?.name || 'N/A'}</div>
-                <div className="bank-chart-mini-hint">{busiestStore?.modules || 0} modules</div>
-              </div>
-              <div className="bank-chart-mini-metric">
-                <div className="bank-chart-mini-label">Moyenne par store</div>
-                <div className="bank-chart-mini-value">{averageModules}</div>
-                <div className="bank-chart-mini-hint">modules visibles</div>
-              </div>
-            </div>
           </CardContent>
         </Card>
       </div>

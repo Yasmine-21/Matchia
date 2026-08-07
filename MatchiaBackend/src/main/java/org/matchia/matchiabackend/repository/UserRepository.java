@@ -24,7 +24,13 @@ public interface UserRepository extends JpaRepository<User, Long> {
     List<User> findByBank_IdOrderByCreatedAtAsc(Long bankId);
 
     @EntityGraph(attributePaths = "bank")
+    Optional<User> findFirstByBank_IdAndRoleOrderByCreatedAtAsc(Long bankId, RoleEnum role);
+
+    @EntityGraph(attributePaths = "bank")
     List<User> findByRoleOrderByCreatedAtAsc(RoleEnum role);
+
+    @EntityGraph(attributePaths = {"dealer", "dealer.store"})
+    Optional<User> findFirstByDealer_IdAndRoleOrderByCreatedAtAsc(Long dealerId, RoleEnum role);
 
     @EntityGraph(attributePaths = "bank")
     Optional<User> findById(Long id);

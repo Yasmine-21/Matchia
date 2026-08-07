@@ -8,9 +8,11 @@ import {
   CreditCard,
   ExternalLink,
   FileText,
+  Handshake,
   LayoutDashboard,
   LogOut,
   Package,
+  Send,
   Settings,
   ShieldCheck,
   Store,
@@ -27,6 +29,7 @@ import {
 import { NotificationDto } from '../../types/apiTypes';
 import { useBankTenant } from '../../hooks/useBankTenant';
 import { getBackendAssetUrl } from '../../utils/tenant';
+import { useApp } from '../../context/AppContext';
 
 interface SidebarItem {
   label: string;
@@ -40,7 +43,7 @@ interface SidebarSection {
 }
 
 interface AdminSidebarProps {
-  type: 'saas' | 'bank';
+  type: 'saas' | 'bank' | 'dealer';
 }
 
 export function AdminSidebar({ type }: AdminSidebarProps) {
@@ -52,10 +55,11 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
+  const { currentUser } = useApp();
   const bankTenant = useBankTenant(type === 'bank');
   const notificationRecipientId = type === 'bank'
     ? (bankTenant.marketplace?.bankId || null)
-    : null;
+    : type === 'dealer' ? Number(currentUser?.id || 0) || null : null;
 
   const saasSections: SidebarSection[] = [
     {
@@ -69,6 +73,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
       items: [
         { label: 'Banques', icon: <Building2 className="w-5 h-5" />, path: '/saas/banques' },
         { label: 'Demandes', icon: <FileText className="w-5 h-5" />, path: '/saas/demandes' },
+        { label: 'Concessionnaires', icon: <Handshake className="w-5 h-5" />, path: '/saas/concessionnaires' },
         { label: 'Contenu marketplace', icon: <FileText className="w-5 h-5" />, path: '/saas/gestion-contenu' },
         { label: 'Stores & Modules', icon: <Store className="w-5 h-5" />, path: '/saas/storesmodules' },
         { label: 'Utilisateurs & Rôles', icon: <Users className="w-5 h-5" />, path: '/saas/utilisateurs' },
@@ -107,6 +112,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
         { label: 'Modules assignés', icon: <Box className="w-5 h-5" />, path: '/bank/modules' },
         { label: 'Manage content', icon: <FileText className="w-5 h-5" />, path: '/bank/gestion-contenu' },
         { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/bank/products' },
+        { label: 'Concessionnaires', icon: <Handshake className="w-5 h-5" />, path: '/bank/concessionnaires' },
         { label: 'Mes demandes', icon: <FileText className="w-5 h-5" />, path: '/bank/demandes' },
         { label: 'Abonnement', icon: <CreditCard className="w-5 h-5" />, path: '/bank/abonnement' },
         { label: 'Branding', icon: <Settings className="w-5 h-5" />, path: '/bank/branding' },
@@ -115,10 +121,21 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     },
   ];
 
-  const sections = type === 'saas' ? saasSections : bankSections;
+  const dealerSections: SidebarSection[] = [{
+    title: '',
+    items: [
+      { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dealer/dashboard' },
+      { label: 'Partenariats', icon: <Handshake className="w-5 h-5" />, path: '/dealer/partenariats' },
+      { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/dealer/produits' },
+      { label: 'Publications', icon: <Send className="w-5 h-5" />, path: '/dealer/publications' },
+      { label: 'Profil', icon: <Settings className="w-5 h-5" />, path: '/dealer/profil' },
+    ],
+  }];
+
+  const sections = type === 'saas' ? saasSections : type === 'bank' ? bankSections : dealerSections;
 
   const loadNotificationData = async () => {
-    if (type === 'bank' && !notificationRecipientId) {
+    if (type !== 'saas' && !notificationRecipientId) {
       setUnreadCount(0);
       setNotifications([]);
       return;
@@ -130,7 +147,10 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
             notificationService.getBankUnreadCount(notificationRecipientId!),
             notificationService.getBankNotifications(notificationRecipientId!),
           ])
-        : await Promise.all([
+        : type === 'dealer' ? await Promise.all([
+            notificationService.getDealerUnreadCount(),
+            notificationService.getDealerNotifications(),
+          ]) : await Promise.all([
             notificationService.getUnreadCount(),
             notificationService.getNotifications(),
           ]);
@@ -191,6 +211,8 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     try {
       if (type === 'bank') {
         await notificationService.markBankNotificationAsRead(notification.id, notificationRecipientId!);
+      } else if (type === 'dealer') {
+        await notificationService.markDealerNotificationAsRead(notification.id);
       } else {
         await notificationService.markAsRead(notification.id);
       }
@@ -202,6 +224,8 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
       setShowNotifications(false);
       if (type === 'bank') {
         navigate(requestId ? `/bank/demandes?requestId=${requestId}` : '/bank/demandes');
+      } else if (type === 'dealer') {
+        navigate('/dealer/publications');
       } else if (notification.type === 'PAYMENT_SUCCESS') {
         navigate(requestId ? `/saas/offers-subscriptions?requestId=${requestId}` : '/saas/offers-subscriptions');
       } else {
@@ -214,6 +238,8 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     try {
       if (type === 'bank') {
         await notificationService.markAllBankNotificationsAsRead(notificationRecipientId!);
+      } else if (type === 'dealer') {
+        await notificationService.markAllDealerNotificationsAsRead();
       } else {
         await notificationService.markAllAsRead();
       }
@@ -228,6 +254,8 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     try {
       if (type === 'bank') {
         await notificationService.deleteBankNotification(notificationId, notificationRecipientId!);
+      } else if (type === 'dealer') {
+        await notificationService.deleteDealerNotification(notificationId);
       } else {
         await notificationService.deleteNotification(notificationId);
       }

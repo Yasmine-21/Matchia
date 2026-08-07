@@ -48,11 +48,6 @@
 .bank-chart-role-bar { @apply mt-2 h-2 overflow-hidden rounded-full bg-muted; }
 .bank-chart-role-bar-fill { @apply h-full rounded-full transition-all; }
 .bank-chart-area-shell { @apply h-[320px] w-full; }
-.bank-chart-mini-metrics { @apply mt-4 grid gap-3 sm:grid-cols-2; }
-.bank-chart-mini-metric { @apply rounded-2xl border border-border/70 bg-background/80 p-4 shadow-sm; }
-.bank-chart-mini-label { @apply text-[11px] uppercase tracking-[0.22em] text-muted-foreground; }
-.bank-chart-mini-value { @apply mt-2 text-lg font-bold text-foreground; }
-.bank-chart-mini-hint { @apply mt-1 text-sm text-muted-foreground; }
 .bank-modules-list { @apply space-y-4; }
 .bank-module-item { @apply flex items-center gap-3; }
 .bank-module-info { @apply flex-1; }

@@ -83,8 +83,9 @@ export interface User {
   email: string;
   phone?: string | null;
   address?: string | null;
-  role: 'ADMIN_SAAS' | 'SAAS_ADMIN' | 'ADMIN_BANK' | 'BANK_ADMIN' | 'CLIENT';
+  role: 'ADMIN_SAAS' | 'SAAS_ADMIN' | 'ADMIN_BANK' | 'BANK_ADMIN' | 'DEALER_ADMIN' | 'CLIENT';
   bank_id?: string; // null for ADMIN_SAAS
+  dealer_id?: string;
   contactImageUrl?: string | null;
   status: 'active' | 'inactive';
   created_at: string;

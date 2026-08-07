@@ -1,5 +1,6 @@
 package org.matchia.matchiabackend.dto;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
@@ -33,6 +34,8 @@ public class RequestDto {
     private String contactEmail;
     private String contactPhone;
     private String contactImageUrl;
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    private String contactEmailVerificationToken;
     private String adminContactName;
     private String adminContactEmail;
     private String adminContactPhone;

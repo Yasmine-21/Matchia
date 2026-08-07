@@ -295,6 +295,9 @@ public class AuthService {
         response.setBankId(user != null && user.getBank() != null && user.getBank().getId() != null
                 ? String.valueOf(user.getBank().getId())
                 : null);
+        response.setDealerId(user != null && user.getDealer() != null && user.getDealer().getId() != null
+                ? String.valueOf(user.getDealer().getId())
+                : null);
         response.setName(user != null ? user.getFullName() : null);
         response.setContactImageUrl(user != null ? user.getContactImageUrl() : null);
         return response;
@@ -415,6 +418,7 @@ public class AuthService {
         return switch (role) {
             case ADMIN_SAAS -> "SAAS_ADMIN";
             case ADMIN_BANK -> "BANK_ADMIN";
+            case DEALER_ADMIN -> "DEALER_ADMIN";
             default -> "CLIENT";
         };
     }

@@ -119,7 +119,8 @@ export function JoinPage() {
     bankDescription: '',
     establishmentYear: '',
     logo: null as File | null,
-    contactName: '',
+    contactLastName: '',
+    contactFirstName: '',
     email: '',
     phone: '',
     contactImage: null as File | null,
@@ -132,6 +133,14 @@ export function JoinPage() {
     selectedModulesByStore: {} as Record<number, number[]>,
   });
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [verificationCode, setVerificationCode] = useState('');
+  const [verificationEmail, setVerificationEmail] = useState('');
+  const [verifiedEmail, setVerifiedEmail] = useState('');
+  const [emailVerificationToken, setEmailVerificationToken] = useState('');
+  const [emailVerificationError, setEmailVerificationError] = useState('');
+  const [isSendingVerification, setIsSendingVerification] = useState(false);
+  const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const [logoPreviewUrl, setLogoPreviewUrl] = useState('');
   const [contactImagePreviewUrl, setContactImagePreviewUrl] = useState('');
   const [bannierePreviewUrl, setBannierePreviewUrl] = useState('');
@@ -175,6 +184,14 @@ export function JoinPage() {
       });
     };
   }, [logoPreviewUrl, contactImagePreviewUrl, bannierePreviewUrl]);
+
+  useEffect(() => {
+    if (resendCooldown <= 0) return;
+    const timer = window.setTimeout(() => {
+      setResendCooldown((current) => Math.max(0, current - 1));
+    }, 1000);
+    return () => window.clearTimeout(timer);
+  }, [resendCooldown]);
 
   const loadModulesForStore = async (storeId: number) => {
     if (modulesByStore[storeId]) return;
@@ -315,8 +332,11 @@ export function JoinPage() {
   const getContactInfoErrors = () => {
     const errors: Record<string, string> = {};
 
-    if (!formData.contactName.trim()) {
-      errors.contactName = 'Le nom du contact principal est obligatoire.';
+    if (!formData.contactLastName.trim()) {
+      errors.contactLastName = 'Le nom du contact principal est obligatoire.';
+    }
+    if (!formData.contactFirstName.trim()) {
+      errors.contactFirstName = 'Le prénom du contact principal est obligatoire.';
     }
     if (!formData.email.trim()) {
       errors.email = "L'adresse e-mail du contact est obligatoire.";
@@ -399,7 +419,7 @@ export function JoinPage() {
 
   const getFirstInvalidStep = (errors: Record<string, string>) => {
     const bankFields = ['bankName', 'bankEmail', 'bankPhone', 'website', 'bankDescription', 'establishmentYear', 'logo'];
-    const contactFields = ['contactName', 'email', 'phone', 'contactImage'];
+    const contactFields = ['contactLastName', 'contactFirstName', 'email', 'phone', 'contactImage'];
     const marketplaceFields = ['marketplaceSlug', 'marketplaceDescription', 'primaryColor', 'secondaryColor', 'banniere'];
 
     if (bankFields.some((field) => errors[field])) return 1;
@@ -420,9 +440,96 @@ export function JoinPage() {
     return Object.keys(errors).length === 0;
   };
 
-  const goToNextStep = () => {
+  const normalizeContactEmail = (email: string) => email.trim().toLowerCase();
+  const normalizedContactEmail = normalizeContactEmail(formData.email);
+  const isContactEmailVerified = Boolean(
+    emailVerificationToken && verifiedEmail === normalizedContactEmail,
+  );
+
+  const updateContactEmail = (email: string) => {
+    const normalizedEmail = normalizeContactEmail(email);
+    setFormData((prev) => ({ ...prev, email }));
+    setFormErrors((prev) => ({ ...prev, email: '', emailVerification: '' }));
+
+    if ((verificationEmail && verificationEmail !== normalizedEmail)
+      || (verifiedEmail && verifiedEmail !== normalizedEmail)) {
+      setVerificationCode('');
+      setVerificationEmail('');
+      setVerifiedEmail('');
+      setEmailVerificationToken('');
+      setEmailVerificationError('');
+      setResendCooldown(0);
+    }
+  };
+
+  const sendContactEmailVerificationCode = async () => {
+    const errors = getContactInfoErrors();
+    setFormErrors(errors);
+    if (Object.keys(errors).length > 0) return false;
+
+    setIsSendingVerification(true);
+    setEmailVerificationError('');
+    try {
+      const response = await requestService.sendJoinEmailVerificationCode(normalizedContactEmail);
+      setVerificationEmail(normalizedContactEmail);
+      setVerifiedEmail('');
+      setEmailVerificationToken('');
+      setVerificationCode('');
+      setResendCooldown(response.data.resendAvailableInSeconds || 60);
+      toast.success(response.data.message);
+      return true;
+    } catch (error) {
+      const responseData = axios.isAxiosError(error) ? error.response?.data : null;
+      const message = responseData?.message || "Le code de verification n'a pas pu etre envoye. Veuillez reessayer.";
+      const retryAfter = Number(responseData?.retryAfterSeconds || 0);
+      if (retryAfter > 0) setResendCooldown(retryAfter);
+      setEmailVerificationError(message);
+      return false;
+    } finally {
+      setIsSendingVerification(false);
+    }
+  };
+
+  const verifyContactEmailCode = async () => {
+    if (!/^\d{6}$/.test(verificationCode)) {
+      setEmailVerificationError('Saisissez le code de vérification à 6 chiffres.');
+      return;
+    }
+
+    setIsVerifyingCode(true);
+    setEmailVerificationError('');
+    try {
+      const response = await requestService.verifyJoinEmailCode(normalizedContactEmail, verificationCode);
+      setVerifiedEmail(normalizedContactEmail);
+      setEmailVerificationToken(response.data.verificationToken);
+      setFormErrors((prev) => ({ ...prev, emailVerification: '' }));
+      toast.success(response.data.message);
+      setStep(3);
+    } catch (error) {
+      const message = axios.isAxiosError(error)
+        ? error.response?.data?.message
+        : null;
+      setEmailVerificationError(message || 'Le code de vérification est incorrect.');
+    } finally {
+      setIsVerifyingCode(false);
+    }
+  };
+
+  const goToNextStep = async () => {
     if (step === 1 && !validateBankInfo()) return;
-    if (step === 2 && !validateContactInfo()) return;
+    if (step === 2) {
+      if (!validateContactInfo()) return;
+      if (isContactEmailVerified) {
+        setStep(3);
+        return;
+      }
+      if (verificationEmail === normalizedContactEmail) {
+        setEmailVerificationError('Saisissez puis verifiez le code recu par e-mail.');
+        return;
+      }
+      await sendContactEmailVerificationCode();
+      return;
+    }
     if (step === 3) {
       const errors = { ...getMarketplaceErrors(), ...getSelectionErrors() };
       setFormErrors(errors);
@@ -535,6 +642,16 @@ export function JoinPage() {
   };
 
   const handleSubmit = async () => {
+    if (!isContactEmailVerified) {
+      setFormErrors((prev) => ({
+        ...prev,
+        emailVerification: "L'adresse e-mail du contact doit être vérifiée avant l'envoi de la demande.",
+      }));
+      setEmailVerificationError("L'adresse e-mail du contact doit être vérifiée avant l'envoi de la demande.");
+      setStep(2);
+      return;
+    }
+
     const errors = getAllErrors();
     setFormErrors(errors);
 
@@ -555,8 +672,9 @@ export function JoinPage() {
         bankDescription: formData.bankDescription.trim(),
         establishmentYear: formData.establishmentYear ? Number(formData.establishmentYear) : undefined,
         logo: formData.logo,
-        contactName: formData.contactName,
+        contactName: `${formData.contactFirstName.trim()} ${formData.contactLastName.trim()}`,
         contactEmail: formData.email,
+        contactEmailVerificationToken: emailVerificationToken,
         contactPhone: `+216${formData.phone}`,
         contactImage: formData.contactImage,
         marketplaceSlug: formData.marketplaceSlug.trim(),
@@ -575,7 +693,14 @@ export function JoinPage() {
     } catch (error) {
       console.error('Failed to submit SaaS request:', error);
       const message = axios.isAxiosError(error) ? error.response?.data?.message : null;
-      alert(message || "Impossible de soumettre la demande. Verifiez les champs et reessayez.");
+      if (message?.toLowerCase().includes('e-mail') && message?.toLowerCase().includes('verifie')) {
+        setVerifiedEmail('');
+        setEmailVerificationToken('');
+        setEmailVerificationError(message);
+        setStep(2);
+      } else {
+        alert(message || "Impossible de soumettre la demande. Verifiez les champs et reessayez.");
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -784,19 +909,35 @@ export function JoinPage() {
                 <CardDescription>Contact principal pour votre compte</CardDescription>
               </CardHeader>
               <CardContent className="join-form-spacing">
-                <div>
-                  <label className="join-label" htmlFor="contact-name">Nom complet <span className="join-required">*</span></label>
+                <div className="join-form-grid">
+                  <div>
+                  <label className="join-label" htmlFor="contact-last-name">Nom <span className="join-required">*</span></label>
                   <Input
-                    id="contact-name"
-                    placeholder="Jihed ben sallah"
-                    value={formData.contactName}
+                    id="contact-last-name"
+                    placeholder="Ben Salah"
+                    value={formData.contactLastName}
                     required
-                    error={formErrors.contactName}
+                    error={formErrors.contactLastName}
                     onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, contactName: e.target.value }));
-                      setFormErrors((prev) => ({ ...prev, contactName: '' }));
+                      setFormData((prev) => ({ ...prev, contactLastName: e.target.value }));
+                      setFormErrors((prev) => ({ ...prev, contactLastName: '' }));
                     }}
                   />
+                  </div>
+                  <div>
+                  <label className="join-label" htmlFor="contact-first-name">Prénom <span className="join-required">*</span></label>
+                  <Input
+                    id="contact-first-name"
+                    placeholder="Jihed"
+                    value={formData.contactFirstName}
+                    required
+                    error={formErrors.contactFirstName}
+                    onChange={(e) => {
+                      setFormData((prev) => ({ ...prev, contactFirstName: e.target.value }));
+                      setFormErrors((prev) => ({ ...prev, contactFirstName: '' }));
+                    }}
+                  />
+                  </div>
                 </div>
                 <div>
                   <label className="join-label" htmlFor="contact-email">Adresse e-mail <span className="join-required">*</span></label>
@@ -807,10 +948,7 @@ export function JoinPage() {
                     value={formData.email}
                     required
                     error={formErrors.email}
-                    onChange={(e) => {
-                      setFormData((prev) => ({ ...prev, email: e.target.value }));
-                      setFormErrors((prev) => ({ ...prev, email: '' }));
-                    }}
+                    onChange={(e) => updateContactEmail(e.target.value)}
                   />
                 </div>
                 <div>
@@ -875,6 +1013,68 @@ export function JoinPage() {
                     </Button>
                   )}
                 </div>
+                {verificationEmail === normalizedContactEmail && (
+                  <div className={`join-verification-card ${isContactEmailVerified ? 'join-verification-card-success' : ''}`}>
+                    <div className="join-verification-heading">
+                      <div className="join-verification-icon">
+                        {isContactEmailVerified ? <CheckCircle /> : <Mail />}
+                      </div>
+                      <div>
+                        <h3>{isContactEmailVerified ? 'Adresse e-mail vérifiée' : 'Vérification de votre adresse e-mail'}</h3>
+                        <p>
+                          {isContactEmailVerified
+                            ? 'Votre adresse a été confirmée. Vous pouvez poursuivre votre inscription.'
+                            : `Un code à 6 chiffres a été envoyé à ${verificationEmail}. Il est valable 10 minutes.`}
+                        </p>
+                      </div>
+                    </div>
+
+                    {!isContactEmailVerified && (
+                      <>
+                        <div className="join-verification-form">
+                          <div className="join-verification-code-field">
+                            <label className="join-label" htmlFor="contact-email-code">Code de vérification</label>
+                            <Input
+                              id="contact-email-code"
+                              inputMode="numeric"
+                              autoComplete="one-time-code"
+                              maxLength={6}
+                              placeholder="000000"
+                              value={verificationCode}
+                              onChange={(event) => {
+                                setVerificationCode(event.target.value.replace(/\D/g, '').slice(0, 6));
+                                setEmailVerificationError('');
+                              }}
+                            />
+                          </div>
+                          <Button
+                            type="button"
+                            onClick={verifyContactEmailCode}
+                            disabled={isVerifyingCode || verificationCode.length !== 6}
+                          >
+                            {isVerifyingCode && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+                            Vérifier le code
+                          </Button>
+                        </div>
+                        <button
+                          type="button"
+                          className="join-resend-button"
+                          disabled={resendCooldown > 0 || isSendingVerification}
+                          onClick={sendContactEmailVerificationCode}
+                        >
+                          {isSendingVerification
+                            ? 'Envoi en cours...'
+                            : resendCooldown > 0
+                              ? `Renvoyer le code dans ${resendCooldown} s`
+                              : 'Renvoyer le code'}
+                        </button>
+                      </>
+                    )}
+                    {(emailVerificationError || formErrors.emailVerification) && (
+                      <p className="join-error-text mt-3">{emailVerificationError || formErrors.emailVerification}</p>
+                    )}
+                  </div>
+                )}
               </CardContent>
             </Card>
           )}
@@ -1174,7 +1374,7 @@ export function JoinPage() {
                   </div>
                   <div className="join-final-card-body">
                     <div className="join-final-detail-column">
-                      <div className="join-final-detail-row"><UserRound /><div><span>Nom</span><strong>{formData.contactName || '-'}</strong></div></div>
+                      <div className="join-final-detail-row"><UserRound /><div><span>Nom</span><strong>{`${formData.contactFirstName} ${formData.contactLastName}`.trim() || '-'}</strong></div></div>
                       <div className="join-final-detail-row"><Mail /><div><span>Email</span><strong>{formData.email || '-'}</strong></div></div>
                       <div className="join-final-detail-row"><Phone /><div><span>Telephone</span><strong>{formData.phone ? `+216 ${formData.phone}` : '-'}</strong></div></div>
                     </div>
@@ -1269,8 +1469,9 @@ export function JoinPage() {
           
 
           {step < totalSteps ? (
-            <Button onClick={goToNextStep} className="!bg-primary hover:!bg-primary-hover !text-primary-foreground font-medium px-6">
-              Suivant <ArrowRight className="w-4 h-4 ml-1" />
+            <Button onClick={goToNextStep} disabled={isSendingVerification} className="!bg-primary hover:!bg-primary-hover !text-primary-foreground font-medium px-6">
+              {isSendingVerification && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
+              {step === 2 && verificationEmail !== normalizedContactEmail ? 'Continuer' : 'Suivant'} <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           ) : (
             <Button onClick={handleSubmit} disabled={isSubmitting} className="!bg-primary hover:!bg-primary-hover !text-primary-foreground font-medium px-6">

@@ -111,6 +111,91 @@ public class EmailService {
         );
     }
 
+    public boolean sendDealerEventEmail(
+            String recipient,
+            String subject,
+            String title,
+            String message,
+            String actionLabel,
+            String actionUrl,
+            String informationTitle,
+            String informationText
+    ) {
+        if (!hasText(recipient)) {
+            log.warn("Impossible d'envoyer l'email concessionnaire: destinataire manquant.");
+            return false;
+        }
+        return sendTemplatedEmail(
+                recipient,
+                subject,
+                buildTemplate(
+                        "Matchia partenaires",
+                        title,
+                        message,
+                        actionLabel,
+                        actionUrl,
+                        "Statut",
+                        title,
+                        informationTitle,
+                        informationText,
+                        "Merci pour votre confiance.",
+                        "L'equipe Matchia"
+                ),
+                "notification concessionnaire",
+                "NOTIFICATION CONCESSIONNAIRE",
+                null,
+                "dealer_email.sent"
+        );
+    }
+
+    public boolean sendDealerCredentialsEmail(String recipient, String temporaryPassword, String backOfficeUrl) {
+        return sendTemplatedEmail(
+                recipient,
+                "Vos identifiants Matchia concessionnaire",
+                buildTemplate(
+                        "Compte approuve",
+                        "Vos identifiants Matchia sont disponibles",
+                        "Votre espace concessionnaire est pret. Utilisez ces identifiants pour votre premiere connexion.",
+                        "Ouvrir le back office",
+                        backOfficeUrl,
+                        "Login",
+                        recipient,
+                        "Mot de passe temporaire",
+                        temporaryPassword,
+                        "Pour des raisons de securite, merci de changer votre mot de passe lors de votre premiere connexion.",
+                        "L'equipe Matchia"
+                ),
+                "identifiants concessionnaire",
+                "IDENTIFIANTS CONCESSIONNAIRE",
+                null,
+                "dealer_credentials_email.sent"
+        );
+    }
+
+    public boolean sendJoinEmailVerificationCode(String recipient, String code) {
+        return sendTemplatedEmail(
+                recipient,
+                "Votre code de verification Matchia",
+                buildTemplate(
+                        "Verification de l'adresse e-mail",
+                        "Confirmez votre adresse e-mail",
+                        "Utilisez le code ci-dessous pour poursuivre votre demande d'adhesion a Matchia.",
+                        null,
+                        null,
+                        "Code de verification",
+                        code,
+                        "Duree de validite",
+                        "Ce code est valable pendant 10 minutes et ne peut etre utilise qu'une seule fois.",
+                        "Si vous n'etes pas a l'origine de cette demande, ignorez cet e-mail.",
+                        "L'equipe Matchia"
+                ),
+                "verification adresse e-mail",
+                "VERIFICATION ADRESSE E-MAIL",
+                null,
+                "join_email_verification.sent"
+        );
+    }
+
     public boolean sendPaymentInstructions(Request request, String paymentLink) {
         String recipient = resolveBankRecipient(request);
         if (recipient == null) {
@@ -482,7 +567,7 @@ public class EmailService {
         log.info("ENVOI D'EMAIL SIMULE - {}", simulatedLabel);
         log.info("Destinataire : {}", recipient);
         log.info("Sujet : {}", subject);
-        log.info("Body : {}", text);
+        log.info("Corps de l'email non journalise pour proteger les donnees sensibles.");
         auditEmail(relatedRequest, recipient, auditAction, AuditStatusEnum.failure);
         return false;
     }
@@ -880,9 +965,26 @@ public class EmailService {
                     && hasText(host)
                     && uri.getPort() == -1
                     && !isDevelopmentHost(host);
-            return securePublicUrl ? uri.toString() : safePublicUrl();
+            return securePublicUrl || isTrustedFrontendPaymentUrl(uri) ? uri.toString() : safePublicUrl();
         } catch (Exception exception) {
             return safePublicUrl();
+        }
+    }
+
+    private boolean isTrustedFrontendPaymentUrl(URI candidate) {
+        if (!hasText(frontendUrl) || candidate == null) {
+            return false;
+        }
+        try {
+            URI configuredFrontend = URI.create(frontendUrl.trim().replaceAll("/+$", ""));
+            String path = candidate.getPath();
+            return hasText(candidate.getHost())
+                    && candidate.getHost().equalsIgnoreCase(configuredFrontend.getHost())
+                    && java.util.Objects.equals(candidate.getScheme(), configuredFrontend.getScheme())
+                    && candidate.getPort() == configuredFrontend.getPort()
+                    && ("/paiement".equals(path) || "/payment/demo".equals(path));
+        } catch (Exception exception) {
+            return false;
         }
     }
 

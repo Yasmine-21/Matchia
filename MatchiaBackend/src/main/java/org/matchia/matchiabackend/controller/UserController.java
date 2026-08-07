@@ -7,6 +7,8 @@ import org.matchia.matchiabackend.mapper.UserMapper;
 import org.matchia.matchiabackend.repository.BankRepository;
 import org.matchia.matchiabackend.service.UserService;
 import org.matchia.matchiabackend.service.PasswordService;
+import org.matchia.matchiabackend.service.DealerSecurityService;
+import org.matchia.matchiabackend.entity.enums.RoleEnum;
 import org.matchia.matchiabackend.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -26,6 +28,7 @@ import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.Authentication;
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -36,20 +39,26 @@ public class UserController {
     private final BankRepository bankRepository;
     private final JwtUtil jwtUtil;
     private final PasswordService passwordService;
+    private final DealerSecurityService dealerSecurityService;
 
     @Value("${app.upload.dir:uploads/logos}")
     private String uploadDir;
 
-    public UserController(UserService service, UserMapper mapper, BankRepository bankRepository, JwtUtil jwtUtil, PasswordService passwordService) {
+    public UserController(UserService service, UserMapper mapper, BankRepository bankRepository, JwtUtil jwtUtil,
+                          PasswordService passwordService, DealerSecurityService dealerSecurityService) {
         this.service = service;
         this.mapper = mapper;
         this.bankRepository = bankRepository;
         this.jwtUtil = jwtUtil;
         this.passwordService = passwordService;
+        this.dealerSecurityService = dealerSecurityService;
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody UserDto dto, HttpServletRequest request) {
+    public ResponseEntity<?> create(@RequestBody UserDto dto, HttpServletRequest request, Authentication authentication) {
+        if (isDealer(authentication)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         String encodedPassword;
         try {
             encodedPassword = passwordService.encode(dto.getPassword());
@@ -94,7 +103,11 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAll(HttpServletRequest request) {
+    public ResponseEntity<List<UserDto>> getAll(HttpServletRequest request, Authentication authentication) {
+        if (isDealer(authentication)) {
+            User current = dealerSecurityService.currentUser(authentication);
+            return ResponseEntity.ok(List.of(mapper.toDto(current)));
+        }
         String tenantBankSlug = resolveTenantBankSlug(request);
         List<UserDto> list = service.findAllByBankSlug(tenantBankSlug).stream()
                 .map(mapper::toDto)
@@ -103,7 +116,10 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getById(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<UserDto> getById(@PathVariable Long id, HttpServletRequest request, Authentication authentication) {
+        if (!canAccessUser(authentication, id)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         String tenantBankSlug = resolveTenantBankSlug(request);
         Optional<User> entity = service.findDetailedByIdAndBankSlug(id, tenantBankSlug);
         return entity.map(value -> new ResponseEntity<>(mapper.toDto(value), HttpStatus.OK))
@@ -111,7 +127,11 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UserDto dto, HttpServletRequest request) {
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UserDto dto, HttpServletRequest request,
+                                    Authentication authentication) {
+        if (!canAccessUser(authentication, id)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         String tenantBankSlug = resolveTenantBankSlug(request);
         Optional<User> existingUser = service.findDetailedByIdAndBankSlug(id, tenantBankSlug);
         if (existingUser.isEmpty()) {
@@ -146,10 +166,10 @@ public class UserController {
         if (dto.getContactImageUrl() != null) {
             entity.setContactImageUrl(dto.getContactImageUrl());
         }
-        if (dto.getRole() != null) {
+        if (dto.getRole() != null && !isDealer(authentication)) {
             entity.setRole(dto.getRole());
         }
-        if (dto.getStatus() != null) {
+        if (dto.getStatus() != null && !isDealer(authentication)) {
             entity.setStatus(dto.getStatus());
         }
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
@@ -165,7 +185,10 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request) {
+    public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request, Authentication authentication) {
+        if (isDealer(authentication)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
         String tenantBankSlug = resolveTenantBankSlug(request);
         Optional<User> existingUser = service.findDetailedByIdAndBankSlug(id, tenantBankSlug);
         if (existingUser.isEmpty()) {
@@ -180,6 +203,18 @@ public class UserController {
             return null;
         }
         return bankRepository.findById(bankId).orElse(null);
+    }
+
+    private boolean isDealer(Authentication authentication) {
+        return authentication != null && authentication.isAuthenticated()
+                && dealerSecurityService.currentUser(authentication).getRole() == RoleEnum.DEALER_ADMIN;
+    }
+
+    private boolean canAccessUser(Authentication authentication, Long userId) {
+        if (!isDealer(authentication)) {
+            return true;
+        }
+        return dealerSecurityService.currentUser(authentication).getId().equals(userId);
     }
 
     private String resolveTenantBankSlug(HttpServletRequest request) {

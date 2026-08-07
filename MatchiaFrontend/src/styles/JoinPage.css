@@ -764,3 +764,92 @@
 .join-color-review span {
   @apply h-4 w-4 rounded-full border border-border;
 }
+.join-verification-card {
+  padding: 1.25rem;
+  border: 1px solid #cfe0ff;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #f7faff 0%, #ffffff 100%);
+  box-shadow: 0 10px 28px rgba(37, 99, 235, 0.08);
+}
+
+.join-verification-card-success {
+  border-color: #a7e3c5;
+  background: linear-gradient(135deg, #f1fcf6 0%, #ffffff 100%);
+}
+
+.join-verification-heading {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.875rem;
+}
+
+.join-verification-heading h3 {
+  margin: 0;
+  color: #10203d;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.join-verification-heading p {
+  margin: 0.3rem 0 0;
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.55;
+}
+
+.join-verification-icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  flex: 0 0 2.5rem;
+  place-items: center;
+  border-radius: 0.8rem;
+  color: #2563eb;
+  background: #e9f0ff;
+}
+
+.join-verification-card-success .join-verification-icon {
+  color: #079455;
+  background: #dcf8e9;
+}
+
+.join-verification-icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.join-verification-form {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.join-verification-code-field input {
+  letter-spacing: 0.35em;
+  font-weight: 700;
+  text-align: center;
+}
+
+.join-resend-button {
+  margin-top: 0.8rem;
+  padding: 0;
+  border: 0;
+  color: #2563eb;
+  background: transparent;
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.join-resend-button:disabled {
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+@media (max-width: 640px) {
+  .join-verification-form {
+    grid-template-columns: 1fr;
+  }
+}

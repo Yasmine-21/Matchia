@@ -274,6 +274,7 @@ export interface RequestPayload {
   website?: string;
   contactName: string;
   contactEmail: string;
+  contactEmailVerificationToken: string;
   contactPhone: string;
   contactImage?: File | null;
   description?: string;

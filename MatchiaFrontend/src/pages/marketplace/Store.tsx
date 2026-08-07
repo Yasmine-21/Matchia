@@ -18,6 +18,7 @@ import { motion } from 'motion/react';
 import { contentService } from '../../services/contentService';
 import { marketplaceContentService } from '../../services/marketplaceContentService';
 import { productService } from '../../services/productService';
+import { dealerService } from '../../services/dealerService';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
@@ -72,6 +73,8 @@ interface StoreProductItem {
   storeName?: string | null;
   parameterValues: ProductDto['parameterValues'];
   createdAt?: string;
+  dealerProduct?: boolean;
+  dealerName?: string;
 }
 
 const normalizeSlug = (value?: string | null) =>
@@ -440,7 +443,9 @@ function ProductCard({
         <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/35 to-transparent p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-[0.28em] text-white/65">Produit bancaire</div>
+              <div className="text-[11px] uppercase tracking-[0.28em] text-white/65">
+                {product.dealerProduct ? `Partenaire - ${product.dealerName || 'Concessionnaire'}` : 'Produit bancaire'}
+              </div>
               <h3 className="mt-2 truncate text-xl font-semibold text-white">{product.name}</h3>
             </div>
           </div>
@@ -733,8 +738,13 @@ export function MarketplaceStore() {
       setProductsError(false);
 
       try {
-        const response = await productService.getByBank(marketplaceBankId);
-        const storeProducts = (response.data || [])
+        const [bankResult, dealerResult] = await Promise.allSettled([
+          productService.getByBank(marketplaceBankId),
+          dealerService.marketplaceProducts(marketplaceSlug, currentStoreId),
+        ]);
+        const bankProducts = bankResult.status === 'fulfilled' ? bankResult.value.data : [];
+        const dealerProducts = dealerResult.status === 'fulfilled' ? dealerResult.value.data : [];
+        const storeProducts = (bankProducts || [])
           .filter((product) => product.storeId === currentStoreId)
           .map((product): StoreProductItem => ({
             id: product.id,
@@ -746,11 +756,30 @@ export function MarketplaceStore() {
             storeName: product.storeName,
             parameterValues: product.parameterValues || [],
             createdAt: product.createdAt,
-          }))
+          }));
+        const publishedDealerProducts: StoreProductItem[] = dealerProducts.map((product) => ({
+          id: -product.id,
+          name: product.name,
+          description: product.description,
+          imageUrl: product.imageUrl,
+          price: product.price,
+          storeId: product.storeId,
+          storeName: product.storeName,
+          parameterValues: (product.parameterValues || []).map((value) => ({
+            id: value.definitionId,
+            parameterDefinitionId: value.definitionId,
+            parameterName: value.name,
+            value: value.value,
+          })),
+          createdAt: product.createdAt,
+          dealerProduct: true,
+          dealerName: product.dealerName,
+        }));
+        const allProducts = [...storeProducts, ...publishedDealerProducts]
           .sort((left, right) => getProductSortValue(right.createdAt) - getProductSortValue(left.createdAt));
 
         if (!cancelled) {
-          setProducts(storeProducts);
+          setProducts(allProducts);
         }
       } catch (loadError) {
         console.error('Failed to load products for marketplace store:', loadError);
@@ -770,7 +799,7 @@ export function MarketplaceStore() {
     return () => {
       cancelled = true;
     };
-  }, [currentStoreId, marketplaceBankId]);
+  }, [currentStoreId, marketplaceBankId, marketplaceSlug]);
 
   const storeLabel = store?.label || store?.name || `Store ${store?.storeId || store?.id || ''}`;
   const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
@@ -1036,7 +1065,7 @@ export function MarketplaceStore() {
                     primaryColor={branding.primary_color}
                     isComparatorActive={canCompare}
                     isInCompare={selectedCompareProducts.some((candidate) => candidate.id === product.id)}
-                    isSimulatorActive={canSimulate}
+                    isSimulatorActive={canSimulate && !product.dealerProduct}
                     onToggleCompare={toggleCompareProduct}
                     onSimulate={openSimulator}
                     onClick={() => setSelectedProduct(product)}

@@ -14,6 +14,7 @@ interface AppContextType {
   // Multi-tenant helpers
   isSaaSAdmin: () => boolean;
   isBankAdmin: () => boolean;
+  isDealerAdmin: () => boolean;
   canAccessBank: (bankId: string) => boolean;
   canAccessAllBanks: () => boolean;
 }
@@ -32,6 +33,8 @@ const normalizeRole = (role?: string | null): User['role'] => {
   if (role === 'CLIENT') {
     return role;
   }
+
+  if (role === 'DEALER_ADMIN') return 'DEALER_ADMIN';
 
   return 'CLIENT';
 };
@@ -115,6 +118,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   
   const isBankAdmin = () => 
     normalizeRole(currentUser?.role) === 'ADMIN_BANK';
+
+  const isDealerAdmin = () => normalizeRole(currentUser?.role) === 'DEALER_ADMIN';
   
   const canAccessBank = (bankId: string): boolean => {
     if (!currentUser) return false;
@@ -138,6 +143,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         isLoading,
         isSaaSAdmin,
         isBankAdmin,
+        isDealerAdmin,
         canAccessBank,
         canAccessAllBanks,
       }}

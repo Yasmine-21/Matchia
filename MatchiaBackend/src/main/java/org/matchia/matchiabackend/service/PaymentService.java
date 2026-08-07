@@ -17,16 +17,25 @@ import org.matchia.matchiabackend.dto.CheckoutSessionRequest;
 import org.matchia.matchiabackend.dto.ConfirmPaymentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentResponse;
+import org.matchia.matchiabackend.entity.Bank;
+import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.Payment;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.RequestModuleSelection;
+import org.matchia.matchiabackend.entity.User;
+import org.matchia.matchiabackend.entity.enums.BankStatusEnum;
+import org.matchia.matchiabackend.entity.enums.MarketplaceStatusEnum;
 import org.matchia.matchiabackend.entity.enums.PaymentStatusEnum;
 import org.matchia.matchiabackend.entity.enums.PaymentTypeEnum;
 import org.matchia.matchiabackend.entity.enums.RequestTypeEnum;
+import org.matchia.matchiabackend.entity.enums.UserStatusEnum;
 import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
 import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
+import org.matchia.matchiabackend.repository.BankRepository;
+import org.matchia.matchiabackend.repository.MarketplaceRepository;
 import org.matchia.matchiabackend.repository.PaymentRepository;
 import org.matchia.matchiabackend.repository.RequestRepository;
+import org.matchia.matchiabackend.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -59,6 +68,9 @@ public class PaymentService {
 
     private final PaymentRepository paymentRepository;
     private final RequestRepository requestRepository;
+    private final BankRepository bankRepository;
+    private final MarketplaceRepository marketplaceRepository;
+    private final UserRepository userRepository;
     private final NotificationService notificationService;
     private final StoreRequestActivationService storeRequestActivationService;
     private final AuditLogger auditLogger;
@@ -66,13 +78,13 @@ public class PaymentService {
     private final SubscriptionService subscriptionService;
     private final BankAdminCredentialsService bankAdminCredentialsService;
 
-    @Value("${payment.demo-url:http://lvh.me:5173/payment/demo}")
-    private String demoPaymentUrl;
+    @Value("${payment.page-path:/paiement}")
+    private String paymentPagePath;
 
-    @Value("${stripe.secret-key:${stripe.secret.key:}}")
+    @Value("${stripe.secret-key}")
     private String stripeSecretKey;
 
-    @Value("${stripe.publishable.key:${stripe.public.key:}}")
+    @Value("${stripe.publishable.key}")
     private String stripePublishableKey;
 
     @Value("${stripe.currency:tnd}")
@@ -87,9 +99,32 @@ public class PaymentService {
     @Value("${stripe.cancel-url:}")
     private String stripeCancelUrl;
 
+    @Transactional
     public String initiatePayment(Request request) {
-        log.info("Generation du lien de paiement integre pour la demande {}.", request.getId());
-        return fallbackPaymentLink(request);
+        if (request == null || request.getId() == null) {
+            throw new IllegalArgumentException("La demande est obligatoire pour initialiser le paiement.");
+        }
+
+        BigDecimal amount = BigDecimal.valueOf(request.getTotalAmount() != null ? request.getTotalAmount() : 0)
+                .setScale(2, RoundingMode.HALF_UP);
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Le montant du paiement doit etre superieur a zero.");
+        }
+
+        Payment payment = resolvePendingPayment(null, request);
+        payment.setAmount(amount);
+        payment.setCurrency(normalizeCurrency(payment.getCurrency()));
+        payment.setBankName(hasText(request.getBankName()) ? request.getBankName().trim() : "Matchia");
+        Payment savedPayment = paymentRepository.save(payment);
+
+        log.info("Preparation du paiement Stripe integre pour la demande {} et le paiement {}.",
+                request.getId(), savedPayment.getId());
+        return fallbackPaymentLink(
+                request,
+                savedPayment.getId(),
+                savedPayment.getAmount(),
+                savedPayment.getCurrency()
+        );
     }
 
     public String getPublishableKey() {
@@ -187,29 +222,7 @@ public class PaymentService {
             status = PaymentStatusEnum.pending;
         }
 
-        boolean wasAlreadyPaid = payment.getStatus() == PaymentStatusEnum.paid && payment.getPaidAt() != null;
-        payment.setStatus(status);
-        if (status == PaymentStatusEnum.paid && payment.getPaidAt() == null) {
-            payment.setPaidAt(LocalDateTime.now());
-        }
-        Payment savedPayment = paymentRepository.save(payment);
-        auditPayment(savedPayment, savedPayment.getStatus() == PaymentStatusEnum.paid ? "payment.completed" : "payment.status_updated", AuditStatusEnum.success);
-        if (savedPayment.getStatus() == PaymentStatusEnum.paid && !wasAlreadyPaid) {
-            auditAutomaticPaymentAction(savedPayment, "payment.status_updated");
-            try {
-                notificationService.createPaymentSuccessNotification(savedPayment.getRequest());
-            } catch (Exception e) {
-                log.error("Impossible de creer la notification de paiement pour le paiement {}.", savedPayment.getId(), e);
-            }
-            try {
-                activateStoreRequestIfNeeded(savedPayment);
-                auditAutomaticPaymentAction(savedPayment, "subscription.activation_processed");
-            } catch (Exception e) {
-                log.error("Impossible d'activer la demande store apres paiement {}.", savedPayment.getId(), e);
-            }
-            activateSubscriptionIfNeeded(savedPayment);
-            bankAdminCredentialsService.issueAfterSuccessfulMarketplacePayment(savedPayment.getRequest());
-        }
+        Payment savedPayment = updatePaymentStatusAndProcess(payment, status);
 
         return new CreatePaymentIntentResponse(
                 null,
@@ -276,6 +289,44 @@ public class PaymentService {
         auditPayment(savedPayment, "payment.initiated", AuditStatusEnum.success);
 
         return session.getUrl();
+    }
+
+    @Transactional
+    public CreatePaymentIntentResponse confirmCheckoutSession(String sessionId) throws StripeException {
+        if (!hasText(sessionId)) {
+            throw new IllegalArgumentException("sessionId is required.");
+        }
+
+        Payment payment = paymentRepository.findByStripeSessionId(sessionId)
+                .orElseThrow(() -> new NoSuchElementException("Session de paiement introuvable."));
+
+        Stripe.apiKey = stripeSecretKey;
+        Session session = Session.retrieve(sessionId);
+        PaymentStatusEnum status = "paid".equalsIgnoreCase(session.getPaymentStatus())
+                || "no_payment_required".equalsIgnoreCase(session.getPaymentStatus())
+                ? PaymentStatusEnum.paid
+                : PaymentStatusEnum.pending;
+
+        if (status == PaymentStatusEnum.paid) {
+            Long expectedAmount = toStripeAmount(payment.getAmount(), payment.getCurrency());
+            if (session.getAmountTotal() == null || !expectedAmount.equals(session.getAmountTotal())) {
+                throw new IllegalStateException("Le montant confirme par Stripe ne correspond pas au paiement attendu.");
+            }
+            if (!normalizeCurrency(payment.getCurrency()).equalsIgnoreCase(session.getCurrency())) {
+                throw new IllegalStateException("La devise confirmee par Stripe ne correspond pas au paiement attendu.");
+            }
+            payment.setStripePaymentIntentId(session.getPaymentIntent());
+        }
+
+        Payment savedPayment = updatePaymentStatusAndProcess(payment, status);
+        return new CreatePaymentIntentResponse(
+                null,
+                savedPayment.getId(),
+                savedPayment.getStripePaymentIntentId(),
+                savedPayment.getAmount(),
+                savedPayment.getCurrency(),
+                savedPayment.getStatus().name()
+        );
     }
 
     @Transactional
@@ -532,11 +583,18 @@ public class PaymentService {
         String amount = paymentAmount != null ? paymentAmount.toPlainString()
                 : (request.getTotalAmount() != null ? String.valueOf(request.getTotalAmount()) : "0");
         String currency = hasText(paymentCurrency) ? paymentCurrency.trim().toLowerCase() : normalizeCurrency(null);
-        String link = demoPaymentUrl
+        String email = hasText(request.getContactEmail()) ? request.getContactEmail().trim()
+                : (hasText(request.getBankEmail()) ? request.getBankEmail().trim() : "");
+        String normalizedPath = hasText(paymentPagePath) ? paymentPagePath.trim() : "/paiement";
+        if (!normalizedPath.startsWith("/")) {
+            normalizedPath = "/" + normalizedPath;
+        }
+        String link = frontendUrl.replaceAll("/+$", "") + normalizedPath
                 + "?request_id=" + request.getId()
                 + "&bank=" + encode(bankName)
                 + "&amount=" + encode(amount)
-                + "&currency=" + encode(currency);
+                + "&currency=" + encode(currency)
+                + "&email=" + encode(email);
         return paymentId == null ? link : link + "&payment_id=" + paymentId;
     }
 
@@ -590,8 +648,12 @@ public class PaymentService {
     private String resolveSuccessUrl(String requestId) {
         String template = hasText(stripeSuccessUrl)
                 ? stripeSuccessUrl
-                : frontendUrl + "/payment-success?request_id={REQUEST_ID}";
-        return template.replace("{REQUEST_ID}", requestId);
+                : frontendUrl + "/payment-success?request_id={REQUEST_ID}&session_id={CHECKOUT_SESSION_ID}";
+        String resolved = template.replace("{REQUEST_ID}", requestId);
+        if (!resolved.contains("{CHECKOUT_SESSION_ID}")) {
+            resolved += (resolved.contains("?") ? "&" : "?") + "session_id={CHECKOUT_SESSION_ID}";
+        }
+        return resolved;
     }
 
     private String resolveCancelUrl(String requestId) {
@@ -636,6 +698,63 @@ public class PaymentService {
             return PaymentStatusEnum.failed;
         }
         return PaymentStatusEnum.pending;
+    }
+
+    private Payment updatePaymentStatusAndProcess(Payment payment, PaymentStatusEnum status) {
+        boolean wasAlreadyPaid = payment.getStatus() == PaymentStatusEnum.paid && payment.getPaidAt() != null;
+        payment.setStatus(status != null ? status : PaymentStatusEnum.pending);
+        if (payment.getStatus() == PaymentStatusEnum.paid && payment.getPaidAt() == null) {
+            payment.setPaidAt(LocalDateTime.now());
+        }
+        Payment savedPayment = paymentRepository.save(payment);
+        auditPayment(
+                savedPayment,
+                savedPayment.getStatus() == PaymentStatusEnum.paid ? "payment.completed" : "payment.status_updated",
+                AuditStatusEnum.success
+        );
+        if (savedPayment.getStatus() == PaymentStatusEnum.paid && !wasAlreadyPaid) {
+            auditAutomaticPaymentAction(savedPayment, "payment.status_updated");
+            activateJoinRequestActors(savedPayment);
+            try {
+                notificationService.createPaymentSuccessNotification(savedPayment.getRequest());
+            } catch (Exception exception) {
+                log.error("Impossible de creer la notification de paiement pour le paiement {}.", savedPayment.getId(), exception);
+            }
+            try {
+                activateStoreRequestIfNeeded(savedPayment);
+                auditAutomaticPaymentAction(savedPayment, "subscription.activation_processed");
+            } catch (Exception exception) {
+                log.error("Impossible d'activer la demande store apres paiement {}.", savedPayment.getId(), exception);
+            }
+            activateSubscriptionIfNeeded(savedPayment);
+            bankAdminCredentialsService.issueAfterSuccessfulMarketplacePayment(savedPayment.getRequest());
+        }
+        return savedPayment;
+    }
+
+    private void activateJoinRequestActors(Payment payment) {
+        Request request = payment.getRequest();
+        if (request == null || request.getRequestType() != RequestTypeEnum.join || request.getBank() == null) {
+            return;
+        }
+
+        Bank bank = request.getBank();
+        bank.setStatus(BankStatusEnum.active);
+        bankRepository.save(bank);
+
+        Marketplace marketplace = bank.getMarketplace();
+        if (marketplace != null) {
+            marketplace.setStatus(MarketplaceStatusEnum.active);
+            marketplaceRepository.save(marketplace);
+        }
+
+        String adminEmail = hasText(request.getContactEmail()) ? request.getContactEmail() : request.getBankEmail();
+        if (hasText(adminEmail)) {
+            userRepository.findByEmailIgnoreCase(adminEmail).ifPresent(admin -> {
+                admin.setStatus(UserStatusEnum.active);
+                userRepository.save(admin);
+            });
+        }
     }
 
     private String normalizeCurrency(String currency) {

@@ -37,4 +37,10 @@ export const notificationService = {
 
   deleteBankNotification: (id: number, recipientId: number) =>
     apiClient.delete<void>(`/api/bank/notifications/${id}?recipientId=${recipientId}`),
+
+  getDealerUnreadCount: () => apiClient.get<{ count: number }>('/api/dealer/notifications/unread-count'),
+  getDealerNotifications: () => apiClient.get<NotificationDto[]>('/api/dealer/notifications'),
+  markDealerNotificationAsRead: (id: number) => apiClient.patch<NotificationDto>(`/api/dealer/notifications/${id}/read`),
+  markAllDealerNotificationsAsRead: () => apiClient.patch<NotificationDto[]>('/api/dealer/notifications/read-all'),
+  deleteDealerNotification: (id: number) => apiClient.delete<void>(`/api/dealer/notifications/${id}`),
 };
