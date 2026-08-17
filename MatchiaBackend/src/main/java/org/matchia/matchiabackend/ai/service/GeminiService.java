@@ -38,10 +38,10 @@ public class GeminiService {
             For recent/latest questions, order by the most relevant allowed date column in DESC order and use the requested limit when available.
             If the question needs a duration or expiration calculation, derive it from the available columns and explicit question context only.
             When the supplied business guidance identifies the authoritative Offers & Subscriptions rule, follow it exactly:
-            payment.status = 'paid' identifies a completed payment, not an expired subscription. Use the provided paid_at
-            expiration expression. Examples: expired = DATE(payment.paid_at + INTERVAL '1 month') < CURRENT_DATE;
-            active = DATE(payment.paid_at + INTERVAL '1 month') >= CURRENT_DATE; remaining days =
-            DATE(payment.paid_at + INTERVAL '1 month') - CURRENT_DATE. Never use payment.status = 'expired' for this rule.
+            payment.status = 'paid' identifies a completed payment, not an expired subscription. Subscriptions last one year.
+            Use subscription.expiration_date as the authoritative expiration date. Examples: expired =
+            subscription.expiration_date < CURRENT_DATE; active = subscription.expiration_date >= CURRENT_DATE;
+            remaining days = subscription.expiration_date - CURRENT_DATE. Never use payment.status = 'expired' for this rule.
             Always prefer a precise aggregate for count/total questions and use COUNT(*).
             """;
     private static final String SQL_CORRECTION_SYSTEM_PROMPT = SQL_SYSTEM_PROMPT + """

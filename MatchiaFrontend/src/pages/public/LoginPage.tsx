@@ -122,11 +122,8 @@ export function LoginPage() {
                 />
               ) : (
                 <MatchiaLogo
-                  variant="icon"
-                  showText
-                  brandText
+                  variant="full"
                   markClassName="login-logo-mark"
-                  textClassName="text-[2rem] font-bold tracking-tight leading-none"
                 />
               )}
             </div>

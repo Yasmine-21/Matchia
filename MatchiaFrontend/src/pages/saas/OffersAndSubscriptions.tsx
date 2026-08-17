@@ -60,6 +60,21 @@ const formatDateTime = (value?: string | null) => {
   }).format(date);
 };
 
+const getAnnualTermProgress = (expirationDate?: string | null, daysRemaining?: number | null) => {
+  if (!expirationDate || daysRemaining == null) {
+    return 0;
+  }
+
+  const termEnd = new Date(`${expirationDate}T00:00:00`);
+  if (Number.isNaN(termEnd.getTime())) {
+    return 0;
+  }
+  const termStart = new Date(termEnd);
+  termStart.setFullYear(termStart.getFullYear() - 1);
+  const termDays = Math.max(1, Math.round((termEnd.getTime() - termStart.getTime()) / 86_400_000));
+  return Math.max(0, Math.min(100, Math.round((daysRemaining / termDays) * 100)));
+};
+
 const getBackendAssetUrl = (url?: string | null) => {
   if (!url) {
     return '';
@@ -252,10 +267,7 @@ export function OffersAndSubscriptions() {
               <tbody className="divide-y divide-border">
                 {subscriptions.map((subscription) => {
                   const daysRemaining = subscription.daysRemaining ?? null;
-                  const progressPercent =
-                    daysRemaining === null
-                      ? 0
-                      : Math.max(0, Math.min(100, Math.round((daysRemaining / 30) * 100)));
+                  const progressPercent = getAnnualTermProgress(subscription.expirationDate, daysRemaining);
                   const statusVariant =
                     subscription.status === 'PENDING_PAYMENT'
                       ? 'default'
@@ -523,7 +535,10 @@ export function OffersAndSubscriptions() {
                   </div>
                 ))}
               </div>
-              <p className="text-sm text-muted-foreground">Un lien de paiement sécurisé sera envoyé à l’administrateur de la banque. L’abonnement ne sera renouvelé qu’après confirmation du paiement.</p>
+              <div className="rounded-lg border border-blue-100 bg-blue-50/60 p-3 text-sm text-blue-900">
+                Période de l’abonnement : <span className="font-semibold">annuelle (12 mois)</span>
+              </div>
+              <p className="text-sm text-muted-foreground">Un lien de paiement sécurisé sera envoyé à l’administrateur de la banque. Après confirmation du paiement, l’abonnement sera prolongé d’une année supplémentaire.</p>
               <div className="flex justify-end gap-3">
                 <Button variant="outline" disabled={isRenewing} onClick={() => setIsRenewalOpen(false)}>Annuler</Button>
                 <Button disabled={isRenewing} onClick={confirmRenewal}>{isRenewing ? 'Création...' : 'Renouveler'}</Button>

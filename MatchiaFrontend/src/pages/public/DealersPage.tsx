@@ -2,7 +2,7 @@ import '../../styles/BanksPage.css';
 import '../../styles/DealersPage.css';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router';
-import { Building2, Loader2, Mail, MapPin, Phone, Search, Store } from 'lucide-react';
+import { Building2, Globe2, Loader2, Mail, MapPin, Phone, Search, Store } from 'lucide-react';
 import { motion } from 'motion/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
@@ -162,6 +162,11 @@ export function DealersPage() {
                         <div className="dealers-contact-row">
                           <MapPin className="banks-icon" /><span>{dealer.address}</span>
                         </div>
+                      )}
+                      {dealer.website && (
+                        <a href={dealer.website} target="_blank" rel="noreferrer" className="dealers-contact-row">
+                          <Globe2 className="banks-icon" /><span>{dealer.website}</span>
+                        </a>
                       )}
                     </CardContent>
                   </Card>

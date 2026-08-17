@@ -22,7 +22,7 @@ export function SessionLoader({ children }: SessionLoaderProps) {
           transition={{ duration: 2, repeat: Infinity }}
           className="flex flex-col items-center gap-4"
         >
-          <MatchiaLogo variant="icon" showText={false} markClassName="w-12 h-12" />
+          <MatchiaLogo variant="icon" showText={false} markClassName="w-12" />
           <p className="text-muted-foreground">Chargement...</p>
         </motion.div>
       </div>

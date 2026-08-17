@@ -1,0 +1,86 @@
+services:
+
+  # =====================================================
+  # SONARQUBE
+  # =====================================================
+  sonarqube:
+    image: sonarqube:26.8.0.126808-community
+
+    container_name: matchia-sonarqube
+
+    read_only: true
+
+    depends_on:
+      sonar-db:
+        condition: service_healthy
+
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonar-db:5432/${SONAR_DB}
+      SONAR_JDBC_USERNAME: ${SONAR_DB_USER}
+      SONAR_JDBC_PASSWORD: ${SONAR_DB_PASSWORD}
+
+    ports:
+      - "9000:9000"
+
+    volumes:
+      - sonarqube_data:/opt/sonarqube/data
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
+      - sonarqube_temp:/opt/sonarqube/temp
+
+    tmpfs:
+      - /tmp:size=256M,mode=1777
+
+    networks:
+      - sonar-network
+
+
+  # =====================================================
+  # POSTGRESQL POUR SONARQUBE
+  # =====================================================
+  sonar-db:
+    image: postgres:17
+
+    container_name: matchia-sonar-db
+
+    environment:
+      POSTGRES_DB: ${SONAR_DB}
+      POSTGRES_USER: ${SONAR_DB_USER}
+      POSTGRES_PASSWORD: ${SONAR_DB_PASSWORD}
+
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -d $${POSTGRES_DB} -U $${POSTGRES_USER}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+    volumes:
+      - sonar_postgres_data:/var/lib/postgresql
+
+    networks:
+      - sonar-network
+
+
+# =======================================================
+# VOLUMES
+# =======================================================
+
+volumes:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  sonarqube_temp:
+  sonar_postgres_data:
+
+
+# =======================================================
+# NETWORK
+# =======================================================
+
+networks:
+  sonar-network:
+    driver: bridge

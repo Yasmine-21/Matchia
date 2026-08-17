@@ -8,6 +8,7 @@ import {
   Clock3,
   Eye,
   FileText,
+  Globe2,
   Mail,
   MapPin,
   Phone,
@@ -380,10 +381,18 @@ export function DealerRequests() {
               <DetailSection title="Informations professionnelles" icon={<Building2 className="h-5 w-5" />}>
                 <DetailRow icon={<FileText className="h-4 w-4" />} label="Immatriculation" value={selected.registrationNumber} />
                 <DetailRow icon={<MapPin className="h-4 w-4" />} label="Adresse" value={selected.address} />
+                {selected.website && <DetailRow icon={<Globe2 className="h-4 w-4" />} label="Site web" value={selected.website} />}
                 <DetailRow icon={<Store className="h-4 w-4" />} label="Store" value={selected.storeName} />
                 <DetailRow icon={<CalendarDays className="h-4 w-4" />} label="Soumise le" value={formatDate(selected.submittedAt)} />
               </DetailSection>
               <DetailSection title="Coordonnees" icon={<UserRound className="h-5 w-5" />}>
+                {selected.contactPhotoUrl && (
+                  <img
+                    src={getBackendAssetUrl(selected.contactPhotoUrl)}
+                    alt={`Photo de ${selected.contactPerson}`}
+                    className="mb-3 h-20 w-20 rounded-2xl border border-border bg-white object-cover"
+                  />
+                )}
                 <DetailRow icon={<UserRound className="h-4 w-4" />} label="Contact" value={selected.contactPerson} />
                 <DetailRow icon={<Mail className="h-4 w-4" />} label="E-mail" value={selected.email} />
                 <DetailRow icon={<Phone className="h-4 w-4" />} label="Telephone" value={selected.phone} />

@@ -36,7 +36,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class SubscriptionService {
 
-    private static final int DEFAULT_DURATION_MONTHS = 1;
+    private static final int DEFAULT_DURATION_MONTHS = 12;
+    private static final int SUBSCRIPTION_DURATION_YEARS = 1;
 
     private final SubscriptionRepository subscriptionRepository;
     private final PaymentRepository paymentRepository;
@@ -84,13 +85,16 @@ public class SubscriptionService {
 
         Subscription subscription = resolveOrCreateForPayment(payment);
         LocalDate paidDate = payment.getPaidAt().toLocalDate();
-        LocalDate startDate = payment.getPaymentType() == PaymentTypeEnum.RENEWAL
+        LocalDate periodStartDate = payment.getPaymentType() == PaymentTypeEnum.RENEWAL
                 && subscription.getExpirationDate() != null
                 && subscription.getExpirationDate().isAfter(paidDate)
                 ? subscription.getExpirationDate()
                 : paidDate;
-        subscription.setStartDate(startDate);
-        subscription.setExpirationDate(startDate.plusMonths(normalizeDuration(subscription)));
+        if (payment.getPaymentType() != PaymentTypeEnum.RENEWAL || subscription.getStartDate() == null) {
+            subscription.setStartDate(paidDate);
+        }
+        ensureAnnualDuration(subscription);
+        subscription.setExpirationDate(periodStartDate.plusYears(SUBSCRIPTION_DURATION_YEARS));
         subscription.setStatus(SubscriptionStatusEnum.ACTIVE);
         Subscription saved = subscriptionRepository.save(subscription);
         updateMarketplaceStatus(saved.getMarketplace());
@@ -377,13 +381,10 @@ public class SubscriptionService {
         return request.getBank().getMarketplace();
     }
 
-    private int normalizeDuration(Subscription subscription) {
-        int duration = subscription.getDurationMonths() == null ? DEFAULT_DURATION_MONTHS : subscription.getDurationMonths();
-        if (duration <= 0) {
-            duration = DEFAULT_DURATION_MONTHS;
-            subscription.setDurationMonths(duration);
+    private void ensureAnnualDuration(Subscription subscription) {
+        if (!Integer.valueOf(DEFAULT_DURATION_MONTHS).equals(subscription.getDurationMonths())) {
+            subscription.setDurationMonths(DEFAULT_DURATION_MONTHS);
         }
-        return duration;
     }
 
     private String resolveBankName(Payment payment, Request request) {

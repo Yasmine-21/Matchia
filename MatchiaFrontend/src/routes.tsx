@@ -43,6 +43,7 @@ import { BankContentManagement } from './pages/bank/ContentManagement';
 import { ProductManagement } from './pages/bank/ProductManagement';
 import { DealerManagement } from './pages/bank/DealerManagement';
 import { DealerWorkspace } from './pages/dealer/DealerWorkspace';
+import { DealerSettingsPage } from './pages/dealer/DealerSettingsPage';
 
 // Imports Marketplace
 import { MarketplaceHome } from './pages/marketplace/Home';
@@ -137,6 +138,7 @@ export const saasRouter = createBrowserRouter([
       { path: 'produits', element: <DealerWorkspace mode="products" /> },
       { path: 'publications', element: <DealerWorkspace mode="publications" /> },
       { path: 'profil', element: <ProfileSettingsPage type="dealer" /> },
+      { path: 'parametres', element: <DealerSettingsPage /> },
     ],
   },
 ]);

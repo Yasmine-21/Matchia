@@ -41,13 +41,16 @@ public class DealerAccountService {
 
     @Transactional
     public DealerDtos.AccountRequestView register(DealerDtos.RegistrationRequest input, MultipartFile logo,
-                                                   List<MultipartFile> documents) {
+                                                   MultipartFile contactPhoto, List<MultipartFile> documents) {
         String email = input.email().trim().toLowerCase(Locale.ROOT);
         if (logo == null || logo.isEmpty()) throw badRequest("Le logo est obligatoire.");
         if (documents == null || documents.stream().allMatch(file -> file == null || file.isEmpty())) {
             throw badRequest("Au moins un document justificatif est obligatoire.");
         }
         validateUpload(logo, true);
+        if (contactPhoto != null && !contactPhoto.isEmpty()) {
+            validateContactPhoto(contactPhoto);
+        }
         documents.stream().filter(file -> file != null && !file.isEmpty()).forEach(file -> validateUpload(file, false));
         if (userRepository.existsByEmailIgnoreCase(email) || dealerRepository.existsByEmailIgnoreCase(email)
                 || requestRepository.existsByEmailIgnoreCaseAndStatus(email, DealerRequestStatusEnum.PENDING)) {
@@ -66,9 +69,13 @@ public class DealerAccountService {
         request.setContactPerson(input.contactPerson().trim());
         request.setEmail(email);
         request.setPhone(input.phone().trim());
+        request.setWebsite(normalizeOptional(input.website()));
         request.setStore(store);
         request.setStatus(DealerRequestStatusEnum.PENDING);
         request.setLogoUrl(saveFile(logo, "logos"));
+        if (contactPhoto != null && !contactPhoto.isEmpty()) {
+            request.setContactPhotoUrl(saveFile(contactPhoto, "contact-photos"));
+        }
         request.setDocumentUrls(documents.stream().filter(file -> file != null && !file.isEmpty())
                 .map(file -> saveFile(file, "documents")).toList());
         DealerAccountRequest saved = requestRepository.save(request);
@@ -124,7 +131,9 @@ public class DealerAccountService {
         dealer.setContactPerson(request.getContactPerson());
         dealer.setEmail(request.getEmail());
         dealer.setPhone(request.getPhone());
+        dealer.setWebsite(request.getWebsite());
         dealer.setLogoUrl(request.getLogoUrl());
+        dealer.setContactPhotoUrl(request.getContactPhotoUrl());
         dealer.setStore(request.getStore());
         dealer.setStatus(DealerStatusEnum.ACTIVE);
         dealer = dealerRepository.save(dealer);
@@ -136,7 +145,7 @@ public class DealerAccountService {
         admin.setEmail(request.getEmail());
         admin.setPhone(request.getPhone());
         admin.setAddress(request.getAddress());
-        admin.setContactImageUrl(request.getLogoUrl());
+        admin.setContactImageUrl(request.getContactPhotoUrl());
         admin.setRole(RoleEnum.DEALER_ADMIN);
         admin.setStatus(UserStatusEnum.active);
         passwordService.setPassword(admin, password);
@@ -174,6 +183,64 @@ public class DealerAccountService {
     public DealerDtos.DealerView me(Authentication auth) {
         User user = security.requireDealer(auth);
         return toDealerView(user.getDealer());
+    }
+
+    @Transactional
+    public DealerDtos.DealerView updateSettings(Authentication auth, DealerDtos.SettingsUpdate input,
+                                                 MultipartFile logo) {
+        User user = security.requireDealer(auth);
+        Dealer dealer = user.getDealer();
+        String registrationNumber = input.registrationNumber().trim();
+        if (dealerRepository.existsByRegistrationNumberIgnoreCaseAndIdNot(registrationNumber, dealer.getId())) {
+            throw badRequest("Ce numero d'immatriculation est deja utilise.");
+        }
+
+        Store store = storeRepository.findById(input.storeId())
+                .orElseThrow(() -> badRequest("Store introuvable."));
+        if (store.getStatus() != StoreStatusEnum.active) {
+            throw badRequest("Le store selectionne est inactif.");
+        }
+
+        String previousLogo = dealer.getLogoUrl();
+        String replacementLogo = null;
+        if (logo != null && !logo.isEmpty()) {
+            validateDealerLogo(logo);
+            replacementLogo = saveFile(logo, "logos");
+        }
+
+        dealer.setCompanyName(input.companyName().trim());
+        dealer.setRegistrationNumber(registrationNumber);
+        dealer.setStore(store);
+        dealer.setWebsite(input.website().trim());
+        if (replacementLogo != null) {
+            dealer.setLogoUrl(replacementLogo);
+        } else if (input.removeLogo()) {
+            dealer.setLogoUrl(null);
+        }
+        Dealer saved = dealerRepository.save(dealer);
+
+        if ((replacementLogo != null || input.removeLogo()) && previousLogo != null
+                && !previousLogo.equals(saved.getLogoUrl())) {
+            deleteManagedFile(previousLogo, "logos");
+        }
+        audit("dealer.settings.updated", "dealer", saved.getId(), AuditStatusEnum.success);
+        return toDealerView(saved);
+    }
+
+    @Transactional(readOnly = true)
+    public List<DealerDtos.PublicDealerView> activePublicDealers() {
+        return dealerRepository.findByStatusOrderByCompanyNameAsc(DealerStatusEnum.ACTIVE).stream()
+                .map(dealer -> new DealerDtos.PublicDealerView(
+                        dealer.getCompanyName(),
+                        dealer.getLogoUrl(),
+                        dealer.getStore().getName(),
+                        dealer.getStore().getDescription(),
+                        dealer.getEmail(),
+                        dealer.getPhone(),
+                        dealer.getAddress(),
+                        dealer.getWebsite()
+                ))
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -217,7 +284,9 @@ public class DealerAccountService {
 
     public DealerDtos.DealerView toDealerView(Dealer dealer) {
         return new DealerDtos.DealerView(dealer.getId(), dealer.getCompanyName(), dealer.getRegistrationNumber(),
-                dealer.getAddress(), dealer.getContactPerson(), dealer.getEmail(), dealer.getPhone(), dealer.getLogoUrl(),
+                dealer.getAddress(), dealer.getContactPerson(), dealer.getEmail(), dealer.getPhone(), dealer.getWebsite(),
+                dealer.getLogoUrl(),
+                dealer.getContactPhotoUrl(),
                 dealer.getStore().getId(), dealer.getStore().getName(), dealer.getStatus(), dealer.getCreatedAt());
     }
 
@@ -226,7 +295,9 @@ public class DealerAccountService {
                 .mapToObj(index -> "/api/saas/dealers/requests/" + request.getId() + "/documents/" + index)
                 .toList();
         return new DealerDtos.AccountRequestView(request.getId(), request.getCompanyName(), request.getRegistrationNumber(),
-                request.getAddress(), request.getContactPerson(), request.getEmail(), request.getPhone(), request.getLogoUrl(),
+                request.getAddress(), request.getContactPerson(), request.getEmail(), request.getPhone(), request.getWebsite(),
+                request.getLogoUrl(),
+                request.getContactPhotoUrl(),
                 request.getStore().getId(), request.getStore().getName(), protectedDocuments, request.getStatus(),
                 request.getRejectionReason(), request.getSubmittedAt(), request.getProcessedAt());
     }
@@ -241,6 +312,50 @@ public class DealerAccountService {
         if (!allowed) {
             throw badRequest(imageOnly ? "Le logo doit etre une image." : "Les justificatifs doivent etre des images ou des fichiers PDF.");
         }
+    }
+
+    private void validateContactPhoto(MultipartFile file) {
+        if (file.getSize() > 5L * 1024 * 1024) {
+            throw badRequest("La photo de la personne de contact ne doit pas depasser 5 Mo.");
+        }
+        String contentType = Optional.ofNullable(file.getContentType()).orElse("").toLowerCase(Locale.ROOT);
+        String originalName = Optional.ofNullable(file.getOriginalFilename()).orElse("").toLowerCase(Locale.ROOT);
+        boolean validType = contentType.equals("image/png") || contentType.equals("image/jpeg");
+        boolean validExtension = originalName.endsWith(".png") || originalName.endsWith(".jpg") || originalName.endsWith(".jpeg");
+        if (!validType || !validExtension) {
+            throw badRequest("La photo de contact doit etre au format PNG, JPG ou JPEG.");
+        }
+    }
+
+    private void validateDealerLogo(MultipartFile file) {
+        if (file.getSize() > 5L * 1024 * 1024) {
+            throw badRequest("Le logo ne doit pas depasser 5 Mo.");
+        }
+        String contentType = Optional.ofNullable(file.getContentType()).orElse("").toLowerCase(Locale.ROOT);
+        String originalName = Optional.ofNullable(file.getOriginalFilename()).orElse("").toLowerCase(Locale.ROOT);
+        boolean validType = contentType.equals("image/png") || contentType.equals("image/jpeg")
+                || contentType.equals("image/webp");
+        boolean validExtension = originalName.endsWith(".png") || originalName.endsWith(".jpg")
+                || originalName.endsWith(".jpeg") || originalName.endsWith(".webp");
+        if (!validType || !validExtension) {
+            throw badRequest("Le logo doit etre au format PNG, JPG, JPEG ou WEBP.");
+        }
+    }
+
+    private void deleteManagedFile(String storedUrl, String category) {
+        String prefix = "/uploads/dealers/" + category + "/";
+        if (!storedUrl.startsWith(prefix)) return;
+        try {
+            Path base = Paths.get(uploadDirectory, category).toAbsolutePath().normalize();
+            Path target = base.resolve(Paths.get(storedUrl).getFileName().toString()).normalize();
+            if (target.startsWith(base)) Files.deleteIfExists(target);
+        } catch (IOException ignored) {
+            // The database update remains valid even if an obsolete file cannot be removed.
+        }
+    }
+
+    private String normalizeOptional(String value) {
+        return value == null || value.isBlank() ? null : value.trim();
     }
 
     private void audit(String action, String type, Long id, AuditStatusEnum status) {

@@ -1,0 +1,71 @@
+services:
+
+  # =====================================================
+  # BACKEND - SPRING BOOT
+  # =====================================================
+  backend:
+    image: matchia-backend
+
+    build:
+      context: ./MatchiaBackend
+      dockerfile: Dockerfile
+
+    container_name: matchia-backend
+
+    restart: unless-stopped
+
+    environment:
+      SERVER_PORT: ${SERVER_PORT}
+
+      # PostgreSQL installé sur Windows
+      SPRING_DATASOURCE_URL: jdbc:postgresql://host.docker.internal:5432/${POSTGRES_DB}
+      SPRING_DATASOURCE_USERNAME: ${POSTGRES_USER}
+      SPRING_DATASOURCE_PASSWORD: ${POSTGRES_PASSWORD}
+
+    ports:
+      - "8081:8081"
+
+    # ==================================================
+    # IMAGES / FICHIERS UPLOADÉS
+    # ==================================================
+    volumes:
+      - ./MatchiaBackend/uploads:/app/uploads
+
+    networks:
+      - matchia-network
+      
+
+
+  # =====================================================
+  # FRONTEND - REACT + NGINX
+  # =====================================================
+  frontend:
+    image: matchia-frontend
+
+    build:
+      context: ./MatchiaFrontend
+      dockerfile: Dockerfile
+
+      args:
+        VITE_API_URL: ${VITE_API_URL}
+
+    container_name: matchia-frontend
+
+    restart: unless-stopped
+
+    ports:
+      - "5173:80"
+
+    depends_on:
+      - backend
+
+    networks:
+      - matchia-network
+
+
+# =======================================================
+# NETWORK
+# =======================================================
+networks:
+  matchia-network:
+    driver: bridge

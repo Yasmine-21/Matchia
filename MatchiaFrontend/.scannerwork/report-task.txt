@@ -1,6 +1,6 @@
-projectKey=matchia-frontend
+projectKey=Matchia-Frontend
 serverUrl=http://localhost:9000
-serverVersion=26.7.0.124771
-dashboardUrl=http://localhost:9000/dashboard?id=matchia-frontend
-ceTaskId=80abe1aa-397a-4a2e-b735-673710d116c7
-ceTaskUrl=http://localhost:9000/api/ce/task?id=80abe1aa-397a-4a2e-b735-673710d116c7
+serverVersion=26.8.0.126808
+dashboardUrl=http://localhost:9000/dashboard?id=Matchia-Frontend
+ceTaskId=c6e8a901-3a41-40c4-b419-72bb9e2b459b
+ceTaskUrl=http://localhost:9000/api/ce/task?id=c6e8a901-3a41-40c4-b419-72bb9e2b459b

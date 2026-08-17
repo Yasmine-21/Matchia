@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.matchia.matchiabackend.dto.DealerDtos;
 import org.matchia.matchiabackend.dto.NotificationDto;
 import org.matchia.matchiabackend.entity.User;
+import org.matchia.matchiabackend.entity.enums.DealerPartnershipStatusEnum;
 import org.matchia.matchiabackend.service.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -25,12 +26,35 @@ public class DealerController {
     private final NotificationService notificationService;
 
     @GetMapping("/me") public DealerDtos.DealerView me(Authentication auth) { return accountService.me(auth); }
+    @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public DealerDtos.DealerView updateSettings(
+            Authentication auth,
+            @Valid @RequestPart("data") DealerDtos.SettingsUpdate input,
+            @RequestPart(value = "logo", required = false) MultipartFile logo) {
+        return accountService.updateSettings(auth, input, logo);
+    }
     @GetMapping("/dashboard") public DealerDtos.Dashboard dashboard(Authentication auth) { return productService.dashboard(auth); }
     @GetMapping("/available-banks") public List<DealerDtos.BankOption> banks(Authentication auth) { return partnershipService.availableBanks(auth); }
     @GetMapping("/partnerships") public List<DealerDtos.PartnershipView> partnerships(Authentication auth) { return partnershipService.mine(auth); }
+    @GetMapping("/partnerships/sent") public List<DealerDtos.PartnershipView> sentPartnerships(Authentication auth) { return partnershipService.sentByDealer(auth); }
+    @GetMapping("/partnerships/received") public List<DealerDtos.PartnershipView> receivedPartnerships(Authentication auth) { return partnershipService.receivedByDealer(auth); }
+    @GetMapping("/partnerships/active") public List<DealerDtos.PartnershipView> activePartnerships(Authentication auth) { return partnershipService.activeForDealer(auth); }
     @PostMapping("/partnerships") @ResponseStatus(HttpStatus.CREATED)
     public DealerDtos.PartnershipView partnership(Authentication auth, @Valid @RequestBody DealerDtos.PartnershipCreate input) {
         return partnershipService.create(auth, input);
+    }
+    @PostMapping("/partnerships/{id}/approve")
+    public DealerDtos.PartnershipView approvePartnership(Authentication auth, @PathVariable Long id) {
+        return partnershipService.decideByDealer(auth, id, DealerPartnershipStatusEnum.APPROVED, null);
+    }
+    @PostMapping("/partnerships/{id}/reject")
+    public DealerDtos.PartnershipView rejectPartnership(Authentication auth, @PathVariable Long id,
+                                                         @RequestBody DealerDtos.DecisionRequest request) {
+        return partnershipService.decideByDealer(auth, id, DealerPartnershipStatusEnum.REJECTED, request.reason());
+    }
+    @PostMapping("/partnerships/{id}/cancel")
+    public DealerDtos.PartnershipView cancelPartnership(Authentication auth, @PathVariable Long id) {
+        return partnershipService.cancelByDealer(auth, id);
     }
     @GetMapping("/products") public List<DealerDtos.ProductView> products(Authentication auth) { return productService.mine(auth); }
     @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) @ResponseStatus(HttpStatus.CREATED)

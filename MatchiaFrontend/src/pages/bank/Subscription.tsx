@@ -371,6 +371,10 @@ export function BankSubscription() {
                             <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Expiration</div>
                             <div className="mt-1 text-base font-semibold text-foreground">{formatDate(expirationDate)}</div>
                           </div>
+                          <div>
+                            <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Période</div>
+                            <div className="mt-1 text-base font-semibold text-foreground">Annuelle (12 mois)</div>
+                          </div>
                         </div>
                         <div className="space-y-4">
                           <div>
@@ -509,7 +513,7 @@ export function BankSubscription() {
           <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-900">
             <div className="font-semibold">Confirmation</div>
             <p className="mt-1 text-orange-800">
-              En confirmant, une demande de renouvellement sera envoyée au back office SaaS pour traitement.
+              En confirmant, une demande de renouvellement d’un an sera envoyée au back office SaaS pour traitement.
             </p>
           </div>
 

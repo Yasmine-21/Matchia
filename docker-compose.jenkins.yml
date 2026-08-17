@@ -1,0 +1,79 @@
+services:
+
+  # =====================================================
+  # DOCKER ENGINE POUR JENKINS
+  # =====================================================
+  jenkins-docker:
+    image: docker:dind
+
+    container_name: matchia-jenkins-docker
+
+    privileged: true
+
+    restart: unless-stopped
+
+    environment:
+      DOCKER_TLS_CERTDIR: /certs
+
+    volumes:
+      - jenkins-docker-certs:/certs/client
+      - jenkins-data:/var/jenkins_home
+
+    networks:
+      jenkins-network:
+        aliases:
+          - docker
+
+    command: --storage-driver=overlay2
+
+
+  # =====================================================
+  # JENKINS
+  # =====================================================
+  jenkins:
+    image: matchia-jenkins:latest
+
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+
+    container_name: matchia-jenkins
+
+    restart: unless-stopped
+
+    depends_on:
+      - jenkins-docker
+
+    environment:
+      DOCKER_HOST: tcp://docker:2376
+      DOCKER_CERT_PATH: /certs/client
+      DOCKER_TLS_VERIFY: "1"
+
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+
+    volumes:
+      - jenkins-data:/var/jenkins_home
+      - jenkins-docker-certs:/certs/client:ro
+
+    networks:
+      - jenkins-network
+
+
+# =======================================================
+# VOLUMES
+# =======================================================
+
+volumes:
+  jenkins-data:
+  jenkins-docker-certs:
+
+
+# =======================================================
+# NETWORK
+# =======================================================
+
+networks:
+  jenkins-network:
+    driver: bridge

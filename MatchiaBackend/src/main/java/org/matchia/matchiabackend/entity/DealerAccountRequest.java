@@ -21,7 +21,9 @@ public class DealerAccountRequest {
     @Column(name = "contact_person", nullable = false) private String contactPerson;
     @Column(nullable = false) private String email;
     @Column(nullable = false) private String phone;
+    @Column(length = 500) private String website;
     @Column(name = "logo_url") private String logoUrl;
+    @Column(name = "contact_photo_url") private String contactPhotoUrl;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_id", nullable = false)

@@ -24,6 +24,7 @@ import java.util.*;
 public class DealerProductService {
     private final DealerProductRepository productRepository;
     private final ProductPublicationRequestRepository publicationRepository;
+    private final PartnershipContractRepository contractRepository;
     private final DealerBankPartnershipRepository partnershipRepository;
     private final ProductParameterDefinitionRepository definitionRepository;
     private final MarketplaceRepository marketplaceRepository;
@@ -93,8 +94,9 @@ public class DealerProductService {
         if (product.getStatus() != DealerProductStatusEnum.ACTIVE) throw badRequest("Activez le produit avant de le soumettre.");
         DealerBankPartnership partnership = partnershipRepository.findById(input.partnershipId())
                 .orElseThrow(() -> notFound("Partenariat introuvable."));
-        if (!partnership.getDealer().getId().equals(dealer.getId()) || partnership.getStatus() != DealerPartnershipStatusEnum.APPROVED) {
-            throw badRequest("Le partenariat selectionne n'est pas approuve.");
+        if (!partnership.getDealer().getId().equals(dealer.getId()) || partnership.getStatus() != DealerPartnershipStatusEnum.ACTIVE
+                || !contractRepository.existsByPartnershipIdAndStatus(partnership.getId(), PartnershipContractStatusEnum.ACTIVE)) {
+            throw badRequest("Le contrat de partenariat doit etre actif avant de soumettre un produit.");
         }
         if (!partnership.getStore().getId().equals(product.getStore().getId())) throw badRequest("Le produit et le partenariat doivent utiliser le meme store.");
         Marketplace marketplace = marketplaceRepository.findByBankId(partnership.getBank().getId())
@@ -167,7 +169,9 @@ public class DealerProductService {
                 .orElseThrow(() -> notFound("Marketplace introuvable."));
         return publicationRepository.findByMarketplaceIdAndStoreIdAndStatusAndActiveTrue(
                         marketplace.getId(), storeId, ProductPublicationStatusEnum.APPROVED).stream()
-                .filter(publication -> publication.getPartnership().getStatus() == DealerPartnershipStatusEnum.APPROVED)
+                .filter(publication -> publication.getPartnership().getStatus() == DealerPartnershipStatusEnum.ACTIVE)
+                .filter(publication -> contractRepository.existsByPartnershipIdAndStatus(
+                        publication.getPartnership().getId(), PartnershipContractStatusEnum.ACTIVE))
                 .filter(publication -> publication.getProduct().getStatus() == DealerProductStatusEnum.ACTIVE)
                 .filter(publication -> publication.getDealer().getStatus() == DealerStatusEnum.ACTIVE)
                 .map(ProductPublicationRequest::getProduct).map(this::toProductView).toList();
@@ -180,7 +184,7 @@ public class DealerProductService {
         List<DealerBankPartnership> partnerships = partnershipRepository.findByDealerIdOrderByRequestDateDesc(dealerId);
         List<ProductPublicationRequest> publications = publicationRepository.findByDealerIdOrderBySubmittedAtDesc(dealerId);
         return new DealerDtos.Dashboard(productRepository.findByDealerIdOrderByCreatedAtDesc(dealerId).size(),
-                partnerships.stream().filter(p -> p.getStatus() == DealerPartnershipStatusEnum.APPROVED).count(),
+                partnerships.stream().filter(p -> p.getStatus() == DealerPartnershipStatusEnum.ACTIVE).count(),
                 partnerships.stream().filter(p -> p.getStatus() == DealerPartnershipStatusEnum.PENDING).count(),
                 publications.stream().filter(p -> p.getStatus() == ProductPublicationStatusEnum.PENDING).count(),
                 publications.stream().filter(p -> p.getStatus() == ProductPublicationStatusEnum.APPROVED && Boolean.TRUE.equals(p.getActive())).count());
@@ -237,7 +241,8 @@ public class DealerProductService {
     public DealerDtos.PublicationView toPublicationView(ProductPublicationRequest publication) {
         return new DealerDtos.PublicationView(publication.getId(), toProductView(publication.getProduct()),
                 publication.getDealer().getId(), publication.getDealer().getCompanyName(), publication.getBank().getId(),
-                publication.getBank().getName(), publication.getMarketplace().getId(), publication.getStore().getId(),
+                publication.getBank().getName(), publication.getBank().getLogoUrl(),
+                publication.getMarketplace().getId(), publication.getStore().getId(),
                 publication.getStore().getName(), publication.getStatus(), Boolean.TRUE.equals(publication.getActive()),
                 publication.getRejectionReason(), publication.getSubmittedAt(), publication.getProcessedAt());
     }

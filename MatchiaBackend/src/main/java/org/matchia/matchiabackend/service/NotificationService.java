@@ -193,7 +193,7 @@ public class NotificationService {
 
         return createNotification(
                 "Paiement d'abonnement reçu",
-                "La banque " + bankName + " a effectué avec succès le paiement de l'abonnement de la marketplace " + marketplaceName + ".",
+                "La banque " + bankName + " a effectué avec succès le paiement de l'abonnement annuel de la marketplace " + marketplaceName + ".",
                 NotificationTypeEnum.PAYMENT_SUCCESS,
                 NotificationStatusEnum.UNREAD,
                 request.getId(),
@@ -253,7 +253,7 @@ public class NotificationService {
 
         return createNotification(
                 "Paiement d'abonnement reçu",
-                "La banque " + bankName + " a effectué avec succès le paiement de l'abonnement de la marketplace " + marketplaceName + ".",
+                "La banque " + bankName + " a effectué avec succès le paiement de l'abonnement annuel de la marketplace " + marketplaceName + ".",
                 NotificationTypeEnum.PAYMENT_SUCCESS,
                 NotificationStatusEnum.UNREAD,
                 request.getId(),
@@ -327,7 +327,7 @@ public class NotificationService {
         }
         return createNotification(
                 "Demande de renouvellement approuvee",
-                "Votre demande de renouvellement a ete approuvee. Le paiement est requis pour renouveler l'abonnement.",
+                "Votre demande de renouvellement a ete approuvee. Le paiement est requis pour prolonger l'abonnement d'un an.",
                 NotificationTypeEnum.SUCCESS,
                 NotificationStatusEnum.UNREAD,
                 request.getId(),

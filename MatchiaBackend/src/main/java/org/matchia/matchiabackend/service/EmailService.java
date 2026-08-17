@@ -21,13 +21,12 @@ import jakarta.mail.internet.MimeMessage;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 
 @Service
 @Slf4j
 public class EmailService {
 
-    private static final String MATCHIA_LOGO_CID = "matchiaLogo";
+    private static final String MATCHIA_LOGO_CID = "matchia-logo";
     private static final String MATCHIA_LOGO_RESOURCE = "email/matchia-logo.b64";
 
     @Autowired(required = false)
@@ -95,8 +94,8 @@ public class EmailService {
                         "Demande envoyee",
                         "Votre demande a ete enregistree avec succes",
                         message,
-                        "Consulter la plateforme",
-                        frontendUrl,
+                        null,
+                        null,
                         "Traitement",
                         "En cours",
                         "Prochaine etape",
@@ -243,10 +242,10 @@ public class EmailService {
                         "Proceder au paiement",
                         paymentLink,
                         "Montant total a regler",
-                        amount + " TND / mois",
+                        amount + " TND / an",
                         "Paiement securise",
                         "Le lien ci-dessus permet de finaliser le paiement pour activer votre dossier.",
-                        "Une fois le paiement confirme, votre dossier sera active.",
+                        "Une fois le paiement confirme, votre abonnement annuel de 12 mois sera active.",
                         "L'equipe Matchia"
                 ),
                 "email paiement",
@@ -285,8 +284,8 @@ public class EmailService {
                         amount + " TND",
                         "Details de l'abonnement",
                         subscriptionDetails,
-                        "Le paiement est requis pour activer la nouvelle periode d'abonnement.",
-                        "La nouvelle periode commencera a la date de confirmation du paiement."
+                        "Le paiement est requis pour activer la nouvelle periode annuelle d'abonnement.",
+                        "Chaque renouvellement prolonge l'abonnement de 12 mois."
                 ),
                 "email renouvellement abonnement",
                 "RENOUVELLEMENT ABONNEMENT MATCHIA",
@@ -405,13 +404,13 @@ public class EmailService {
                 buildTemplate(
                         "Demande refusee",
                         "Votre demande a ete rejetee",
-                        buildJoinRequestRejectedBody(request, rejectionReason),
-                        "Consulter les details",
-                        frontendUrl,
-                        "Statut",
-                        "Rejetee",
-                        "Contact",
-                        hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin",
+                        buildJoinRequestRejectedBody(request),
+                        null,
+                        null,
+                        "Motif du rejet",
+                        resolveRejectionReason(rejectionReason),
+                        null,
+                        null,
                         "Pour plus d'informations, contactez notre equipe.",
                         "L'equipe Matchia"
                 ),
@@ -437,13 +436,13 @@ public class EmailService {
                 buildTemplate(
                         "Demande refusee",
                         "Votre demande de store a ete rejetee",
-                        buildStoreRequestRejectedBody(request, rejectionReason),
-                        "Consulter les details",
-                        frontendUrl,
-                        "Statut",
-                        "Rejetee",
-                        "Contact",
-                        hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin",
+                        buildStoreRequestRejectedBody(request),
+                        null,
+                        null,
+                        "Motif du rejet",
+                        resolveRejectionReason(rejectionReason),
+                        null,
+                        null,
                         "Pour plus d'informations, contactez notre equipe.",
                         "L'equipe Matchia"
                 ),
@@ -469,13 +468,13 @@ public class EmailService {
                 buildTemplate(
                         "Demande refusee",
                         "Votre demande de module a ete rejetee",
-                        buildModuleRequestRejectedBody(request, rejectionReason),
-                        "Consulter les details",
-                        frontendUrl,
-                        "Statut",
-                        "Rejetee",
-                        "Contact",
-                        hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin",
+                        buildModuleRequestRejectedBody(request),
+                        null,
+                        null,
+                        "Motif du rejet",
+                        resolveRejectionReason(rejectionReason),
+                        null,
+                        null,
                         "Pour plus d'informations, contactez notre equipe.",
                         "L'equipe Matchia"
                 ),
@@ -501,13 +500,13 @@ public class EmailService {
                 buildTemplate(
                         "Demande refusee",
                         "Votre demande de renouvellement a ete rejetee",
-                        buildSubscriptionRequestRejectedBody(request, rejectionReason),
-                        "Consulter les details",
-                        frontendUrl,
-                        "Statut",
-                        "Rejetee",
-                        "Contact",
-                        hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin",
+                        buildSubscriptionRequestRejectedBody(request),
+                        null,
+                        null,
+                        "Motif du rejet",
+                        resolveRejectionReason(rejectionReason),
+                        null,
+                        null,
                         "Pour plus d'informations, contactez notre equipe.",
                         "L'equipe Matchia"
                 ),
@@ -545,7 +544,11 @@ public class EmailService {
         if (mailSender != null && hasText(mailHost)) {
             try {
                 MimeMessage message = mailSender.createMimeMessage();
-                MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
+                MimeMessageHelper helper = new MimeMessageHelper(
+                        message,
+                        MimeMessageHelper.MULTIPART_MODE_RELATED,
+                        StandardCharsets.UTF_8.name()
+                );
                 if (hasText(mailUsername)) {
                     helper.setFrom(mailUsername);
                 }
@@ -580,7 +583,7 @@ public class EmailService {
         }
         helper.addInline(
                 MATCHIA_LOGO_CID,
-                new ByteArrayResource(Base64.getDecoder().decode(base64Logo)),
+                new ByteArrayResource(java.util.Base64.getDecoder().decode(base64Logo)),
                 "image/png"
         );
     }
@@ -739,16 +742,28 @@ public class EmailService {
         StringBuilder cards = new StringBuilder();
         boolean hasHighlight = hasText(template.highlightLabel()) || hasText(template.highlightValue());
         boolean hasInfo = hasText(template.infoTitle()) || hasText(template.infoText());
+        boolean isRejectionReason = "Motif du rejet".equalsIgnoreCase(template.highlightLabel());
 
         if (hasHighlight) {
-            cards.append("""
-                    <tr>
-                      <td style="padding:18px 20px;border:1px solid #d7e4fb;background-color:#f5f9ff;border-radius:10px;">
-                        <div style="font-size:13px;line-height:19px;color:#52627a;">%s</div>
-                        <div style="padding-top:6px;font-size:25px;line-height:32px;font-weight:700;color:#0758f5;">%s</div>
-                      </td>
-                    </tr>
-                    """.formatted(escapeHtml(template.highlightLabel()), escapeHtml(template.highlightValue())));
+            if (isRejectionReason) {
+                cards.append("""
+                        <tr>
+                          <td align="center" style="padding:18px 20px;border:1px solid #f87171;background-color:#fff7f7;border-radius:10px;text-align:center;">
+                            <div style="font-size:14px;line-height:20px;font-weight:700;color:#dc2626;">Motif du rejet</div>
+                            <div style="padding-top:6px;font-size:18px;line-height:26px;font-weight:700;color:#172033;">%s</div>
+                          </td>
+                        </tr>
+                        """.formatted(escapeHtml(template.highlightValue())));
+            } else {
+                cards.append("""
+                        <tr>
+                          <td style="padding:18px 20px;border:1px solid #d7e4fb;background-color:#f5f9ff;border-radius:10px;">
+                            <div style="font-size:13px;line-height:19px;color:#52627a;">%s</div>
+                            <div style="padding-top:6px;font-size:25px;line-height:32px;font-weight:700;color:#0758f5;">%s</div>
+                          </td>
+                        </tr>
+                        """.formatted(escapeHtml(template.highlightLabel()), escapeHtml(template.highlightValue())));
+            }
         }
         if (hasHighlight && hasInfo) {
             cards.append("<tr><td height=\"12\" style=\"height:12px;font-size:0;line-height:0;\">&nbsp;</td></tr>");
@@ -815,8 +830,14 @@ public class EmailService {
                         <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0" style="width:100%;max-width:640px;background-color:#ffffff;border:1px solid #d9e4f7;border-radius:14px;overflow:hidden;">
                           <tr><td height="12" bgcolor="#0648c9" style="height:12px;background-color:#0648c9;font-size:0;line-height:0;">&nbsp;</td></tr>
                           <tr>
-                            <td align="left" style="padding:20px 40px 18px 40px;border-bottom:2px solid #0758f5;">
-                              <img src="cid:matchiaLogo" width="205" alt="Matchia" style="display:block;width:205px;max-width:100%;height:auto;border:0;outline:none;text-decoration:none;" />
+                            <td align="center" style="padding:20px 40px 18px 40px;border-bottom:2px solid #0758f5;text-align:center;">
+                              <table role="presentation" width="205" cellspacing="0" cellpadding="0" border="0" align="center" style="width:205px;margin:0 auto;">
+                                <tr>
+                                  <td align="center" style="text-align:center;">
+                                    <img src="cid:matchia-logo" width="205" alt="Matchia" style="display:block;width:205px;max-width:100%;height:auto;margin:0 auto;border:0;outline:none;text-decoration:none;" />
+                                  </td>
+                                </tr>
+                              </table>
                             </td>
                           </tr>
                           <tr>
@@ -1054,57 +1075,51 @@ public class EmailService {
         return "Votre demande a bien ete enregistree";
     }
 
-    private String buildJoinRequestRejectedBody(Request request, String rejectionReason) {
+    private String buildJoinRequestRejectedBody(Request request) {
         String contactName = hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin";
         String bankName = hasText(request != null ? request.getBankName() : null) ? request.getBankName() : "votre organisation";
         return buildRejectedBody(
                 contactName,
-                "Votre demande d'inscription pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
-                rejectionReason
+                "Votre demande d'inscription pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName)
         );
     }
 
-    private String buildStoreRequestRejectedBody(Request request, String rejectionReason) {
+    private String buildStoreRequestRejectedBody(Request request) {
         String contactName = hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin";
         String bankName = hasText(request != null ? request.getBankName() : null) ? request.getBankName() : "votre banque";
         return buildRejectedBody(
                 contactName,
-                "Votre demande d'ajout de store pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
-                rejectionReason
+                "Votre demande d'ajout de store pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName)
         );
     }
 
-    private String buildModuleRequestRejectedBody(Request request, String rejectionReason) {
+    private String buildModuleRequestRejectedBody(Request request) {
         String contactName = hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin";
         String bankName = hasText(request != null ? request.getBankName() : null) ? request.getBankName() : "votre banque";
         return buildRejectedBody(
                 contactName,
-                "Votre demande d'ajout de module pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
-                rejectionReason
+                "Votre demande d'ajout de module pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName)
         );
     }
 
-    private String buildSubscriptionRequestRejectedBody(Request request, String rejectionReason) {
+    private String buildSubscriptionRequestRejectedBody(Request request) {
         String contactName = hasText(request != null ? request.getContactName() : null) ? request.getContactName() : "Admin";
         String bankName = hasText(request != null ? request.getBankName() : null) ? request.getBankName() : "votre banque";
         return buildRejectedBody(
                 contactName,
-                "Votre demande de renouvellement d'abonnement pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName),
-                rejectionReason
+                "Votre demande de renouvellement d'abonnement pour la banque \"%s\" a ete rejetee par l'equipe SaaS.".formatted(bankName)
         );
     }
 
-    private String buildRejectedBody(String recipientName, String baseSentence, String rejectionReason) {
-        StringBuilder body = new StringBuilder()
+    private String buildRejectedBody(String recipientName, String baseSentence) {
+        return new StringBuilder()
                 .append("Bonjour ").append(recipientName).append(",\n\n")
-                .append(baseSentence).append('\n');
+                .append(baseSentence).append('\n')
+                .toString();
+    }
 
-        if (hasText(rejectionReason)) {
-            body.append("\nMotif du rejet : ").append(rejectionReason.trim()).append('\n');
-        }
-
-        body.append("\nMerci,\nL'equipe Matchia\n");
-        return body.toString();
+    private String resolveRejectionReason(String rejectionReason) {
+        return hasText(rejectionReason) ? rejectionReason.trim() : "Pas de raison";
     }
 
     private String resolveJoinRecipient(Request request) {

@@ -1,0 +1,5 @@
+ALTER TABLE dealer_account_request
+    ADD COLUMN IF NOT EXISTS website VARCHAR(500);
+
+ALTER TABLE dealer
+    ADD COLUMN IF NOT EXISTS website VARCHAR(500);

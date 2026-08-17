@@ -31,10 +31,21 @@ public class SubscriptionSchemaMigration implements ApplicationRunner {
                     status VARCHAR(32) NOT NULL,
                     start_date DATE,
                     expiration_date DATE,
-                    duration_months INTEGER NOT NULL DEFAULT 1,
+                    duration_months INTEGER NOT NULL DEFAULT 12,
                     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
                 )
+                """);
+        jdbcTemplate.execute("ALTER TABLE subscription ALTER COLUMN duration_months SET DEFAULT 12");
+        int annualizedSubscriptions = jdbcTemplate.update("""
+                UPDATE subscription
+                SET duration_months = 12,
+                    expiration_date = CASE
+                        WHEN start_date IS NOT NULL THEN (start_date + INTERVAL '1 year')::date
+                        ELSE expiration_date
+                    END,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE duration_months = 1
                 """);
         jdbcTemplate.execute("ALTER TABLE payment ADD COLUMN IF NOT EXISTS subscription_id BIGINT");
         jdbcTemplate.execute("ALTER TABLE payment ADD COLUMN IF NOT EXISTS renewal_request_id BIGINT");
@@ -110,7 +121,7 @@ public class SubscriptionSchemaMigration implements ApplicationRunner {
                         p.request_id,
                         marketplace.id AS marketplace_id,
                         p.paid_at::date AS start_date,
-                        (p.paid_at + INTERVAL '1 month')::date AS expiration_date
+                        (p.paid_at + INTERVAL '1 year')::date AS expiration_date
                     FROM payment p
                     JOIN request request_row ON request_row.id = p.request_id
                     JOIN marketplace ON marketplace.bank_id = request_row.bank_id
@@ -123,7 +134,7 @@ public class SubscriptionSchemaMigration implements ApplicationRunner {
                 )
                 SELECT request_id, marketplace_id,
                        CASE WHEN expiration_date < CURRENT_DATE THEN 'EXPIRED' ELSE 'ACTIVE' END,
-                       start_date, expiration_date, 1, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
+                       start_date, expiration_date, 12, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP
                 FROM latest_paid_payment source
                 WHERE NOT EXISTS (
                     SELECT 1 FROM subscription existing WHERE existing.request_id = source.request_id
@@ -137,7 +148,7 @@ public class SubscriptionSchemaMigration implements ApplicationRunner {
                 WHERE payment.request_id = subscription.request_id
                   AND payment.subscription_id IS NULL
                 """);
-        log.info("Migration subscription terminee: {} abonnement(s) crees, {} paiement(s) rattaches.",
-                createdSubscriptions, linkedPayments);
+        log.info("Migration subscription terminee: {} abonnement(s) annualises, {} abonnement(s) crees, {} paiement(s) rattaches.",
+                annualizedSubscriptions, createdSubscriptions, linkedPayments);
     }
 }

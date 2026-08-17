@@ -1,13 +1,16 @@
 import { type FormEvent, useEffect, useMemo, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
+import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import {
   Building2,
   CheckCircle2,
   Clock3,
   Edit3,
   Handshake,
+  Globe2,
   Image as ImageIcon,
+  Landmark,
   Mail,
   MapPin,
   Package,
@@ -300,17 +303,30 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight text-foreground">{meta.title}</h1>
-          <p className="mt-2 text-muted-foreground">{meta.description}</p>
+      {mode !== 'partnerships' && (
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight text-foreground">{meta.title}</h1>
+            <p className="mt-2 text-muted-foreground">{meta.description}</p>
+          </div>
+          {mode !== 'publications' && (
+            <Button variant="outline" icon={<RefreshCcw className="h-4 w-4" />} loading={loading} onClick={() => void load()}>
+              Actualiser
+            </Button>
+          )}
         </div>
-        <Button variant="outline" icon={<RefreshCcw className="h-4 w-4" />} loading={loading} onClick={() => void load()}>
-          Actualiser
-        </Button>
-      </div>
+      )}
 
-      {mode === 'dashboard' && <Dashboard dealer={dealer} stats={stats} />}
+      {mode === 'dashboard' && (
+        <Dashboard
+          stats={stats}
+          partnerships={partnerships}
+          products={products}
+          publications={publications}
+          onEdit={(product) => { setEditProduct(product); setShowProductForm(true); }}
+          onSubmit={openSubmission}
+        />
+      )}
       {mode === 'profile' && <DealerProfile dealer={dealer} />}
       {mode === 'partnerships' && (
         <Partnerships
@@ -393,28 +409,211 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
   );
 }
 
-function Dashboard({ dealer, stats }: { dealer: DealerView; stats: DashboardStats | null }) {
+function Dashboard({
+  stats,
+  partnerships,
+  products,
+  publications,
+  onEdit,
+  onSubmit,
+}: {
+  stats: DashboardStats | null;
+  partnerships: Partnership[];
+  products: DealerProduct[];
+  publications: Publication[];
+  onEdit: (product: DealerProduct) => void;
+  onSubmit: (product: DealerProduct) => void;
+}) {
+  const activeProducts = products.filter((product) => product.status === 'ACTIVE');
+  const activePartnerships = partnerships.filter((partnership) => partnership.status === 'ACTIVE');
+  const pendingRequests = partnerships.filter((partnership) => partnership.status === 'PENDING');
+  const recentRequests = [...partnerships]
+    .filter((partnership) => partnership.status !== 'ACTIVE')
+    .sort((left, right) => new Date(right.requestDate).getTime() - new Date(left.requestDate).getTime())
+    .slice(0, 5);
+  const recentProducts = [...products]
+    .sort((left, right) => {
+      const leftDate = left.createdAt ? new Date(left.createdAt).getTime() : left.id;
+      const rightDate = right.createdAt ? new Date(right.createdAt).getTime() : right.id;
+      return rightDate - leftDate;
+    })
+    .slice(0, 5);
+  const partnerBanks = Array.from(
+    new Map(activePartnerships.map((partnership) => [partnership.bankId, partnership])).values(),
+  );
+  const currentYear = new Date().getFullYear();
+  const monthLabels = ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'];
+  const partnershipEvolution = monthLabels.map((month, monthIndex) => ({
+    month,
+    partnerships: partnerships.filter((partnership) => {
+      if (!partnership.approvedAt) return false;
+      const approvedDate = new Date(partnership.approvedAt);
+      return approvedDate.getFullYear() === currentYear && approvedDate.getMonth() === monthIndex;
+    }).length,
+  }));
+
+  const publishedBanksForProduct = (productId: number) => Array.from(
+    new Map(
+      publications
+        .filter((publication) => publication.product.id === productId && publication.status === 'APPROVED' && publication.active)
+        .map((publication) => [publication.bankId, publication]),
+    ).values(),
+  );
+
   return (
     <>
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <KpiCard label="Produits" value={stats?.products ?? 0} badge="Catalogue" tone="primary" icon={<Package className="h-5 w-5" />} />
-        <KpiCard label="Partenariats actifs" value={stats?.activePartnerships ?? 0} badge="Actifs" tone="success" icon={<Handshake className="h-5 w-5" />} />
-        <KpiCard label="Partenariats en attente" value={stats?.pendingPartnerships ?? 0} badge="A traiter" tone="warning" icon={<Clock3 className="h-5 w-5" />} />
-        <KpiCard label="Publications en attente" value={stats?.pendingPublications ?? 0} badge="Soumises" tone="warning" icon={<Send className="h-5 w-5" />} />
-        <KpiCard label="Produits publies" value={stats?.approvedPublications ?? 0} badge="Publies" tone="success" icon={<CheckCircle2 className="h-5 w-5" />} />
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <KpiCard label="Produits actifs" value={activeProducts.length} badge="Catalogue" tone="primary" icon={<Package className="h-5 w-5" />} />
+        <KpiCard label="Banques partenaires" value={partnerBanks.length} badge="Actives" tone="success" icon={<Landmark className="h-5 w-5" />} />
+        <KpiCard label="Demandes en attente" value={stats?.pendingPartnerships ?? pendingRequests.length} badge="À traiter" tone="warning" icon={<Clock3 className="h-5 w-5" />} />
+        <KpiCard label="Partenariats actifs" value={stats?.activePartnerships ?? activePartnerships.length} badge="Actifs" tone="secondary" icon={<Handshake className="h-5 w-5" />} />
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Apercu du compte</CardTitle>
-          <CardDescription>Informations principales de votre espace concessionnaire</CardDescription>
+          <CardTitle className="text-lg font-semibold">Évolution des partenariats</CardTitle>
+          <CardDescription>Nouveaux partenariats acceptés par mois en {currentYear}</CardDescription>
         </CardHeader>
-        <CardContent className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <InfoCard icon={<Building2 className="h-5 w-5" />} label="Entreprise" value={dealer.companyName} />
-          <InfoCard icon={<Store className="h-5 w-5" />} label="Categorie" value={dealer.storeName} />
-          <InfoCard icon={<UserRound className="h-5 w-5" />} label="Contact" value={dealer.contactPerson} />
-          <InfoCard icon={<CheckCircle2 className="h-5 w-5" />} label="Statut" value={statusMeta(dealer.status).label} />
+        <CardContent>
+          <ResponsiveContainer width="100%" height={300}>
+            <LineChart data={partnershipEvolution} margin={{ top: 8, right: 16, left: -18, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" vertical={false} />
+              <XAxis dataKey="month" stroke="#64748b" tickLine={false} axisLine={false} />
+              <YAxis stroke="#64748b" allowDecimals={false} tickLine={false} axisLine={false} />
+              <Tooltip formatter={(value) => [Number(value ?? 0), 'Partenariats']} />
+              <Line type="monotone" dataKey="partnerships" name="Partenariats" stroke="#2563eb" strokeWidth={3} dot={{ r: 4, fill: '#2563eb' }} activeDot={{ r: 6 }} />
+            </LineChart>
+          </ResponsiveContainer>
         </CardContent>
+      </Card>
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1.15fr)_minmax(360px,0.85fr)]">
+        <Card className="overflow-hidden p-0">
+          <div className="border-b border-border px-6 py-5">
+            <h2 className="text-lg font-semibold text-foreground">Dernières demandes de partenariat</h2>
+          </div>
+          {recentRequests.length === 0 ? (
+            <EmptyState icon={<Handshake className="h-7 w-7" />} title="Aucune demande récente" description="Vos prochaines demandes apparaîtront ici." compact />
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[560px] border-collapse">
+                <thead className="bg-slate-50">
+                  <tr className="border-b border-border text-left">
+                    <th className="px-5 py-3 text-sm font-semibold text-slate-800">Banque</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-slate-800">Date</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-slate-800">Statut</th>
+                    <th className="px-4 py-3 text-sm font-semibold text-slate-800">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {recentRequests.map((request) => {
+                    const status = statusMeta(request.status);
+                    return (
+                      <tr key={request.id} className="hover:bg-muted/20">
+                        <td className="px-5 py-4">
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-white p-1">
+                              {request.bankLogoUrl ? <img src={getBackendAssetUrl(request.bankLogoUrl)} alt={`Logo ${request.bankName}`} className="h-full w-full object-contain" /> : <Landmark className="h-5 w-5 text-muted-foreground" />}
+                            </div>
+                            <span className="font-medium text-foreground">{request.bankName}</span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-muted-foreground">{formatDate(request.requestDate)}</td>
+                        <td className="px-4 py-4"><Badge variant={status.variant}>{status.label}</Badge></td>
+                        <td className="px-4 py-4 text-sm text-muted-foreground">-</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Banques partenaires</CardTitle>
+            <CardDescription>Banques liées par un partenariat actif</CardDescription>
+          </CardHeader>
+          <CardContent>
+            {partnerBanks.length === 0 ? (
+              <EmptyState icon={<Landmark className="h-7 w-7" />} title="Aucune banque partenaire" description="Les banques apparaîtront ici après activation du partenariat." compact />
+            ) : (
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+                {partnerBanks.map((partnership) => (
+                  <div key={partnership.bankId} className="flex min-h-28 flex-col items-center justify-center rounded-xl border border-border bg-muted/10 p-4 text-center">
+                    <div className="flex h-12 w-16 items-center justify-center overflow-hidden rounded-lg bg-white p-1">
+                      {partnership.bankLogoUrl ? <img src={getBackendAssetUrl(partnership.bankLogoUrl)} alt={`Logo ${partnership.bankName}`} className="h-full w-full object-contain" /> : <Landmark className="h-6 w-6 text-muted-foreground" />}
+                    </div>
+                    <span className="mt-2 line-clamp-2 text-sm font-semibold text-foreground">{partnership.bankName}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="overflow-hidden p-0">
+        <div className="border-b border-border px-6 py-5">
+          <h2 className="text-lg font-semibold text-foreground">Produits récents</h2>
+        </div>
+        {recentProducts.length === 0 ? (
+          <EmptyState icon={<Package className="h-7 w-7" />} title="Aucun produit récent" description="Les produits ajoutés apparaîtront ici." compact />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[900px] border-collapse">
+              <thead className="bg-slate-50">
+                <tr className="border-b border-border text-left">
+                  <th className="px-6 py-4 text-sm font-semibold text-slate-800">Produit</th>
+                  <th className="px-5 py-4 text-sm font-semibold text-slate-800">Prix</th>
+                  <th className="px-5 py-4 text-sm font-semibold text-slate-800">Statut</th>
+                  <th className="px-5 py-4 text-sm font-semibold text-slate-800">Banques partenaires</th>
+                  <th className="px-5 py-4 text-sm font-semibold text-slate-800">Ajouté le</th>
+                  <th className="px-5 py-4 text-sm font-semibold text-slate-800">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {recentProducts.map((product) => {
+                  const status = statusMeta(product.status);
+                  const productBanks = publishedBanksForProduct(product.id);
+                  return (
+                    <tr key={product.id} className="hover:bg-muted/20">
+                      <td className="px-6 py-4">
+                        <div className="flex min-w-0 items-center gap-3">
+                          <div className="flex h-14 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/20">
+                            {product.imageUrl ? <img src={getBackendAssetUrl(product.imageUrl)} alt={product.name} className="h-full w-full object-contain" /> : <Package className="h-6 w-6 text-muted-foreground" />}
+                          </div>
+                          <span className="max-w-xs break-words font-semibold text-foreground">{product.name}</span>
+                        </div>
+                      </td>
+                      <td className="px-5 py-4 font-semibold text-foreground">{formatTnd(product.price)}</td>
+                      <td className="px-5 py-4"><Badge variant={status.variant}>{status.label}</Badge></td>
+                      <td className="px-5 py-4">
+                        {productBanks.length === 0 ? <span className="text-sm text-muted-foreground">-</span> : (
+                          <div className="flex -space-x-2">
+                            {productBanks.map((publication) => (
+                              <div key={publication.bankId} title={publication.bankName} className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-card bg-white p-1">
+                                {publication.bankLogoUrl ? <img src={getBackendAssetUrl(publication.bankLogoUrl)} alt={publication.bankName} className="h-full w-full object-contain" /> : <Landmark className="h-4 w-4 text-muted-foreground" />}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </td>
+                      <td className="px-5 py-4 text-sm text-muted-foreground">{formatDate(product.createdAt)}</td>
+                      <td className="px-5 py-4">
+                        <div className="flex gap-2">
+                          <Button size="sm" variant="outline" icon={<Edit3 className="h-4 w-4" />} onClick={() => onEdit(product)}>Modifier</Button>
+                          <Button size="sm" variant="secondary" icon={<Send className="h-4 w-4" />} disabled={product.status !== 'ACTIVE'} onClick={() => onSubmit(product)}>Soumettre</Button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Card>
     </>
   );
@@ -435,11 +634,25 @@ function DealerProfile({ dealer }: { dealer: DealerView }) {
       <Card>
         <CardHeader><CardTitle className="text-lg font-semibold">Informations professionnelles</CardTitle></CardHeader>
         <CardContent className="grid gap-4 sm:grid-cols-2">
+          {dealer.contactPhotoUrl && (
+            <div className="flex items-center gap-4 rounded-xl border border-border bg-muted/20 p-4 sm:col-span-2">
+              <img
+                src={getBackendAssetUrl(dealer.contactPhotoUrl)}
+                alt={`Photo de ${dealer.contactPerson}`}
+                className="h-16 w-16 shrink-0 rounded-full border border-border bg-white object-cover"
+              />
+              <div>
+                <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">Personne de contact</div>
+                <div className="mt-1 font-semibold text-foreground">{dealer.contactPerson}</div>
+              </div>
+            </div>
+          )}
           <InfoCard icon={<Building2 className="h-5 w-5" />} label="Immatriculation" value={dealer.registrationNumber} />
           <InfoCard icon={<UserRound className="h-5 w-5" />} label="Personne de contact" value={dealer.contactPerson} />
           <InfoCard icon={<Mail className="h-5 w-5" />} label="E-mail" value={dealer.email} />
           <InfoCard icon={<Phone className="h-5 w-5" />} label="Telephone" value={dealer.phone} />
           <InfoCard icon={<MapPin className="h-5 w-5" />} label="Adresse" value={dealer.address} />
+          {dealer.website && <InfoCard icon={<Globe2 className="h-5 w-5" />} label="Site web" value={dealer.website} />}
           <InfoCard icon={<Store className="h-5 w-5" />} label="Store" value={dealer.storeName} />
         </CardContent>
       </Card>
@@ -470,120 +683,189 @@ function Partnerships({
   onReject: (partnership: Partnership) => void;
   onCancel: (id: number) => void;
 }) {
+  type PartnershipTab = 'active' | 'received' | 'sent';
+  const [activeTab, setActiveTab] = useState<PartnershipTab>('active');
+  const [showRequestForm, setShowRequestForm] = useState(false);
   const received = partnerships.filter((item) => item.initiatedBy === 'BANK' && item.status !== 'ACTIVE');
   const sent = partnerships.filter((item) => item.initiatedBy === 'DEALER' && item.status !== 'ACTIVE');
   const active = partnerships.filter((item) => item.status === 'ACTIVE');
-  return (
-    <div className="grid items-start gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Nouvelle demande</CardTitle>
-          <CardDescription>Selectionnez une banque compatible avec votre categorie.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            {error && <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
-            <FormField label="Banque partenaire *">
-              <select name="bankId" required className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring">
-                <option value="">Selectionnez une banque</option>
-                {banks.map((bank) => <option key={bank.bankId} value={bank.bankId}>{bank.bankName}</option>)}
-              </select>
-            </FormField>
-            <FormField label="Store concerne">
-              <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-muted/30 px-3 text-sm"><Store className="h-4 w-4 text-primary" />{dealer.storeName}</div>
-            </FormField>
-            <FormField label="Message">
-              <textarea name="message" maxLength={1000} rows={5} placeholder="Message optionnel" className="w-full resize-none rounded-lg border border-input bg-input-background p-3 text-sm outline-none focus:ring-2 focus:ring-ring" />
-            </FormField>
-            <Button type="submit" className="w-full" size="lg" icon={<Send className="h-5 w-5" />} loading={submitting} disabled={banks.length === 0}>
-              Envoyer la demande
-            </Button>
-            {banks.length === 0 && <p className="text-center text-sm text-muted-foreground">Aucune nouvelle banque compatible n'est disponible pour votre categorie.</p>}
-          </form>
-        </CardContent>
-      </Card>
 
-      <div className="space-y-5">
-        <PartnershipGroup
-          title="Invitations recues"
-          description="Les banques qui souhaitent travailler avec votre concession."
-          rows={received}
-          actionKey={actionKey}
-          receiverActions
-          onApprove={onApprove}
-          onReject={onReject}
-          onCancel={onCancel}
+  const tabs: Array<{
+    id: PartnershipTab;
+    label: string;
+    rows: Partnership[];
+    icon: typeof Landmark;
+  }> = [
+    { id: 'active', label: 'Partenariats actifs', rows: active, icon: Landmark },
+    { id: 'received', label: 'Invitations reçues', rows: received, icon: Mail },
+    { id: 'sent', label: 'Demandes envoyées', rows: sent, icon: Send },
+  ];
+  const selectedTab = tabs.find((tab) => tab.id === activeTab) || tabs[0];
+
+  return (
+    <>
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">Partenariats bancaires</h1>
+          <p className="mt-2 text-muted-foreground">Demandez et suivez vos partenariats avec les banques compatibles.</p>
+        </div>
+        <Button icon={<Plus className="h-5 w-5" />} onClick={() => setShowRequestForm(true)}>
+          Nouvelle demande
+        </Button>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-3">
+        <KpiCard
+          label="Partenariats actifs"
+          value={active.length}
+          badge="Actifs"
+          tone="success"
+          icon={<Landmark className="h-5 w-5" />}
         />
-        <PartnershipGroup
-          title="Demandes envoyees"
-          description="Suivez les demandes que vous avez adressees aux banques."
-          rows={sent}
-          actionKey={actionKey}
-          onApprove={onApprove}
-          onReject={onReject}
-          onCancel={onCancel}
+        <KpiCard
+          label="Invitations reçues"
+          value={received.length}
+          badge="À traiter"
+          tone="warning"
+          icon={<Mail className="h-5 w-5" />}
         />
-        <PartnershipGroup
-          title="Partenariats actifs"
-          description="Vos relations actives permettant la soumission de produits."
-          rows={active}
-          actionKey={actionKey}
-          onApprove={onApprove}
-          onReject={onReject}
-          onCancel={onCancel}
+        <KpiCard
+          label="Demandes envoyées"
+          value={sent.length}
+          badge="Envoyées"
+          tone="primary"
+          icon={<Send className="h-5 w-5" />}
         />
       </div>
-    </div>
+
+      <Card className="overflow-hidden p-0">
+        <div className="flex overflow-x-auto border-b border-border px-3 sm:px-5">
+          {tabs.map((tab) => {
+            const TabIcon = tab.icon;
+            const selected = activeTab === tab.id;
+            return (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setActiveTab(tab.id)}
+                className={`flex min-w-max items-center gap-2 border-b-2 px-4 py-5 text-sm font-semibold transition-colors ${
+                  selected
+                    ? 'border-primary text-primary'
+                    : 'border-transparent text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                <TabIcon className="h-5 w-5" />
+                {tab.label}
+                {tab.id === 'received' && tab.rows.length > 0 ? ` (${tab.rows.length})` : ''}
+              </button>
+            );
+          })}
+        </div>
+
+        <PartnershipTable
+          rows={selectedTab.rows}
+          tab={activeTab}
+          actionKey={actionKey}
+          onApprove={onApprove}
+          onReject={onReject}
+          onCancel={onCancel}
+        />
+      </Card>
+
+      <Modal isOpen={showRequestForm} onClose={() => setShowRequestForm(false)} title="Nouvelle demande" size="sm">
+        <form onSubmit={onSubmit} className="space-y-4">
+          <p className="text-sm text-muted-foreground">Sélectionnez une banque compatible avec votre catégorie.</p>
+          {error && <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">{error}</div>}
+          <FormField label="Banque partenaire *">
+            <select name="bankId" required className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring">
+              <option value="">Sélectionnez une banque</option>
+              {banks.map((bank) => <option key={bank.bankId} value={bank.bankId}>{bank.bankName}</option>)}
+            </select>
+          </FormField>
+          <FormField label="Store concerné">
+            <div className="flex h-11 items-center gap-2 rounded-lg border border-input bg-muted/30 px-3 text-sm"><Store className="h-4 w-4 text-primary" />{dealer.storeName}</div>
+          </FormField>
+          <FormField label="Message">
+            <textarea name="message" maxLength={1000} rows={5} placeholder="Message optionnel" className="w-full resize-none rounded-lg border border-input bg-input-background p-3 text-sm outline-none focus:ring-2 focus:ring-ring" />
+          </FormField>
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
+            <Button type="button" variant="outline" className="flex-1" onClick={() => setShowRequestForm(false)}>Annuler</Button>
+            <Button type="submit" className="flex-1" icon={<Send className="h-4 w-4" />} loading={submitting} disabled={banks.length === 0}>
+              Envoyer la demande
+            </Button>
+          </div>
+          {banks.length === 0 && <p className="text-center text-sm text-muted-foreground">Aucune nouvelle banque compatible n'est disponible pour votre catégorie.</p>}
+        </form>
+      </Modal>
+    </>
   );
 }
 
-function PartnershipGroup({ title, description, rows, actionKey, receiverActions = false, onApprove, onReject, onCancel }: {
-  title: string;
-  description: string;
+function PartnershipTable({ rows, tab, actionKey, onApprove, onReject, onCancel }: {
   rows: Partnership[];
+  tab: 'active' | 'received' | 'sent';
   actionKey: string;
-  receiverActions?: boolean;
   onApprove: (id: number) => void;
   onReject: (partnership: Partnership) => void;
   onCancel: (id: number) => void;
 }) {
+  const dateHeading = tab === 'active' ? 'Depuis le' : tab === 'received' ? 'Reçue le' : 'Envoyée le';
+
   return (
-    <Card className="p-0">
-      <div className="border-b border-border px-5 py-4">
-        <h2 className="font-semibold text-foreground">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      </div>
-      {rows.length === 0 ? (
-        <p className="px-5 py-8 text-center text-sm text-muted-foreground">Aucun element dans cette section.</p>
-      ) : (
-        <div className="divide-y divide-border">
-          {rows.map((item) => (
-            <article key={item.id} className="p-5">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <h3 className="font-semibold text-foreground">{item.bankName}</h3>
-                  <p className="mt-1 text-sm text-muted-foreground">{item.storeName} - {formatDate(item.requestDate)}</p>
-                </div>
-                <Badge variant={statusMeta(item.status).variant}>{statusMeta(item.status).label}</Badge>
-              </div>
-              {item.message && <p className="mt-3 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">{item.message}</p>}
-              {item.rejectionReason && <p className="mt-3 rounded-lg bg-destructive/5 p-3 text-sm text-destructive">Motif : {item.rejectionReason}</p>}
-              {item.status === 'PENDING' && receiverActions && (
-                <div className="mt-4 flex flex-wrap justify-end gap-2">
-                  <Button size="sm" variant="danger" icon={<XCircle className="h-4 w-4" />} disabled={Boolean(actionKey)} onClick={() => onReject(item)}>Rejeter</Button>
-                  <Button size="sm" variant="success" icon={<CheckCircle2 className="h-4 w-4" />} loading={actionKey === `approve-${item.id}`} onClick={() => onApprove(item.id)}>Accepter</Button>
-                </div>
-              )}
-              {item.status === 'PENDING' && !receiverActions && item.initiatedBy === 'DEALER' && (
-                <div className="mt-4 flex justify-end">
-                  <Button size="sm" variant="outline" loading={actionKey === `cancel-${item.id}`} onClick={() => onCancel(item.id)}>Annuler la demande</Button>
-                </div>
-              )}
-            </article>
-          ))}
-        </div>
-      )}
-    </Card>
+    <div className="overflow-x-auto p-4 sm:p-5">
+      <table className="w-full min-w-[720px] border-separate border-spacing-0 overflow-hidden rounded-xl border border-border">
+        <thead className="bg-muted/45">
+          <tr className="text-left">
+            <th className="w-[36%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banque</th>
+            <th className="w-[22%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{dateHeading}</th>
+            <th className="w-[18%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Statut</th>
+            <th className="w-[24%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
+          </tr>
+        </thead>
+        <tbody className="divide-y divide-border bg-card">
+          {rows.length === 0 ? (
+            <tr>
+              <td colSpan={4} className="px-5 py-14 text-center text-sm text-muted-foreground">Aucun élément dans cette section.</td>
+            </tr>
+          ) : rows.map((item) => {
+            const logoUrl = item.bankLogoUrl ? getBackendAssetUrl(item.bankLogoUrl) : '';
+            const displayedDate = tab === 'active'
+              ? item.approvedAt || item.processingDate || item.requestDate
+              : item.requestDate;
+            return (
+              <tr key={item.id} className="transition-colors hover:bg-muted/20">
+                <td className="px-5 py-4">
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-white p-1.5">
+                      {logoUrl ? (
+                        <img src={logoUrl} alt={`Logo ${item.bankName}`} className="h-full w-full object-contain" />
+                      ) : (
+                        <Building2 className="h-5 w-5 text-muted-foreground" />
+                      )}
+                    </div>
+                    <span className="font-semibold text-foreground">{item.bankName}</span>
+                  </div>
+                </td>
+                <td className="px-5 py-4 text-sm text-muted-foreground">{formatDate(displayedDate)}</td>
+                <td className="px-5 py-4"><Badge variant={statusMeta(item.status).variant}>{statusMeta(item.status).label}</Badge></td>
+                <td className="px-5 py-4">
+                  {tab === 'received' && item.status === 'PENDING' ? (
+                    <div className="flex flex-wrap gap-2">
+                      <Button size="sm" variant="success" icon={<CheckCircle2 className="h-4 w-4" />} loading={actionKey === `approve-${item.id}`} disabled={Boolean(actionKey) && actionKey !== `approve-${item.id}`} onClick={() => onApprove(item.id)}>Accepter</Button>
+                      <Button size="sm" variant="danger" icon={<XCircle className="h-4 w-4" />} disabled={Boolean(actionKey)} onClick={() => onReject(item)}>Rejeter</Button>
+                    </div>
+                  ) : tab === 'sent' && item.status === 'PENDING' && item.initiatedBy === 'DEALER' ? (
+                    <Button size="sm" variant="outline" loading={actionKey === `cancel-${item.id}`} onClick={() => onCancel(item.id)}>Annuler la demande</Button>
+                  ) : (
+                    <span className="text-sm text-muted-foreground">-</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </div>
   );
 }
 
@@ -629,20 +911,85 @@ function Products({ products, onCreate, onEdit, onSubmit }: {
 
 function Publications({ publications }: { publications: Publication[] }) {
   return (
-    <HistoryList
-      title="Historique des publications"
-      description="Chaque ligne correspond a un produit soumis a une banque partenaire."
-      emptyTitle="Aucune publication"
-      emptyDescription="Soumettez un produit actif depuis votre catalogue pour le voir ici."
-      icon={<Send className="h-7 w-7" />}
-      rows={publications.map((item) => ({
-        id: item.id,
-        title: item.product.name,
-        subtitle: `${item.bankName} - ${item.storeName} - Soumis le ${formatDate(item.submittedAt)}`,
-        status: item.status,
-        detail: item.rejectionReason,
-      }))}
-    />
+    <Card className="overflow-hidden p-0">
+      <div className="border-b border-border px-6 py-5">
+        <h2 className="text-lg font-semibold text-foreground">Historique des publications</h2>
+        <p className="mt-1 text-sm text-muted-foreground">Chaque ligne correspond à un produit soumis à une banque partenaire.</p>
+      </div>
+
+      {publications.length === 0 ? (
+        <EmptyState
+          icon={<Send className="h-7 w-7" />}
+          title="Aucune publication"
+          description="Soumettez un produit actif depuis votre catalogue pour le voir ici."
+          compact
+        />
+      ) : (
+        <div className="overflow-x-auto">
+          <table className="w-full min-w-[760px] table-fixed border-collapse">
+            <thead className="bg-slate-50">
+              <tr className="border-b border-border text-left">
+                <th className="w-[38%] px-6 py-4 text-sm font-semibold text-slate-800">Produit</th>
+                <th className="w-[18%] px-5 py-4 text-sm font-semibold text-slate-800">Statut</th>
+                <th className="w-[28%] px-5 py-4 text-sm font-semibold text-slate-800">Banque partenaire</th>
+                <th className="w-[16%] px-5 py-4 text-sm font-semibold text-slate-800">Soumis le</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border bg-card">
+              {publications.map((publication) => {
+                const status = statusMeta(publication.status);
+                const publicationStatusLabel = publication.status === 'APPROVED'
+                  ? 'Approuvé'
+                  : publication.status === 'PENDING'
+                    ? 'En attente'
+                    : publication.status === 'REJECTED'
+                      ? 'Refusé'
+                      : status.label;
+                const productImage = publication.product.imageUrl
+                  ? getBackendAssetUrl(publication.product.imageUrl)
+                  : '';
+                const bankLogo = publication.bankLogoUrl
+                  ? getBackendAssetUrl(publication.bankLogoUrl)
+                  : '';
+
+                return (
+                  <tr key={publication.id} className="transition-colors hover:bg-muted/25">
+                    <td className="px-6 py-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-14 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/30">
+                          {productImage ? (
+                            <img src={productImage} alt={publication.product.name} className="h-full w-full object-contain" />
+                          ) : (
+                            <Package className="h-6 w-6 text-muted-foreground" aria-hidden="true" />
+                          )}
+                        </div>
+                        <span className="min-w-0 break-words font-semibold text-foreground">{publication.product.name}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4">
+                      <Badge variant={status.variant}>{publicationStatusLabel}</Badge>
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="flex min-w-0 items-center gap-3">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-white p-1">
+                          {bankLogo ? (
+                            <img src={bankLogo} alt={`Logo ${publication.bankName}`} className="h-full w-full object-contain" />
+                          ) : (
+                            <Building2 className="h-5 w-5 text-muted-foreground" aria-hidden="true" />
+                          )}
+                        </div>
+                        <span className="min-w-0 break-words font-medium text-foreground">{publication.bankName}</span>
+                      </div>
+                    </td>
+                    <td className="px-5 py-4 text-sm font-medium text-foreground">{formatDate(publication.submittedAt)}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </Card>
   );
 }
 
@@ -702,40 +1049,6 @@ function ProductFormModal({ isOpen, product, definitions, saving, onClose, onSub
         </div>
       </form>
     </Modal>
-  );
-}
-
-function HistoryList({ title, description, rows, emptyTitle, emptyDescription, icon }: {
-  title: string;
-  description: string;
-  rows: Array<{ id: number; title: string; subtitle: string; status: string; detail?: string }>;
-  emptyTitle: string;
-  emptyDescription: string;
-  icon: React.ReactNode;
-}) {
-  return (
-    <Card className="p-0">
-      <div className="border-b border-border px-6 py-5">
-        <h2 className="text-lg font-semibold text-foreground">{title}</h2>
-        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
-      </div>
-      {rows.length === 0 ? (
-        <EmptyState icon={icon} title={emptyTitle} description={emptyDescription} compact />
-      ) : (
-        <div className="divide-y divide-border">
-          {rows.map((row) => (
-            <div key={row.id} className="flex flex-col gap-3 px-6 py-5 transition-colors hover:bg-muted/30 sm:flex-row sm:items-center sm:justify-between">
-              <div className="min-w-0">
-                <div className="font-semibold text-foreground">{row.title}</div>
-                <div className="mt-1 text-sm text-muted-foreground">{row.subtitle}</div>
-                {row.detail && <div className={`mt-2 text-xs ${row.status === 'REJECTED' ? 'text-destructive' : 'text-muted-foreground'}`}>{row.detail}</div>}
-              </div>
-              <Badge className="w-fit shrink-0" variant={statusMeta(row.status).variant}>{statusMeta(row.status).label}</Badge>
-            </div>
-          ))}
-        </div>
-      )}
-    </Card>
   );
 }
 

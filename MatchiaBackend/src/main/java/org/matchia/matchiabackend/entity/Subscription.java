@@ -45,7 +45,7 @@ public class Subscription {
     private LocalDate expirationDate;
 
     @Column(name = "duration_months", nullable = false)
-    private Integer durationMonths = 1;
+    private Integer durationMonths = 12;
 
     @OneToMany(mappedBy = "subscription", fetch = FetchType.LAZY)
     private List<Payment> payments = new ArrayList<>();

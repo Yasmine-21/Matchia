@@ -11,7 +11,7 @@ export type PartnershipCommissionType = 'PERCENTAGE' | 'FIXED_AMOUNT';
 
 export interface DealerView {
   id: number; companyName: string; registrationNumber: string; address: string; contactPerson: string;
-  email: string; phone: string; logoUrl?: string; storeId: number; storeName: string; status: DealerStatus;
+  email: string; phone: string; website?: string; logoUrl?: string; contactPhotoUrl?: string; storeId: number; storeName: string; status: DealerStatus;
 }
 export interface DealerRequest extends Omit<DealerView, 'status'> {
   status: RequestStatus;
@@ -20,7 +20,7 @@ export interface DealerRequest extends Omit<DealerView, 'status'> {
 export interface StoreOption { storeId: number; storeName: string; description?: string }
 export interface BankOption { bankId: number; bankName: string; bankLogoUrl?: string; marketplaceId: number; stores: StoreOption[] }
 export interface Partnership {
-  id: number; dealer: DealerView; bankId: number; bankName: string; storeId: number; storeName: string;
+  id: number; dealer: DealerView; bankId: number; bankName: string; bankLogoUrl?: string; storeId: number; storeName: string;
   initiatedBy: PartnershipInitiator; status: PartnershipStatus; message?: string; rejectionReason?: string;
   requestDate: string; processingDate?: string; approvedAt?: string; rejectedAt?: string;
 }
@@ -32,10 +32,17 @@ export interface DealerProduct {
 }
 export interface Publication {
   id: number; product: DealerProduct; dealerId: number; dealerName: string; bankId: number; bankName: string;
-  marketplaceId: number; storeId: number; storeName: string; status: PublicationStatus; active: boolean;
+  bankLogoUrl?: string; marketplaceId: number; storeId: number; storeName: string; status: PublicationStatus; active: boolean;
   rejectionReason?: string; submittedAt: string; processedAt?: string;
 }
 export interface DashboardStats { products: number; activePartnerships: number; pendingPartnerships: number; pendingPublications: number; approvedPublications: number }
+export interface DealerSettingsPayload {
+  companyName: string;
+  registrationNumber: string;
+  storeId: number;
+  website: string;
+  removeLogo: boolean;
+}
 export interface PartnershipContract {
   id: number; contractNumber: string; partnershipId: number; dealerId: number; dealerName: string;
   bankId: number; bankName: string; storeId: number; storeName: string; status: PartnershipContractStatus;
@@ -53,9 +60,12 @@ export interface Page<T> { content: T[]; totalElements: number; totalPages: numb
 
 const jsonPart = (value: unknown) => new Blob([JSON.stringify(value)], { type: 'application/json' });
 
+export const DEALER_BRANDING_UPDATED_EVENT = 'dealer-branding-updated';
+
 export const dealerService = {
-  register(data: Record<string, unknown>, logo: File, documents: File[]) {
+  register(data: Record<string, unknown>, logo: File, documents: File[], contactPhoto?: File) {
     const form = new FormData(); form.append('data', jsonPart(data)); form.append('logo', logo);
+    if (contactPhoto) form.append('contactPhoto', contactPhoto);
     documents.forEach((document) => form.append('documents', document));
     return apiClient.post<DealerRequest>('/api/public/dealers/requests', form);
   },
@@ -68,6 +78,12 @@ export const dealerService = {
   approveRequest(id: number) { return apiClient.put<DealerView>(`/api/saas/dealers/requests/${id}/approve`); },
   rejectRequest(id: number, reason: string) { return apiClient.put<DealerRequest>(`/api/saas/dealers/requests/${id}/reject`, { reason }); },
   me() { return apiClient.get<DealerView>('/api/dealer/me'); },
+  updateSettings(data: DealerSettingsPayload, logo?: File) {
+    const form = new FormData();
+    form.append('data', jsonPart(data));
+    if (logo) form.append('logo', logo);
+    return apiClient.put<DealerView>('/api/dealer/me', form);
+  },
   dashboard() { return apiClient.get<DashboardStats>('/api/dealer/dashboard'); },
   availableBanks() { return apiClient.get<BankOption[]>('/api/dealer/available-banks'); },
   partnerships() { return apiClient.get<Partnership[]>('/api/dealer/partnerships'); },

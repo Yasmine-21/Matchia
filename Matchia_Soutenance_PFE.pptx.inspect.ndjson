@@ -1,0 +1,527 @@
+{"kind":"deck","id":"pr/arbgco","name":"Deck"}
+{"kind":"layout","layoutId":"7a324ec0-a81e-4f2d-8e03-82e759043643","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"875caba4-8c8a-48e2-afae-8042f556b7ac","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/f09y5y","slide":1,"title":"Slide 1","textShapes":0}
+{"kind":"image","id":"im/1kbmh8fe","slide":1,"name":"","alt":"Page de garde du projet de fin d’études","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/f09y5y","slide":1,"text":"Cette page de garde reprend le modèle fourni pour la soutenance. Elle présente l’établissement, BRI Technology, le titre du projet, l’étudiante et les encadrants. Les informations institutionnelles sont conservées telles qu’elles figurent sur le document transmis.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/l8hjzc","slide":2,"title":"PLATEFORME SaaS DE MARKETPLACES BANCAIRES","textShapes":9}
+{"kind":"textbox","id":"sh/ex8ryhkr","slide":2,"text":"PLATEFORME SaaS DE MARKETPLACES BANCAIRES","textPreview":"PLATEFORME SaaS DE MARKETPLACES BANCAIRES","textChars":41,"textLines":1,"bbox":[72,178,650,28]}
+{"kind":"textbox","id":"sh/zyh8rm1c","slide":2,"text":"Matchia","textPreview":"Matchia","textChars":7,"textLines":1,"bbox":[72,222,560,72]}
+{"kind":"textbox","id":"sh/cvq9wr21","slide":2,"text":"Digitaliser la création, l’administration et l’expérience des marketplaces de financement.","textPreview":"Digitaliser la création, l’administration et l’expérience des marketplaces de financement.","textChars":90,"textLines":1,"bbox":[72,310,585,70]}
+{"kind":"shape","id":"sh/dwzqpcjm","slide":2,"bbox":[72,430,410,82]}
+{"kind":"textbox","id":"sh/qtoruhkv","slide":2,"text":"Projet de fin d’études · Master","textPreview":"Projet de fin d’études · Master","textChars":31,"textLines":1,"bbox":[98,451,350,25]}
+{"kind":"textbox","id":"sh/rux8nm1g","slide":2,"text":"[Nom de l’étudiant] · [Encadrant] · [Année]","textPreview":"[Nom de l’étudiant] · [Encadrant] · [Année]","textChars":43,"textLines":1,"bbox":[98,480,350,20]}
+{"kind":"shape","id":"sh/wra98b25","slide":2,"bbox":[780,145,350,350]}
+{"kind":"textbox","id":"sh/xsja1gjq","slide":2,"text":"Une plateforme\n3 espaces\n1 socle commun","textPreview":"Une plateforme | 3 espaces | 1 socle commun","textChars":39,"textLines":3,"bbox":[815,220,290,142]}
+{"kind":"shape","id":"sh/poz6hc7e","slide":2,"bbox":[846,407,75,30]}
+{"kind":"textbox","id":"sh/onq5o76t","slide":2,"text":"SaaS","textPreview":"SaaS","textChars":4,"textLines":1,"bbox":[846,413,75,18]}
+{"kind":"shape","id":"sh/n2hof2p8","slide":2,"bbox":[931,407,88,30]}
+{"kind":"textbox","id":"sh/218nmxon","slide":2,"text":"Banque","textPreview":"Banque","textChars":6,"textLines":1,"bbox":[931,413,88,18]}
+{"kind":"shape","id":"sh/10z6ds72","slide":2,"bbox":[1029,407,82,30]}
+{"kind":"textbox","id":"sh/0zq5kn6x","slide":2,"text":"Client","textPreview":"Client","textChars":6,"textLines":1,"bbox":[1029,413,82,18]}
+{"kind":"image","id":"im/cji5w3qh","slide":2,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[72,66,245,72]}
+{"kind":"notes","id":"nt/l8hjzc","slide":2,"text":"Bonjour Mesdames et Messieurs. Je vais vous présenter Matchia, une plateforme SaaS conçue pour accélérer la création et la gestion de marketplaces de financement bancaire. L’objectif est de transformer un processus personnalisé et dépendant de l’équipe technique en un service configurable, organisé autour d’un socle commun.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/3d6dii","slide":3,"title":"PLAN","textShapes":13}
+{"kind":"textbox","id":"sh/3u1kra9g","slide":3,"text":"PLAN","textPreview":"PLAN","textChars":4,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/4ful0vq1","slide":3,"text":"Un parcours centré sur le problème et sa résolution","textPreview":"Un parcours centré sur le problème et sa résolution","textChars":51,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/qhc32587","slide":3,"bbox":[72,136,1136,0]}
+{"kind":"textbox","id":"sh/rilkva9c","slide":3,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[100,190,55,42]}
+{"kind":"textbox","id":"sh/sjul4fqx","slide":3,"text":"Contexte et besoin métier","textPreview":"Contexte et besoin métier","textChars":25,"textLines":1,"bbox":[185,194,650,36]}
+{"kind":"shape","id":"sh/dk32xkri","slide":3,"bbox":[185,238,800,0]}
+{"kind":"textbox","id":"sh/elc36p83","slide":3,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[100,265,55,42]}
+{"kind":"textbox","id":"sh/fm5kzu9o","slide":3,"text":"Solution et objectifs","textPreview":"Solution et objectifs","textChars":21,"textLines":1,"bbox":[185,269,650,36]}
+{"kind":"shape","id":"sh/fypkrqpk","slide":3,"bbox":[185,313,800,0]}
+{"kind":"textbox","id":"sh/exgjy58z","slide":3,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[100,340,55,42]}
+{"kind":"textbox","id":"sh/1072t07a","slide":3,"text":"Conception et architecture","textPreview":"Conception et architecture","textChars":26,"textLines":1,"bbox":[185,344,650,36]}
+{"kind":"shape","id":"sh/0zy10vqp","slide":3,"bbox":[185,388,800,0]}
+{"kind":"textbox","id":"sh/ra50nqp8","slide":3,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[100,415,55,42]}
+{"kind":"textbox","id":"sh/q9wjul8n","slide":3,"text":"Réalisation et démonstration","textPreview":"Réalisation et démonstration","textChars":28,"textLines":1,"bbox":[185,419,650,36]}
+{"kind":"shape","id":"sh/dc7ip07e","slide":3,"bbox":[185,463,800,0]}
+{"kind":"textbox","id":"sh/sbe1wvqt","slide":3,"text":"05","textPreview":"05","textChars":2,"textLines":1,"bbox":[100,490,55,42]}
+{"kind":"textbox","id":"sh/b69kzaps","slide":3,"text":"Sécurité, qualité et perspectives","textPreview":"Sécurité, qualité et perspectives","textChars":33,"textLines":1,"bbox":[185,494,650,36]}
+{"kind":"shape","id":"sh/a50j6p87","slide":3,"bbox":[185,538,800,0]}
+{"kind":"textbox","id":"sh/7ydwnidw","slide":3,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/wr69of69","slide":3,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"image","id":"im/9w361gry","slide":3,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1000,505,155,48]}
+{"kind":"notes","id":"nt/3d6dii","slide":3,"text":"Voici le fil conducteur de cette soutenance. Nous partirons du contexte et des difficultés rencontrées dans la création de marketplaces bancaires. Nous présenterons ensuite la solution Matchia, sa conception, les fonctionnalités réalisées, puis les éléments de sécurité, de qualité et les perspectives.\n\nTransition vers la slide suivante : Pour la concrétiser, des objectifs fonctionnels et techniques ont été fixés.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/hpgoth","slide":4,"title":"CONTEXTE PROFESSIONNEL","textShapes":9}
+{"kind":"textbox","id":"sh/gjadov65","slide":4,"text":"CONTEXTE PROFESSIONNEL","textPreview":"CONTEXTE PROFESSIONNEL","textChars":22,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/fi1cfq5k","slide":4,"text":"BRI : organisme d’accueil","textPreview":"BRI : organisme d’accueil","textChars":25,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/tgjud0nu","slide":4,"bbox":[72,136,1136,0]}
+{"kind":"textbox","id":"sh/sfqtkv69","slide":4,"text":"[INFORMATION À FOURNIR]","textPreview":"[INFORMATION À FOURNIR]","textChars":23,"textLines":1,"bbox":[72,182,360,26]}
+{"kind":"textbox","id":"sh/rehcbq5o","slide":4,"text":"Présentation officielle de BRI","textPreview":"Présentation officielle de BRI","textChars":30,"textLines":1,"bbox":[72,222,500,38]}
+{"kind":"textbox","id":"sh/6d8bilo3","slide":4,"text":"• Activité, date de création et siège\n• Domaines d’expertise et marchés adressés\n• Organisation / équipe d’accueil\n• Positionnement du projet Matchia","textPreview":"• Activité, date de création et siège | • Domaines d’expertise et marchés adressés | • Organisation / équipe d’accueil | • Positionnement...","textChars":149,"textLines":4,"bbox":[72,278,510,165]}
+{"kind":"shape","id":"sh/5czu9gni","slide":4,"bbox":[664,184,474,282]}
+{"kind":"textbox","id":"sh/4bqtgb6x","slide":4,"text":"Pourquoi cette slide ?","textPreview":"Pourquoi cette slide ?","textChars":22,"textLines":1,"bbox":[698,220,390,28]}
+{"kind":"textbox","id":"sh/q9sbed0v","slide":4,"text":"Positionner le PFE dans l’environnement réel de l’entreprise, sans déduire les informations institutionnelles à partir du code source.","textPreview":"Positionner le PFE dans l’environnement réel de l’entreprise, sans déduire les informations institutionnelles à partir du code source.","textChars":134,"textLines":1,"bbox":[698,265,374,115]}
+{"kind":"shape","id":"sh/rulcni1g","slide":4,"bbox":[698,395,340,30]}
+{"kind":"textbox","id":"sh/cvutg3i1","slide":4,"text":"À compléter avec des sources BRI officielles","textPreview":"À compléter avec des sources BRI officielles","textChars":44,"textLines":1,"bbox":[698,401,340,18]}
+{"kind":"textbox","id":"sh/dw3up8j6","slide":4,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/f2x8f2x4","slide":4,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/hpgoth","slide":4,"text":"La présentation de l’entreprise d’accueil doit être complétée à partir de documents officiels de BRI : son activité, ses expertises et l’équipe qui a accueilli le projet. Le dépôt ne contient pas ces éléments institutionnels ; je les ai donc volontairement signalés comme informations à fournir, afin d’éviter toute information non vérifiée.\n\nTransition vers la slide suivante : Ce cadre nous amène directement au besoin métier qui a motivé le projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/o8szy8","slide":5,"title":"ENTREPRISE D’ACCUEIL","textShapes":7}
+{"kind":"textbox","id":"sh/7a98ba9w","slide":5,"text":"ENTREPRISE D’ACCUEIL","textPreview":"ENTREPRISE D’ACCUEIL","textChars":20,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/sv294fqh","slide":5,"text":"BRI Technology accompagne le projet dans son contexte professionnel","textPreview":"BRI Technology accompagne le projet dans son contexte professionnel","textChars":67,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/y50rylsf","slide":5,"bbox":[72,136,1136,0]}
+{"kind":"textbox","id":"sh/k7i90vql","slide":5,"text":"Organisme d’accueil","textPreview":"Organisme d’accueil","textChars":19,"textLines":1,"bbox":[90,390,420,34]}
+{"kind":"textbox","id":"sh/58rq90r6","slide":5,"text":"Le projet est réalisé au sein de BRI Technology. Les informations institutionnelles détaillées doivent être complétées à partir des documents officiels de l’entreprise.","textPreview":"Le projet est réalisé au sein de BRI Technology. Les informations institutionnelles détaillées doivent être complétées à partir des docum...","textChars":168,"textLines":1,"bbox":[90,445,490,86]}
+{"kind":"shape","id":"sh/21krap8z","slide":5,"bbox":[720,190,420,270]}
+{"kind":"textbox","id":"sh/32dsju94","slide":5,"text":"À renseigner avant la soutenance","textPreview":"À renseigner avant la soutenance","textChars":32,"textLines":1,"bbox":[760,230,340,28]}
+{"kind":"textbox","id":"sh/bqdo725w","slide":5,"text":"Activité\nExpertises\nÉquipe d’encadrement\nPositionnement de Matchia","textPreview":"Activité | Expertises | Équipe d’encadrement | Positionnement de Matchia","textChars":66,"textLines":4,"bbox":[760,285,300,130]}
+{"kind":"textbox","id":"sh/qp47yh4b","slide":5,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/832hcru5","slide":5,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"image","id":"im/upkzehcb","slide":5,"name":"","geometry":"roundRect","alt":"Logo BRI Technology","bbox":[90,195,330,150]}
+{"kind":"notes","id":"nt/o8szy8","slide":5,"text":"Cette slide reprend le logo fourni de BRI Technology et positionne le projet dans son entreprise d’accueil. Les éléments institutionnels qui ne figurent pas dans le dépôt sont laissés à compléter avec des sources internes officielles.\n\nTransition vers la slide suivante : Ce cadre nous amène directement au besoin métier qui a motivé le projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/dj2yhu","slide":6,"title":"CONTEXTE","textShapes":14}
+{"kind":"textbox","id":"sh/qdcn2twn","slide":6,"text":"CONTEXTE","textPreview":"CONTEXTE","textChars":8,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/dg36d8vy","slide":6,"text":"Le financement doit devenir un parcours digital unifié","textPreview":"Le financement doit devenir un parcours digital unifié","textChars":54,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/3a1o7edw","slide":6,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/ipsnytwb","slide":6,"bbox":[90,211,10,10]}
+{"kind":"textbox","id":"sh/5c369ov2","slide":6,"text":"Attentes clients","textPreview":"Attentes clients","textChars":16,"textLines":1,"bbox":[112,205,240,26]}
+{"kind":"textbox","id":"sh/4bu50jeh","slide":6,"text":"Accès immédiat, information claire et parcours à distance.","textPreview":"Accès immédiat, information claire et parcours à distance.","textChars":58,"textLines":1,"bbox":[112,232,270,43]}
+{"kind":"shape","id":"sh/n65ojidg","slide":6,"bbox":[90,326,10,10]}
+{"kind":"textbox","id":"sh/25w7adcv","slide":6,"text":"Banques","textPreview":"Banques","textChars":7,"textLines":1,"bbox":[112,320,240,26]}
+{"kind":"textbox","id":"sh/wz6l4zy9","slide":6,"text":"Différencier l’offre et accélérer le lancement de services digitaux.","textPreview":"Différencier l’offre et accélérer le lancement de services digitaux.","textChars":68,"textLines":1,"bbox":[112,347,270,43]}
+{"kind":"shape","id":"sh/h0fmd4ze","slide":6,"bbox":[90,441,10,10]}
+{"kind":"textbox","id":"sh/uxo32pg3","slide":6,"text":"Enjeu produit","textPreview":"Enjeu produit","textChars":13,"textLines":1,"bbox":[112,435,240,26]}
+{"kind":"textbox","id":"sh/vyx4buho","slide":6,"text":"Réunir produits, contenus et outils d’aide à la décision.","textPreview":"Réunir produits, contenus et outils d’aide à la décision.","textChars":57,"textLines":1,"bbox":[112,462,270,43]}
+{"kind":"shape","id":"sh/8vml0fyx","slide":6,"bbox":[690,195,440,300]}
+{"kind":"textbox","id":"sh/9wfm9kzi","slide":6,"text":"Découvrir","textPreview":"Découvrir","textChars":9,"textLines":1,"bbox":[740,245,115,30]}
+{"kind":"shape","id":"sh/mt43ypgr","slide":6,"bbox":[855,260,63,0]}
+{"kind":"textbox","id":"sh/7ud47ahc","slide":6,"text":"Comparer","textPreview":"Comparer","textChars":8,"textLines":1,"bbox":[930,245,115,30]}
+{"kind":"shape","id":"sh/k7mlwfy1","slide":6,"bbox":[1040,260,63,0]}
+{"kind":"textbox","id":"sh/l8vm5kzm","slide":6,"text":"Simuler","textPreview":"Simuler","textChars":7,"textLines":1,"bbox":[1030,325,115,30]}
+{"kind":"shape","id":"sh/1on29wra","slide":6,"bbox":[1040,355,0,57]}
+{"kind":"textbox","id":"sh/0ne10bap","slide":6,"text":"Décider","textPreview":"Décider","textChars":7,"textLines":1,"bbox":[980,430,145,30]}
+{"kind":"textbox","id":"sh/zm5k7694","slide":6,"text":"Un même environnement digital pour l’ensemble du parcours.","textPreview":"Un même environnement digital pour l’ensemble du parcours.","textChars":58,"textLines":1,"bbox":[730,520,360,46]}
+{"kind":"textbox","id":"sh/e1wjy1sj","slide":6,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/d8j2lsbu","slide":6,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/dj2yhu","slide":6,"text":"Le projet s’inscrit dans la digitalisation des services de financement. L’utilisateur final ne cherche pas seulement une liste de produits : il doit pouvoir comprendre l’offre, comparer les options et obtenir une estimation. Pour la banque, la difficulté consiste à offrir ce parcours tout en gardant la maîtrise de ses produits, de son image et de ses évolutions.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/5ly55q","slide":7,"title":"CRITIQUE DE L’EXISTANT","textShapes":13}
+{"kind":"textbox","id":"sh/lszutsn2","slide":7,"text":"CRITIQUE DE L’EXISTANT","textPreview":"CRITIQUE DE L’EXISTANT","textChars":22,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/y5obydob","slide":7,"text":"L’approche existante reste personnalisée et fortement manuelle","textPreview":"L’approche existante reste personnalisée et fortement manuelle","textChars":62,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/8vqton6t","slide":7,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/9wzuxsny","slide":7,"bbox":[90,210,320,230]}
+{"kind":"textbox","id":"sh/mt8bmxon","slide":7,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[118,235,48,40]}
+{"kind":"textbox","id":"sh/7uhcv258","slide":7,"text":"Recueil des besoins","textPreview":"Recueil des besoins","textChars":19,"textLines":1,"bbox":[120,290,250,55]}
+{"kind":"textbox","id":"sh/ozmts369","slide":7,"text":"Échanges, spécifications, identité visuelle, modules.","textPreview":"Échanges, spécifications, identité visuelle, modules.","textChars":53,"textLines":1,"bbox":[120,355,250,55]}
+{"kind":"shape","id":"sh/p0val8nu","slide":7,"bbox":[410,325,45,0]}
+{"kind":"shape","id":"sh/9wzq5w7i","slide":7,"bbox":[460,210,320,230]}
+{"kind":"textbox","id":"sh/8vqpcb6x","slide":7,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[488,235,48,40]}
+{"kind":"textbox","id":"sh/7uh836pc","slide":7,"text":"Configuration technique","textPreview":"Configuration technique","textChars":23,"textLines":1,"bbox":[490,290,250,55]}
+{"kind":"textbox","id":"sh/mt87a1or","slide":7,"text":"Adaptations fonctionnelles et préparation d’un environnement.","textPreview":"Adaptations fonctionnelles et préparation d’un environnement.","textChars":61,"textLines":1,"bbox":[490,355,250,55]}
+{"kind":"shape","id":"sh/hkjq9g7e","slide":7,"bbox":[780,325,45,0]}
+{"kind":"shape","id":"sh/wzapgb6t","slide":7,"bbox":[830,210,320,230]}
+{"kind":"textbox","id":"sh/vy1876p8","slide":7,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[858,235,48,40]}
+{"kind":"textbox","id":"sh/uxs7e1o3","slide":7,"text":"Déploiement séparé","textPreview":"Déploiement séparé","textChars":18,"textLines":1,"bbox":[860,290,250,55]}
+{"kind":"textbox","id":"sh/5o3qdg7q","slide":7,"text":"Répétition du processus pour chaque nouvelle banque.","textPreview":"Répétition du processus pour chaque nouvelle banque.","textChars":52,"textLines":1,"bbox":[860,355,250,55]}
+{"kind":"textbox","id":"sh/4napkv65","slide":7,"text":"Conséquences : délais · dépendance à l’équipe technique · coûts de maintenance · évolution moins fluide","textPreview":"Conséquences : délais · dépendance à l’équipe technique · coûts de maintenance · évolution moins fluide","textChars":103,"textLines":1,"bbox":[118,520,1040,35]}
+{"kind":"textbox","id":"sh/4ri9gze1","slide":7,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/ap83ipkf","slide":7,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/5ly55q","slide":7,"text":"L’existant décrit dans le cadre métier repose sur une réalisation individualisée. Pour chaque banque, les besoins doivent être collectés, la solution adaptée et l’environnement préparé. Cette approche apporte de la personnalisation, mais elle crée aussi une dépendance importante à l’équipe technique et limite la réutilisation des composants communs.\n\nTransition vers la slide suivante : Ces limites permettent de formuler clairement le problème à résoudre.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/khjmv9","slide":8,"title":"PROBLÉMATIQUE","textShapes":12}
+{"kind":"textbox","id":"sh/3ats3ato","slide":8,"text":"PROBLÉMATIQUE","textPreview":"PROBLÉMATIQUE","textChars":13,"textLines":1,"bbox":[72,72,310,25]}
+{"kind":"textbox","id":"sh/ob29cva9","slide":8,"text":"Réduire l’effort de création\nsans perdre la personnalisation.","textPreview":"Réduire l’effort de création | sans perdre la personnalisation.","textChars":61,"textLines":2,"bbox":[72,128,780,115]}
+{"kind":"textbox","id":"sh/pcba50bu","slide":8,"text":"Les problématiques identifiées","textPreview":"Les problématiques identifiées","textChars":30,"textLines":1,"bbox":[72,310,500,35]}
+{"kind":"shape","id":"sh/qdkre5sz","slide":8,"bbox":[72,375,500,65]}
+{"kind":"textbox","id":"sh/bets7atk","slide":8,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[96,393,20,24]}
+{"kind":"textbox","id":"sh/cf29gfa5","slide":8,"text":"Déploiement lent d’une nouvelle marketplace","textPreview":"Déploiement lent d’une nouvelle marketplace","textChars":43,"textLines":1,"bbox":[127,393,410,26]}
+{"kind":"shape","id":"sh/dgba9kbq","slide":8,"bbox":[617,375,500,65]}
+{"kind":"textbox","id":"sh/6hgr2lcv","slide":8,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[641,393,20,24]}
+{"kind":"textbox","id":"sh/ri98v6tg","slide":8,"text":"Dépendance aux interventions techniques","textPreview":"Dépendance aux interventions techniques","textChars":39,"textLines":1,"bbox":[672,393,410,26]}
+{"kind":"shape","id":"sh/32hsbm9c","slide":8,"bbox":[72,470,500,65]}
+{"kind":"textbox","id":"sh/21obi1sr","slide":8,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[96,488,20,24]}
+{"kind":"textbox","id":"sh/p4zadwr2","slide":8,"text":"Gestion dispersée des offres et fonctionnalités","textPreview":"Gestion dispersée des offres et fonctionnalités","textChars":47,"textLines":1,"bbox":[127,488,410,26]}
+{"kind":"shape","id":"sh/o3qtkrax","slide":8,"bbox":[617,470,500,65]}
+{"kind":"textbox","id":"sh/fexs7m90","slide":8,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[641,488,20,24]}
+{"kind":"textbox","id":"sh/edorehsf","slide":8,"text":"Autonomie limitée des banques","textPreview":"Autonomie limitée des banques","textChars":29,"textLines":1,"bbox":[672,488,410,26]}
+{"kind":"textbox","id":"sh/10fa9wr6","slide":8,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"notes","id":"nt/khjmv9","slide":8,"text":"La problématique ne se réduit pas à développer un nouveau site bancaire. Il s’agit de construire un modèle permettant de lancer plusieurs marketplaces à partir d’un socle commun, tout en conservant les éléments spécifiques à chaque banque : son identité, ses produits, ses stores et les modules qu’elle souhaite proposer.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/n3fa3q","slide":9,"title":"SOLUTION PROPOSÉE","textShapes":10}
+{"kind":"textbox","id":"sh/03idczy5","slide":9,"text":"SOLUTION PROPOSÉE","textPreview":"SOLUTION PROPOSÉE","textChars":17,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/z29wjuh0","slide":9,"text":"Matchia : un socle SaaS configurable pour plusieurs banques","textPreview":"Matchia : un socle SaaS configurable pour plusieurs banques","textChars":59,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/98bep4z2","slide":9,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/872dgzyh","slide":9,"bbox":[88,195,285,245]}
+{"kind":"textbox","id":"sh/n6twnuhw","slide":9,"text":"Administration SaaS","textPreview":"Administration SaaS","textChars":19,"textLines":1,"bbox":[115,230,230,30]}
+{"kind":"textbox","id":"sh/m5kve9gb","slide":9,"text":"Banques\nMarketplaces\nStores & modules\nAbonnements & audit","textPreview":"Banques | Marketplaces | Stores & modules | Abonnements & audit","textChars":57,"textLines":4,"bbox":[115,280,230,100]}
+{"kind":"shape","id":"sh/pc7udkzi","slide":9,"bbox":[498,195,285,245]}
+{"kind":"textbox","id":"sh/obyd4fid","slide":9,"text":"Back-office banque","textPreview":"Back-office banque","textChars":18,"textLines":1,"bbox":[525,230,230,30]}
+{"kind":"textbox","id":"sh/2ts7q94b","slide":9,"text":"Branding\nProduits\nContenus\nPartenaires","textPreview":"Branding | Produits | Contenus | Partenaires","textChars":38,"textLines":4,"bbox":[525,280,230,100]}
+{"kind":"shape","id":"sh/nu1ozelw","slide":9,"bbox":[908,195,285,245]}
+{"kind":"textbox","id":"sh/ofapsjmh","slide":9,"text":"Marketplace publique","textPreview":"Marketplace publique","textChars":20,"textLines":1,"bbox":[935,230,230,30]}
+{"kind":"textbox","id":"sh/pgj61432","slide":9,"text":"Stores\nProduits\nSimulateur\nComparateur","textPreview":"Stores | Produits | Simulateur | Comparateur","textChars":38,"textLines":4,"bbox":[935,280,230,100]}
+{"kind":"shape","id":"sh/ahs7u947","slide":9,"bbox":[373,317,122,0]}
+{"kind":"shape","id":"sh/bi1o3els","slide":9,"bbox":[783,317,122,0]}
+{"kind":"textbox","id":"sh/cjapwjmd","slide":9,"text":"Une plateforme centrale, des expériences bancaires contextualisées.","textPreview":"Une plateforme centrale, des expériences bancaires contextualisées.","textChars":67,"textLines":1,"bbox":[145,520,990,34]}
+{"kind":"textbox","id":"sh/xk3q5o3y","slide":9,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/72xsb6h4","slide":9,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/n3fa3q","slide":9,"text":"Matchia répond à cette problématique par une plateforme SaaS organisée en trois espaces. L’administrateur de la plateforme pilote le catalogue et les banques. Chaque banque dispose de son back-office pour configurer son environnement. Enfin, le client accède à une marketplace publique adaptée au contexte de cette banque.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/acgsoc","slide":10,"title":"OBJECTIFS","textShapes":11}
+{"kind":"textbox","id":"sh/ulcze94b","slide":10,"text":"OBJECTIFS","textPreview":"OBJECTIFS","textChars":9,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/honi9o3m","slide":10,"text":"Les objectifs combinent autonomie, modularité et traçabilité","textPreview":"Les objectifs combinent autonomie, modularité et traçabilité","textChars":60,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/7yl03ulk","slide":10,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/mxcza94z","slide":10,"bbox":[90,190,490,120]}
+{"kind":"textbox","id":"sh/9k3i543q","slide":10,"text":"Accélérer","textPreview":"Accélérer","textChars":9,"textLines":1,"bbox":[118,213,170,28]}
+{"kind":"textbox","id":"sh/8juhczm5","slide":10,"text":"Standardiser l’onboarding et le provisionnement des banques.","textPreview":"Standardiser l’onboarding et le provisionnement des banques.","textChars":60,"textLines":1,"bbox":[118,250,420,43]}
+{"kind":"shape","id":"sh/zulgzul8","slide":10,"bbox":[640,190,490,120]}
+{"kind":"textbox","id":"sh/ytsz6p43","slide":10,"text":"Personnaliser","textPreview":"Personnaliser","textChars":13,"textLines":1,"bbox":[668,213,170,28]}
+{"kind":"textbox","id":"sh/knylw3q5","slide":10,"text":"Gérer branding, produits, contenus, stores et modules.","textPreview":"Gérer branding, produits, contenus, stores et modules.","textChars":54,"textLines":1,"bbox":[668,250,420,43]}
+{"kind":"shape","id":"sh/5or2p87a","slide":10,"bbox":[90,345,490,120]}
+{"kind":"textbox","id":"sh/ilg3ut8z","slide":10,"text":"Centraliser","textPreview":"Centraliser","textChars":11,"textLines":1,"bbox":[118,368,170,28]}
+{"kind":"textbox","id":"sh/jmpknypk","slide":10,"text":"Piloter banques, demandes, paiements et activités.","textPreview":"Piloter banques, demandes, paiements et activités.","textChars":50,"textLines":1,"bbox":[118,405,420,43]}
+{"kind":"shape","id":"sh/wjy1sjqt","slide":10,"bbox":[640,345,490,120]}
+{"kind":"textbox","id":"sh/xk72lo7e","slide":10,"text":"Sécuriser","textPreview":"Sécuriser","textChars":9,"textLines":1,"bbox":[668,368,170,28]}
+{"kind":"textbox","id":"sh/ahgjqt8n","slide":10,"text":"Authentifier, contrôler les rôles et tracer les actions.","textPreview":"Authentifier, contrôler les rôles et tracer les actions.","textChars":56,"textLines":1,"bbox":[668,405,420,43]}
+{"kind":"textbox","id":"sh/vipkzyp8","slide":10,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/hojyxsfa","slide":10,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/acgsoc","slide":10,"text":"Les objectifs ont été pensés à la fois du point de vue métier et du point de vue technique. L’idée est de donner de l’autonomie aux banques, de rendre l’offre modulaire, de centraliser le pilotage de la plateforme et de sécuriser les échanges. Ces objectifs structurent directement les rôles et les fonctionnalités de Matchia.\n\nTransition vers la slide suivante : Ces objectifs se traduisent par des acteurs et des responsabilités bien distincts.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/2jrmos","slide":11,"title":"ACTEURS","textShapes":15}
+{"kind":"textbox","id":"sh/ve9kfmp8","slide":11,"text":"ACTEURS","textPreview":"ACTEURS","textChars":7,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/gfil8r6t","slide":11,"text":"Quatre profils collaborent dans l’écosystème Matchia","textPreview":"Quatre profils collaborent dans l’écosystème Matchia","textChars":52,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/ih03a1oj","slide":11,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/329kj6p4","slide":11,"bbox":[80,180,520,140]}
+{"kind":"shape","id":"sh/43ilcr6p","slide":11,"bbox":[108,208,50,50]}
+{"kind":"textbox","id":"sh/54b25wna","slide":11,"text":"01","textPreview":"01","textChars":2,"textLines":1,"bbox":[108,220,50,20]}
+{"kind":"textbox","id":"sh/q5k3e1ov","slide":11,"text":"Administrateur SaaS","textPreview":"Administrateur SaaS","textChars":19,"textLines":1,"bbox":[178,205,350,30]}
+{"kind":"textbox","id":"sh/r6tk765g","slide":11,"text":"Gère le référentiel, les banques, les demandes, les abonnements et l’audit.","textPreview":"Gère le référentiel, les banques, les demandes, les abonnements et l’audit.","textChars":75,"textLines":1,"bbox":[178,242,365,55]}
+{"kind":"shape","id":"sh/7ux0fuxc","slide":11,"bbox":[650,180,520,140]}
+{"kind":"shape","id":"sh/6tozmpgr","slide":11,"bbox":[678,208,50,50]}
+{"kind":"textbox","id":"sh/twfih4fi","slide":11,"text":"02","textPreview":"02","textChars":2,"textLines":1,"bbox":[678,220,50,20]}
+{"kind":"textbox","id":"sh/sv6hozyx","slide":11,"text":"Administrateur banque","textPreview":"Administrateur banque","textChars":21,"textLines":1,"bbox":[748,205,350,30]}
+{"kind":"textbox","id":"sh/jqdgbaxg","slide":11,"text":"Configure la marketplace, les produits, le branding et les partenaires.","textPreview":"Configure la marketplace, les produits, le branding et les partenaires.","textChars":71,"textLines":1,"bbox":[748,242,365,55]}
+{"kind":"shape","id":"sh/ip4zi5gv","slide":11,"bbox":[80,370,520,140]}
+{"kind":"shape","id":"sh/5sfydkf6","slide":11,"bbox":[108,398,50,50]}
+{"kind":"textbox","id":"sh/krmhkfyl","slide":11,"text":"03","textPreview":"03","textChars":2,"textLines":1,"bbox":[108,410,50,20]}
+{"kind":"textbox","id":"sh/3mh0nexk","slide":11,"text":"Concessionnaire","textPreview":"Concessionnaire","textChars":15,"textLines":1,"bbox":[178,395,350,30]}
+{"kind":"textbox","id":"sh/2l8zu9gz","slide":11,"text":"Gère partenariats, contrats, produits et publications.","textPreview":"Gère partenariats, contrats, produits et publications.","textChars":54,"textLines":1,"bbox":[178,432,365,55]}
+{"kind":"shape","id":"sh/yhsjmd07","slide":11,"bbox":[650,370,520,140]}
+{"kind":"shape","id":"sh/zi1kvihs","slide":11,"bbox":[678,398,50,50]}
+{"kind":"textbox","id":"sh/0julonid","slide":11,"text":"04","textPreview":"04","textChars":2,"textLines":1,"bbox":[678,410,50,20]}
+{"kind":"textbox","id":"sh/lk32xszy","slide":11,"text":"Client final","textPreview":"Client final","textChars":12,"textLines":1,"bbox":[748,395,350,30]}
+{"kind":"textbox","id":"sh/mlc3qd03","slide":11,"text":"Consulte les stores, les produits, le simulateur et le comparateur.","textPreview":"Consulte les stores, les produits, le simulateur et le comparateur.","textChars":67,"textLines":1,"bbox":[748,432,365,55]}
+{"kind":"textbox","id":"sh/nmlkziho","slide":11,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/s72d0jq1","slide":11,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/2jrmos","slide":11,"text":"Le projet distingue quatre rôles réellement présents dans le code. L’administrateur SaaS supervise la plateforme. L’administrateur bancaire gère son environnement. Le concessionnaire gère les relations de partenariat et ses produits. Le client final, quant à lui, interagit avec les offres publiques et les modules d’aide à la décision.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/d1gjum","slide":12,"title":"ARCHITECTURE GLOBALE","textShapes":10}
+{"kind":"textbox","id":"sh/6tkf614z","slide":12,"text":"ARCHITECTURE GLOBALE","textPreview":"ARCHITECTURE GLOBALE","textChars":20,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/twby1g3a","slide":12,"text":"Une architecture web découplée entre interface, services et données","textPreview":"Une architecture web découplée entre interface, services et données","textChars":67,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/jq9gv6l8","slide":12,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/yp0f214n","slide":12,"bbox":[100,260,230,70]}
+{"kind":"shape","id":"sh/lsbyxw3e","slide":12,"bbox":[100,260,8,70]}
+{"kind":"textbox","id":"sh/krix4bmt","slide":12,"text":"React + Vite\nInterfaces web","textPreview":"React + Vite | Interfaces web","textChars":27,"textLines":2,"bbox":[122,282,200,30]}
+{"kind":"shape","id":"sh/3mdg7qlc","slide":12,"bbox":[515,260,230,70]}
+{"kind":"shape","id":"sh/il4zelkr","slide":12,"bbox":[515,260,8,70]}
+{"kind":"textbox","id":"sh/sjqxsva9","slide":12,"text":"API REST\nSpring Boot","textPreview":"API REST | Spring Boot","textChars":20,"textLines":2,"bbox":[537,282,200,30]}
+{"kind":"shape","id":"sh/tkjy10ru","slide":12,"bbox":[930,260,230,70]}
+{"kind":"shape","id":"sh/6h8fq5sj","slide":12,"bbox":[930,260,8,70]}
+{"kind":"textbox","id":"sh/7ihgza9o","slide":12,"text":"PostgreSQL\nDonnées métier","textPreview":"PostgreSQL | Données métier","textChars":25,"textLines":2,"bbox":[952,282,200,30]}
+{"kind":"shape","id":"sh/kfqxovad","slide":12,"bbox":[330,295,180,0]}
+{"kind":"shape","id":"sh/5gzyx0ry","slide":12,"bbox":[745,295,180,0]}
+{"kind":"textbox","id":"sh/id8fmls7","slide":12,"text":"Front-end : routes, layouts, services Axios et gestion du tenant","textPreview":"Front-end : routes, layouts, services Axios et gestion du tenant","textChars":64,"textLines":1,"bbox":[100,385,230,60]}
+{"kind":"textbox","id":"sh/jehwvq9s","slide":12,"text":"Back-end : contrôleurs, services métier, JPA et sécurité","textPreview":"Back-end : contrôleurs, services métier, JPA et sécurité","textChars":56,"textLines":1,"bbox":[515,385,230,60]}
+{"kind":"textbox","id":"sh/wb6xkba1","slide":12,"text":"Entités : banques, marketplaces, produits, demandes, paiements…","textPreview":"Entités : banques, marketplaces, produits, demandes, paiements…","textChars":63,"textLines":1,"bbox":[930,385,230,60]}
+{"kind":"textbox","id":"sh/xczetgbm","slide":12,"text":"Intégrations confirmées : SMTP, Stripe et Gemini côté serveur.","textPreview":"Intégrations confirmées : SMTP, Stripe et Gemini côté serveur.","textChars":62,"textLines":1,"bbox":[205,535,870,32]}
+{"kind":"textbox","id":"sh/x8ruxc3q","slide":12,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/5c36xsra","slide":12,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/d1gjum","slide":12,"text":"L’architecture est volontairement découplée. Le frontend React porte l’expérience utilisateur et dialogue avec une API REST. Le backend Spring Boot centralise les règles métier, la sécurité et les intégrations. PostgreSQL conserve les données structurées. Cette organisation facilite l’évolution indépendante des interfaces et de la logique métier.\n\nTransition vers la slide suivante : Le principe multi-tenant précise la manière dont les environnements bancaires sont organisés.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/4nx462","slide":13,"title":"ARCHITECTURE SaaS","textShapes":9}
+{"kind":"textbox","id":"sh/o36xcf6d","slide":13,"text":"ARCHITECTURE SaaS","textPreview":"ARCHITECTURE SaaS","textChars":17,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/n2xw3a5s","slide":13,"text":"Le multi-tenant s’appuie sur le contexte de banque","textPreview":"Le multi-tenant s’appuie sur le contexte de banque","textChars":50,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/1gfe107m","slide":13,"bbox":[72,136,1136,0]}
+{"kind":"textbox","id":"sh/0f6x8v61","slide":13,"text":"Sous-domaine / slug bancaire","textPreview":"Sous-domaine / slug bancaire","textChars":28,"textLines":1,"bbox":[95,195,290,25]}
+{"kind":"shape","id":"sh/fexwzqpg","slide":13,"bbox":[95,235,250,70]}
+{"kind":"shape","id":"sh/edov6lob","slide":13,"bbox":[95,235,8,70]}
+{"kind":"textbox","id":"sh/dcvexg7q","slide":13,"text":"bh.lvh.me\nBanque BH","textPreview":"bh.lvh.me | Banque BH","textChars":19,"textLines":2,"bbox":[117,257,220,30]}
+{"kind":"shape","id":"sh/sbmd4v65","slide":13,"bbox":[345,270,175,0]}
+{"kind":"shape","id":"sh/2l0zy5w3","slide":13,"bbox":[520,235,250,70]}
+{"kind":"shape","id":"sh/3m9g7ado","slide":13,"bbox":[520,235,8,70]}
+{"kind":"textbox","id":"sh/4nih0fe9","slide":13,"text":"X-Bank-Slug\nContexte tenant","textPreview":"X-Bank-Slug | Contexte tenant","textChars":27,"textLines":2,"bbox":[542,257,220,30]}
+{"kind":"shape","id":"sh/pory9kvu","slide":13,"bbox":[770,270,175,0]}
+{"kind":"shape","id":"sh/uxgzulw7","slide":13,"bbox":[945,235,250,70]}
+{"kind":"shape","id":"sh/fypg3qds","slide":13,"bbox":[945,235,8,70]}
+{"kind":"textbox","id":"sh/gzihwved","slide":13,"text":"Données filtrées\npar banque","textPreview":"Données filtrées | par banque","textChars":27,"textLines":2,"bbox":[967,257,220,30]}
+{"kind":"shape","id":"sh/h0ry50vi","slide":13,"bbox":[165,455,950,84]}
+{"kind":"textbox","id":"sh/6tgzqlwv","slide":13,"text":"Le frontend déduit le slug du sous-domaine et l’envoie dans les requêtes. Les services côté serveur contrôlent le rôle et le contexte bancaire pour les opérations sensibles.","textPreview":"Le frontend déduit le slug du sous-domaine et l’envoie dans les requêtes. Les services côté serveur contrôlent le rôle et le contexte ban...","textChars":173,"textLines":1,"bbox":[195,480,890,42]}
+{"kind":"textbox","id":"sh/7upgzqdg","slide":13,"text":"Important : l’isolation est logique dans une même base, pas une base séparée par banque.","textPreview":"Important : l’isolation est logique dans une même base, pas une base séparée par banque.","textChars":88,"textLines":1,"bbox":[205,580,870,25]}
+{"kind":"textbox","id":"sh/bylw7mt8","slide":13,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/fulore90","slide":13,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/4nx462","slide":13,"text":"Dans Matchia, la séparation multi-tenant est principalement logique. Le slug de banque est récupéré depuis le sous-domaine puis transmis dans l’en-tête X-Bank-Slug. Côté serveur, les services vérifient les rôles et le contexte bancaire pour éviter qu’un utilisateur n’accède aux données d’une autre banque. Ce choix mutualise l’infrastructure tout en maintenant une séparation applicative.\n\nTransition vers la slide suivante : Cette organisation est portée par un modèle de données orienté banque et marketplace.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/nomjfc","slide":14,"title":"MODÈLE DE DONNÉES — VUE SIMPLIFIÉE","textShapes":11}
+{"kind":"textbox","id":"sh/3ul0bmd8","slide":14,"text":"MODÈLE DE DONNÉES — VUE SIMPLIFIÉE","textPreview":"MODÈLE DE DONNÉES — VUE SIMPLIFIÉE","textChars":34,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/ovuhkret","slide":14,"text":"Le modèle métier relie l’offre, les acteurs et les parcours","textPreview":"Le modèle métier relie l’offre, les acteurs et les parcours","textChars":59,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/qhwjmhwz","slide":14,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/bi50fmdk","slide":14,"bbox":[105,235,175,60]}
+{"kind":"textbox","id":"sh/cje1orep","slide":14,"text":"Banque","textPreview":"Banque","textChars":6,"textLines":1,"bbox":[105,253,175,25]}
+{"kind":"shape","id":"sh/dknihwva","slide":14,"bbox":[105,235,6,60]}
+{"kind":"shape","id":"sh/ylwjq1wv","slide":14,"bbox":[340,235,175,60]}
+{"kind":"textbox","id":"sh/zm50j6dg","slide":14,"text":"Marketplace","textPreview":"Marketplace","textChars":11,"textLines":1,"bbox":[340,253,175,25]}
+{"kind":"shape","id":"sh/buxonilk","slide":14,"bbox":[340,235,6,60]}
+{"kind":"shape","id":"sh/a9onud4z","slide":14,"bbox":[575,235,175,60]}
+{"kind":"textbox","id":"sh/xwz6ps3q","slide":14,"text":"Store","textPreview":"Store","textChars":5,"textLines":1,"bbox":[575,253,175,25]}
+{"kind":"shape","id":"sh/wv65wnm5","slide":14,"bbox":[575,235,6,60]}
+{"kind":"shape","id":"sh/n6x4jylo","slide":14,"bbox":[810,235,175,60]}
+{"kind":"textbox","id":"sh/m5onqd43","slide":14,"text":"Module","textPreview":"Module","textChars":6,"textLines":1,"bbox":[810,253,175,25]}
+{"kind":"shape","id":"sh/98f6l83e","slide":14,"bbox":[810,235,6,60]}
+{"kind":"shape","id":"sh/o765s3mt","slide":14,"bbox":[810,320,175,60]}
+{"kind":"textbox","id":"sh/72hov2ls","slide":14,"text":"Produit","textPreview":"Produit","textChars":7,"textLines":1,"bbox":[810,338,175,25]}
+{"kind":"shape","id":"sh/618n2x47","slide":14,"bbox":[810,320,6,60]}
+{"kind":"shape","id":"sh/2xcru1of","slide":14,"bbox":[105,410,175,60]}
+{"kind":"textbox","id":"sh/3yl8n650","slide":14,"text":"Utilisateur","textPreview":"Utilisateur","textChars":11,"textLines":1,"bbox":[105,428,175,25]}
+{"kind":"shape","id":"sh/4zu9wb6l","slide":14,"bbox":[105,410,6,60]}
+{"kind":"shape","id":"sh/pk3qpgn6","slide":14,"bbox":[575,410,175,60]}
+{"kind":"textbox","id":"sh/qlcryl4r","slide":14,"text":"Concessionnaire","textPreview":"Concessionnaire","textChars":15,"textLines":1,"bbox":[575,428,175,25]}
+{"kind":"shape","id":"sh/rml8r65w","slide":14,"bbox":[575,410,6,60]}
+{"kind":"shape","id":"sh/cne90bmh","slide":14,"bbox":[280,265,55,0]}
+{"kind":"shape","id":"sh/donqtgn2","slide":14,"bbox":[515,265,55,0]}
+{"kind":"shape","id":"sh/6ps7mho7","slide":14,"bbox":[750,265,55,0]}
+{"kind":"shape","id":"sh/7q18fm5s","slide":14,"bbox":[750,290,55,60]}
+{"kind":"shape","id":"sh/9wr2hobm","slide":14,"bbox":[195,295,0,110]}
+{"kind":"shape","id":"sh/8vil8ju1","slide":14,"bbox":[280,440,290,0]}
+{"kind":"textbox","id":"sh/nu9kfetg","slide":14,"text":"Relations structurantes confirmées dans les entités JPA.","textPreview":"Relations structurantes confirmées dans les entités JPA.","textChars":56,"textLines":1,"bbox":[325,550,630,30]}
+{"kind":"textbox","id":"sh/mt0j69cv","slide":14,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/kzmx43yx","slide":14,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/nomjfc","slide":14,"text":"Cette vue simplifiée retient les relations les plus utiles pour le jury. Une banque est associée à sa marketplace. La marketplace active des stores, qui peuvent proposer des modules et des produits. Les utilisateurs sont rattachés à un rôle et, selon leur profil, à une banque ou à un concessionnaire. Les autres entités, comme les demandes, paiements, notifications et journaux d’audit, soutiennent ces parcours.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/6613gd","slide":15,"title":"TECHNOLOGIES","textShapes":12}
+{"kind":"textbox","id":"sh/zmd8n61w","slide":15,"text":"TECHNOLOGIES","textPreview":"TECHNOLOGIES","textChars":12,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/knmpgb2h","slide":15,"text":"Les choix technologiques servent les besoins de modularité et de sécurité","textPreview":"Les choix technologiques servent les besoins de modularité et de sécurité","textChars":73,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/mp47ilkn","slide":15,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/7qd8rq18","slide":15,"bbox":[85,185,510,135]}
+{"kind":"textbox","id":"sh/8rmpkv2t","slide":15,"text":"Frontend","textPreview":"Frontend","textChars":8,"textLines":1,"bbox":[115,210,430,28]}
+{"kind":"textbox","id":"sh/9svqt0je","slide":15,"text":"React 18 · TypeScript · Vite\nReact Router · Axios · MUI / Tailwind","textPreview":"React 18 · TypeScript · Vite | React Router · Axios · MUI / Tailwind","textChars":66,"textLines":2,"bbox":[115,250,430,46]}
+{"kind":"shape","id":"sh/uto7m5kj","slide":15,"bbox":[650,185,510,135]}
+{"kind":"textbox","id":"sh/vux8vq14","slide":15,"text":"Backend","textPreview":"Backend","textChars":7,"textLines":1,"bbox":[680,210,430,28]}
+{"kind":"textbox","id":"sh/3ut8rmt8","slide":15,"text":"Java 17 · Spring Boot\nSpring Security · Spring Data JPA","textPreview":"Java 17 · Spring Boot | Spring Security · Spring Data JPA","textChars":55,"textLines":2,"bbox":[680,250,430,46]}
+{"kind":"shape","id":"sh/2tkrihsn","slide":15,"bbox":[85,365,510,135]}
+{"kind":"textbox","id":"sh/pgbqtwbe","slide":15,"text":"Données & intégrations","textPreview":"Données & intégrations","textChars":22,"textLines":1,"bbox":[115,390,430,28]}
+{"kind":"textbox","id":"sh/4v29krat","slide":15,"text":"PostgreSQL · Stripe · SMTP\nGemini via backend","textPreview":"PostgreSQL · Stripe · SMTP | Gemini via backend","textChars":45,"textLines":2,"bbox":[115,430,430,46]}
+{"kind":"shape","id":"sh/fq98nmtc","slide":15,"bbox":[650,365,510,135]}
+{"kind":"textbox","id":"sh/up07ehsr","slide":15,"text":"Exploitation","textPreview":"Exploitation","textChars":12,"textLines":1,"bbox":[680,390,430,28]}
+{"kind":"textbox","id":"sh/hsbqpcb2","slide":15,"text":"Docker Compose · Nginx\nSonarQube : configuration frontend présente","textPreview":"Docker Compose · Nginx | SonarQube : configuration frontend présente","textChars":66,"textLines":2,"bbox":[680,430,430,46]}
+{"kind":"textbox","id":"sh/gripgrah","slide":15,"text":"Jenkins et un déploiement cloud ne sont pas présents dans le dépôt : ils ne sont donc pas présentés comme réalisés.","textPreview":"Jenkins et un déploiement cloud ne sont pas présents dans le dépôt : ils ne sont donc pas présentés comme réalisés.","textChars":115,"textLines":1,"bbox":[115,575,1050,26]}
+{"kind":"textbox","id":"sh/zmd8z69g","slide":15,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/c3edsva1","slide":15,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/6613gd","slide":15,"text":"Les technologies ont été choisies pour offrir une application web moderne, typée et maintenable côté frontend, ainsi qu’un backend robuste pour l’accès aux données et la sécurité. Docker Compose est présent pour conteneuriser le frontend et le backend. Une configuration SonarQube existe côté frontend, mais aucun pipeline Jenkins ni déploiement cloud vérifiable n’a été trouvé dans le dépôt.\n\nTransition vers la slide suivante : Passons aux technologies qui supportent cette conception.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/jimorh","slide":16,"title":"RÉALISATION — ADHÉSION BANCAIRE","textShapes":13}
+{"kind":"textbox","id":"sh/7q1wr2to","slide":16,"text":"RÉALISATION — ADHÉSION BANCAIRE","textPreview":"RÉALISATION — ADHÉSION BANCAIRE","textChars":31,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/8rax07a9","slide":16,"text":"L’onboarding transforme une demande en configuration structurée","textPreview":"L’onboarding transforme une demande en configuration structurée","textChars":63,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/utsf2hsf","slide":16,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/gfax47al","slide":16,"bbox":[870,190,330,340]}
+{"kind":"textbox","id":"sh/hgjexcrq","slide":16,"text":"Parcours en 4 étapes","textPreview":"Parcours en 4 étapes","textChars":20,"textLines":1,"bbox":[900,225,260,26]}
+{"kind":"textbox","id":"sh/axovqdsv","slide":16,"text":"1","textPreview":"1","textChars":1,"textLines":1,"bbox":[903,281,24,22]}
+{"kind":"shape","id":"sh/byhwjitg","slide":16,"bbox":[898,276,32,32]}
+{"kind":"textbox","id":"sh/r2hkzil4","slide":16,"text":"Informations bancaires","textPreview":"Informations bancaires","textChars":22,"textLines":1,"bbox":[946,282,220,25]}
+{"kind":"textbox","id":"sh/q18j6xkj","slide":16,"text":"2","textPreview":"2","textChars":1,"textLines":1,"bbox":[903,333,24,22]}
+{"kind":"shape","id":"sh/d4j21s3a","slide":16,"bbox":[898,328,32,32]}
+{"kind":"textbox","id":"sh/s3q18n2p","slide":16,"text":"Coordonnées","textPreview":"Coordonnées","textChars":11,"textLines":1,"bbox":[946,334,220,25]}
+{"kind":"textbox","id":"sh/3yhkvil8","slide":16,"text":"3","textPreview":"3","textChars":1,"textLines":1,"bbox":[903,385,24,22]}
+{"kind":"shape","id":"sh/ix8j2dkn","slide":16,"bbox":[898,380,32,32]}
+{"kind":"textbox","id":"sh/50z2xs3y","slide":16,"text":"Boutiques & modules","textPreview":"Boutiques & modules","textChars":19,"textLines":1,"bbox":[946,386,220,25]}
+{"kind":"textbox","id":"sh/4zq14n2d","slide":16,"text":"4","textPreview":"4","textChars":1,"textLines":1,"bbox":[903,437,24,22]}
+{"kind":"shape","id":"sh/vaxkrylw","slide":16,"bbox":[898,432,32,32]}
+{"kind":"textbox","id":"sh/u9ojyd4b","slide":16,"text":"Finalisation","textPreview":"Finalisation","textChars":12,"textLines":1,"bbox":[946,438,220,25]}
+{"kind":"textbox","id":"sh/y5o3atoj","slide":16,"text":"La demande collecte identité, branding et sélection fonctionnelle avant traitement SaaS.","textPreview":"La demande collecte identité, branding et sélection fonctionnelle avant traitement SaaS.","textChars":88,"textLines":1,"bbox":[895,472,275,48]}
+{"kind":"textbox","id":"sh/z6xk3y5o","slide":16,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/kji907yh","slide":16,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"image","id":"im/adgrudgf","slide":16,"name":"","geometry":"roundRect","alt":"Formulaire réel de demande d’adhésion Matchia","bbox":[70,168,760,428]}
+{"kind":"notes","id":"nt/jimorh","slide":16,"text":"Voici une capture réelle de l’application, sur le formulaire public d’adhésion. Le parcours est découpé en quatre étapes : informations bancaires, coordonnées, sélection des boutiques et modules, puis finalisation. Le backend valide les données, vérifie l’adresse e-mail et enregistre une demande en attente de traitement par l’administrateur SaaS.\n\nTransition vers la slide suivante : Passons aux technologies qui supportent cette conception.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/pdb0tz","slide":17,"title":"RÉALISATION — ADMINISTRATION SaaS","textShapes":12}
+{"kind":"textbox","id":"sh/ahkfqtsz","slide":17,"text":"RÉALISATION — ADMINISTRATION SaaS","textPreview":"RÉALISATION — ADMINISTRATION SaaS","textChars":33,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/xkvyl8ba","slide":17,"text":"Le back-office SaaS centralise le pilotage de la plateforme","textPreview":"Le back-office SaaS centralise le pilotage de la plateforme","textChars":59,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/nutwfet8","slide":17,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/mtkfm9sn","slide":17,"bbox":[90,190,490,118]}
+{"kind":"textbox","id":"sh/9gbyhobe","slide":17,"text":"Banques & marketplaces","textPreview":"Banques & marketplaces","textChars":22,"textLines":1,"bbox":[118,215,410,27]}
+{"kind":"textbox","id":"sh/8v2xojat","slide":17,"text":"Création, activation, branding et statut des environnements.","textPreview":"Création, activation, branding et statut des environnements.","textChars":60,"textLines":1,"bbox":[118,252,420,40]}
+{"kind":"shape","id":"sh/zq9wbetc","slide":17,"bbox":[645,190,490,118]}
+{"kind":"textbox","id":"sh/yp0fi9sr","slide":17,"text":"Stores & modules","textPreview":"Stores & modules","textChars":16,"textLines":1,"bbox":[673,215,410,27]}
+{"kind":"textbox","id":"sh/0ny507a9","slide":17,"text":"Catalogue, associations, paramètres et visibilité.","textPreview":"Catalogue, associations, paramètres et visibilité.","textChars":50,"textLines":1,"bbox":[673,252,420,40]}
+{"kind":"shape","id":"sh/lo7mtcbe","slide":17,"bbox":[90,350,490,118]}
+{"kind":"textbox","id":"sh/ylwnyhs3","slide":17,"text":"Demandes & abonnements","textPreview":"Demandes & abonnements","textChars":22,"textLines":1,"bbox":[118,375,410,27]}
+{"kind":"textbox","id":"sh/zmp4r2to","slide":17,"text":"Validation, paiement, renouvellement et suivi.","textPreview":"Validation, paiement, renouvellement et suivi.","textChars":46,"textLines":1,"bbox":[118,412,420,40]}
+{"kind":"shape","id":"sh/czelw7ax","slide":17,"bbox":[645,350,490,118]}
+{"kind":"textbox","id":"sh/dknmpcbi","slide":17,"text":"Gouvernance","textPreview":"Gouvernance","textChars":11,"textLines":1,"bbox":[673,375,410,27]}
+{"kind":"textbox","id":"sh/qxw3uxsr","slide":17,"text":"Utilisateurs, certificats, notifications et journaux d’audit.","textPreview":"Utilisateurs, certificats, notifications et journaux d’audit.","textChars":61,"textLines":1,"bbox":[673,412,420,40]}
+{"kind":"textbox","id":"sh/by54n2tc","slide":17,"text":"Fonctionnalités confirmées par les routes frontend, contrôleurs REST et services métier.","textPreview":"Fonctionnalités confirmées par les routes frontend, contrôleurs REST et services métier.","textChars":88,"textLines":1,"bbox":[145,545,990,30]}
+{"kind":"textbox","id":"sh/wvi58ra1","slide":17,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/h0vutsba","slide":17,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/pdb0tz","slide":17,"text":"L’espace SaaS rassemble les fonctions d’administration globale. Les routes et les contrôleurs confirment la gestion des banques, marketplaces, stores, modules, demandes, offres, abonnements, utilisateurs, certificats et audits. Le rôle de ce back-office est de fournir une vue centralisée tout en déléguant la configuration courante à chaque banque.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/w7hxlx","slide":18,"title":"CAPTURE RÉELLE — BACK-OFFICE SaaS","textShapes":6}
+{"kind":"textbox","id":"sh/kjypsre5","slide":18,"text":"CAPTURE RÉELLE — BACK-OFFICE SaaS","textPreview":"CAPTURE RÉELLE — BACK-OFFICE SaaS","textChars":33,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/zipozmdk","slide":18,"text":"Le cockpit SaaS donne une vision consolidée de l’activité","textPreview":"Le cockpit SaaS donne une vision consolidée de l’activité","textChars":57,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/xwn6xcve","slide":18,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/bu5ovmd8","slide":18,"bbox":[930,190,275,340]}
+{"kind":"textbox","id":"sh/atwnmhw3","slide":18,"text":"Indicateurs visibles","textPreview":"Indicateurs visibles","textChars":20,"textLines":1,"bbox":[958,225,220,27]}
+{"kind":"textbox","id":"sh/hsr69gvi","slide":18,"text":"61 banques actives\n11 demandes en attente\n59 utilisateurs\n7 stores actifs","textPreview":"61 banques actives | 11 demandes en attente | 59 utilisateurs | 7 stores actifs","textChars":73,"textLines":4,"bbox":[958,285,220,140]}
+{"kind":"textbox","id":"sh/wrip0bud","slide":18,"text":"Revenus mensuels, marketplaces par store, alertes et demandes récentes.","textPreview":"Revenus mensuels, marketplaces par store, alertes et demandes récentes.","textChars":71,"textLines":1,"bbox":[958,465,220,48]}
+{"kind":"textbox","id":"sh/q5o76xwb","slide":18,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/b2porets","slide":18,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"image","id":"im/p076p4b2","slide":18,"name":"","geometry":"roundRect","alt":"Tableau de bord SaaS réel de Matchia","bbox":[72,166,820,462]}
+{"kind":"notes","id":"nt/w7hxlx","slide":18,"text":"Cette capture réelle met en évidence le cœur du projet : le cockpit de l’administrateur SaaS. Les indicateurs agrègent les banques, les demandes, les utilisateurs et les stores. Les graphiques et les listes donnent une vue opérationnelle pour piloter la plateforme.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/f7kns2","slide":19,"title":"CAPTURES RÉELLES — GESTION","textShapes":6}
+{"kind":"textbox","id":"sh/jmd4zat4","slide":19,"text":"CAPTURES RÉELLES — GESTION","textPreview":"CAPTURES RÉELLES — GESTION","textChars":26,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/4nm58fup","slide":19,"text":"Le back-office SaaS orchestre les opérations métier","textPreview":"Le back-office SaaS orchestre les opérations métier","textChars":51,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/6p4napcv","slide":19,"bbox":[72,136,1136,0]}
+{"kind":"textbox","id":"sh/tsfm5kb6","slide":19,"text":"Banques : activation, stores assignés et accès au back-office.","textPreview":"Banques : activation, stores assignés et accès au back-office.","textChars":62,"textLines":1,"bbox":[88,515,510,32]}
+{"kind":"textbox","id":"sh/etonepcr","slide":19,"text":"Demandes : statuts, configuration, montant mensuel et détails.","textPreview":"Demandes : statuts, configuration, montant mensuel et détails.","textChars":62,"textLines":1,"bbox":[678,515,510,32]}
+{"kind":"shape","id":"sh/fex47utc","slide":19,"bbox":[160,585,960,42]}
+{"kind":"textbox","id":"sh/zqhkfmlc","slide":19,"text":"La configuration des stores et modules complète ce pilotage centralisé.","textPreview":"La configuration des stores et modules complète ce pilotage centralisé.","textChars":71,"textLines":1,"bbox":[180,596,920,22]}
+{"kind":"textbox","id":"sh/yp83mh4r","slide":19,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/on650beh","slide":19,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"image","id":"im/eh4nu1wf","slide":19,"name":"","geometry":"roundRect","alt":"Gestion réelle des banques","bbox":[72,170,548,315]}
+{"kind":"image","id":"im/1kvm5wv6","slide":19,"name":"","geometry":"roundRect","alt":"Gestion réelle des demandes","bbox":[660,170,548,315]}
+{"kind":"notes","id":"nt/f7kns2","slide":19,"text":"Ces captures réelles montrent deux opérations structurantes du SaaS. La page Banques permet de suivre les environnements et d’ouvrir le back-office d’une banque. La page Demandes centralise les adhésions et leurs statuts. Une troisième capture des Stores et Modules est fournie dans le dossier de travail et peut remplacer cette slide si une démonstration plus détaillée du catalogue est souhaitée.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/987ucj","slide":20,"title":"RÉALISATION — BANQUE & CONCESSIONNAIRES","textShapes":8}
+{"kind":"textbox","id":"sh/ilk3ad0v","slide":20,"text":"RÉALISATION — BANQUE & CONCESSIONNAIRES","textPreview":"RÉALISATION — BANQUE & CONCESSIONNAIRES","textChars":39,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/58vm5sjm","slide":20,"text":"La banque et ses partenaires gèrent l’offre au plus près du métier","textPreview":"La banque et ses partenaires gèrent l’offre au plus près du métier","textChars":66,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/rad4721c","slide":20,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/6943ex0r","slide":20,"bbox":[85,235,300,70]}
+{"kind":"shape","id":"sh/tcvm9sji","slide":20,"bbox":[85,235,8,70]}
+{"kind":"textbox","id":"sh/sbmlgnix","slide":20,"text":"Administrateur banque\nBranding · contenus · produits","textPreview":"Administrateur banque | Branding · contenus · produits","textChars":52,"textLines":2,"bbox":[107,257,270,30]}
+{"kind":"shape","id":"sh/ne94vy18","slide":20,"bbox":[385,270,105,0]}
+{"kind":"shape","id":"sh/md032t0n","slide":20,"bbox":[490,235,300,70]}
+{"kind":"shape","id":"sh/0zetg3e5","slide":20,"bbox":[490,235,8,70]}
+{"kind":"textbox","id":"sh/10nu98fq","slide":20,"text":"Partenariat\nDemande · validation · contrat","textPreview":"Partenariat | Demande · validation · contrat","textChars":42,"textLines":2,"bbox":[512,257,270,30]}
+{"kind":"shape","id":"sh/exwbedgz","slide":20,"bbox":[790,270,105,0]}
+{"kind":"shape","id":"sh/zy5s7ixk","slide":20,"bbox":[895,235,300,70]}
+{"kind":"shape","id":"sh/o3ytkne1","slide":20,"bbox":[895,235,8,70]}
+{"kind":"textbox","id":"sh/9o7udsfm","slide":20,"text":"Concessionnaire\nProduits · publication","textPreview":"Concessionnaire | Produits · publication","textChars":38,"textLines":2,"bbox":[917,257,270,30]}
+{"kind":"textbox","id":"sh/m1gbidwv","slide":20,"text":"Workflow confirmé : approbation d’un partenariat → brouillon de contrat → activation → soumission de produits → validation de publication.","textPreview":"Workflow confirmé : approbation d’un partenariat → brouillon de contrat → activation → soumission de produits → validation de publication.","textChars":138,"textLines":1,"bbox":[125,440,1030,50]}
+{"kind":"shape","id":"sh/n2pcbixg","slide":20,"bbox":[240,540,800,42]}
+{"kind":"textbox","id":"sh/47ut8jyx","slide":20,"text":"Notifications et e-mails accompagnent les changements de statut.","textPreview":"Notifications et e-mails accompagnent les changements de statut.","textChars":64,"textLines":1,"bbox":[250,551,780,22]}
+{"kind":"textbox","id":"sh/p83a1ofi","slide":20,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/h4fy50bm","slide":20,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/987ucj","slide":20,"text":"Un périmètre important du projet concerne les concessionnaires. La banque peut rechercher et gérer des partenariats selon un store. Après approbation, un contrat est préparé puis activé. Le concessionnaire peut ensuite gérer ses produits et les soumettre à publication. Ce flux est encadré par les rôles, des statuts métier, des notifications et l’envoi d’e-mails.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/dpdxx4","slide":21,"title":"RÉALISATION — EXPÉRIENCE CLIENT","textShapes":19}
+{"kind":"textbox","id":"sh/u90bmpoj","slide":21,"text":"RÉALISATION — EXPÉRIENCE CLIENT","textPreview":"RÉALISATION — EXPÉRIENCE CLIENT","textChars":31,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/hcbah4nu","slide":21,"text":"La marketplace rend les offres et modules accessibles au client final","textPreview":"La marketplace rend les offres et modules accessibles au client final","textChars":69,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/769sbu5s","slide":21,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/t8radkny","slide":21,"bbox":[895,190,300,340]}
+{"kind":"textbox","id":"sh/87itkf6d","slide":21,"text":"Parcours public","textPreview":"Parcours public","textChars":15,"textLines":1,"bbox":[930,225,230,28]}
+{"kind":"textbox","id":"sh/r2dcne5w","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[925,275,20,22]}
+{"kind":"textbox","id":"sh/q14bu94r","slide":21,"text":"Stores","textPreview":"Stores","textChars":6,"textLines":1,"bbox":[948,274,124,22]}
+{"kind":"textbox","id":"sh/sfi9onex","slide":21,"text":"Catégories de financement","textPreview":"Catégories de financement","textChars":25,"textLines":1,"bbox":[1072,274,105,34]}
+{"kind":"textbox","id":"sh/d0rqx8f2","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[925,323,20,22]}
+{"kind":"textbox","id":"sh/qdg7mdwr","slide":21,"text":"Produits","textPreview":"Produits","textChars":8,"textLines":1,"bbox":[948,322,124,22]}
+{"kind":"textbox","id":"sh/rep8vixc","slide":21,"text":"Offre par banque","textPreview":"Offre par banque","textChars":16,"textLines":1,"bbox":[1072,322,105,34]}
+{"kind":"textbox","id":"sh/4bypk3el","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[925,371,20,22]}
+{"kind":"textbox","id":"sh/5c7qt8f6","slide":21,"text":"Simulateur","textPreview":"Simulateur","textChars":10,"textLines":1,"bbox":[948,370,124,22]}
+{"kind":"textbox","id":"sh/i9g7itwf","slide":21,"text":"Calcul configurable","textPreview":"Calcul configurable","textChars":19,"textLines":1,"bbox":[1072,370,105,34]}
+{"kind":"textbox","id":"sh/3ap8ryx0","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[925,419,20,22]}
+{"kind":"textbox","id":"sh/g7ypg3ep","slide":21,"text":"Comparateur","textPreview":"Comparateur","textChars":11,"textLines":1,"bbox":[948,418,124,22]}
+{"kind":"textbox","id":"sh/h87qpofa","slide":21,"text":"Jusqu’à 4 produits","textPreview":"Jusqu’à 4 produits","textChars":18,"textLines":1,"bbox":[1072,418,105,34]}
+{"kind":"textbox","id":"sh/xsfex03m","slide":21,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[925,467,20,22]}
+{"kind":"textbox","id":"sh/wr6x4v21","slide":21,"text":"Blog","textPreview":"Blog","textChars":4,"textLines":1,"bbox":[948,466,124,22]}
+{"kind":"textbox","id":"sh/bqxwvqlg","slide":21,"text":"Contenus marketplace","textPreview":"Contenus marketplace","textChars":20,"textLines":1,"bbox":[1072,466,105,34]}
+{"kind":"textbox","id":"sh/ap4f2lkb","slide":21,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/58r2507e","slide":21,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"image","id":"im/v2p0zqpw","slide":21,"name":"","geometry":"roundRect","alt":"Page d’accueil réelle de Matchia","bbox":[60,170,795,435]}
+{"kind":"notes","id":"nt/dpdxx4","slide":21,"text":"Cette seconde capture réelle montre la page publique de Matchia. Elle illustre la promesse de la plateforme : proposer une expérience bancaire lisible et moderne. Dans le code, les marketplaces publiques donnent accès aux stores, produits, contenus, simulateur et comparateur. Le simulateur s’appuie sur les paramètres configurés pour le module et le comparateur permet de sélectionner jusqu’à quatre produits.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/hic9dq","slide":22,"title":"WORKFLOW MÉTIER","textShapes":14}
+{"kind":"textbox","id":"sh/ulwnu10j","slide":22,"text":"WORKFLOW MÉTIER","textPreview":"WORKFLOW MÉTIER","textChars":15,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/ho765gju","slide":22,"text":"Le workflow principal : de l’adhésion à l’accès au back-office","textPreview":"Le workflow principal : de l’adhésion à l’accès au back-office","textChars":62,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/7i54z61s","slide":22,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/mhwnq107","slide":22,"bbox":[55,265,190,70]}
+{"kind":"shape","id":"sh/9knm1gjy","slide":22,"bbox":[55,265,8,70]}
+{"kind":"textbox","id":"sh/8je5sbid","slide":22,"text":"Demande","textPreview":"Demande","textChars":7,"textLines":1,"bbox":[77,287,160,30]}
+{"kind":"textbox","id":"sh/zel4vm1w","slide":22,"text":"Formulaire + e-mail vérifié","textPreview":"Formulaire + e-mail vérifié","textChars":27,"textLines":1,"bbox":[58,355,184,46]}
+{"kind":"shape","id":"sh/ytcnmh0b","slide":22,"bbox":[245,300,40,0]}
+{"kind":"shape","id":"sh/wnupcve1","slide":22,"bbox":[292,265,190,70]}
+{"kind":"shape","id":"sh/xon650vm","slide":22,"bbox":[292,265,8,70]}
+{"kind":"textbox","id":"sh/alc7alwv","slide":22,"text":"Validation SaaS","textPreview":"Validation SaaS","textChars":15,"textLines":1,"bbox":[314,287,160,30]}
+{"kind":"textbox","id":"sh/bmlo3qxg","slide":22,"text":"Contrôle et approbation","textPreview":"Contrôle et approbation","textChars":23,"textLines":1,"bbox":[295,355,184,46]}
+{"kind":"shape","id":"sh/ojup8bep","slide":22,"bbox":[482,300,40,0]}
+{"kind":"shape","id":"sh/9k361gfa","slide":22,"bbox":[529,265,190,70]}
+{"kind":"shape","id":"sh/mhc76lwz","slide":22,"bbox":[529,265,8,70]}
+{"kind":"textbox","id":"sh/niloz6xk","slide":22,"text":"Paiement","textPreview":"Paiement","textChars":8,"textLines":1,"bbox":[551,287,160,30]}
+{"kind":"textbox","id":"sh/8fepkfe9","slide":22,"text":"Stripe : intention / checkout","textPreview":"Stripe : intention / checkout","textChars":29,"textLines":1,"bbox":[532,355,184,46]}
+{"kind":"shape","id":"sh/tg7qdkvu","slide":22,"bbox":[719,300,40,0]}
+{"kind":"shape","id":"sh/hw36x0ny","slide":22,"bbox":[766,265,190,70]}
+{"kind":"shape","id":"sh/gvupof6d","slide":22,"bbox":[766,265,8,70]}
+{"kind":"textbox","id":"sh/fa1ova5s","slide":22,"text":"Provisionnement","textPreview":"Provisionnement","textChars":15,"textLines":1,"bbox":[788,287,160,30]}
+{"kind":"textbox","id":"sh/u9s7m5o7","slide":22,"text":"Banque, marketplace, stores","textPreview":"Banque, marketplace, stores","textChars":27,"textLines":1,"bbox":[769,355,184,46]}
+{"kind":"shape","id":"sh/t8j6t0nm","slide":22,"bbox":[956,300,40,0]}
+{"kind":"shape","id":"sh/s7apkv61","slide":22,"bbox":[1003,265,190,70]}
+{"kind":"shape","id":"sh/761orq5w","slide":22,"bbox":[1003,265,8,70]}
+{"kind":"textbox","id":"sh/65s7ilob","slide":22,"text":"Activation","textPreview":"Activation","textChars":10,"textLines":1,"bbox":[1025,287,160,30]}
+{"kind":"textbox","id":"sh/54j6pgnq","slide":22,"text":"Identifiants administrateur + e-mail","textPreview":"Identifiants administrateur + e-mail","textChars":36,"textLines":1,"bbox":[1006,355,184,46]}
+{"kind":"textbox","id":"sh/k3apgv65","slide":22,"text":"Le code confirme les étapes de demande, approbation, initiation/confirmation du paiement et provisionnement.","textPreview":"Le code confirme les étapes de demande, approbation, initiation/confirmation du paiement et provisionnement.","textChars":108,"textLines":1,"bbox":[145,495,990,34]}
+{"kind":"textbox","id":"sh/ax4vax0r","slide":22,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/5w7mxcfq","slide":22,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/hic9dq","slide":22,"text":"Ce workflow représente le parcours le plus emblématique du projet. La banque soumet une demande. L’administrateur SaaS l’approuve ou la rejette. En cas d’approbation, le paiement est initié par Stripe. Après confirmation, le service provisionne la banque, la marketplace et les sélections de stores et modules ; puis les identifiants de l’administrateur bancaire sont envoyés par e-mail.\n\nTransition vers la slide suivante : Cette chaîne métier est encadrée par des mécanismes de sécurité.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/02lbt3","slide":23,"title":"SÉCURITÉ","textShapes":12}
+{"kind":"textbox","id":"sh/xcvatovu","slide":23,"text":"SÉCURITÉ","textPreview":"SÉCURITÉ","textChars":8,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/ap4ry9w3","slide":23,"text":"Sécurité : accès contrôlé, traçabilité et IA en lecture seule","textPreview":"Sécurité : accès contrôlé, traçabilité et IA en lecture seule","textChars":61,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/onm9wzex","slide":23,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/povap4vi","slide":23,"bbox":[85,185,510,120]}
+{"kind":"textbox","id":"sh/2lkrupw7","slide":23,"text":"Authentification","textPreview":"Authentification","textChars":16,"textLines":1,"bbox":[110,205,180,26]}
+{"kind":"textbox","id":"sh/nmdsnuds","slide":23,"text":"JWT d’accès + refresh token HTTP-only, sessions stateless.","textPreview":"JWT d’accès + refresh token HTTP-only, sessions stateless.","textChars":58,"textLines":1,"bbox":[110,241,445,48]}
+{"kind":"shape","id":"sh/0j29sze1","slide":23,"bbox":[655,185,510,120]}
+{"kind":"textbox","id":"sh/1kbal4vm","slide":23,"text":"Autorisation","textPreview":"Autorisation","textChars":12,"textLines":1,"bbox":[680,205,180,26]}
+{"kind":"textbox","id":"sh/tsfydszm","slide":23,"text":"Contrôle frontend et Spring Security ; rôles SaaS, banque, concessionnaire, client.","textPreview":"Contrôle frontend et Spring Security ; rôles SaaS, banque, concessionnaire, client.","textChars":83,"textLines":1,"bbox":[680,241,445,48]}
+{"kind":"shape","id":"sh/sr6x4ny1","slide":23,"bbox":[85,345,510,120]}
+{"kind":"textbox","id":"sh/rqxgbihg","slide":23,"text":"Traçabilité","textPreview":"Traçabilité","textChars":11,"textLines":1,"bbox":[110,365,180,26]}
+{"kind":"textbox","id":"sh/6pof2dgv","slide":23,"text":"Journal d’audit asynchrone et notifications métiers.","textPreview":"Journal d’audit asynchrone et notifications métiers.","textChars":52,"textLines":1,"bbox":[110,401,445,48]}
+{"kind":"shape","id":"sh/5ovy98za","slide":23,"bbox":[655,345,510,120]}
+{"kind":"textbox","id":"sh/43mx0nyp","slide":23,"text":"Assistant IA","textPreview":"Assistant IA","textChars":12,"textLines":1,"bbox":[680,365,180,26]}
+{"kind":"textbox","id":"sh/j2dg7ih4","slide":23,"text":"Endpoint réservé ADMIN_SAAS ; requêtes SQL SELECT validées, plafonnées et exécutées en lecture seule.","textPreview":"Endpoint réservé ADMIN_SAAS ; requêtes SQL SELECT validées, plafonnées et exécutées en lecture seule.","textChars":101,"textLines":1,"bbox":[680,401,445,48]}
+{"kind":"textbox","id":"sh/i14fyd0j","slide":23,"text":"À renforcer avant production : secrets hors code, configuration CORS restrictive et compte DB dédié à l’IA.","textPreview":"À renforcer avant production : secrets hors code, configuration CORS restrictive et compte DB dédié à l’IA.","textChars":107,"textLines":1,"bbox":[110,560,1060,27]}
+{"kind":"textbox","id":"sh/h0ve58ze","slide":23,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/mxwfexkv","slide":23,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/02lbt3","slide":23,"text":"La sécurité est un point structurant. L’application utilise des jetons JWT, un mécanisme de refresh token et des règles d’accès par rôle. Les actions métier sont tracées. L’assistant IA est particulièrement encadré : il est réservé à l’administrateur SaaS, ne reçoit que des données filtrées et ne peut exécuter qu’une requête SELECT validée dans un contexte en lecture seule. Pour la production, les secrets et la configuration doivent être davantage externalisés.\n\nTransition vers la slide suivante : Passons aux technologies qui supportent cette conception.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/ndy87j","slide":24,"title":"DEVOPS & QUALITÉ","textShapes":10}
+{"kind":"textbox","id":"sh/0j6ls3yt","slide":24,"text":"DEVOPS & QUALITÉ","textPreview":"DEVOPS & QUALITÉ","textChars":16,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/fix4jyh8","slide":24,"text":"Industrialisation : conteneurisation confirmée, pipeline à finaliser","textPreview":"Industrialisation : conteneurisation confirmée, pipeline à finaliser","textChars":68,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/dgf2hoz2","slide":24,"bbox":[72,136,1136,0]}
+{"kind":"shape","id":"sh/sf6lojyh","slide":24,"bbox":[88,250,190,70]}
+{"kind":"shape","id":"sh/rexkfehw","slide":24,"bbox":[88,250,8,70]}
+{"kind":"textbox","id":"sh/qto3mt0r","slide":24,"text":"Code source\nGit","textPreview":"Code source | Git","textChars":15,"textLines":2,"bbox":[110,272,160,30]}
+{"kind":"shape","id":"sh/xcjmtsz6","slide":24,"bbox":[278,285,122,0]}
+{"kind":"shape","id":"sh/cbql0ny1","slide":24,"bbox":[400,250,190,70]}
+{"kind":"shape","id":"sh/ihgr6tsn","slide":24,"bbox":[400,250,8,70]}
+{"kind":"textbox","id":"sh/jipsfy98","slide":24,"text":"Build\nMaven / Vite","textPreview":"Build | Maven / Vite","textChars":18,"textLines":2,"bbox":[422,272,160,30]}
+{"kind":"shape","id":"sh/4jyt83at","slide":24,"bbox":[590,285,122,0]}
+{"kind":"shape","id":"sh/5k7ah8re","slide":24,"bbox":[712,250,190,70]}
+{"kind":"shape","id":"sh/utgr2tsr","slide":24,"bbox":[712,250,8,70]}
+{"kind":"textbox","id":"sh/vepsby9w","slide":24,"text":"Images Docker\nBackend + Frontend","textPreview":"Images Docker | Backend + Frontend","textChars":32,"textLines":2,"bbox":[734,272,160,30]}
+{"kind":"shape","id":"sh/wfy943ah","slide":24,"bbox":[902,285,122,0]}
+{"kind":"shape","id":"sh/hg7ador2","slide":24,"bbox":[1024,250,190,70]}
+{"kind":"shape","id":"sh/ep0bed8v","slide":24,"bbox":[1024,250,8,70]}
+{"kind":"textbox","id":"sh/fa9sni9g","slide":24,"text":"Docker Compose\nNginx","textPreview":"Docker Compose | Nginx","textChars":20,"textLines":2,"bbox":[1046,272,160,30]}
+{"kind":"textbox","id":"sh/bulofaps","slide":24,"text":"✅ Dockerfiles backend et frontend + docker-compose.yml","textPreview":"✅ Dockerfiles backend et frontend + docker-compose.yml","textChars":54,"textLines":1,"bbox":[160,440,490,28]}
+{"kind":"textbox","id":"sh/qts76587","slide":24,"text":"⚠️ sonar-project.properties présent côté frontend ; exécution non vérifiée","textPreview":"⚠️ sonar-project.properties présent côté frontend ; exécution non vérifiée","textChars":74,"textLines":1,"bbox":[160,485,620,28]}
+{"kind":"textbox","id":"sh/dw3qhk7y","slide":24,"text":"❌ Aucun Jenkinsfile ni configuration cloud trouvés dans le dépôt","textPreview":"❌ Aucun Jenkinsfile ni configuration cloud trouvés dans le dépôt","textChars":64,"textLines":1,"bbox":[160,530,620,28]}
+{"kind":"textbox","id":"sh/cvup8fqd","slide":24,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/vid8j25k","slide":24,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/ndy87j","slide":24,"text":"Du point de vue DevOps, le dépôt confirme la conteneurisation : un Dockerfile pour le backend, un Dockerfile pour le frontend servi par Nginx et un fichier Docker Compose pour les relier. La configuration SonarQube du frontend est présente, mais son exécution n’a pas été vérifiée. En revanche, aucun pipeline Jenkins ni configuration de déploiement cloud n’a été trouvé ; ce sont donc des perspectives et non des réalisations.\n\nTransition vers la slide suivante : Terminons par le scénario de démonstration, les résultats et les perspectives.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/t825b7","slide":25,"title":"DÉMONSTRATION & RÉSULTATS","textShapes":12}
+{"kind":"textbox","id":"sh/o7qtcvml","slide":25,"text":"DÉMONSTRATION & RÉSULTATS","textPreview":"DÉMONSTRATION & RÉSULTATS","textChars":25,"textLines":1,"bbox":[72,40,420,22]}
+{"kind":"textbox","id":"sh/n6hcjql0","slide":25,"text":"Démonstration recommandée et résultats du PFE","textPreview":"Démonstration recommandée et résultats du PFE","textChars":45,"textLines":1,"bbox":[72,70,1136,54]}
+{"kind":"shape","id":"sh/xcjupk32","slide":25,"bbox":[72,136,1136,0]}
+{"kind":"textbox","id":"sh/wbqtgfmh","slide":25,"text":"Scénario de démonstration — 3 minutes","textPreview":"Scénario de démonstration — 3 minutes","textChars":37,"textLines":1,"bbox":[80,182,520,30]}
+{"kind":"textbox","id":"sh/bahcnalw","slide":25,"text":"1. Soumettre une demande d’adhésion","textPreview":"1. Soumettre une demande d’adhésion","textChars":35,"textLines":1,"bbox":[105,235,520,26]}
+{"kind":"textbox","id":"sh/a98be54b","slide":25,"text":"2. Montrer son traitement SaaS","textPreview":"2. Montrer son traitement SaaS","textChars":30,"textLines":1,"bbox":[105,287,520,26]}
+{"kind":"textbox","id":"sh/dgfudg3i","slide":25,"text":"3. Ouvrir le back-office de la banque","textPreview":"3. Ouvrir le back-office de la banque","textChars":37,"textLines":1,"bbox":[105,339,520,26]}
+{"kind":"textbox","id":"sh/sf6t4bmd","slide":25,"text":"4. Activer store / module et gérer un produit","textPreview":"4. Activer store / module et gérer un produit","textChars":45,"textLines":1,"bbox":[105,391,520,26]}
+{"kind":"textbox","id":"sh/u5knat47","slide":25,"text":"5. Consulter la marketplace et simuler / comparer","textPreview":"5. Consulter la marketplace et simuler / comparer","textChars":49,"textLines":1,"bbox":[105,443,520,26]}
+{"kind":"shape","id":"sh/f6to3yls","slide":25,"bbox":[715,185,410,285]}
+{"kind":"textbox","id":"sh/g725c3md","slide":25,"text":"Résultats confirmés","textPreview":"Résultats confirmés","textChars":19,"textLines":1,"bbox":[750,220,300,30]}
+{"kind":"textbox","id":"sh/h8b6583y","slide":25,"text":"✓ Architecture SaaS structurée\n✓ Multi-tenant par contexte bancaire\n✓ Parcours adhésion / paiement / activation\n✓ Espaces SaaS, banque, concessionnaire et public\n✓ Modules simulateur, comparateur, blog et assistant IA","textPreview":"✓ Architecture SaaS structurée | ✓ Multi-tenant par contexte bancaire | ✓ Parcours adhésion / paiement / activation | ✓ Espaces SaaS, ban...","textChars":217,"textLines":5,"bbox":[750,270,330,150]}
+{"kind":"textbox","id":"sh/29kned4j","slide":25,"text":"Vérification effectuée : typecheck frontend réussi. Tests backend non exécutés : Maven wrapper indisponible dans cet environnement.","textPreview":"Vérification effectuée : typecheck frontend réussi. Tests backend non exécutés : Maven wrapper indisponible dans cet environnement.","textChars":131,"textLines":1,"bbox":[110,545,1050,31]}
+{"kind":"textbox","id":"sh/3ato7il4","slide":25,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/765w3i9w","slide":25,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[1048,28,160,46]}
+{"kind":"notes","id":"nt/t825b7","slide":25,"text":"Pour la démonstration orale, je recommande de raconter une histoire utilisateur plutôt que de visiter toutes les pages. On commence par une demande d’adhésion, puis son traitement côté SaaS, l’accès de la banque à son back-office et enfin le résultat public. Le code confirme un socle fonctionnel large. La vérification de type du frontend a réussi ; les tests backend n’ont pas pu être lancés ici car le wrapper Maven de l’environnement est indisponible.\n\nTransition vers la slide suivante : Je conclus cette partie en reliant les résultats obtenus aux objectifs du projet.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}
+{"kind":"slide","id":"sl/zwp1k0","slide":26,"title":"Matchia rend la création de marketplaces bancaires","textShapes":13}
+{"kind":"textbox","id":"sh/8nq1sf6h","slide":26,"text":"Matchia rend la création de marketplaces bancaires\nplus réutilisable, configurable et pilotable.","textPreview":"Matchia rend la création de marketplaces bancaires | plus réutilisable, configurable et pilotable.","textChars":96,"textLines":2,"bbox":[72,205,830,100]}
+{"kind":"textbox","id":"sh/tozilkn2","slide":26,"text":"Perspectives prioritaires","textPreview":"Perspectives prioritaires","textChars":25,"textLines":1,"bbox":[72,375,330,28]}
+{"kind":"textbox","id":"sh/yhojm5of","slide":26,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[78,422,20,22]}
+{"kind":"textbox","id":"sh/jix0fap0","slide":26,"text":"Renforcer la gestion des secrets et le déploiement production","textPreview":"Renforcer la gestion des secrets et le déploiement production","textChars":61,"textLines":1,"bbox":[105,420,790,24]}
+{"kind":"textbox","id":"sh/kj61of6l","slide":26,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[78,465,20,22]}
+{"kind":"textbox","id":"sh/lkfih076","slide":26,"text":"Automatiser CI/CD et l’analyse qualité","textPreview":"Automatiser CI/CD et l’analyse qualité","textChars":38,"textLines":1,"bbox":[105,463,790,24]}
+{"kind":"textbox","id":"sh/id8jypoj","slide":26,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[78,508,20,22]}
+{"kind":"textbox","id":"sh/3ehkru54","slide":26,"text":"Étendre les tests d’intégration et de sécurité","textPreview":"Étendre les tests d’intégration et de sécurité","textChars":46,"textLines":1,"bbox":[105,506,790,24]}
+{"kind":"textbox","id":"sh/riho7y5c","slide":26,"text":"•","textPreview":"•","textChars":1,"textLines":1,"bbox":[78,551,20,22]}
+{"kind":"textbox","id":"sh/6x8nyt4r","slide":26,"text":"Mesurer les KPI réels des parcours clients","textPreview":"Mesurer les KPI réels des parcours clients","textChars":42,"textLines":1,"bbox":[105,549,790,24]}
+{"kind":"textbox","id":"sh/tkz69oni","slide":26,"text":"Merci pour votre attention","textPreview":"Merci pour votre attention","textChars":26,"textLines":1,"bbox":[72,620,520,35]}
+{"kind":"textbox","id":"sh/sjq50jmx","slide":26,"text":"Questions ?","textPreview":"Questions ?","textChars":11,"textLines":1,"bbox":[1000,622,160,32]}
+{"kind":"textbox","id":"sh/fm1oby58","slide":26,"text":"Matchia · Soutenance PFE","textPreview":"Matchia · Soutenance PFE","textChars":24,"textLines":1,"bbox":[72,680,250,18]}
+{"kind":"image","id":"im/mp0b2tor","slide":26,"name":"","geometry":"roundRect","alt":"Logo Matchia","bbox":[72,70,245,72]}
+{"kind":"notes","id":"nt/zwp1k0","slide":26,"text":"Pour conclure, Matchia apporte une réponse structurée à la difficulté de créer une marketplace bancaire spécifique pour chaque établissement. La plateforme mutualise le socle technique tout en gardant un espace de configuration propre à chaque banque. Les prochaines étapes concernent surtout l’industrialisation, les tests, la sécurité de production et l’exploitation de données réelles. Je vous remercie pour votre attention et je suis à votre disposition pour vos questions.\n\nTransition vers la slide suivante : Passons aux technologies qui supportent cette conception.\n\n[Sources]\n- Analyse du dépôt Matchia (code frontend, backend, configurations et captures locales)."}

@@ -94,9 +94,8 @@
 }
 
 .login-logo-mark {
-    width: auto;
-    height: 64px;
-    max-width: 220px;
+    width: 260px;
+    max-width: 100%;
 }
 
 .login-logo-image {

@@ -16,27 +16,48 @@ public final class DealerDtos {
             @NotBlank String contactPerson,
             @NotBlank @Email String email,
             @NotBlank @Pattern(regexp = "^[+0-9 ()-]{8,20}$") String phone,
+            @NotBlank(message = "Le site web est obligatoire.")
+            @Size(max = 500)
+            @Pattern(regexp = "^https?://[^\\s]+$", message = "Veuillez saisir une URL valide.") String website,
             @NotNull Long storeId
     ) {}
 
     public record DealerView(Long id, String companyName, String registrationNumber, String address,
-                             String contactPerson, String email, String phone, String logoUrl,
+                             String contactPerson, String email, String phone, String website,
+                             String logoUrl, String contactPhotoUrl,
                              Long storeId, String storeName, DealerStatusEnum status, LocalDateTime createdAt) {}
 
+    public record PublicDealerView(String companyName, String logoUrl, String storeName,
+                                   String storeDescription, String email, String phone, String address, String website) {}
+
     public record AccountRequestView(Long id, String companyName, String registrationNumber, String address,
-                                     String contactPerson, String email, String phone, String logoUrl,
+                                     String contactPerson, String email, String phone, String website,
+                                     String logoUrl, String contactPhotoUrl,
                                      Long storeId, String storeName, List<String> documentUrls,
                                      DealerRequestStatusEnum status, String rejectionReason,
                                      LocalDateTime submittedAt, LocalDateTime processedAt) {}
 
+    public record SettingsUpdate(
+            @NotBlank @Size(max = 255) String companyName,
+            @NotBlank @Size(max = 255) String registrationNumber,
+            @NotNull Long storeId,
+            @NotBlank(message = "Le site web est obligatoire.")
+            @Size(max = 500)
+            @Pattern(regexp = "^https?://[^\\s]+$", message = "Veuillez saisir une URL valide.") String website,
+            boolean removeLogo
+    ) {}
+
     public record DecisionRequest(String reason) {}
     public record PartnershipCreate(@NotNull Long bankId, @NotNull Long storeId, @Size(max = 1000) String message) {}
+    public record BankPartnershipCreate(@NotNull Long dealerId, @NotNull Long storeId, @Size(max = 1000) String message) {}
     public record BankOption(Long bankId, String bankName, String bankLogoUrl, Long marketplaceId,
                              List<StoreOption> stores) {}
     public record StoreOption(Long storeId, String storeName, String description) {}
-    public record PartnershipView(Long id, DealerView dealer, Long bankId, String bankName, Long storeId,
-                                  String storeName, DealerPartnershipStatusEnum status, String message,
-                                  String rejectionReason, LocalDateTime requestDate, LocalDateTime processingDate) {}
+    public record PartnershipView(Long id, DealerView dealer, Long bankId, String bankName, String bankLogoUrl, Long storeId,
+                                  String storeName, PartnershipInitiatorEnum initiatedBy,
+                                  DealerPartnershipStatusEnum status, String message, String rejectionReason,
+                                  LocalDateTime requestDate, LocalDateTime processingDate,
+                                  LocalDateTime approvedAt, LocalDateTime rejectedAt) {}
 
     public record ParameterValue(@NotNull Long definitionId, String name, @Size(max = 2000) String value) {}
     public record ProductUpsert(@NotNull Long storeId, @NotBlank String name, @Size(max = 3000) String description,
@@ -49,7 +70,8 @@ public final class DealerDtos {
                               List<ParameterValue> parameterValues, LocalDateTime createdAt, LocalDateTime updatedAt) {}
     public record PublicationCreate(@NotNull Long productId, @NotNull Long partnershipId) {}
     public record PublicationView(Long id, ProductView product, Long dealerId, String dealerName,
-                                  Long bankId, String bankName, Long marketplaceId, Long storeId, String storeName,
+                                  Long bankId, String bankName, String bankLogoUrl,
+                                  Long marketplaceId, Long storeId, String storeName,
                                   ProductPublicationStatusEnum status, boolean active, String rejectionReason,
                                   LocalDateTime submittedAt, LocalDateTime processedAt) {}
     public record Dashboard(long products, long activePartnerships, long pendingPartnerships,

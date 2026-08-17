@@ -39,6 +39,7 @@ export function PublicFooter() {
               <li><Link to="/" className="transition-colors hover:text-white">Fonctionnalités</Link></li>
               <li><Link to="/banques" className="transition-colors hover:text-white">Banques</Link></li>
               <li><Link to="/rejoindre" className="transition-colors hover:text-white">Rejoindre Matchia</Link></li>
+              <li><Link to="/devenir-concessionnaire" className="transition-colors hover:text-white">Devenir concessionnaire</Link></li>
              
             </ul>
           </div>

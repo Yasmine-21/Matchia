@@ -6,10 +6,14 @@ import { storeService } from '../../services/storeService';
 import type { StoreDto } from '../../types/apiTypes';
 
 const fieldClass = 'mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100';
+const MAX_CONTACT_PHOTO_BYTES = 5 * 1024 * 1024;
+const CONTACT_PHOTO_TYPES = new Set(['image/png', 'image/jpeg']);
 
 export function DealerRegistrationPage() {
   const [stores, setStores] = useState<StoreDto[]>([]);
   const [logo, setLogo] = useState<File | null>(null);
+  const [contactPhoto, setContactPhoto] = useState<File | null>(null);
+  const [contactPhotoPreview, setContactPhotoPreview] = useState('');
   const [documents, setDocuments] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
@@ -17,17 +21,51 @@ export function DealerRegistrationPage() {
 
   useEffect(() => { storeService.getStoresByStatus('active').then(({ data }) => setStores(data)); }, []);
 
+  useEffect(() => {
+    if (!contactPhoto) {
+      setContactPhotoPreview('');
+      return;
+    }
+    const previewUrl = URL.createObjectURL(contactPhoto);
+    setContactPhotoPreview(previewUrl);
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [contactPhoto]);
+
+  const selectContactPhoto = (file: File | null) => {
+    if (!file) {
+      setContactPhoto(null);
+      return;
+    }
+    if (!CONTACT_PHOTO_TYPES.has(file.type)) {
+      setContactPhoto(null);
+      setError('La photo de contact doit etre au format PNG, JPG ou JPEG.');
+      return;
+    }
+    if (file.size > MAX_CONTACT_PHOTO_BYTES) {
+      setContactPhoto(null);
+      setError('La photo de contact ne doit pas depasser 5 Mo.');
+      return;
+    }
+    setError('');
+    setContactPhoto(file);
+  };
+
   const submit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setError('');
     const form = new FormData(event.currentTarget);
+    const website = String(form.get('website') || '').trim();
+    if (website && !/^https?:\/\/[^\s]+$/i.test(website)) {
+      setError('Veuillez saisir une URL valide.');
+      return;
+    }
     if (!logo || documents.length === 0) { setError('Le logo et au moins un document justificatif sont obligatoires.'); return; }
     setLoading(true);
     try {
       await dealerService.register({
         companyName: form.get('companyName'), registrationNumber: form.get('registrationNumber'),
         address: form.get('address'), contactPerson: form.get('contactPerson'), email: form.get('email'),
-        phone: form.get('phone'), storeId: Number(form.get('storeId')),
-      }, logo, documents);
+        phone: form.get('phone'), website, storeId: Number(form.get('storeId')),
+      }, logo, documents, contactPhoto || undefined);
       setSuccess(true);
     } catch (requestError) {
       const message = axios.isAxiosError(requestError) ? requestError.response?.data?.message : null;
@@ -61,11 +99,48 @@ export function DealerRegistrationPage() {
             <div className="grid gap-5 sm:grid-cols-2">
               <label className="text-sm font-semibold text-slate-700">Raison sociale *<input name="companyName" required className={fieldClass} /></label>
               <label className="text-sm font-semibold text-slate-700">Numero d'immatriculation *<input name="registrationNumber" required className={fieldClass} /></label>
-              <label className="sm:col-span-2 text-sm font-semibold text-slate-700">Adresse *<input name="address" required className={fieldClass} /></label>
+              <label className="text-sm font-semibold text-slate-700">Adresse *<input name="address" required className={fieldClass} /></label>
+              <label className="text-sm font-semibold text-slate-700">
+                Site web *
+                <input
+                  name="website"
+                  type="url"
+                  inputMode="url"
+                  required
+                 
+                  pattern="https?://.*"
+                  title="Veuillez saisir une URL valide."
+                  className={fieldClass}
+                />
+              </label>
               <label className="text-sm font-semibold text-slate-700">Personne de contact *<input name="contactPerson" required className={fieldClass} /></label>
               <label className="text-sm font-semibold text-slate-700">Telephone *<input name="phone" required className={fieldClass} /></label>
               <label className="text-sm font-semibold text-slate-700">E-mail *<input name="email" type="email" required className={fieldClass} /></label>
               <label className="text-sm font-semibold text-slate-700">Categorie / store *<select name="storeId" required className={fieldClass}><option value="">Selectionner</option>{stores.map((store) => <option key={store.id} value={store.id}>{store.name}</option>)}</select></label>
+              <label className="text-sm font-semibold text-slate-700">
+                Photo de la personne de contact
+                <span className={`${fieldClass} flex cursor-pointer items-center gap-3`}>
+                  <UsersRound className="h-5 w-5 text-blue-600" />
+                  <span className="min-w-0 flex-1 truncate">{contactPhoto?.name || 'Choisir une photo'}</span>
+                  <input
+                    type="file"
+                    accept=".png,.jpg,.jpeg,image/png,image/jpeg"
+                    className="hidden"
+                    onChange={(event) => {
+                      selectContactPhoto(event.target.files?.[0] || null);
+                      event.target.value = '';
+                    }}
+                  />
+                </span>
+                <span className="mt-2 block text-xs font-normal text-slate-500">PNG, JPG ou JPEG, 5 Mo maximum.</span>
+                {contactPhotoPreview && (
+                  <img
+                    src={contactPhotoPreview}
+                    alt="Apercu de la personne de contact"
+                    className="mt-3 h-24 w-24 rounded-2xl border border-slate-200 bg-slate-50 object-cover shadow-sm"
+                  />
+                )}
+              </label>
               <label className="text-sm font-semibold text-slate-700">Logo *<span className={`${fieldClass} flex cursor-pointer items-center gap-3`}><Building2 className="h-5 w-5 text-blue-600" />{logo?.name || 'Choisir le logo'}<input type="file" accept="image/*" className="hidden" onChange={(e) => setLogo(e.target.files?.[0] || null)} /></span></label>
               <label className="text-sm font-semibold text-slate-700">Documents justificatifs *<span className={`${fieldClass} flex cursor-pointer items-center gap-3`}><Upload className="h-5 w-5 text-orange-500" />{documents.length ? `${documents.length} fichier(s)` : 'Ajouter les documents'}<input type="file" multiple className="hidden" onChange={(e) => setDocuments(Array.from(e.target.files || []))} /></span></label>
             </div>

@@ -19,7 +19,7 @@ Sensitive credentials, tokens, Stripe identifiers, checkout URLs, reset/verifica
 
 ## Subscription dates
 
-Subscriptions are represented by paid rows in `payment`; expiry is `paid_at + INTERVAL '1 month'`. There is no physical subscription table or expiration column in this database.
+Subscriptions are stored in `subscription` and last one year (12 months). Use `subscription.start_date` and `subscription.expiration_date` as the authoritative dates. Join a payment through `payment.subscription_id` when payment information is required.
 
 ## Production database account
 

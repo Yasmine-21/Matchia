@@ -51,6 +51,10 @@ public class WebConfig implements WebMvcConfigurer {
         registry.addResourceHandler("/uploads/dealers/logos/**")
                 .addResourceLocations(dealerLogoUploadPath.toUri().toString());
 
+        Path dealerContactPhotoUploadPath = Paths.get(dealerUploadDir, "contact-photos").toAbsolutePath().normalize();
+        registry.addResourceHandler("/uploads/dealers/contact-photos/**")
+                .addResourceLocations(dealerContactPhotoUploadPath.toUri().toString());
+
         Path dealerProductUploadPath = Paths.get(dealerProductUploadDir).toAbsolutePath().normalize();
         registry.addResourceHandler("/uploads/dealer-products/**")
                 .addResourceLocations(dealerProductUploadPath.toUri().toString());

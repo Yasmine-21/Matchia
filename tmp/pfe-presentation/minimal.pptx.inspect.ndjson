@@ -1,0 +1,6 @@
+{"kind":"deck","id":"pr/dnoxna","name":"Deck"}
+{"kind":"layout","layoutId":"4fb9e4a9-0636-4ef6-8966-0f5b63dac89d","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"8c065195-535d-45cb-9831-d80713e92015","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/388i5v","slide":1,"title":"Test","textShapes":1}
+{"kind":"textbox","id":"sh/zapobm5k","slide":1,"text":"Test","textPreview":"Test","textChars":4,"textLines":1,"bbox":[72,72,500,100]}
+{"kind":"notes","id":"nt/388i5v","slide":1,"text":""}

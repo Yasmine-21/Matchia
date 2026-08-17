@@ -179,18 +179,25 @@ public class SemanticDatabaseMapService {
                 DatabaseSchemaService.AllowedSchema schema
         ) {
             Set<String> paymentColumns = schema.tables().get("payment");
-            if (paymentColumns == null || !paymentColumns.contains("status") || !paymentColumns.contains("paid_at")) {
+            Set<String> subscriptionColumns = schema.tables().get("subscription");
+            if (paymentColumns == null
+                    || !paymentColumns.contains("status")
+                    || !paymentColumns.contains("paid_at")
+                    || !paymentColumns.contains("subscription_id")
+                    || subscriptionColumns == null
+                    || !subscriptionColumns.contains("id")
+                    || !subscriptionColumns.contains("start_date")
+                    || !subscriptionColumns.contains("expiration_date")) {
                 return;
             }
 
-            map.append("\nAuthoritative Offers & Subscriptions business rule: this SaaS screen treats only payment rows ")
-                    .append("with status 'paid' and a non-null paid_at as subscriptions. The payment status means that ")
-                    .append("the payment succeeded; it never means that a subscription is expired. The expiration date is ")
-                    .append("DATE(payment.paid_at + INTERVAL '1 month'). An expired subscription has expiration_date < CURRENT_DATE; ")
-                    .append("an active subscription has expiration_date >= CURRENT_DATE; remaining days are ")
-                    .append("DATE(payment.paid_at + INTERVAL '1 month') - CURRENT_DATE. Total subscriptions are the paid payment ")
-                    .append("rows with a non-null paid_at. Use this rule for Offers & Subscriptions, expired-subscription, ")
-                    .append("active-subscription, expiration-date, and remaining-days questions. Do not filter payment.status = 'expired'.\n");
+            map.append("\nAuthoritative Offers & Subscriptions business rule: subscriptions last one year (12 months). ")
+                    .append("Use subscription.start_date and subscription.expiration_date as the authoritative dates, joining ")
+                    .append("payment.subscription_id to subscription.id when payment details are requested. A payment row with ")
+                    .append("status 'paid' and a non-null paid_at means only that payment succeeded; it never means that a ")
+                    .append("subscription is expired. An expired subscription has subscription.expiration_date < CURRENT_DATE; ")
+                    .append("an active subscription has subscription.expiration_date >= CURRENT_DATE; remaining days are ")
+                    .append("subscription.expiration_date - CURRENT_DATE. Do not filter payment.status = 'expired'.\n");
         }
 
         public String initialGuidance() {

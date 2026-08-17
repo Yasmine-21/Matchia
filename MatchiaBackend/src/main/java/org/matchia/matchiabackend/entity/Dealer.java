@@ -36,8 +36,14 @@ public class Dealer {
     @Column(nullable = false)
     private String phone;
 
+    @Column(length = 500)
+    private String website;
+
     @Column(name = "logo_url")
     private String logoUrl;
+
+    @Column(name = "contact_photo_url")
+    private String contactPhotoUrl;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "store_id", nullable = false)

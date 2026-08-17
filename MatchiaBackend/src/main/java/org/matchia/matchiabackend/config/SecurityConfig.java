@@ -54,6 +54,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET, "/api/v1/marketplace-stores/**", "/api/v1/marketplace-store-modules/**", "/api/v1/bankbrandings/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/join-requests", "/api/join-requests/email-verification/**", "/api/v1/users/upload-contact-image").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/public/dealers/requests").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/public/dealers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/dealers/marketplaces/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/payments/config").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/create-payment-intent", "/api/payments/create-checkout-session", "/api/payments/*/confirm", "/api/payments/checkout-session/*/confirm", "/api/payments/*/renewal").permitAll()

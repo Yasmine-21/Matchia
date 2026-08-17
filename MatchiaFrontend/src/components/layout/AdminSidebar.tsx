@@ -30,6 +30,12 @@ import { NotificationDto } from '../../types/apiTypes';
 import { useBankTenant } from '../../hooks/useBankTenant';
 import { getBackendAssetUrl } from '../../utils/tenant';
 import { useApp } from '../../context/AppContext';
+import { MatchiaLogo } from '../brand/MatchiaLogo';
+import {
+  DEALER_BRANDING_UPDATED_EVENT,
+  dealerService,
+  type DealerView,
+} from '../../services/dealerService';
 
 interface SidebarItem {
   label: string;
@@ -55,6 +61,8 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState<NotificationDto[]>([]);
   const [isLoadingNotifications, setIsLoadingNotifications] = useState(false);
+  const [connectedDealer, setConnectedDealer] = useState<DealerView | null>(null);
+  const [dealerLogoFailed, setDealerLogoFailed] = useState(false);
   const { currentUser } = useApp();
   const bankTenant = useBankTenant(type === 'bank');
   const notificationRecipientId = type === 'bank'
@@ -130,10 +138,40 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
       { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/dealer/produits' },
       { label: 'Publications', icon: <Send className="w-5 h-5" />, path: '/dealer/publications' },
       { label: 'Profil', icon: <Settings className="w-5 h-5" />, path: '/dealer/profil' },
+      { label: 'Paramètres', icon: <Settings className="w-5 h-5" />, path: '/dealer/parametres' },
     ],
   }];
 
   const sections = type === 'saas' ? saasSections : type === 'bank' ? bankSections : dealerSections;
+
+  useEffect(() => {
+    if (type !== 'dealer') {
+      setConnectedDealer(null);
+      return;
+    }
+
+    let active = true;
+    const loadConnectedDealer = () => {
+      dealerService.me().then((response) => {
+        if (!active) return;
+        setConnectedDealer(response.data);
+        setDealerLogoFailed(false);
+      })
+      .catch((error) => {
+        if (!active) return;
+        setConnectedDealer(null);
+        console.error('Failed to load connected dealer branding:', error);
+      });
+    };
+
+    loadConnectedDealer();
+    window.addEventListener(DEALER_BRANDING_UPDATED_EVENT, loadConnectedDealer);
+
+    return () => {
+      active = false;
+      window.removeEventListener(DEALER_BRANDING_UPDATED_EVENT, loadConnectedDealer);
+    };
+  }, [type, currentUser?.id]);
 
   const loadNotificationData = async () => {
     if (type !== 'saas' && !notificationRecipientId) {
@@ -279,7 +317,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     >
       <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
         {!collapsed && (
-          <div className={`flex flex-1 items-center ${type === 'saas' ? 'justify-center' : 'gap-3'}`}>
+          <div className={`flex flex-1 items-center ${type === 'saas' || type === 'dealer' ? 'justify-center' : 'gap-3'}`}>
             {type === 'bank' ? (
               bankTenant.branding.logo_image_url ? (
                 <img
@@ -292,17 +330,27 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
                   <Building2 className="h-5 w-5" />
                 </div>
               )
+            ) : type === 'dealer' ? (
+              connectedDealer?.logoUrl && !dealerLogoFailed ? (
+                <img
+                  src={getBackendAssetUrl(connectedDealer.logoUrl)}
+                  alt={`Logo ${connectedDealer.companyName}`}
+                  className="h-16 w-full max-w-[205px] object-contain"
+                  onError={() => setDealerLogoFailed(true)}
+                />
+              ) : (
+                <div className="flex min-w-0 items-center gap-3">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-sidebar-border bg-white text-primary">
+                    <Store className="h-5 w-5" />
+                  </div>
+                  <div className="truncate text-sm font-semibold text-foreground">
+                    {connectedDealer?.companyName || 'Espace concessionnaire'}
+                  </div>
+                </div>
+              )
             ) : (
               <div className="flex items-center justify-center gap-2.5">
-                <img
-                  src="/logos/matchia-icon.svg"
-                  alt="Matchia"
-                  className="h-10 w-10 shrink-0 object-contain"
-                />
-                <span className="text-[1.8rem] font-bold tracking-tight leading-none">
-                  <span className="text-blue-600">Match</span>
-                  <span className="text-orange-500">ia</span>
-                </span>
+                <MatchiaLogo variant="full" markClassName="w-[180px] max-w-full" />
               </div>
             )}
             {type === 'bank' && (

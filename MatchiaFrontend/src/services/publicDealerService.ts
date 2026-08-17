@@ -8,6 +8,7 @@ export interface PublicDealer {
   email?: string | null;
   phone?: string | null;
   address?: string | null;
+  website?: string | null;
 }
 
 export const publicDealerService = {
