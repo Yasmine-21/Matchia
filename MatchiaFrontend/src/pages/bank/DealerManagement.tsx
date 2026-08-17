@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import {
@@ -8,7 +8,8 @@ import {
   Clock3,
   Handshake,
   Package,
-  PauseCircle,
+  Plus,
+  Send,
   Store,
   UserRound,
   XCircle,
@@ -20,14 +21,19 @@ import { KpiCard } from '../../components/ui/KpiCard';
 import { Modal } from '../../components/ui/Modal';
 import {
   dealerService,
+  type DealerView,
+  type StoreOption,
   type Partnership,
   type PartnershipStatus,
   type Publication,
   type PublicationStatus,
 } from '../../services/dealerService';
 import { getBackendAssetUrl } from '../../utils/tenant';
+import { BankContractsPanel } from '../../components/dealer/BankContractsPanel';
+import type { PartnershipContract } from '../../services/dealerService';
 
-type Tab = 'partnerships' | 'products';
+type Tab = 'partnerships' | 'contracts' | 'products';
+type PartnershipTab = 'received' | 'sent' | 'active';
 type RejectionTarget =
   | { type: 'partnership'; id: number; name: string }
   | { type: 'product'; id: number; name: string };
@@ -35,6 +41,8 @@ type RejectionTarget =
 const partnershipStatus: Record<PartnershipStatus, { label: string; variant: 'warning' | 'success' | 'danger' | 'secondary' }> = {
   PENDING: { label: 'En attente', variant: 'warning' },
   APPROVED: { label: 'Approuve', variant: 'success' },
+  WAITING_CONTRACT: { label: 'Contrat en preparation', variant: 'warning' },
+  ACTIVE: { label: 'Actif', variant: 'success' },
   REJECTED: { label: 'Rejete', variant: 'danger' },
   SUSPENDED: { label: 'Suspendu', variant: 'warning' },
   TERMINATED: { label: 'Termine', variant: 'secondary' },
@@ -67,7 +75,18 @@ const formatTnd = (value?: number) => new Intl.NumberFormat('fr-TN', {
 export function DealerManagement() {
   const [tab, setTab] = useState<Tab>('partnerships');
   const [partnerships, setPartnerships] = useState<Partnership[]>([]);
+  const [availableDealers, setAvailableDealers] = useState<DealerView[]>([]);
+  const [availableStores, setAvailableStores] = useState<StoreOption[]>([]);
+  const [partnershipTab, setPartnershipTab] = useState<PartnershipTab>('received');
+  const [showInvitation, setShowInvitation] = useState(false);
+  const [sendingInvitation, setSendingInvitation] = useState(false);
+  const [selectedStoreId, setSelectedStoreId] = useState('');
+  const [selectedDealerId, setSelectedDealerId] = useState('');
+  const [loadingDealers, setLoadingDealers] = useState(false);
+  const [dealerLoadError, setDealerLoadError] = useState('');
+  const dealerRequestSequence = useRef(0);
   const [publications, setPublications] = useState<Publication[]>([]);
+  const [contracts, setContracts] = useState<PartnershipContract[]>([]);
   const [loading, setLoading] = useState(true);
   const [actionKey, setActionKey] = useState('');
   const [rejectionTarget, setRejectionTarget] = useState<RejectionTarget | null>(null);
@@ -76,12 +95,14 @@ export function DealerManagement() {
   const load = async () => {
     setLoading(true);
     try {
-      const [partnershipResponse, publicationResponse] = await Promise.all([
+      const [partnershipResponse, publicationResponse, contractResponse] = await Promise.all([
         dealerService.bankPartnerships(),
         dealerService.bankPublications(),
+        dealerService.bankContracts(),
       ]);
       setPartnerships(partnershipResponse.data || []);
       setPublications(publicationResponse.data || []);
+      setContracts(contractResponse.data || []);
     } catch (error) {
       toast.error(getErrorMessage(error, 'Impossible de charger les donnees des concessionnaires.'));
     } finally {
@@ -91,6 +112,9 @@ export function DealerManagement() {
 
   useEffect(() => {
     void load();
+    void dealerService.bankPartnershipStores()
+      .then((response) => setAvailableStores(response.data || []))
+      .catch((error) => toast.error(getErrorMessage(error, 'Impossible de charger les stores de cette marketplace.')));
   }, []);
 
   const stats = useMemo(() => {
@@ -98,17 +122,23 @@ export function DealerManagement() {
       return {
         total: partnerships.length,
         pending: partnerships.filter((item) => item.status === 'PENDING').length,
-        approved: partnerships.filter((item) => item.status === 'APPROVED').length,
+        approved: partnerships.filter((item) => item.status === 'ACTIVE').length,
         inactive: partnerships.filter((item) => ['REJECTED', 'SUSPENDED', 'TERMINATED'].includes(item.status)).length,
       };
     }
+    if (tab === 'contracts') return {
+      total: contracts.length,
+      pending: contracts.filter((item) => ['DRAFT', 'PENDING_ACCEPTANCE'].includes(item.status)).length,
+      approved: contracts.filter((item) => item.status === 'ACTIVE').length,
+      inactive: contracts.filter((item) => ['EXPIRED', 'TERMINATED', 'CANCELLED'].includes(item.status)).length,
+    };
     return {
       total: publications.length,
       pending: publications.filter((item) => item.status === 'PENDING').length,
       approved: publications.filter((item) => item.status === 'APPROVED').length,
       inactive: publications.filter((item) => ['REJECTED', 'INACTIVE'].includes(item.status)).length,
     };
-  }, [partnerships, publications, tab]);
+  }, [partnerships, publications, contracts, tab]);
 
   const decidePartnership = async (
     id: number,
@@ -118,7 +148,9 @@ export function DealerManagement() {
     const key = `partnership-${id}-${status}`;
     setActionKey(key);
     try {
-      await dealerService.decidePartnership(id, status, reason);
+      if (status === 'APPROVED') await dealerService.approveBankRequest(id);
+      else if (status === 'REJECTED') await dealerService.rejectBankRequest(id, reason || 'Demande refusee');
+      else await dealerService.decidePartnership(id, status, reason);
       toast.success(status === 'APPROVED'
         ? 'Partenariat approuve avec succes.'
         : status === 'REJECTED'
@@ -129,6 +161,80 @@ export function DealerManagement() {
       await load();
     } catch (error) {
       toast.error(getErrorMessage(error, 'Impossible de mettre a jour le partenariat.'));
+    } finally {
+      setActionKey('');
+    }
+  };
+
+  const displayedPartnerships = useMemo(() => {
+    if (partnershipTab === 'received') return partnerships.filter((item) => item.initiatedBy === 'DEALER' && item.status !== 'ACTIVE');
+    if (partnershipTab === 'sent') return partnerships.filter((item) => item.initiatedBy === 'BANK' && item.status !== 'ACTIVE');
+    return partnerships.filter((item) => item.status === 'ACTIVE');
+  }, [partnershipTab, partnerships]);
+
+  const selectedDealer = availableDealers.find((dealer) => String(dealer.id) === selectedDealerId);
+
+  const selectStore = async (value: string) => {
+    const requestSequence = ++dealerRequestSequence.current;
+    setSelectedStoreId(value);
+    setSelectedDealerId('');
+    setAvailableDealers([]);
+    setDealerLoadError('');
+    const storeId = Number(value);
+    if (!Number.isInteger(storeId) || storeId <= 0) return;
+    setLoadingDealers(true);
+    try {
+      const response = await dealerService.dealersByStore(storeId);
+      if (requestSequence === dealerRequestSequence.current) {
+        setAvailableDealers(response.data || []);
+      }
+    } catch (error) {
+      if (requestSequence === dealerRequestSequence.current) {
+        const message = getErrorMessage(error, 'Impossible de charger les concessionnaires de ce store.');
+        setDealerLoadError(message);
+        toast.error(message);
+      }
+    } finally {
+      if (requestSequence === dealerRequestSequence.current) {
+        setLoadingDealers(false);
+      }
+    }
+  };
+
+  const sendInvitation = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const form = new FormData(event.currentTarget);
+    const dealerId = Number(form.get('dealerId'));
+    const dealer = availableDealers.find((item) => item.id === dealerId);
+    if (!dealer) {
+      toast.error('Selectionnez un concessionnaire compatible.');
+      return;
+    }
+    setSendingInvitation(true);
+    try {
+      await dealerService.inviteDealer(dealer.id, dealer.storeId, String(form.get('message') || '').trim());
+      toast.success('Invitation de partenariat envoyee.');
+      setShowInvitation(false);
+      setSelectedStoreId('');
+      setSelectedDealerId('');
+      setAvailableDealers([]);
+      setPartnershipTab('sent');
+      await load();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Impossible d'envoyer l'invitation."));
+    } finally {
+      setSendingInvitation(false);
+    }
+  };
+
+  const cancelInvitation = async (id: number) => {
+    setActionKey(`partnership-${id}-CANCEL`);
+    try {
+      await dealerService.cancelBankInvitation(id);
+      toast.success('Invitation annulee.');
+      await load();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Impossible d'annuler l'invitation."));
     } finally {
       setActionKey('');
     }
@@ -185,16 +291,20 @@ export function DealerManagement() {
             Gerez les partenariats et les produits proposes pour votre marketplace.
           </p>
         </div>
-       
+        {tab === 'partnerships' && (
+          <Button icon={<Plus className="h-4 w-4" />} onClick={() => setShowInvitation(true)}>
+            Inviter un concessionnaire
+          </Button>
+        )}
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          label={tab === 'partnerships' ? 'Partenariats' : 'Produits soumis'}
+          label={tab === 'partnerships' ? 'Partenariats' : tab === 'contracts' ? 'Contrats' : 'Produits soumis'}
           value={stats.total}
           badge="Total"
           tone="primary"
-          icon={tab === 'partnerships' ? <Handshake className="h-5 w-5" /> : <Package className="h-5 w-5" />}
+          icon={tab === 'partnerships' ? <Handshake className="h-5 w-5" /> : tab === 'contracts' ? <CalendarDays className="h-5 w-5" /> : <Package className="h-5 w-5" />}
         />
         <KpiCard
           label="En attente"
@@ -204,7 +314,7 @@ export function DealerManagement() {
           icon={<Clock3 className="h-5 w-5" />}
         />
         <KpiCard
-          label={tab === 'partnerships' ? 'Partenariats actifs' : 'Produits publies'}
+          label={tab === 'partnerships' ? 'Partenariats actifs' : tab === 'contracts' ? 'Contrats actifs' : 'Produits publies'}
           value={stats.approved}
           badge="Actifs"
           tone="success"
@@ -220,7 +330,7 @@ export function DealerManagement() {
       </div>
 
       <Card className="p-2 shadow-sm">
-        <div className="grid gap-2 sm:grid-cols-2">
+        <div className="grid gap-2 sm:grid-cols-3">
           <button
             type="button"
             onClick={() => setTab('partnerships')}
@@ -235,6 +345,14 @@ export function DealerManagement() {
             <Badge variant={tab === 'partnerships' ? 'outline' : 'secondary'} className={tab === 'partnerships' ? 'border-white/40 text-white' : ''}>
               {partnerships.length}
             </Badge>
+          </button>
+          <button
+            type="button"
+            onClick={() => setTab('contracts')}
+            className={`flex items-center justify-center gap-2 rounded-lg px-5 py-3 text-sm font-semibold transition-all ${tab === 'contracts' ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}
+          >
+            <CalendarDays className="h-4 w-4" /> Contrats
+            <Badge variant={tab === 'contracts' ? 'outline' : 'secondary'} className={tab === 'contracts' ? 'border-white/40 text-white' : ''}>{contracts.length}</Badge>
           </button>
           <button
             type="button"
@@ -257,34 +375,57 @@ export function DealerManagement() {
       <Card className="p-0 shadow-sm">
         <div className="border-b border-border px-6 py-5">
           <h2 className="text-lg font-semibold text-foreground">
-            {tab === 'partnerships' ? 'Demandes de partenariat' : 'Produits proposes par les concessionnaires'}
+            {tab === 'partnerships' ? 'Demandes de partenariat' : tab === 'contracts' ? 'Contrats de partenariat gratuits' : 'Produits proposes par les concessionnaires'}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {tab === 'partnerships'
               ? 'Validez et suivez les concessionnaires souhaitant rejoindre votre reseau.'
+              : tab === 'contracts'
+                ? 'Preparez, envoyez et activez les contrats sans paiement ni abonnement.'
               : 'Controlez les produits avant leur publication dans la marketplace.'}
           </p>
+          {tab === 'partnerships' && (
+            <div className="mt-5 flex flex-wrap gap-2">
+              {([
+                ['received', 'Demandes recues'],
+                ['sent', 'Invitations envoyees'],
+                ['active', 'Partenariats actifs'],
+              ] as const).map(([value, label]) => (
+                <button
+                  key={value}
+                  type="button"
+                  onClick={() => setPartnershipTab(value)}
+                  className={`rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
+                    partnershipTab === value ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="p-6">
           {loading ? (
             <LoadingState />
           ) : tab === 'partnerships' ? (
-            partnerships.length > 0 ? (
+            displayedPartnerships.length > 0 ? (
               <div className="grid gap-4 xl:grid-cols-2">
-                {partnerships.map((item) => (
+                {displayedPartnerships.map((item) => (
                   <PartnershipCard
                     key={item.id}
                     item={item}
                     actionKey={actionKey}
                     onApprove={() => void decidePartnership(item.id, 'APPROVED')}
                     onReject={() => openRejection({ type: 'partnership', id: item.id, name: item.dealer.companyName })}
-                    onSuspend={() => void decidePartnership(item.id, 'SUSPENDED')}
-                    onTerminate={() => void decidePartnership(item.id, 'TERMINATED')}
+                    onCancel={() => void cancelInvitation(item.id)}
                   />
                 ))}
               </div>
             ) : <EmptyState type="partnerships" />
+          ) : tab === 'contracts' ? (
+            <BankContractsPanel contracts={contracts} onChanged={load} />
           ) : publications.length > 0 ? (
             <div className="grid gap-4 xl:grid-cols-2">
               {publications.map((item) => (
@@ -338,6 +479,45 @@ export function DealerManagement() {
           </div>
         </div>
       </Modal>
+
+      <Modal isOpen={showInvitation} onClose={() => setShowInvitation(false)} title="Inviter un concessionnaire" size="sm">
+        <form onSubmit={sendInvitation} className="space-y-5">
+          <label className="block space-y-2 text-sm font-medium text-foreground">
+            Store de la marketplace *
+            <select value={selectedStoreId} onChange={(event) => void selectStore(event.target.value)} required className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring">
+              <option value="">Selectionnez un store</option>
+              {availableStores.map((store) => (
+                <option key={store.storeId} value={store.storeId}>{store.storeName}</option>
+              ))}
+            </select>
+          </label>
+          <label className="block space-y-2 text-sm font-medium text-foreground">
+            Concessionnaires par store *
+            <select name="dealerId" required disabled={!selectedStoreId || loadingDealers} value={selectedDealerId} onChange={(event) => setSelectedDealerId(event.target.value)} className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none disabled:cursor-not-allowed disabled:opacity-60 focus:ring-2 focus:ring-ring">
+              <option value="">{loadingDealers ? 'Chargement...' : 'Selectionnez un concessionnaire'}</option>
+              {availableDealers.map((dealer) => (
+                <option key={dealer.id} value={dealer.id}>{dealer.companyName}</option>
+              ))}
+            </select>
+          </label>
+          {selectedDealer && (
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
+              <div className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Store compatible</div>
+              <div className="mt-2 flex items-center gap-2 font-semibold text-foreground"><Store className="h-4 w-4 text-primary" />{selectedDealer.storeName}</div>
+            </div>
+          )}
+          <label className="block space-y-2 text-sm font-medium text-foreground">
+            Message
+            <textarea name="message" rows={4} maxLength={1000} placeholder="Message adresse au concessionnaire..." className="w-full resize-none rounded-lg border border-input bg-input-background p-3 outline-none focus:ring-2 focus:ring-ring" />
+          </label>
+          {dealerLoadError && <p className="rounded-lg bg-destructive/5 p-3 text-sm text-destructive">{dealerLoadError}</p>}
+          {selectedStoreId && !loadingDealers && !dealerLoadError && availableDealers.length === 0 && <p className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">Aucun concessionnaire disponible pour ce store.</p>}
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
+            <Button type="button" variant="outline" className="flex-1" onClick={() => setShowInvitation(false)}>Annuler</Button>
+            <Button type="submit" className="flex-1" icon={<Send className="h-4 w-4" />} loading={sendingInvitation} disabled={!selectedDealer}>Envoyer</Button>
+          </div>
+        </form>
+      </Modal>
     </div>
   );
 }
@@ -347,15 +527,13 @@ function PartnershipCard({
   actionKey,
   onApprove,
   onReject,
-  onSuspend,
-  onTerminate,
+  onCancel,
 }: {
   item: Partnership;
   actionKey: string;
   onApprove: () => void;
   onReject: () => void;
-  onSuspend: () => void;
-  onTerminate: () => void;
+  onCancel: () => void;
 }) {
   const isLoading = actionKey.startsWith(`partnership-${item.id}-`);
   return (
@@ -382,6 +560,7 @@ function PartnershipCard({
             <InfoLine icon={<UserRound className="h-4 w-4" />} value={item.dealer.contactPerson} />
             <InfoLine icon={<CalendarDays className="h-4 w-4" />} value={`Demande du ${formatDate(item.requestDate)}`} />
             <InfoLine icon={<Handshake className="h-4 w-4" />} value={item.bankName} />
+            <InfoLine icon={<Send className="h-4 w-4" />} value={item.initiatedBy === 'BANK' ? 'Invitation envoyee' : 'Demande recue'} />
           </div>
         </div>
       </div>
@@ -390,17 +569,16 @@ function PartnershipCard({
       {item.rejectionReason && <p className="mt-4 rounded-xl border border-destructive/20 bg-destructive/5 p-3 text-sm text-destructive">Motif : {item.rejectionReason}</p>}
 
       <div className="mt-auto flex flex-wrap justify-end gap-2 border-t border-border pt-4">
-        {item.status === 'PENDING' && (
+        {item.status === 'PENDING' && item.initiatedBy === 'DEALER' && (
           <>
             <Button variant="danger" size="sm" icon={<XCircle className="h-4 w-4" />} disabled={isLoading} onClick={onReject}>Rejeter</Button>
             <Button variant="success" size="sm" icon={<CheckCircle2 className="h-4 w-4" />} loading={actionKey === `partnership-${item.id}-APPROVED`} onClick={onApprove}>Approuver</Button>
           </>
         )}
-        {item.status === 'APPROVED' && (
-          <>
-            <Button variant="outline" size="sm" icon={<PauseCircle className="h-4 w-4" />} loading={actionKey === `partnership-${item.id}-SUSPENDED`} onClick={onSuspend}>Suspendre</Button>
-            <Button variant="danger" size="sm" icon={<Ban className="h-4 w-4" />} loading={actionKey === `partnership-${item.id}-TERMINATED`} onClick={onTerminate}>Terminer</Button>
-          </>
+        {item.status === 'PENDING' && item.initiatedBy === 'BANK' && (
+          <Button variant="outline" size="sm" icon={<Ban className="h-4 w-4" />} loading={actionKey === `partnership-${item.id}-CANCEL`} onClick={onCancel}>
+            Annuler l'invitation
+          </Button>
         )}
       </div>
     </article>

@@ -126,6 +126,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
     items: [
       { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dealer/dashboard' },
       { label: 'Partenariats', icon: <Handshake className="w-5 h-5" />, path: '/dealer/partenariats' },
+      { label: 'Contrats', icon: <FileText className="w-5 h-5" />, path: '/dealer/contrats' },
       { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/dealer/produits' },
       { label: 'Publications', icon: <Send className="w-5 h-5" />, path: '/dealer/publications' },
       { label: 'Profil', icon: <Settings className="w-5 h-5" />, path: '/dealer/profil' },

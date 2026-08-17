@@ -6,6 +6,7 @@ import { MarketplaceLayout } from './layouts/MarketplaceLayout';
 // Imports Public
 import { HomePage } from './pages/public/HomePage';
 import { BanksPage } from './pages/public/BanksPage';
+import { DealersPage } from './pages/public/DealersPage';
 import { JoinPage } from './pages/public/JoinPage';
 import { LoginPage } from './pages/public/LoginPage';
 import { ForgotPasswordPage } from './pages/public/ForgotPasswordPage';
@@ -61,6 +62,7 @@ export const saasRouter = createBrowserRouter([
     children: [
       { index: true, element: <HomePage /> },
       { path: 'banques', element: <BanksPage /> },
+      { path: 'concessionnaires', element: <DealersPage /> },
       { path: 'rejoindre', element: <JoinPage /> },
       { path: 'connexion', element: <LoginPage /> },
       { path: 'devenir-concessionnaire', element: <DealerRegistrationPage /> },
@@ -131,6 +133,7 @@ export const saasRouter = createBrowserRouter([
     children: [
       { path: 'dashboard', element: <DealerWorkspace mode="dashboard" /> },
       { path: 'partenariats', element: <DealerWorkspace mode="partnerships" /> },
+      { path: 'contrats', element: <DealerWorkspace mode="contracts" /> },
       { path: 'produits', element: <DealerWorkspace mode="products" /> },
       { path: 'publications', element: <DealerWorkspace mode="publications" /> },
       { path: 'profil', element: <ProfileSettingsPage type="dealer" /> },

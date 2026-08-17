@@ -18,6 +18,7 @@ import {
   Store,
   Upload,
   UserRound,
+  XCircle,
 } from 'lucide-react';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
@@ -31,13 +32,15 @@ import {
   type DealerProduct,
   type DealerView,
   type Partnership,
+  type PartnershipContract,
   type Publication,
 } from '../../services/dealerService';
 import { productParameterService } from '../../services/productParameterService';
 import type { ProductParameterDefinitionDto } from '../../types/apiTypes';
 import { getBackendAssetUrl } from '../../utils/tenant';
+import { DealerContractsPanel } from '../../components/dealer/DealerContractsPanel';
 
-type Mode = 'dashboard' | 'partnerships' | 'products' | 'publications' | 'profile';
+type Mode = 'dashboard' | 'partnerships' | 'contracts' | 'products' | 'publications' | 'profile';
 type BadgeVariant = 'default' | 'primary' | 'success' | 'warning' | 'danger' | 'secondary' | 'outline';
 
 const pageMeta: Record<Mode, { title: string; description: string }> = {
@@ -48,6 +51,10 @@ const pageMeta: Record<Mode, { title: string; description: string }> = {
   partnerships: {
     title: 'Partenariats bancaires',
     description: 'Demandez et suivez vos partenariats avec les banques compatibles.',
+  },
+  contracts: {
+    title: 'Contrats de partenariat',
+    description: 'Consultez et acceptez les contrats gratuits proposes par vos banques partenaires.',
   },
   products: {
     title: 'Catalogue produits',
@@ -68,6 +75,7 @@ const statusMeta = (status: string): { label: string; variant: BadgeVariant } =>
     case 'APPROVED': return { label: 'Approuve', variant: 'success' };
     case 'ACTIVE': return { label: 'Actif', variant: 'success' };
     case 'PENDING': return { label: 'En attente', variant: 'warning' };
+    case 'WAITING_CONTRACT': return { label: 'Contrat en preparation', variant: 'warning' };
     case 'DRAFT': return { label: 'Brouillon', variant: 'warning' };
     case 'INACTIVE': return { label: 'Inactif', variant: 'secondary' };
     case 'SUSPENDED': return { label: 'Suspendu', variant: 'warning' };
@@ -99,6 +107,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [banks, setBanks] = useState<BankOption[]>([]);
   const [partnerships, setPartnerships] = useState<Partnership[]>([]);
+  const [contracts, setContracts] = useState<PartnershipContract[]>([]);
   const [products, setProducts] = useState<DealerProduct[]>([]);
   const [publications, setPublications] = useState<Publication[]>([]);
   const [definitions, setDefinitions] = useState<ProductParameterDefinitionDto[]>([]);
@@ -108,6 +117,9 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
   const [editProduct, setEditProduct] = useState<DealerProduct | null>(null);
   const [submittingPartnership, setSubmittingPartnership] = useState(false);
   const [partnershipError, setPartnershipError] = useState('');
+  const [partnershipAction, setPartnershipAction] = useState('');
+  const [invitationToReject, setInvitationToReject] = useState<Partnership | null>(null);
+  const [invitationRejectionReason, setInvitationRejectionReason] = useState('');
   const [productToSubmit, setProductToSubmit] = useState<DealerProduct | null>(null);
   const [selectedPartnershipId, setSelectedPartnershipId] = useState('');
   const [submittingProductId, setSubmittingProductId] = useState<number | null>(null);
@@ -117,10 +129,11 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
     try {
       const me = await dealerService.me();
       setDealer(me.data);
-      const [dashboard, bankList, partnershipList, productList, publicationList, definitionList] = await Promise.all([
+      const [dashboard, bankList, partnershipList, contractList, productList, publicationList, definitionList] = await Promise.all([
         dealerService.dashboard(),
         dealerService.availableBanks(),
         dealerService.partnerships(),
+        dealerService.dealerContracts(),
         dealerService.products(),
         dealerService.publications(),
         productParameterService.getByStore(me.data.storeId),
@@ -128,6 +141,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
       setStats(dashboard.data);
       setBanks(bankList.data || []);
       setPartnerships(partnershipList.data || []);
+      setContracts(contractList.data || []);
       setProducts(productList.data || []);
       setPublications(publicationList.data || []);
       setDefinitions(definitionList.data || []);
@@ -143,7 +157,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
   }, []);
 
   const approvedPartnerships = useMemo(
-    () => partnerships.filter((item) => item.status === 'APPROVED'),
+    () => partnerships.filter((item) => item.status === 'ACTIVE'),
     [partnerships],
   );
 
@@ -171,6 +185,51 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
       toast.error(message);
     } finally {
       setSubmittingPartnership(false);
+    }
+  };
+
+  const approveInvitation = async (id: number) => {
+    setPartnershipAction(`approve-${id}`);
+    try {
+      await dealerService.approveDealerInvitation(id);
+      toast.success('Invitation acceptee. Le contrat est maintenant en preparation.');
+      await load();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Impossible d'accepter l'invitation."));
+    } finally {
+      setPartnershipAction('');
+    }
+  };
+
+  const rejectInvitation = async () => {
+    if (!invitationToReject || !invitationRejectionReason.trim()) {
+      toast.error('Le motif du rejet est obligatoire.');
+      return;
+    }
+    setPartnershipAction(`reject-${invitationToReject.id}`);
+    try {
+      await dealerService.rejectDealerInvitation(invitationToReject.id, invitationRejectionReason.trim());
+      toast.success('Invitation rejetee.');
+      setInvitationToReject(null);
+      setInvitationRejectionReason('');
+      await load();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Impossible de rejeter l'invitation."));
+    } finally {
+      setPartnershipAction('');
+    }
+  };
+
+  const cancelRequest = async (id: number) => {
+    setPartnershipAction(`cancel-${id}`);
+    try {
+      await dealerService.cancelDealerRequest(id);
+      toast.success('Demande annulee.');
+      await load();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Impossible d'annuler la demande."));
+    } finally {
+      setPartnershipAction('');
     }
   };
 
@@ -261,8 +320,13 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
           error={partnershipError}
           submitting={submittingPartnership}
           onSubmit={requestPartnership}
+          actionKey={partnershipAction}
+          onApprove={approveInvitation}
+          onReject={setInvitationToReject}
+          onCancel={cancelRequest}
         />
       )}
+      {mode === 'contracts' && <DealerContractsPanel contracts={contracts} onChanged={load} />}
       {mode === 'products' && (
         <Products
           products={products}
@@ -281,6 +345,17 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
         onClose={() => { if (!savingProduct) { setShowProductForm(false); setEditProduct(null); } }}
         onSubmit={saveProduct}
       />
+
+      <Modal isOpen={Boolean(invitationToReject)} onClose={() => setInvitationToReject(null)} title="Rejeter l'invitation" size="sm">
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">Indiquez le motif transmis a {invitationToReject?.bankName}.</p>
+          <textarea value={invitationRejectionReason} onChange={(event) => setInvitationRejectionReason(event.target.value)} rows={4} maxLength={1000} className="w-full resize-none rounded-lg border border-input bg-input-background p-3 outline-none focus:ring-2 focus:ring-ring" placeholder="Motif du rejet..." />
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
+            <Button variant="outline" className="flex-1" onClick={() => setInvitationToReject(null)}>Annuler</Button>
+            <Button variant="danger" className="flex-1" loading={partnershipAction.startsWith('reject-')} onClick={() => void rejectInvitation()}>Confirmer</Button>
+          </div>
+        </div>
+      </Modal>
 
       <Modal
         isOpen={Boolean(productToSubmit)}
@@ -379,6 +454,10 @@ function Partnerships({
   error,
   submitting,
   onSubmit,
+  actionKey,
+  onApprove,
+  onReject,
+  onCancel,
 }: {
   dealer: DealerView;
   banks: BankOption[];
@@ -386,7 +465,14 @@ function Partnerships({
   error: string;
   submitting: boolean;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
+  actionKey: string;
+  onApprove: (id: number) => void;
+  onReject: (partnership: Partnership) => void;
+  onCancel: (id: number) => void;
 }) {
+  const received = partnerships.filter((item) => item.initiatedBy === 'BANK' && item.status !== 'ACTIVE');
+  const sent = partnerships.filter((item) => item.initiatedBy === 'DEALER' && item.status !== 'ACTIVE');
+  const active = partnerships.filter((item) => item.status === 'ACTIVE');
   return (
     <div className="grid items-start gap-6 xl:grid-cols-[380px_minmax(0,1fr)]">
       <Card>
@@ -417,21 +503,87 @@ function Partnerships({
         </CardContent>
       </Card>
 
-      <HistoryList
-        title="Historique des partenariats"
-        description="Suivez les demandes envoyees et les decisions des banques."
-        emptyTitle="Aucun partenariat"
-        emptyDescription="Vos demandes de partenariat apparaitront ici."
-        icon={<Handshake className="h-7 w-7" />}
-        rows={partnerships.map((item) => ({
-          id: item.id,
-          title: item.bankName,
-          subtitle: `${item.storeName} - Demande du ${formatDate(item.requestDate)}`,
-          status: item.status,
-          detail: item.rejectionReason || item.message,
-        }))}
-      />
+      <div className="space-y-5">
+        <PartnershipGroup
+          title="Invitations recues"
+          description="Les banques qui souhaitent travailler avec votre concession."
+          rows={received}
+          actionKey={actionKey}
+          receiverActions
+          onApprove={onApprove}
+          onReject={onReject}
+          onCancel={onCancel}
+        />
+        <PartnershipGroup
+          title="Demandes envoyees"
+          description="Suivez les demandes que vous avez adressees aux banques."
+          rows={sent}
+          actionKey={actionKey}
+          onApprove={onApprove}
+          onReject={onReject}
+          onCancel={onCancel}
+        />
+        <PartnershipGroup
+          title="Partenariats actifs"
+          description="Vos relations actives permettant la soumission de produits."
+          rows={active}
+          actionKey={actionKey}
+          onApprove={onApprove}
+          onReject={onReject}
+          onCancel={onCancel}
+        />
+      </div>
     </div>
+  );
+}
+
+function PartnershipGroup({ title, description, rows, actionKey, receiverActions = false, onApprove, onReject, onCancel }: {
+  title: string;
+  description: string;
+  rows: Partnership[];
+  actionKey: string;
+  receiverActions?: boolean;
+  onApprove: (id: number) => void;
+  onReject: (partnership: Partnership) => void;
+  onCancel: (id: number) => void;
+}) {
+  return (
+    <Card className="p-0">
+      <div className="border-b border-border px-5 py-4">
+        <h2 className="font-semibold text-foreground">{title}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{description}</p>
+      </div>
+      {rows.length === 0 ? (
+        <p className="px-5 py-8 text-center text-sm text-muted-foreground">Aucun element dans cette section.</p>
+      ) : (
+        <div className="divide-y divide-border">
+          {rows.map((item) => (
+            <article key={item.id} className="p-5">
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <h3 className="font-semibold text-foreground">{item.bankName}</h3>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.storeName} - {formatDate(item.requestDate)}</p>
+                </div>
+                <Badge variant={statusMeta(item.status).variant}>{statusMeta(item.status).label}</Badge>
+              </div>
+              {item.message && <p className="mt-3 rounded-lg bg-muted/50 p-3 text-sm text-muted-foreground">{item.message}</p>}
+              {item.rejectionReason && <p className="mt-3 rounded-lg bg-destructive/5 p-3 text-sm text-destructive">Motif : {item.rejectionReason}</p>}
+              {item.status === 'PENDING' && receiverActions && (
+                <div className="mt-4 flex flex-wrap justify-end gap-2">
+                  <Button size="sm" variant="danger" icon={<XCircle className="h-4 w-4" />} disabled={Boolean(actionKey)} onClick={() => onReject(item)}>Rejeter</Button>
+                  <Button size="sm" variant="success" icon={<CheckCircle2 className="h-4 w-4" />} loading={actionKey === `approve-${item.id}`} onClick={() => onApprove(item.id)}>Accepter</Button>
+                </div>
+              )}
+              {item.status === 'PENDING' && !receiverActions && item.initiatedBy === 'DEALER' && (
+                <div className="mt-4 flex justify-end">
+                  <Button size="sm" variant="outline" loading={actionKey === `cancel-${item.id}`} onClick={() => onCancel(item.id)}>Annuler la demande</Button>
+                </div>
+              )}
+            </article>
+          ))}
+        </div>
+      )}
+    </Card>
   );
 }
 

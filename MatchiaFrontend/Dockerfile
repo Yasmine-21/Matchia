@@ -1,39 +1,42 @@
-# ===============================
-# Étape 1 : construire React/Vite
-# ===============================
+# ==============================
+# ÉTAPE 1 : BUILD REACT
+# ==============================
+
 FROM node:22-alpine AS build
 
 WORKDIR /app
 
-# Copier les fichiers de dépendances
-COPY package.json package-lock.json ./
+# Copier package.json et package-lock.json
+COPY package*.json ./
 
-# Installer exactement les dépendances du package-lock.json
+# Installer les dépendances
 RUN npm ci
 
-# Copier le reste du frontend
+# Copier le projet
 COPY . .
 
-# URL utilisée par Axios dans le frontend
-ARG VITE_API_URL=/backend
-ENV VITE_API_URL=${VITE_API_URL}
+# Variable utilisée par Vite
+ARG VITE_API_URL=http://lvh.me:8081
 
-# Construire le frontend
+ENV VITE_API_URL=$VITE_API_URL
+
+# Créer le build de production
 RUN npm run build
 
 
-# ===============================
-# Étape 2 : servir avec Nginx
-# ===============================
+# ==============================
+# ÉTAPE 2 : NGINX
+# ==============================
+
 FROM nginx:alpine
 
 # Supprimer la configuration Nginx par défaut
 RUN rm /etc/nginx/conf.d/default.conf
 
-# Copier notre configuration Nginx
+# Ajouter notre configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
-# Copier le frontend compilé
+# Copier le build React
 COPY --from=build /app/dist /usr/share/nginx/html
 
 EXPOSE 80

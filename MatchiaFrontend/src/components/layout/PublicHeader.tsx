@@ -11,6 +11,7 @@ export function PublicHeader() {
 
   const isHomeActive = location.pathname === '/';
   const isBanksActive = location.pathname === '/banques';
+  const isDealersActive = location.pathname === '/concessionnaires';
 
   const navLinkClass = (isActive: boolean) =>
     `relative py-2 font-bold transition-colors ${
@@ -47,6 +48,12 @@ export function PublicHeader() {
             <Link to="/banques" className={navLinkClass(isBanksActive)}>
               Banques
               {isBanksActive && (
+                <span className="absolute bottom-0 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-[#2563EB]" />
+              )}
+            </Link>
+            <Link to="/concessionnaires" className={navLinkClass(isDealersActive)}>
+              Concessionnaires
+              {isDealersActive && (
                 <span className="absolute bottom-0 left-1/2 h-1 w-9 -translate-x-1/2 rounded-full bg-[#2563EB]" />
               )}
             </Link>
@@ -101,6 +108,9 @@ export function PublicHeader() {
               </Link>
               <Link to="/banques" className={mobileNavLinkClass(isBanksActive)}>
                 Banques
+              </Link>
+              <Link to="/concessionnaires" className={mobileNavLinkClass(isDealersActive)}>
+                Concessionnaires
               </Link>
 
               <div className="pt-3 border-t border-border space-y-2">
