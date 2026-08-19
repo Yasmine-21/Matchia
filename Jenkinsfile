@@ -8,10 +8,6 @@ pipeline {
 
     stages {
 
-        // =====================================================
-        // 1. RÉCUPÉRATION DU CODE DEPUIS GITHUB
-        // =====================================================
-
         stage('Checkout') {
             steps {
                 echo 'Récupération du projet depuis GitHub...'
@@ -19,14 +15,8 @@ pipeline {
             }
         }
 
-
-        // =====================================================
-        // 2. BUILD BACKEND SPRING BOOT
-        // =====================================================
-
         stage('Build Backend') {
             steps {
-
                 dir('MatchiaBackend') {
 
                     echo 'Build du backend Spring Boot...'
@@ -38,14 +28,8 @@ pipeline {
             }
         }
 
-
-        // =====================================================
-        // 3. BUILD FRONTEND REACT
-        // =====================================================
-
         stage('Build Frontend') {
             steps {
-
                 dir('MatchiaFrontend') {
 
                     nodejs(nodeJSInstallationName: 'NodeJS-24') {
@@ -53,33 +37,36 @@ pipeline {
                         echo 'Build du frontend React...'
 
                         sh 'node --version'
-
                         sh 'npm --version'
 
                         sh 'npm ci'
-
                         sh 'npm run build'
                     }
                 }
             }
         }
 
+        stage('Tests Backend') {
+            steps {
+                dir('MatchiaBackend') {
+
+                    echo 'Exécution des tests backend...'
+
+                    sh './mvnw test'
+                }
+            }
+        }
+
     }
-
-
-    // =========================================================
-    // RÉSULTAT
-    // =========================================================
 
     post {
 
         success {
-            echo 'BUILD MATCHIA SUCCESS ✅'
+            echo 'BUILD ET TESTS MATCHIA SUCCESS ✅'
         }
 
         failure {
-            echo 'BUILD MATCHIA FAILED ❌'
+            echo 'PIPELINE MATCHIA FAILED ❌'
         }
-
     }
 }
