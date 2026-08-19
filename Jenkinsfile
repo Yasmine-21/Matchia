@@ -56,20 +56,6 @@ pipeline {
                 }
             }
         }
-        stage('SonarQube Frontend') {
-    steps {
-        dir('MatchiaFrontend') {
-            nodejs(nodeJSInstallationName: 'NodeJS-24') {
-                withSonarQubeEnv('Matchia-SonarQube') {
-                    sh '''
-                        npx @sonar/scan \
-                        -Dsonar.host.url=$SONAR_HOST_URL \
-                        -Dsonar.token=$SONAR_AUTH_TOKEN
-                    '''
-                }
-            }
-        }
-    }
 }
        stage('SonarQube Backend') {
     steps {
@@ -84,7 +70,24 @@ pipeline {
         }
     }
 }
-
+stage('SonarQube Frontend') {
+    steps {
+        dir('MatchiaFrontend') {
+            nodejs(nodeJSInstallationName: 'NodeJS-24') {
+                withSonarQubeEnv(
+                    installationName: 'Matchia-SonarQube',
+                    credentialsId: 'sonar-frontend-token'
+                ) {
+                    sh '''
+                        npx @sonar/scan \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.token=$SONAR_AUTH_TOKEN
+                    '''
+                }
+            }
+        }
+    }
+}
     }
 
     post {
