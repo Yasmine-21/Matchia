@@ -44,6 +44,10 @@ import { ProductManagement } from './pages/bank/ProductManagement';
 import { DealerManagement } from './pages/bank/DealerManagement';
 import { DealerWorkspace } from './pages/dealer/DealerWorkspace';
 import { DealerSettingsPage } from './pages/dealer/DealerSettingsPage';
+import { ClientAreaLayout } from './layouts/ClientAreaLayout';
+import { ClientDashboard, ClientProfilePage, ClientRequests, ClientRequestDetail, FinancingApplicationPage } from './pages/client/ClientArea';
+import { ClientRegistrationPage } from './pages/public/ClientRegistrationPage';
+import { BankFinancingRequestDetail, BankFinancingRequests } from './pages/bank/FinancingManagement';
 
 // Imports Marketplace
 import { MarketplaceHome } from './pages/marketplace/Home';
@@ -168,7 +172,7 @@ export const tenantRouter = createBrowserRouter([
   },
   {
     path: '/inscription',
-    element: <JoinPage />,
+    element: <ClientRegistrationPage />,
   },
   {
     path: '/mot-de-passe-oublie',
@@ -198,6 +202,19 @@ export const tenantRouter = createBrowserRouter([
       { path: 'parametres', element: <BankParameters /> },
       { path: 'profil', element: <ProfileSettingsPage type="bank" /> },
       { path: 'concessionnaires', element: <DealerManagement /> },
+      { path: 'financing-requests', element: <BankFinancingRequests /> },
+      { path: 'financing-requests/:id', element: <BankFinancingRequestDetail /> },
+    ],
+  },
+  {
+    path: '/client',
+    element: <ProtectedRoute requiredRole="client"><ClientAreaLayout /></ProtectedRoute>,
+    children: [
+      { path: 'dashboard', element: <ClientDashboard /> },
+      { path: 'profile', element: <ClientProfilePage /> },
+      { path: 'financing-requests', element: <ClientRequests /> },
+      { path: 'financing-requests/new', element: <FinancingApplicationPage /> },
+      { path: 'financing-requests/:id', element: <ClientRequestDetail /> },
     ],
   },
 ]);

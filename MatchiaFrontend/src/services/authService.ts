@@ -180,6 +180,10 @@ export const authService = {
       return '/dealer/dashboard';
     }
 
+    if (user.role === 'CLIENT') {
+      return '/client/dashboard';
+    }
+
     return '/';
   },
 };

@@ -9,14 +9,12 @@ import org.matchia.matchiabackend.service.UserService;
 import org.matchia.matchiabackend.service.PasswordService;
 import org.matchia.matchiabackend.service.DealerSecurityService;
 import org.matchia.matchiabackend.entity.enums.RoleEnum;
-import org.matchia.matchiabackend.security.JwtUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import jakarta.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -37,26 +35,34 @@ public class UserController {
     private final UserService service;
     private final UserMapper mapper;
     private final BankRepository bankRepository;
-    private final JwtUtil jwtUtil;
     private final PasswordService passwordService;
     private final DealerSecurityService dealerSecurityService;
 
     @Value("${app.upload.dir:uploads/logos}")
     private String uploadDir;
 
-    public UserController(UserService service, UserMapper mapper, BankRepository bankRepository, JwtUtil jwtUtil,
+    public UserController(UserService service, UserMapper mapper, BankRepository bankRepository,
                           PasswordService passwordService, DealerSecurityService dealerSecurityService) {
         this.service = service;
         this.mapper = mapper;
         this.bankRepository = bankRepository;
-        this.jwtUtil = jwtUtil;
         this.passwordService = passwordService;
         this.dealerSecurityService = dealerSecurityService;
     }
 
     @PostMapping
-    public ResponseEntity<?> create(@RequestBody UserDto dto, HttpServletRequest request, Authentication authentication) {
-        if (isDealer(authentication)) {
+    public ResponseEntity<?> create(@RequestBody UserDto dto, Authentication authentication) {
+        User currentUser = dealerSecurityService.currentUser(authentication);
+        if (currentUser.getRole() != RoleEnum.ADMIN_SAAS && currentUser.getRole() != RoleEnum.ADMIN_BANK) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (currentUser.getRole() == RoleEnum.ADMIN_SAAS && dto.getRole() == RoleEnum.CLIENT) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Les clients sont crees depuis l'inscription de la marketplace."));
+        }
+        if (currentUser.getRole() == RoleEnum.ADMIN_BANK
+                && dto.getRole() != null
+                && dto.getRole() != RoleEnum.ADMIN_BANK
+                && dto.getRole() != RoleEnum.CLIENT) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         String encodedPassword;
@@ -66,13 +72,9 @@ public class UserController {
             return ResponseEntity.badRequest().body(Map.of("message", exception.getMessage()));
         }
         User entity = mapper.toEntity(dto);
-        Bank bank = resolveBank(dto.getBankId());
+        Bank bank = currentUser.getRole() == RoleEnum.ADMIN_BANK ? currentUser.getBank() : resolveBank(dto.getBankId());
         if (bank == null) {
             return ResponseEntity.badRequest().body(Map.of("message", "La banque selectionnee est introuvable."));
-        }
-        String tenantBankSlug = resolveTenantBankSlug(request);
-        if (tenantBankSlug != null && (bank.getSlug() == null || !tenantBankSlug.equals(bank.getSlug()))) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
         entity.setBank(bank);
         if (entity.getRole() == null) {
@@ -103,50 +105,50 @@ public class UserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<UserDto>> getAll(HttpServletRequest request, Authentication authentication) {
-        if (isDealer(authentication)) {
-            User current = dealerSecurityService.currentUser(authentication);
-            return ResponseEntity.ok(List.of(mapper.toDto(current)));
+    public ResponseEntity<List<UserDto>> getAll(Authentication authentication) {
+        User currentUser = dealerSecurityService.currentUser(authentication);
+        if (currentUser.getRole() == RoleEnum.ADMIN_SAAS) {
+            return ResponseEntity.ok(service.findAllForSaasBackoffice().stream()
+                    .map(mapper::toDto)
+                    .collect(Collectors.toList()));
         }
-        String tenantBankSlug = resolveTenantBankSlug(request);
-        List<UserDto> list = service.findAllByBankSlug(tenantBankSlug).stream()
-                .map(mapper::toDto)
-                .collect(Collectors.toList());
-        return new ResponseEntity<>(list, HttpStatus.OK);
+        if (currentUser.getRole() == RoleEnum.ADMIN_BANK && currentUser.getBank() != null) {
+            return ResponseEntity.ok(service.findAllForBankBackoffice(currentUser.getBank().getId()).stream()
+                    .map(mapper::toDto)
+                    .collect(Collectors.toList()));
+        }
+        if (currentUser.getRole() == RoleEnum.DEALER_ADMIN) {
+            return ResponseEntity.ok(List.of(mapper.toDto(currentUser)));
+        }
+        return new ResponseEntity<>(HttpStatus.FORBIDDEN);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getById(@PathVariable Long id, HttpServletRequest request, Authentication authentication) {
-        if (!canAccessUser(authentication, id)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        String tenantBankSlug = resolveTenantBankSlug(request);
-        Optional<User> entity = service.findDetailedByIdAndBankSlug(id, tenantBankSlug);
+    public ResponseEntity<UserDto> getById(@PathVariable Long id, Authentication authentication) {
+        Optional<User> entity = findUserVisibleTo(dealerSecurityService.currentUser(authentication), id);
         return entity.map(value -> new ResponseEntity<>(mapper.toDto(value), HttpStatus.OK))
                 .orElseGet(() -> new ResponseEntity<>(HttpStatus.NOT_FOUND));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UserDto dto, HttpServletRequest request,
-                                    Authentication authentication) {
-        if (!canAccessUser(authentication, id)) {
-            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-        }
-        String tenantBankSlug = resolveTenantBankSlug(request);
-        Optional<User> existingUser = service.findDetailedByIdAndBankSlug(id, tenantBankSlug);
+    public ResponseEntity<?> update(@PathVariable Long id, @RequestBody UserDto dto, Authentication authentication) {
+        User currentUser = dealerSecurityService.currentUser(authentication);
+        Optional<User> existingUser = findUserVisibleTo(currentUser, id);
         if (existingUser.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
         User entity = existingUser.get();
         Bank bank = entity.getBank();
-        if (dto.getBankId() != null) {
+        if (currentUser.getRole() == RoleEnum.ADMIN_BANK
+                && dto.getBankId() != null
+                && !dto.getBankId().equals(bank != null ? bank.getId() : null)) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (currentUser.getRole() == RoleEnum.ADMIN_SAAS && dto.getBankId() != null) {
             bank = resolveBank(dto.getBankId());
             if (bank == null) {
                 return ResponseEntity.badRequest().body(Map.of("message", "La banque selectionnee est introuvable."));
-            }
-            if (tenantBankSlug != null && (bank.getSlug() == null || !tenantBankSlug.equals(bank.getSlug()))) {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
             }
         }
 
@@ -166,10 +168,17 @@ public class UserController {
         if (dto.getContactImageUrl() != null) {
             entity.setContactImageUrl(dto.getContactImageUrl());
         }
-        if (dto.getRole() != null && !isDealer(authentication)) {
+        if (dto.getRole() == RoleEnum.CLIENT && currentUser.getRole() == RoleEnum.ADMIN_SAAS) {
+            return ResponseEntity.badRequest().body(Map.of("message", "Les comptes clients ne sont pas geres depuis le backoffice SaaS."));
+        }
+        if (dto.getRole() != null && currentUser.getRole() == RoleEnum.ADMIN_BANK
+                && dto.getRole() != RoleEnum.ADMIN_BANK && dto.getRole() != RoleEnum.CLIENT) {
+            return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+        }
+        if (dto.getRole() != null && currentUser.getRole() != RoleEnum.DEALER_ADMIN) {
             entity.setRole(dto.getRole());
         }
-        if (dto.getStatus() != null && !isDealer(authentication)) {
+        if (dto.getStatus() != null && currentUser.getRole() != RoleEnum.DEALER_ADMIN) {
             entity.setStatus(dto.getStatus());
         }
         if (dto.getPassword() != null && !dto.getPassword().isBlank()) {
@@ -185,12 +194,12 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(@PathVariable Long id, HttpServletRequest request, Authentication authentication) {
-        if (isDealer(authentication)) {
+    public ResponseEntity<Void> delete(@PathVariable Long id, Authentication authentication) {
+        User currentUser = dealerSecurityService.currentUser(authentication);
+        if (currentUser.getRole() != RoleEnum.ADMIN_SAAS && currentUser.getRole() != RoleEnum.ADMIN_BANK) {
             return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
-        String tenantBankSlug = resolveTenantBankSlug(request);
-        Optional<User> existingUser = service.findDetailedByIdAndBankSlug(id, tenantBankSlug);
+        Optional<User> existingUser = findUserVisibleTo(currentUser, id);
         if (existingUser.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
@@ -205,62 +214,17 @@ public class UserController {
         return bankRepository.findById(bankId).orElse(null);
     }
 
-    private boolean isDealer(Authentication authentication) {
-        return authentication != null && authentication.isAuthenticated()
-                && dealerSecurityService.currentUser(authentication).getRole() == RoleEnum.DEALER_ADMIN;
-    }
-
-    private boolean canAccessUser(Authentication authentication, Long userId) {
-        if (!isDealer(authentication)) {
-            return true;
+    private Optional<User> findUserVisibleTo(User currentUser, Long userId) {
+        if (currentUser.getRole() == RoleEnum.ADMIN_SAAS) {
+            return service.findDetailedForSaasBackoffice(userId);
         }
-        return dealerSecurityService.currentUser(authentication).getId().equals(userId);
-    }
-
-    private String resolveTenantBankSlug(HttpServletRequest request) {
-        if (request == null) {
-            return null;
+        if (currentUser.getRole() == RoleEnum.ADMIN_BANK && currentUser.getBank() != null) {
+            return service.findDetailedForBankBackoffice(userId, currentUser.getBank().getId());
         }
-
-        String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            try {
-                String token = authHeader.substring(7);
-                if (jwtUtil.validateToken(token)) {
-                    String bankSlug = jwtUtil.extractAllClaims(token).get("bankSlug", String.class);
-                    if (bankSlug != null && !bankSlug.isBlank()) {
-                        return bankSlug.trim();
-                    }
-                }
-            } catch (Exception ignored) {
-                // Fallback to custom headers below.
-            }
+        if (currentUser.getRole() == RoleEnum.DEALER_ADMIN && currentUser.getId().equals(userId)) {
+            return Optional.of(currentUser);
         }
-
-        String headerBankSlug = request.getHeader("X-Bank-Slug");
-        if (headerBankSlug != null && !headerBankSlug.isBlank()) {
-            return headerBankSlug.trim();
-        }
-
-        String origin = request.getHeader("Origin");
-        if (origin != null && !origin.isBlank()) {
-            try {
-                java.net.URI originUri = java.net.URI.create(origin.trim());
-                String host = originUri.getHost();
-                if (host != null && !host.isBlank()) {
-                    if (!host.equalsIgnoreCase("localhost") && !host.matches("^[0-9.]+$")) {
-                        String[] parts = host.split("\\.");
-                        if (parts.length >= 3 && !"www".equalsIgnoreCase(parts[0])) {
-                            return parts[0];
-                        }
-                    }
-                }
-            } catch (Exception ignored) {
-                // ignore malformed origin
-            }
-        }
-
-        return null;
+        return Optional.empty();
     }
 
     private String saveContactImage(MultipartFile contactImage) throws IOException {

@@ -122,6 +122,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
         { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/bank/products' },
         { label: 'Concessionnaires', icon: <Handshake className="w-5 h-5" />, path: '/bank/concessionnaires' },
         { label: 'Mes demandes', icon: <FileText className="w-5 h-5" />, path: '/bank/demandes' },
+        { label: 'Financements', icon: <FileText className="w-5 h-5" />, path: '/bank/financing-requests' },
         { label: 'Abonnement', icon: <CreditCard className="w-5 h-5" />, path: '/bank/abonnement' },
         { label: 'Branding', icon: <Settings className="w-5 h-5" />, path: '/bank/branding' },
         { label: 'Paramètres', icon: <Settings className="w-5 h-5" />, path: '/bank/parametres' },
@@ -262,7 +263,8 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
       const requestId = notification.relatedRequestId ?? notification.requestId;
       setShowNotifications(false);
       if (type === 'bank') {
-        navigate(requestId ? `/bank/demandes?requestId=${requestId}` : '/bank/demandes');
+        const isFinancingRequest = notification.title === 'Nouvelle demande de financement';
+        navigate(isFinancingRequest && requestId ? `/bank/financing-requests/${requestId}` : '/bank/demandes');
       } else if (type === 'dealer') {
         navigate('/dealer/publications');
       } else if (notification.type === 'PAYMENT_SUCCESS') {
@@ -407,8 +409,6 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
         {type === 'bank' && (
           <a
             href="/"
-            target="_blank"
-            rel="noopener noreferrer"
             className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg hover:bg-sidebar-accent transition-colors text-sidebar-foreground"
           >
             {bankTenant.branding.logo_image_url ? (

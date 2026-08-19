@@ -50,7 +50,7 @@ public final class DealerDtos {
     public record DecisionRequest(String reason) {}
     public record PartnershipCreate(@NotNull Long bankId, @NotNull Long storeId, @Size(max = 1000) String message) {}
     public record BankPartnershipCreate(@NotNull Long dealerId, @NotNull Long storeId, @Size(max = 1000) String message) {}
-    public record BankOption(Long bankId, String bankName, String bankLogoUrl, Long marketplaceId,
+    public record BankOption(Long bankId, String bankName, String bankLogoUrl, Long marketplaceId, String bankSlug,
                              List<StoreOption> stores) {}
     public record StoreOption(Long storeId, String storeName, String description) {}
     public record PartnershipView(Long id, DealerView dealer, Long bankId, String bankName, String bankLogoUrl, Long storeId,

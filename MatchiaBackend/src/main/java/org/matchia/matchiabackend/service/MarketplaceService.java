@@ -216,6 +216,7 @@ public class MarketplaceService {
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getName() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
+                marketplaceStore.getBannerImageUrl(),
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
                 marketplaceStore.getEnabled(),
                 marketplaceStore.getVisible(),

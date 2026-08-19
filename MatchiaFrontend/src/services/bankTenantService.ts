@@ -51,6 +51,17 @@ export const bankTenantService = {
     return response.data.banniereUrl;
   },
 
+  uploadStoreBanner: async (marketplaceStoreId: number, file: File) => {
+    const formData = new FormData();
+    formData.append('banner', file);
+    const response = await apiClient.post<{ bannerImageUrl: string }>(
+      `/api/bank/marketplace-stores/${marketplaceStoreId}/banner`,
+      formData,
+      { headers: { 'Content-Type': 'multipart/form-data' } },
+    );
+    return response.data.bannerImageUrl;
+  },
+
   updateMarketplaceBranding: async (id: number, payload: MarketplaceBrandingUpdatePayload) => {
     const response = await apiClient.put(`/api/admin/marketplaces/${id}/branding`, payload);
     return response.data;

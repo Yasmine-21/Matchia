@@ -99,6 +99,31 @@ const formatTnd = (value?: number) => new Intl.NumberFormat('fr-TN', {
   maximumFractionDigits: 2,
 }).format(value || 0);
 
+const marketplaceUrlForPublication = (publication: Publication, banks: BankOption[]) => {
+  const bank = banks.find((candidate) => candidate.bankId === publication.bankId);
+  const bankSlug = (bank?.bankSlug || bank?.bankName || publication.bankName || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  const storeSlug = (publication.storeName || '')
+    .trim()
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+  if (!bankSlug || typeof window === 'undefined') return '';
+
+  const { protocol, hostname, port } = window.location;
+  const parts = hostname.split('.');
+  const baseHost = parts.length >= 3 ? parts.slice(1).join('.') : hostname;
+  const path = storeSlug ? `/store/${encodeURIComponent(storeSlug)}` : '/';
+  return `${protocol}//${bankSlug}.${baseHost}${port ? `:${port}` : ''}${path}`;
+};
+
 const getErrorMessage = (error: unknown, fallback: string) => {
   const data = axios.isAxiosError(error) ? error.response?.data : undefined;
   if (typeof data === 'string' && data.trim()) return data;
@@ -346,6 +371,8 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
       {mode === 'products' && (
         <Products
           products={products}
+          publications={publications}
+          banks={banks}
           onCreate={() => { setEditProduct(null); setShowProductForm(true); }}
           onEdit={(product) => { setEditProduct(product); setShowProductForm(true); }}
           onSubmit={openSubmission}
@@ -869,8 +896,10 @@ function PartnershipTable({ rows, tab, actionKey, onApprove, onReject, onCancel 
   );
 }
 
-function Products({ products, onCreate, onEdit, onSubmit }: {
+function Products({ products, publications, banks, onCreate, onEdit, onSubmit }: {
   products: DealerProduct[];
+  publications: Publication[];
+  banks: BankOption[];
   onCreate: () => void;
   onEdit: (product: DealerProduct) => void;
   onSubmit: (product: DealerProduct) => void;
@@ -882,7 +911,10 @@ function Products({ products, onCreate, onEdit, onSubmit }: {
         <EmptyState icon={<Package className="h-8 w-8" />} title="Aucun produit" description="Ajoutez votre premier produit pour commencer votre catalogue." />
       ) : (
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {products.map((product) => (
+          {products.map((product) => {
+            const activePublications = publications.filter((publication) => publication.product.id === product.id
+              && publication.status === 'APPROVED' && publication.active);
+            return (
             <article key={product.id} className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary/30 hover:shadow-md">
               {product.imageUrl ? (
                 <img src={getBackendAssetUrl(product.imageUrl)} alt={product.name} className="h-52 w-full bg-muted/20 object-contain" />
@@ -900,9 +932,24 @@ function Products({ products, onCreate, onEdit, onSubmit }: {
                   <Button variant="outline" icon={<Edit3 className="h-4 w-4" />} onClick={() => onEdit(product)}>Modifier</Button>
                   <Button variant="secondary" icon={<Send className="h-4 w-4" />} disabled={product.status !== 'ACTIVE'} onClick={() => onSubmit(product)}>Soumettre</Button>
                 </div>
+                {activePublications.length > 0 && (
+                  <div className="mt-3 space-y-2 border-t border-border pt-3">
+                    <p className="text-xs font-medium text-muted-foreground">Visible sur les marketplaces :</p>
+                    {activePublications.map((publication) => {
+                      const marketplaceUrl = marketplaceUrlForPublication(publication, banks);
+                      return marketplaceUrl ? (
+                        <a key={publication.id} href={marketplaceUrl} className="flex items-center justify-center gap-2 rounded-lg border border-primary/25 bg-primary/5 px-3 py-2 text-sm font-semibold text-primary transition-colors hover:bg-primary/10">
+                          <Globe2 className="h-4 w-4" />
+                          Voir {publication.bankName}
+                        </a>
+                      ) : null;
+                    })}
+                  </div>
+                )}
               </div>
             </article>
-          ))}
+            );
+          })}
         </div>
       )}
     </>

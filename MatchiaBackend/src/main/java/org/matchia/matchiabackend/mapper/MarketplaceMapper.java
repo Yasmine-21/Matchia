@@ -103,6 +103,7 @@ public class MarketplaceMapper {
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getName() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
+                marketplaceStore.getBannerImageUrl(),
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
                 marketplaceStore.getEnabled(),
                 marketplaceStore.getVisible(),
@@ -124,6 +125,7 @@ public class MarketplaceMapper {
                         marketplaceStore.getStore() != null ? marketplaceStore.getStore().getName() : null,
                         marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
                         marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
+                        marketplaceStore.getBannerImageUrl(),
                         marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
                         marketplaceStore.getEnabled(),
                         marketplaceStore.getVisible(),
@@ -139,12 +141,9 @@ public class MarketplaceMapper {
         if (marketplaceStore == null) {
             return List.of();
         }
-
-        Long storeId = marketplaceStore.getStore() != null ? marketplaceStore.getStore().getId() : null;
-        if (storeId != null && requestedModulesByStore != null && requestedModulesByStore.containsKey(storeId)) {
-            return requestedModulesByStore.get(storeId);
-        }
-
+        // MarketplaceStoreModule is the runtime source of truth.  Request
+        // selections describe an initial subscription, but must never keep a
+        // module visible after it has been disabled for this marketplace/store.
         return toPublicModuleDetails(marketplaceStore.getId());
     }
 
@@ -206,6 +205,7 @@ public class MarketplaceMapper {
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getName() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
+                marketplaceStore.getBannerImageUrl(),
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
                 marketplaceStore.getEnabled(),
                 marketplaceStore.getVisible(),

@@ -16,6 +16,7 @@ public class UserMapper {
             entity.getPhone(),
             entity.getAddress(),
             entity.getContactImageUrl(),
+            entity.getBirthDate(),
             entity.getRole(),
             entity.getStatus(),
             null,
@@ -31,6 +32,7 @@ public class UserMapper {
         entity.setPhone(dto.getPhone());
         entity.setAddress(dto.getAddress());
         entity.setContactImageUrl(dto.getContactImageUrl());
+        entity.setBirthDate(dto.getBirthDate());
         entity.setRole(dto.getRole());
         entity.setStatus(dto.getStatus());
         entity.setCreatedAt(dto.getCreatedAt());

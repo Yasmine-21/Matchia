@@ -82,6 +82,7 @@ export function BankUsers() {
   const [isSaving, setIsSaving] = useState(false);
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [roleFilter, setRoleFilter] = useState<'all' | UserRole>('all');
   const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [userForm, setUserForm] = useState<UserFormState>(createEmptyForm);
   const [contactImageFile, setContactImageFile] = useState<File | null>(null);
@@ -276,6 +277,8 @@ export function BankUsers() {
         (statusFilter === 'active' && normalizeStatus(user.status) === 'active') ||
         (statusFilter === 'inactive' && normalizeStatus(user.status) === 'inactive');
 
+      const matchesRole = roleFilter === 'all' || normalizeRole(user.role) === roleFilter;
+
       const matchesSearch = [
         user.fullName || '',
         user.email || '',
@@ -283,9 +286,9 @@ export function BankUsers() {
         user.role || '',
       ].some((value) => value.toLowerCase().includes(query));
 
-      return matchesStatus && matchesSearch;
+      return matchesStatus && matchesRole && matchesSearch;
     });
-  }, [sortedUsers, searchTerm, statusFilter]);
+  }, [sortedUsers, searchTerm, statusFilter, roleFilter]);
 
   return (
     <div className="w-full space-y-6">
@@ -314,7 +317,7 @@ export function BankUsers() {
               {actionError}
             </div>
           )}
-          <div className="grid gap-4 md:grid-cols-[2fr_1fr]">
+          <div className="grid gap-4 md:grid-cols-[2fr_1fr_1fr]">
             <Input
               label="Rechercher par nom, email ou téléphone"
               placeholder="Tapez pour rechercher..."
@@ -323,6 +326,19 @@ export function BankUsers() {
               icon={<Search className="h-4 w-4" />}
               className="h-10"
             />
+
+            <div>
+              <label className="mb-2 block text-sm text-foreground">Type</label>
+              <select
+                value={roleFilter}
+                onChange={(e) => setRoleFilter(e.target.value as 'all' | UserRole)}
+                className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:ring-2 focus:ring-ring"
+              >
+                <option value="all">Tous les types</option>
+                <option value="ADMIN_BANK">Admin banque</option>
+                <option value="CLIENT">Client</option>
+              </select>
+            </div>
 
             <div>
               <label className="mb-2 block text-sm text-foreground">Statut</label>

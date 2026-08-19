@@ -1,5 +1,5 @@
 ﻿import { useEffect, useMemo, useState } from 'react';
-import { Link, useLocation, useOutletContext, useParams, useSearchParams } from 'react-router';
+import { Link, useLocation, useNavigate, useOutletContext, useParams, useSearchParams } from 'react-router';
 import {
   AlertTriangle,
   ArrowLeft,
@@ -13,10 +13,14 @@ import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../../components/ui/Card';
 import { Input } from '../../../components/ui/Input';
+import { Modal } from '../../../components/ui/Modal';
 import { Select } from '../../../components/ui/Select';
 import { moduleService } from '../../../services/moduleService';
+import { dealerService } from '../../../services/dealerService';
 import { productService } from '../../../services/productService';
 import type { ModuleAssignment, ModuleParameter, ProductDto } from '../../../types/apiTypes';
+import { useApp } from '../../../context/AppContext';
+import { isBannerModule } from '../../../utils/moduleVisibility';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -38,6 +42,7 @@ interface MarketplaceStoreDetail {
   description?: string | null;
   banniere_url?: string | null;
   banniereUrl?: string | null;
+  bannerImageUrl?: string | null;
   price?: number | string | null;
   enabled?: boolean | null;
   visible?: boolean | null;
@@ -54,6 +59,8 @@ interface SimulatorProductItem {
   storeName?: string | null;
   parameterValues: ProductDto['parameterValues'];
   createdAt?: string;
+  dealerProduct?: boolean;
+  dealerProductId?: number;
 }
 
 interface SimulatorPreset {
@@ -332,6 +339,8 @@ const resolveFeeSettlementMode = (parameters: ModuleParameter[], typeKey?: strin
 export function SimulatorModule() {
   const { storeSlug } = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentUser } = useApp();
   const [searchParams, setSearchParams] = useSearchParams();
   const { bankData, branding, marketplace } = useOutletContext<any>();
 
@@ -348,6 +357,7 @@ export function SimulatorModule() {
   const [grossIncome, setGrossIncome] = useState<number>(0);
   const [otherMonthlyPayments, setOtherMonthlyPayments] = useState<number>(0);
   const [durationMonths, setDurationMonths] = useState<number>(48);
+  const [isFinancingAccessModalOpen, setIsFinancingAccessModalOpen] = useState(false);
 
   const store = useMemo(() => {
     const targetSlug = normalizeKey(storeSlug);
@@ -371,7 +381,9 @@ export function SimulatorModule() {
   }, [store]);
 
   const storeLabel = store?.label || store?.name || `Store ${store?.storeId || store?.id || ''}`;
+  const marketplaceSlug = bankData?.slug || marketplace?.bankSlug || '';
   const modules = (store?.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
+  const isBannerActive = modules.some(isBannerModule);
   const canSimulate = modules.some(isSimulatorModule);
   const simulatorAssignment = useMemo(
     () => moduleAssignments.find((assignment) => isSimulatorModule(assignment.module)),
@@ -581,8 +593,11 @@ export function SimulatorModule() {
       setProductsError(false);
 
       try {
-        const response = await productService.getByBank(marketplaceBankId);
-        const storeProducts = (response.data || [])
+        const [bankResult, dealerResult] = await Promise.allSettled([
+          productService.getByBank(marketplaceBankId),
+          dealerService.marketplaceProducts(marketplaceSlug, currentStoreId),
+        ]);
+        const storeProducts = (bankResult.status === 'fulfilled' ? bankResult.value.data : [])
           .filter((product) => product.storeId === currentStoreId)
           .map((product): SimulatorProductItem => ({
             id: product.id,
@@ -594,11 +609,25 @@ export function SimulatorModule() {
             storeName: product.storeName,
             parameterValues: product.parameterValues || [],
             createdAt: product.createdAt,
-          }))
+          }));
+        const dealerProducts = (dealerResult.status === 'fulfilled' ? dealerResult.value.data : []).map((product): SimulatorProductItem => ({
+          id: -product.id,
+          dealerProductId: product.id,
+          dealerProduct: true,
+          name: product.name,
+          description: product.description,
+          imageUrl: product.imageUrl,
+          price: product.price,
+          storeId: product.storeId,
+          storeName: product.storeName,
+          parameterValues: (product.parameterValues || []).map((value) => ({ id: value.definitionId, parameterDefinitionId: value.definitionId, parameterName: value.name, value: value.value })),
+          createdAt: product.createdAt,
+        }));
+        const allProducts = [...storeProducts, ...dealerProducts]
           .sort((left, right) => getProductSortValue(right.createdAt) - getProductSortValue(left.createdAt));
 
         if (!cancelled) {
-          setProducts(storeProducts);
+          setProducts(allProducts);
         }
       } catch (error) {
         console.error('Failed to load simulator products:', error);
@@ -618,7 +647,7 @@ export function SimulatorModule() {
     return () => {
       cancelled = true;
     };
-  }, [currentStoreId, marketplaceBankId]);
+  }, [currentStoreId, marketplaceBankId, marketplaceSlug]);
 
   useEffect(() => {
     if (selectedProductId === null && initialProductId !== null) {
@@ -763,8 +792,39 @@ export function SimulatorModule() {
 
   const simulatorImage = getBackendAssetUrl(selectedProduct?.imageUrl);
   const displaySelectedProduct = selectedProduct || products[0] || null;
-  const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
+  const customStoreBannerUrl = isBannerActive ? getBackendAssetUrl(store?.bannerImageUrl) : '';
+  const storeBannerUrl = customStoreBannerUrl || (isBannerActive
+    ? getBackendAssetUrl(store?.banniereUrl || store?.banniere_url)
+    : '');
   const storeHeroOverlay = `linear-gradient(135deg, ${branding.primary_color}CC 0%, ${branding.secondary_color}C6 100%)`;
+
+  const applyForFinancing = () => {
+    if (!displaySelectedProduct || currentStoreId == null) return;
+    const financingContext = {
+      productId: displaySelectedProduct.id,
+      dealerProductId: displaySelectedProduct.dealerProduct ? displaySelectedProduct.dealerProductId : undefined,
+      productName: displaySelectedProduct.name,
+      productImageUrl: displaySelectedProduct.imageUrl,
+      storeId: currentStoreId,
+      storeName: store?.label || store?.name,
+      requestedAmount: financedCapital,
+      monthlyPayment: estimatedMonthlyPayment,
+      downPayment: sanitizedContribution,
+      durationMonths,
+      annualRate: configuredAnnualRate,
+      simulationData: JSON.stringify({ grossIncome, otherMonthlyPayments, contributionAmount: sanitizedContribution, fees: dossierFeesAmount, totalAmountDue }),
+    };
+    if (currentUser?.role === 'CLIENT') {
+      navigate('/client/financing-requests/new', { state: financingContext });
+      return;
+    }
+    if (currentUser) {
+      setIsFinancingAccessModalOpen(true);
+      return;
+    }
+    sessionStorage.setItem('matchia-financing-context', JSON.stringify(financingContext));
+    navigate('/inscription', { state: { from: '/client/financing-requests/new' } });
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -780,7 +840,7 @@ export function SimulatorModule() {
             : { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
         }
       >
-        <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />
+        {!customStoreBannerUrl && <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />}
         <div className="relative mx-auto flex h-full w-full max-w-7xl items-center">
           <div className="flex w-full flex-wrap items-center justify-between gap-4">
             <div>
@@ -1138,11 +1198,37 @@ export function SimulatorModule() {
                     </div>
                   </div>
                 </div>
+                <div className="rounded-[1.5rem] border border-primary/20 bg-white p-4">
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <div className="font-semibold text-slate-900">Prêt à constituer votre dossier ?</div>
+                      <div className="text-sm text-slate-600">Vos données de simulation seront reprises automatiquement.</div>
+                    </div>
+                    <Button type="button" disabled={!simulationAccepted || !displaySelectedProduct} onClick={applyForFinancing} style={{ backgroundColor: branding.primary_color }}>
+                      Demander un financement
+                    </Button>
+                  </div>
+                </div>
               </CardContent>
             </Card>
           </div>
         </div>
       </section>
+      <Modal
+        isOpen={isFinancingAccessModalOpen}
+        onClose={() => setIsFinancingAccessModalOpen(false)}
+        title="Accès non autorisé"
+        size="sm"
+      >
+        <div className="space-y-5">
+          <p className="text-sm leading-6 text-muted-foreground">
+            Cette fonctionnalité est réservée aux comptes clients. Utilisez un compte client pour soumettre une demande de financement.
+          </p>
+          <div className="flex justify-end">
+            <Button type="button" onClick={() => setIsFinancingAccessModalOpen(false)}>Fermer</Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }

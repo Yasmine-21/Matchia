@@ -15,6 +15,7 @@ import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.matchia.matchiabackend.entity.enums.NotificationStatusEnum;
 import org.matchia.matchiabackend.entity.enums.NotificationTypeEnum;
+import org.matchia.matchiabackend.entity.enums.NotificationRecipientScope;
 
 import java.time.LocalDateTime;
 
@@ -50,6 +51,10 @@ public class Notification {
 
     @Column(name = "recipient_id")
     private Long recipientId;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "recipient_scope", length = 20)
+    private NotificationRecipientScope recipientScope;
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router';
 import { toast } from 'sonner';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
@@ -9,12 +9,14 @@ import {
   Building2,
   Car,
   CheckCircle,
+  FileImage,
   GraduationCap,
   HeartPulse,
   Loader2,
   Plus,
   Smartphone,
   Store,
+  Upload,
   Wrench,
 } from 'lucide-react';
 import { KpiCard } from '../../components/ui/KpiCard';
@@ -32,6 +34,7 @@ import type {
   StoreDto,
 } from '../../types/apiTypes';
 import { getBackendAssetUrl } from '../../utils/tenant';
+import { isBannerModule } from '../../utils/moduleVisibility';
 
 const getStoreKey = (store: { storeId?: number | null; id: number }) => String(store.storeId ?? store.id);
 const getStoreNumericId = (store: { storeId?: number | null; id: number }) => store.storeId ?? store.id;
@@ -81,6 +84,10 @@ export function BankStores() {
   const [selectedRequestModulesByStore, setSelectedRequestModulesByStore] = useState<Record<number, number[]>>({});
   const [isSubmittingStoreRequest, setIsSubmittingStoreRequest] = useState(false);
   const [storeRequestError, setStoreRequestError] = useState('');
+  const [bannerFile, setBannerFile] = useState<File | null>(null);
+  const [bannerPreviewUrl, setBannerPreviewUrl] = useState('');
+  const [isSavingStoreBanner, setIsSavingStoreBanner] = useState(false);
+  const bannerInputRef = useRef<HTMLInputElement>(null);
 
   const selectedStoreId = useMemo(() => {
     const params = new URLSearchParams(location.search);
@@ -92,6 +99,13 @@ export function BankStores() {
   const selectedStoreKeyNumber = selectedStore ? getStoreNumericId(selectedStore) : null;
   const isSelectedStoreInactive =
     selectedStore ? selectedStore.enabled === false || selectedStore.visible === false : false;
+  const isBannerFeatureActive = useMemo(
+    () => (selectedStore?.modules || []).some(
+      (module) => module.enabled !== false && module.visible !== false && isBannerModule(module),
+    ),
+    [selectedStore?.modules],
+  );
+  const selectedStoreBannerUrl = getBackendAssetUrl(selectedStore?.bannerImageUrl || selectedStore?.banniereUrl);
   const activeStoresCount = useMemo(
     () => stores.filter((store) => store.enabled !== false && store.visible !== false).length,
     [stores],
@@ -319,6 +333,50 @@ export function BankStores() {
 
   const selectStore = (storeId: string) => {
     navigate(`/bank/stores?store=${storeId}`);
+  };
+
+  useEffect(() => {
+    setBannerFile(null);
+    setBannerPreviewUrl('');
+  }, [selectedStore?.id]);
+
+  useEffect(() => () => {
+    if (bannerPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(bannerPreviewUrl);
+    }
+  }, [bannerPreviewUrl]);
+
+  const selectStoreBanner = (file?: File) => {
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      toast.error('Veuillez sélectionner une image pour la bannière.');
+      return;
+    }
+    if (bannerPreviewUrl.startsWith('blob:')) {
+      URL.revokeObjectURL(bannerPreviewUrl);
+    }
+    setBannerFile(file);
+    setBannerPreviewUrl(URL.createObjectURL(file));
+  };
+
+  const saveStoreBanner = async () => {
+    if (!selectedStore || !bannerFile) {
+      toast.error('Sélectionnez une image avant de l’enregistrer.');
+      return;
+    }
+    setIsSavingStoreBanner(true);
+    try {
+      await bankTenantService.uploadStoreBanner(selectedStore.id, bannerFile);
+      toast.success(`Bannière du store ${selectedStore.name || ''} enregistrée.`);
+      setBannerFile(null);
+      setBannerPreviewUrl('');
+      refresh();
+    } catch (uploadError) {
+      console.error('Failed to save store banner:', uploadError);
+      toast.error('Impossible d’enregistrer la bannière du store.');
+    } finally {
+      setIsSavingStoreBanner(false);
+    }
   };
 
   const toggleStoreStatus = async (storeId: number, currentEnabled?: boolean | null, name?: string | null) => {
@@ -555,7 +613,7 @@ export function BankStores() {
               <div className="space-y-4">
                 {stores.map((store) => {
                   const isSelected = getStoreKey(store) === selectedStoreId;
-                  const bannerUrl = getBackendAssetUrl(store.banniereUrl);
+                  const bannerUrl = getBackendAssetUrl(store.bannerImageUrl || store.banniereUrl);
                   const isEnabled = store.enabled !== false;
                   const modulesCount = getVisibleModuleCountForStore(store);
                   const StoreContextIcon = getStoreContextIcon(store);
@@ -654,6 +712,71 @@ export function BankStores() {
                     </Button>
                   </div>
                 </div>
+
+                {isBannerFeatureActive && (
+                  <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4">
+                    <div className="mb-4 flex items-start gap-3">
+                      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                        <FileImage className="h-5 w-5" />
+                      </div>
+                      <div>
+                        <div className="font-semibold">Bannière du store</div>
+                        <p className="mt-1 text-sm text-muted-foreground">
+                          Cette image est affichée uniquement dans le store {selectedStore.name || selectedStore.id} de votre marketplace.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
+                      <div className="overflow-hidden rounded-xl border border-border bg-background">
+                        {bannerPreviewUrl || selectedStoreBannerUrl ? (
+                          <img
+                            src={bannerPreviewUrl || selectedStoreBannerUrl}
+                            alt={`Bannière ${selectedStore.name || 'du store'}`}
+                            className="h-44 w-full object-cover"
+                          />
+                        ) : (
+                          <div className="flex h-44 flex-col items-center justify-center gap-2 text-sm text-muted-foreground">
+                            <FileImage className="h-7 w-7" />
+                            Aucune bannière configurée
+                          </div>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-2 lg:w-52">
+                        <input
+                          ref={bannerInputRef}
+                          id="store-banner-upload"
+                          type="file"
+                          accept="image/png,image/jpeg,image/webp,image/gif"
+                          className="sr-only"
+                          onChange={(event) => selectStoreBanner(event.target.files?.[0])}
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full"
+                          icon={<Upload className="h-4 w-4" />}
+                          onClick={() => bannerInputRef.current?.click()}
+                        >
+                          {selectedStoreBannerUrl ? 'Changer l’image' : 'Ajouter une image'}
+                        </Button>
+                        <Button
+                          type="button"
+                          className="w-full"
+                          loading={isSavingStoreBanner}
+                          disabled={!bannerFile || isSelectedStoreInactive}
+                          onClick={saveStoreBanner}
+                        >
+                          Enregistrer la bannière
+                        </Button>
+                        <p className="text-xs text-muted-foreground">
+                          {bannerFile ? bannerFile.name : 'PNG, JPG, WEBP ou GIF (5 Mo max.)'}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {isSelectedStoreInactive && (
                   <div className="rounded-xl border border-warning/30 bg-warning/5 px-4 py-3 text-sm text-warning">

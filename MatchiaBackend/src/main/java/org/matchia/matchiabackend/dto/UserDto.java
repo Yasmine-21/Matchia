@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import org.matchia.matchiabackend.entity.enums.*;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Data
 @NoArgsConstructor
@@ -18,6 +19,7 @@ public class UserDto {
     private String phone;
     private String address;
     private String contactImageUrl;
+    private LocalDate birthDate;
     private RoleEnum role;
     private UserStatusEnum status;
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)

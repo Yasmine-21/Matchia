@@ -1,0 +1,168 @@
+{
+  "input": "D:\\PFE M2\\Platforme SaaS\\document_work\\Developpements_Assortis_ICA_IBF_verifie.docx",
+  "fonts_by_char_count": {},
+  "direct_run_formatting_runs": 647,
+  "direct_paragraph_formatting_paragraphs": 108,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 2,
+      "text": "Assortis \u00b7 ICA \u00b7 IBF  |  Janvier 2026",
+      "style": "Normal"
+    },
+    {
+      "para_index": 5,
+      "text": "53 points de d\u00e9veloppement recens\u00e9s",
+      "style": "Normal"
+    },
+    {
+      "para_index": 193,
+      "text": "Plateforme",
+      "style": "Normal"
+    },
+    {
+      "para_index": 194,
+      "text": "Nombre de fonctionnalit\u00e9s",
+      "style": "Normal"
+    },
+    {
+      "para_index": 203,
+      "text": "Plateforme",
+      "style": "Normal"
+    },
+    {
+      "para_index": 205,
+      "text": "Where",
+      "style": "Normal"
+    },
+    {
+      "para_index": 207,
+      "text": "Statut",
+      "style": "Normal"
+    },
+    {
+      "para_index": 209,
+      "text": "Justification / observations",
+      "style": "Normal"
+    },
+    {
+      "para_index": 211,
+      "text": "R\u00f4le test\u00e9",
+      "style": "Normal"
+    },
+    {
+      "para_index": 213,
+      "text": "Emplacement / \u00e9cran v\u00e9rifi\u00e9",
+      "style": "Normal"
+    },
+    {
+      "para_index": 216,
+      "text": "Plateforme",
+      "style": "Normal"
+    },
+    {
+      "para_index": 218,
+      "text": "Where",
+      "style": "Normal"
+    },
+    {
+      "para_index": 220,
+      "text": "Statut",
+      "style": "Normal"
+    },
+    {
+      "para_index": 222,
+      "text": "Justification / observations",
+      "style": "Normal"
+    },
+    {
+      "para_index": 224,
+      "text": "R\u00f4le test\u00e9",
+      "style": "Normal"
+    },
+    {
+      "para_index": 226,
+      "text": "Emplacement / \u00e9cran v\u00e9rifi\u00e9",
+      "style": "Normal"
+    },
+    {
+      "para_index": 229,
+      "text": "Plateforme",
+      "style": "Normal"
+    },
+    {
+      "para_index": 231,
+      "text": "Where",
+      "style": "Normal"
+    },
+    {
+      "para_index": 233,
+      "text": "Statut",
+      "style": "Normal"
+    },
+    {
+      "para_index": 235,
+      "text": "Justification / observations",
+      "style": "Normal"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 2,
+        "text": "Assortis \u00b7 ICA \u00b7 IBF  |  Janvier 2026",
+        "style": "Normal"
+      },
+      {
+        "para_index": 8,
+        "text": "Description fonctionnelle. D\u00e9tecter, pour les opportunit\u00e9s tr\u00e8s pertinentes, les organisations ayant un niveau de pertin",
+        "style": "Normal"
+      },
+      {
+        "para_index": 9,
+        "text": "",
+        "style": "Normal"
+      },
+      {
+        "para_index": 11,
+        "text": "Description fonctionnelle. Permettre aux membres de suivre les experts int\u00e9ress\u00e9s par une opportunit\u00e9 et d\u2019acc\u00e9der \u00e0 leu",
+        "style": "Normal"
+      },
+      {
+        "para_index": 12,
+        "text": "",
+        "style": "Normal"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 2,
+        "run_text": "Assortis \u00b7 ICA \u00b7 IBF  |  Janvier 2026",
+        "style": "Normal"
+      },
+      {
+        "para_index": 5,
+        "run_text": "53 points de d\u00e9veloppement recens\u00e9s",
+        "style": "Normal"
+      },
+      {
+        "para_index": 8,
+        "run_text": "Description fonctionnelle. ",
+        "style": "Normal"
+      },
+      {
+        "para_index": 11,
+        "run_text": "Description fonctionnelle. ",
+        "style": "Normal"
+      },
+      {
+        "para_index": 15,
+        "run_text": "Description fonctionnelle. ",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

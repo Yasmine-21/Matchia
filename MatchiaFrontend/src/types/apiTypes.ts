@@ -397,6 +397,7 @@ export interface MarketplaceStoreDetailDto {
   name?: string | null;
   description?: string | null;
   banniereUrl?: string | null;
+  bannerImageUrl?: string | null;
   price?: number | string | null;
   enabled?: boolean | null;
   visible?: boolean | null;

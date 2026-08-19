@@ -10,13 +10,13 @@ import apiClient from '../../api/apiClient';
 import { bankService } from '../../services/bankService';
 import type { Bank } from '../../types';
 
-const USER_ROLES = ['ADMIN_SAAS', 'ADMIN_BANK', 'CLIENT'] as const;
+const USER_ROLES = ['ADMIN_SAAS', 'ADMIN_BANK'] as const;
 type UserRoleOption = (typeof USER_ROLES)[number];
 type UserRole = UserRoleOption | string;
 type UserStatus = 'active' | 'inactive' | string;
 
 const normalizeUserRole = (value?: string | null): UserRoleOption => {
-  if (value === 'ADMIN_SAAS' || value === 'ADMIN_BANK' || value === 'CLIENT') {
+  if (value === 'ADMIN_SAAS' || value === 'ADMIN_BANK') {
     return value;
   }
   if (value === 'SUPER_ADMIN') {

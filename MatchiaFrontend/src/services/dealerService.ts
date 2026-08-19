@@ -18,7 +18,7 @@ export interface DealerRequest extends Omit<DealerView, 'status'> {
   documentUrls: string[]; rejectionReason?: string; submittedAt: string; processedAt?: string;
 }
 export interface StoreOption { storeId: number; storeName: string; description?: string }
-export interface BankOption { bankId: number; bankName: string; bankLogoUrl?: string; marketplaceId: number; stores: StoreOption[] }
+export interface BankOption { bankId: number; bankName: string; bankLogoUrl?: string; marketplaceId: number; bankSlug?: string; stores: StoreOption[] }
 export interface Partnership {
   id: number; dealer: DealerView; bankId: number; bankName: string; bankLogoUrl?: string; storeId: number; storeName: string;
   initiatedBy: PartnershipInitiator; status: PartnershipStatus; message?: string; rejectionReason?: string;

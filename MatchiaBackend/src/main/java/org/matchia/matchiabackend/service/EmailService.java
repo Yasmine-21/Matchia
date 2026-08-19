@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.AuditLogRequest;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.User;
+import org.matchia.matchiabackend.entity.FinancingRequest;
 import org.matchia.matchiabackend.entity.enums.AuditCategoryEnum;
 import org.matchia.matchiabackend.entity.enums.AuditStatusEnum;
 import org.matchia.matchiabackend.entity.enums.RoleEnum;
@@ -382,6 +383,42 @@ public class EmailService {
                 "PASSWORD_RESET",
                 null,
                 "password_reset_email.sent"
+        );
+    }
+
+    public boolean sendFinancingDecisionEmail(FinancingRequest request) {
+        if (request == null || request.getClient() == null || !hasText(request.getClient().getEmail())) {
+            return false;
+        }
+        boolean accepted = request.getStatus() == org.matchia.matchiabackend.entity.enums.FinancingRequestStatusEnum.ACCEPTED;
+        String product = request.getDealerProduct() != null && hasText(request.getDealerProduct().getName())
+                ? request.getDealerProduct().getName()
+                : request.getProduct() != null && hasText(request.getProduct().getName()) ? request.getProduct().getName() : "votre produit";
+        String reason = !accepted && hasText(request.getRejectionReason())
+                ? " Motif : " + request.getRejectionReason().trim() : "";
+        String bankName = request.getBank() != null && hasText(request.getBank().getName())
+                ? request.getBank().getName() : "votre banque";
+        String message = accepted
+                ? "Votre demande de financement pour " + product + " a été acceptée."
+                : "Votre demande de financement pour " + product + " a été rejetée." + reason;
+        return sendTemplatedEmail(
+                request.getClient().getEmail(),
+                accepted ? "Votre demande de financement a été acceptée" : "Votre demande de financement a été rejetée",
+                new EmailTemplate(
+                        accepted ? "Demande acceptée" : "Demande rejetée",
+                        "Financement",
+                        product,
+                        message,
+                        "Consulter mes demandes",
+                        safePublicUrl() + "/client/financing-requests/" + request.getId(),
+                        "Reference", request.getReference(), "Banque", bankName,
+                        "Cette notification concerne votre demande " + request.getReference() + ".",
+                        null
+                ),
+                "decision financement",
+                "DECISION FINANCEMENT",
+                null,
+                "financing_decision_email.sent"
         );
     }
 

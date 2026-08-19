@@ -43,4 +43,10 @@ export const notificationService = {
   markDealerNotificationAsRead: (id: number) => apiClient.patch<NotificationDto>(`/api/dealer/notifications/${id}/read`),
   markAllDealerNotificationsAsRead: () => apiClient.patch<NotificationDto[]>('/api/dealer/notifications/read-all'),
   deleteDealerNotification: (id: number) => apiClient.delete<void>(`/api/dealer/notifications/${id}`),
+
+  getClientUnreadCount: () => apiClient.get<{ count: number }>('/api/client/notifications/unread-count'),
+  getClientNotifications: () => apiClient.get<NotificationDto[]>('/api/client/notifications'),
+  markClientNotificationAsRead: (id: number) => apiClient.patch<NotificationDto>(`/api/client/notifications/${id}/read`),
+  markAllClientNotificationsAsRead: () => apiClient.patch<NotificationDto[]>('/api/client/notifications/read-all'),
+  deleteClientNotification: (id: number) => apiClient.delete<void>(`/api/client/notifications/${id}`),
 };

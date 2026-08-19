@@ -4,6 +4,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.NotificationDto;
 import org.matchia.matchiabackend.service.NotificationService;
+import org.matchia.matchiabackend.service.FinancingRequestService;
+import org.matchia.matchiabackend.entity.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.Authentication;
 
 import java.util.List;
 import java.util.Map;
@@ -27,41 +30,53 @@ import java.util.NoSuchElementException;
 public class BankNotificationController {
 
     private final NotificationService notificationService;
+    private final FinancingRequestService financingRequestService;
+
+    private Long requireBankRecipient(Authentication authentication, Long recipientId) {
+        User admin = financingRequestService.currentBankAdmin(authentication.getName());
+        Long bankId = admin.getBank().getId();
+        if (!bankId.equals(recipientId)) {
+            throw new org.springframework.web.server.ResponseStatusException(HttpStatus.FORBIDDEN, "Accès aux notifications de cette banque interdit.");
+        }
+        return bankId;
+    }
 
     @GetMapping
-    public ResponseEntity<List<NotificationDto>> getNotifications(@RequestParam Long recipientId) {
-        return ResponseEntity.ok(notificationService.findAllForRecipient(recipientId));
+    public ResponseEntity<List<NotificationDto>> getNotifications(@RequestParam Long recipientId, Authentication authentication) {
+        return ResponseEntity.ok(notificationService.findAllForBank(requireBankRecipient(authentication, recipientId)));
     }
 
     @GetMapping("/unread-count")
-    public ResponseEntity<Map<String, Long>> getUnreadCount(@RequestParam Long recipientId) {
-        return ResponseEntity.ok(Map.of("count", notificationService.countUnreadForRecipient(recipientId)));
+    public ResponseEntity<Map<String, Long>> getUnreadCount(@RequestParam Long recipientId, Authentication authentication) {
+        return ResponseEntity.ok(Map.of("count", notificationService.countUnreadForBank(requireBankRecipient(authentication, recipientId))));
     }
 
     @PatchMapping("/{id}/read")
     public ResponseEntity<NotificationDto> markAsRead(
             @PathVariable Long id,
-            @RequestParam Long recipientId
+            @RequestParam Long recipientId,
+            Authentication authentication
     ) {
         try {
-            return ResponseEntity.ok(notificationService.markAsReadForRecipient(id, recipientId));
+            return ResponseEntity.ok(notificationService.markAsReadForBank(id, requireBankRecipient(authentication, recipientId)));
         } catch (NoSuchElementException e) {
             return ResponseEntity.notFound().build();
         }
     }
 
     @PatchMapping("/read-all")
-    public ResponseEntity<List<NotificationDto>> markAllAsRead(@RequestParam Long recipientId) {
-        return ResponseEntity.ok(notificationService.markAllAsReadForRecipient(recipientId));
+    public ResponseEntity<List<NotificationDto>> markAllAsRead(@RequestParam Long recipientId, Authentication authentication) {
+        return ResponseEntity.ok(notificationService.markAllAsReadForBank(requireBankRecipient(authentication, recipientId)));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @PathVariable Long id,
-            @RequestParam Long recipientId
+            @RequestParam Long recipientId,
+            Authentication authentication
     ) {
         try {
-            notificationService.deleteByIdForRecipient(id, recipientId);
+            notificationService.deleteByIdForBank(id, requireBankRecipient(authentication, recipientId));
             return ResponseEntity.noContent().build();
         } catch (NoSuchElementException e) {
             log.warn("Notification introuvable pour suppression : {}", id);

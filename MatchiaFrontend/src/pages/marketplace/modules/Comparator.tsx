@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useOutletContext, useParams } from 'react-router';
+import { useLocation, useNavigate, useOutletContext, useParams } from 'react-router';
 import { BarChart3, ArrowLeft, Image as ImageIcon, Trash2 } from 'lucide-react';
 import { Button } from '../../../components/ui/Button';
 import { Badge } from '../../../components/ui/Badge';
+import { dealerService } from '../../../services/dealerService';
 import { productService } from '../../../services/productService';
 import type { ProductDto } from '../../../types/apiTypes';
 import {
@@ -10,6 +11,7 @@ import {
   readCompareProductIds,
   writeCompareProductIds,
 } from '../../../utils/comparison';
+import { isBannerModule } from '../../../utils/moduleVisibility';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -31,6 +33,7 @@ interface MarketplaceStoreDetail {
   description?: string | null;
   banniere_url?: string | null;
   banniereUrl?: string | null;
+  bannerImageUrl?: string | null;
   price?: number | string | null;
   enabled?: boolean | null;
   visible?: boolean | null;
@@ -147,6 +150,7 @@ const isRowSimilar = (row: ComparisonRow, productIds: number[]) => {
 
 export function ComparatorModule() {
   const { storeSlug } = useParams();
+  const location = useLocation();
   const navigate = useNavigate();
   const { bankData, branding, marketplace } = useOutletContext<any>();
   const [products, setProducts] = useState<ComparatorProductItem[]>([]);
@@ -184,7 +188,12 @@ export function ComparatorModule() {
 
   const storesReady = Array.isArray(bankData?.stores);
   const modules = (store?.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
+  const isBannerActive = modules.some(isBannerModule);
   const canCompare = modules.some(isComparatorModule);
+  const navigationCompareIds = useMemo(() => {
+    const candidate = (location.state as { compareProductIds?: unknown } | null)?.compareProductIds;
+    return Array.isArray(candidate) ? candidate.filter((id): id is number => typeof id === 'number' && Number.isFinite(id)).slice(0, 4) : [];
+  }, [location.state]);
 
   useEffect(() => {
     if (!storesReady) {
@@ -196,8 +205,8 @@ export function ComparatorModule() {
       return;
     }
 
-    setCompareIds(readCompareProductIds(compareStorageKey).slice(0, 4));
-  }, [canCompare, compareStorageKey, storesReady]);
+    setCompareIds((navigationCompareIds.length ? navigationCompareIds : readCompareProductIds(compareStorageKey)).slice(0, 4));
+  }, [canCompare, compareStorageKey, navigationCompareIds, storesReady]);
 
   useEffect(() => {
     if (!storesReady) {
@@ -226,8 +235,11 @@ export function ComparatorModule() {
       setLoadingError(false);
 
       try {
-        const response = await productService.getByBank(marketplaceBankId);
-        const storeProducts = (response.data || [])
+        const [bankResult, dealerResult] = await Promise.allSettled([
+          productService.getByBank(marketplaceBankId),
+          dealerService.marketplaceProducts(marketplaceSlug, currentStoreId),
+        ]);
+        const storeProducts = (bankResult.status === 'fulfilled' ? bankResult.value.data : [])
           .filter((product) => product.storeId === currentStoreId)
           .map((product): ComparatorProductItem => ({
             id: product.id,
@@ -239,11 +251,24 @@ export function ComparatorModule() {
             storeName: product.storeName,
             parameterValues: product.parameterValues || [],
             createdAt: product.createdAt,
-          }))
+          }));
+        const dealerProducts = (dealerResult.status === 'fulfilled' ? dealerResult.value.data : []).map((product): ComparatorProductItem => ({
+          id: -product.id,
+          name: product.name,
+          description: product.description,
+          imageUrl: product.imageUrl,
+          price: product.price,
+          storeId: product.storeId,
+          storeName: product.storeName,
+          parameterValues: (product.parameterValues || []).map((value) => ({ id: value.definitionId, parameterDefinitionId: value.definitionId, parameterName: value.name, value: value.value })),
+          createdAt: product.createdAt,
+        }));
+        const allProducts = [...storeProducts, ...dealerProducts]
           .sort((left, right) => getProductSortValue(right.createdAt) - getProductSortValue(left.createdAt));
 
         if (!cancelled) {
-          setProducts(storeProducts);
+          setProducts(allProducts);
+          setLoadingError(bankResult.status === 'rejected' && dealerResult.status === 'rejected');
         }
       } catch (error) {
         console.error('Failed to load comparator products:', error);
@@ -263,7 +288,7 @@ export function ComparatorModule() {
     return () => {
       cancelled = true;
     };
-  }, [currentStoreId, marketplaceBankId]);
+  }, [currentStoreId, marketplaceBankId, marketplaceSlug]);
 
   const selectedProducts = useMemo(() => {
     const productMap = new Map(products.map((product) => [product.id, product]));
@@ -349,7 +374,10 @@ export function ComparatorModule() {
   }
 
   const storeLabel = store.label || store.name || `Store ${store.storeId || store.id}`;
-  const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
+  const customStoreBannerUrl = isBannerActive ? getBackendAssetUrl(store?.bannerImageUrl) : '';
+  const storeBannerUrl = customStoreBannerUrl || (isBannerActive
+    ? getBackendAssetUrl(store?.banniereUrl || store?.banniere_url)
+    : '');
   const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(
     branding.secondary_color,
     0.78
@@ -369,7 +397,7 @@ export function ComparatorModule() {
             : { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
         }
       >
-        <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />
+        {!customStoreBannerUrl && <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />}
         <div className="relative mx-auto flex h-full w-full max-w-7xl items-center">
           <div className="flex w-full flex-wrap items-center justify-between gap-4">
             <div>

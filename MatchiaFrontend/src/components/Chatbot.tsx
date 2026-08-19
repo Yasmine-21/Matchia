@@ -7,14 +7,22 @@ interface ChatMessage {
   content: string;
 }
 
-export function Chatbot() {
+export function Chatbot({
+  storeName,
+  primaryColor = '#f97316',
+}: {
+  storeName?: string;
+  primaryColor?: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: 'bot',
-      content: 'Bonjour, je peux vous aider sur les demandes SaaS, les stores et les modules.',
+      content: storeName
+        ? `Bonjour, je peux vous aider pour les offres du store ${storeName}.`
+        : 'Bonjour, comment puis-je vous aider ?',
     },
   ]);
 
@@ -49,12 +57,12 @@ export function Chatbot() {
         <div className="mb-4 flex h-[520px] w-[360px] max-w-[calc(100vw-3rem)] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-2xl dark:border-gray-700 dark:bg-gray-900">
           <div className="flex items-center justify-between border-b border-gray-200 px-4 py-3 dark:border-gray-700">
             <div className="flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 text-orange-600 dark:bg-orange-900/30 dark:text-orange-300">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-100 dark:bg-orange-900/30" style={{ color: primaryColor }}>
                 <Bot className="h-5 w-5" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-gray-900 dark:text-white">Assistant Matchia</div>
-                <div className="text-xs text-gray-500 dark:text-gray-400">Backoffice SaaS</div>
+                <div className="text-xs text-gray-500 dark:text-gray-400">{storeName || 'Marketplace'}</div>
               </div>
             </div>
             <button
@@ -76,9 +84,10 @@ export function Chatbot() {
                 <div
                   className={`max-w-[82%] rounded-2xl px-3 py-2 text-sm leading-relaxed ${
                     message.role === 'user'
-                      ? 'bg-blue-600 text-white'
+                      ? 'text-white'
                       : 'border border-gray-200 bg-white text-gray-700 dark:border-gray-700 dark:bg-gray-900 dark:text-gray-200'
                   }`}
+                  style={message.role === 'user' ? { backgroundColor: primaryColor } : undefined}
                 >
                   {message.content}
                 </div>
@@ -103,13 +112,14 @@ export function Chatbot() {
                   if (event.key === 'Enter') sendMessage();
                 }}
                 placeholder="Ecrire un message..."
-                className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:ring-2 focus:ring-orange-500 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
+                className="min-w-0 flex-1 rounded-xl border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 outline-none focus:ring-2 dark:border-gray-700 dark:bg-gray-950 dark:text-white"
               />
               <button
                 type="button"
                 onClick={sendMessage}
                 disabled={!input.trim() || isTyping}
-                className="flex h-10 w-10 items-center justify-center rounded-xl bg-orange-500 text-white transition-colors hover:bg-orange-600 disabled:cursor-not-allowed disabled:opacity-50"
+                className="flex h-10 w-10 items-center justify-center rounded-xl text-white transition-opacity hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+                style={{ backgroundColor: primaryColor }}
                 aria-label="Envoyer"
               >
                 <Send className="h-4 w-4" />
@@ -122,7 +132,8 @@ export function Chatbot() {
       <button
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-orange-500 text-white shadow-xl transition-transform hover:scale-105 hover:bg-orange-600"
+        className="flex h-14 w-14 items-center justify-center rounded-full text-white shadow-xl transition-transform hover:scale-105"
+        style={{ backgroundColor: primaryColor }}
         aria-label="Ouvrir le chatbot"
       >
         {isOpen ? <X className="h-6 w-6" /> : <MessageCircle className="h-6 w-6" />}

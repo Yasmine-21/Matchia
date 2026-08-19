@@ -1,4 +1,4 @@
-import { Outlet, Link, useLocation } from 'react-router';
+import { Outlet, Link, useLocation, useNavigate } from 'react-router';
 import {
   UserRound,
   Menu,
@@ -12,10 +12,19 @@ import {
   Smartphone,
   HeartPulse,
   CarFront,
+  ChevronDown,
+  Bell,
+  FileText,
+  LayoutDashboard,
+  LogOut,
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '../components/ui/Button';
 import apiClient from '../api/apiClient';
+import { useApp } from '../context/AppContext';
+import { authService } from '../services/authService';
+import { Chatbot } from '../components/Chatbot';
+import { isChatbotModule } from '../utils/moduleVisibility';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -33,6 +42,7 @@ interface MarketplaceStoreDetail {
   name?: string | null;
   description?: string | null;
   banniereUrl?: string | null;
+  bannerImageUrl?: string | null;
   price?: number | string | null;
   enabled?: boolean | null;
   visible?: boolean | null;
@@ -90,6 +100,13 @@ const getExternalUrl = (url?: string | null) => {
   return `https://${url}`;
 };
 
+const getPlatformUrl = (path: string) => {
+  const { protocol, hostname, port } = window.location;
+  const hostParts = hostname.split('.');
+  const platformHost = hostParts.length >= 3 ? hostParts.slice(1).join('.') : hostname;
+  return `${protocol}//${platformHost}${port ? `:${port}` : ''}${path}`;
+};
+
 const slugify = (value?: string | null) =>
   (value || '')
     .toString()
@@ -121,7 +138,10 @@ const getStoreMeta = (name?: string | null) => {
 export function MarketplaceLayout() {
   const bankSlug = getSubdomain();
   const location = useLocation();
+  const navigate = useNavigate();
+  const { currentUser } = useApp();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [clientMenuOpen, setClientMenuOpen] = useState(false);
   const [marketplace, setMarketplace] = useState<MarketplacePublicDto | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -138,7 +158,8 @@ export function MarketplaceLayout() {
         slug: slugify(store.name || `store-${store.storeId || store.id}`),
         label: store.name || `Store ${store.storeId || store.id}`,
         description: store.description || '',
-        banniere_url: getBackendAssetUrl(store.banniereUrl),
+        banniere_url: getBackendAssetUrl(store.bannerImageUrl || store.banniereUrl),
+        bannerImageUrl: getBackendAssetUrl(store.bannerImageUrl || store.banniereUrl),
         price: store.price,
         modules: (store.modules || [])
           .filter((module) => module.enabled !== false && module.visible !== false)
@@ -160,6 +181,25 @@ export function MarketplaceLayout() {
     const match = location.pathname.match(/^\/store\/([^/]+)/);
     return match ? decodeURIComponent(match[1]) : headerStores[0]?.slug || '';
   }, [headerStores, location.pathname]);
+  const activeStore = useMemo(
+    () => headerStores.find((store) => store.slug === activeStoreSlug),
+    [activeStoreSlug, headerStores],
+  );
+  const isStoreRoute = /^\/store\/[^/]+/.test(location.pathname);
+  const isChatbotEnabledForActiveStore = Boolean(
+    isStoreRoute && activeStore?.modules?.some(isChatbotModule),
+  );
+  const isClient = currentUser?.role === 'CLIENT';
+  const isAuthenticated = Boolean(currentUser);
+  const profileName = currentUser?.name?.trim() || 'Mon profil';
+  const profileFirstName = profileName.split(/\s+/)[0] || profileName;
+  const profileAvatar = getBackendAssetUrl(currentUser?.contactImageUrl);
+  const logout = async () => {
+    await authService.logout();
+    setClientMenuOpen(false);
+    setMobileMenuOpen(false);
+    navigate('/');
+  };
 
   useEffect(() => {
     if (!bankSlug) return;
@@ -271,17 +311,27 @@ export function MarketplaceLayout() {
               })}
             </nav>
 
-            <div className="hidden md:flex items-center gap-3">
-              <Link to="/connexion">
-                <Button
-                  size="sm"
-                  className="rounded-full border-0 px-5 text-white shadow-[0_10px_20px_rgba(155,17,26,0.28)] hover:opacity-95"
-                  style={{ backgroundColor: primaryColor }}
-                  icon={<UserRound className="w-4 h-4" />}
-                >
-                  Se connecter
-                </Button>
-              </Link>
+            <div className="relative hidden md:flex items-center gap-3">
+              {isAuthenticated ? (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setClientMenuOpen((open) => !open)}
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-3 py-2 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50"
+                    aria-expanded={clientMenuOpen}
+                  >
+                    {profileAvatar ? <img src={profileAvatar} alt="" className="h-7 w-7 rounded-full object-cover" /> : <span className="flex h-7 w-7 items-center justify-center rounded-full text-white" style={{ backgroundColor: primaryColor }}>{profileFirstName.charAt(0).toUpperCase()}</span>}
+                    {profileFirstName}<ChevronDown className="h-4 w-4" />
+                  </button>
+                  {clientMenuOpen && <div className="absolute right-0 top-full z-40 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+                    {isClient && <><Link onClick={() => setClientMenuOpen(false)} to="/client/dashboard" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><LayoutDashboard className="h-4 w-4" />Tableau de bord</Link><Link onClick={() => setClientMenuOpen(false)} to="/client/profile" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><UserRound className="h-4 w-4" />Mon profil</Link><Link onClick={() => setClientMenuOpen(false)} to="/client/financing-requests" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><FileText className="h-4 w-4" />Mes demandes</Link><Link onClick={() => setClientMenuOpen(false)} to="/client/dashboard" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><Bell className="h-4 w-4" />Notifications</Link></>}
+                    {currentUser?.role === 'DEALER_ADMIN' && <a onClick={() => setClientMenuOpen(false)} href={getPlatformUrl('/dealer/dashboard')} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><LayoutDashboard className="h-4 w-4" />Tableau de bord concessionnaire</a>}
+                    {currentUser?.role === 'ADMIN_BANK' && <Link onClick={() => setClientMenuOpen(false)} to="/bank/dashboard" className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><LayoutDashboard className="h-4 w-4" />Tableau de bord banque</Link>}
+                    {currentUser?.role === 'ADMIN_SAAS' && <a onClick={() => setClientMenuOpen(false)} href={getPlatformUrl('/saas/dashboard')} className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-slate-50"><LayoutDashboard className="h-4 w-4" />Tableau de bord SaaS</a>}
+                    <button type="button" onClick={() => void logout()} className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-rose-600 hover:bg-rose-50"><LogOut className="h-4 w-4" />Déconnexion</button>
+                  </div>}
+                </>
+              ) : <Link to="/connexion"><Button size="sm" className="rounded-full border-0 px-5 text-white shadow-[0_10px_20px_rgba(155,17,26,0.28)] hover:opacity-95" style={{ backgroundColor: primaryColor }} icon={<UserRound className="w-4 h-4" />}>Se connecter</Button></Link>}
             </div>
 
             <button
@@ -319,16 +369,7 @@ export function MarketplaceLayout() {
                 );
               })}
             </nav>
-            <Link to="/connexion" onClick={() => setMobileMenuOpen(false)} className="mt-4 block">
-              <Button
-                size="sm"
-                className="w-full rounded-full border-0 px-5 text-white"
-                style={{ backgroundColor: primaryColor }}
-                icon={<UserRound className="w-4 h-4" />}
-              >
-                Se connecter
-              </Button>
-            </Link>
+            {isAuthenticated ? <div className="mt-4 space-y-2 border-t border-slate-100 pt-3">{isClient && <><Link to="/client/dashboard" onClick={() => setMobileMenuOpen(false)} className="block"><Button size="sm" className="w-full" style={{ backgroundColor: primaryColor }} icon={<LayoutDashboard className="h-4 w-4" />}>Tableau de bord</Button></Link><Link to="/client/profile" onClick={() => setMobileMenuOpen(false)} className="block text-center text-sm text-slate-700">Mon profil</Link><Link to="/client/financing-requests" onClick={() => setMobileMenuOpen(false)} className="block text-center text-sm text-slate-700">Mes demandes</Link></>}{currentUser?.role === 'DEALER_ADMIN' && <a href={getPlatformUrl('/dealer/dashboard')} onClick={() => setMobileMenuOpen(false)} className="block"><Button size="sm" className="w-full" style={{ backgroundColor: primaryColor }} icon={<LayoutDashboard className="h-4 w-4" />}>Tableau de bord concessionnaire</Button></a>}{currentUser?.role === 'ADMIN_BANK' && <Link to="/bank/dashboard" onClick={() => setMobileMenuOpen(false)} className="block"><Button size="sm" className="w-full" style={{ backgroundColor: primaryColor }} icon={<LayoutDashboard className="h-4 w-4" />}>Tableau de bord banque</Button></Link>}<button type="button" onClick={() => void logout()} className="block w-full text-center text-sm text-rose-600">Déconnexion</button></div> : <Link to="/connexion" onClick={() => setMobileMenuOpen(false)} className="mt-4 block"><Button size="sm" className="w-full rounded-full border-0 px-5 text-white" style={{ backgroundColor: primaryColor }} icon={<UserRound className="w-4 h-4" />}>Se connecter</Button></Link>}
           </div>
         )}
       </header>
@@ -336,6 +377,9 @@ export function MarketplaceLayout() {
       <main className="flex-1">
         <Outlet context={{ bankData, branding, marketplace }} />
       </main>
+      {isChatbotEnabledForActiveStore && (
+        <Chatbot storeName={activeStore?.label || activeStore?.name} primaryColor={primaryColor} />
+      )}
 
       <footer className="bg-[linear-gradient(180deg,#0f172a_0%,#10192d_100%)] text-white py-12">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

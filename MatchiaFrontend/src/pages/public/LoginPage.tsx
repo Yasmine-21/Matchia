@@ -1,6 +1,6 @@
 import '../../styles/LoginPage.css';
 import { useEffect, useMemo, useState, type CSSProperties } from 'react';
-import { Link, useNavigate } from 'react-router';
+import { Link, useLocation, useNavigate } from 'react-router';
 import { Eye, EyeOff, Lock, Mail, UserRound } from 'lucide-react';
 import { MatchiaLogo } from '../../components/brand/MatchiaLogo';
 import { useApp } from '../../context/AppContext';
@@ -12,6 +12,7 @@ import { getBackendAssetUrl, getTenantSlugFromLocation } from '../../utils/tenan
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login, setCurrentBank } = useApp();
   const tenantSlug = getTenantSlugFromLocation();
   const [marketplace, setMarketplace] = useState<MarketplacePublicDto | null>(null);
@@ -88,7 +89,7 @@ export function LoginPage() {
           setCurrentBank(null);
         }
         
-        const redirectUrl = authService.getRedirectUrl(user);
+        const redirectUrl = (location.state as { from?: string } | null)?.from || authService.getRedirectUrl(user);
         navigate(redirectUrl, { replace: true });
 
       } else {
@@ -207,7 +208,7 @@ export function LoginPage() {
               <span>ou</span>
             </div>
 
-            <Link to="/rejoindre" className="login-create-account">
+            <Link to={tenantSlug ? "/inscription" : "/rejoindre"} className="login-create-account">
               <UserRound className="login-create-icon" />
               Creer un compte
             </Link>

@@ -24,6 +24,7 @@ import { Button } from '../../components/ui/Button';
 import { Modal } from '../../components/ui/Modal';
 import type { ContentDto, MarketplaceContentDto, ProductDto } from '../../types/apiTypes';
 import { getCompareStorageKey, readCompareProductIds, writeCompareProductIds } from '../../utils/comparison';
+import { isBannerModule, isNavigableModule } from '../../utils/moduleVisibility';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -45,6 +46,7 @@ interface MarketplaceStoreDetail {
   description?: string | null;
   banniere_url?: string | null;
   banniereUrl?: string | null;
+  bannerImageUrl?: string | null;
   price?: number | string | null;
   enabled?: boolean | null;
   visible?: boolean | null;
@@ -74,6 +76,7 @@ interface StoreProductItem {
   parameterValues: ProductDto['parameterValues'];
   createdAt?: string;
   dealerProduct?: boolean;
+  dealerProductId?: number;
   dealerName?: string;
 }
 
@@ -262,8 +265,9 @@ function ModuleSidebar({
   secondaryColor: string;
 }) {
   const location = useLocation();
+  const navigableModules = modules.filter(isNavigableModule);
 
-  if (!modules.length) {
+  if (!navigableModules.length) {
     return null;
   }
 
@@ -271,7 +275,7 @@ function ModuleSidebar({
     <aside className="w-full lg:fixed lg:left-0 lg:top-[420px] lg:z-30 lg:w-[170px]">
       <div className="rounded-[2rem] bg-transparent p-0 lg:bg-transparent">
         <div className="flex flex-wrap gap-3 lg:flex-col lg:items-end lg:gap-3">
-          {modules.map((module) => {
+          {navigableModules.map((module) => {
             const moduleName = module.name || module.label;
             const label = module.label || module.name || 'Module';
             const normalizedName = normalizeSlug(moduleName);
@@ -773,6 +777,7 @@ export function MarketplaceStore() {
           })),
           createdAt: product.createdAt,
           dealerProduct: true,
+          dealerProductId: product.id,
           dealerName: product.dealerName,
         }));
         const allProducts = [...storeProducts, ...publishedDealerProducts]
@@ -802,10 +807,15 @@ export function MarketplaceStore() {
   }, [currentStoreId, marketplaceBankId, marketplaceSlug]);
 
   const storeLabel = store?.label || store?.name || `Store ${store?.storeId || store?.id || ''}`;
-  const storeBannerUrl = branding.banner_image_url || getBackendAssetUrl(store?.banniereUrl || store?.banniere_url);
+  const modules = (store?.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
+  const isBannerActive = modules.some(isBannerModule);
+  const customStoreBannerUrl = isBannerActive ? getBackendAssetUrl(store?.bannerImageUrl) : '';
+  const hasCustomStoreBanner = Boolean(customStoreBannerUrl);
+  const storeBannerUrl = customStoreBannerUrl || (isBannerActive
+    ? getBackendAssetUrl(store?.banniereUrl || store?.banniere_url)
+    : '');
   const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(branding.secondary_color, 0.78)} 100%)`;
   const activeStoreSlug = store?.slug || normalizeSlug(storeSlug);
-  const modules = (store?.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
   const canSimulate = modules.some(isSimulatorModule);
   const canCompare = modules.some(isComparatorModule);
   const moduleIcons: Record<string, any> = {
@@ -882,7 +892,7 @@ export function MarketplaceStore() {
 
     const comparatorRoute = getModuleRoute('comparator', storeSlug);
     if (comparatorRoute) {
-      navigate(comparatorRoute);
+      navigate(comparatorRoute, { state: { compareProductIds: compareProductIds.slice(0, 4) } });
     }
   };
 
@@ -894,7 +904,7 @@ export function MarketplaceStore() {
     const simulatorRoute = getModuleRoute('simulator', storeSlug);
     if (simulatorRoute) {
       navigate(`${simulatorRoute}?productId=${product.id}`, {
-        state: { productId: product.id },
+        state: { productId: product.id, dealerProductId: product.dealerProductId },
       });
     }
   };
@@ -906,18 +916,30 @@ export function MarketplaceStore() {
   return (
     <div className="min-h-screen bg-background">
       <section
-        className="relative h-96 flex items-center bg-cover bg-center"
+        className={`relative flex items-center overflow-hidden ${
+          hasCustomStoreBanner ? 'aspect-[16/5] w-full bg-slate-100' : 'h-96 bg-cover bg-center'
+        }`}
         style={
-          storeBannerUrl
+          !hasCustomStoreBanner && storeBannerUrl
             ? {
                 backgroundImage: `url(${storeBannerUrl})`,
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }
-            : { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
+            : !hasCustomStoreBanner
+              ? { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
+              : undefined
         }
       >
-        <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />
+        {hasCustomStoreBanner && (
+          <img
+            src={customStoreBannerUrl}
+            alt={`Bannière ${storeLabel}`}
+            className="absolute inset-0 h-full w-full object-cover object-center"
+          />
+        )}
+        {!hasCustomStoreBanner && <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />}
+        {!hasCustomStoreBanner && (
         <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-4 text-white sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -931,28 +953,9 @@ export function MarketplaceStore() {
             <p className="max-w-4xl text-xl leading-8 mb-8 opacity-90">
               {store.description || `Découvrez nos solutions de financement ${storeLabel.toLowerCase()} adaptees a vos besoins`}
             </p>
-            <div className="flex flex-wrap gap-4">
-              <Link to={`/store/${encodeURIComponent(storeSlug || '')}`}>
-                <Button
-                  size="lg"
-                  className="rounded-none"
-                  style={{ backgroundColor: branding.primary_color }}
-                >
-                  Explorer nos solutions
-                </Button>
-              </Link>
-              <Link to="/connexion">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/20"
-                >
-                  Se connecter
-                </Button>
-              </Link>
-            </div>
           </motion.div>
         </div>
+        )}
       </section>
 
 
@@ -1065,7 +1068,7 @@ export function MarketplaceStore() {
                     primaryColor={branding.primary_color}
                     isComparatorActive={canCompare}
                     isInCompare={selectedCompareProducts.some((candidate) => candidate.id === product.id)}
-                    isSimulatorActive={canSimulate && !product.dealerProduct}
+                    isSimulatorActive={canSimulate}
                     onToggleCompare={toggleCompareProduct}
                     onSimulate={openSimulator}
                     onClick={() => setSelectedProduct(product)}

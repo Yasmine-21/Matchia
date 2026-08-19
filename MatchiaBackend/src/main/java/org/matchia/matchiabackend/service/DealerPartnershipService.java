@@ -48,7 +48,7 @@ public class DealerPartnershipService {
                 .filter(marketplace -> marketplace.getBank() != null && marketplace.getBank().getStatus() == BankStatusEnum.active)
                 .map(marketplace -> new DealerDtos.BankOption(
                     marketplace.getBank().getId(), marketplace.getBank().getName(), marketplace.getBank().getLogoUrl(),
-                        marketplace.getId(), marketplace.getMarketplaceStores().stream()
+                        marketplace.getId(), marketplace.getBank().getSlug(), marketplace.getMarketplaceStores().stream()
                                 .filter(ms -> Boolean.TRUE.equals(ms.getEnabled()) && Boolean.TRUE.equals(ms.getVisible()))
                                 .filter(ms -> ms.getStore() != null && ms.getStore().getStatus() == StoreStatusEnum.active)
                                 .filter(ms -> dealerStoreId.equals(ms.getStore().getId()))

@@ -12,7 +12,6 @@ import {
   TrendingUp,
   UsersRound,
 } from 'lucide-react';
-import { Button } from '../../components/ui/Button';
 
 type StoreLike = {
   id: string;
@@ -113,7 +112,6 @@ export function MarketplaceHome() {
     delay: index * 0.08,
   })), [bankData.stores]);
 
-  const primaryStore = bankData.stores[0];
   const heroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(branding.secondary_color, 0.78)} 100%)`;
 
   return (
@@ -143,26 +141,6 @@ export function MarketplaceHome() {
             <p className="text-xl mb-8 max-w-2xl opacity-90">
               {branding.welcome_text}
             </p>
-            <div className="flex gap-4">
-              <Link to={`/store/${encodeURIComponent(formatStoreSlug(primaryStore || { id: 'home' }))}`}>
-                <Button
-                  size="lg"
-                  className="rounded-none"
-                  style={{ backgroundColor: branding.primary_color }}
-                >
-                  Explorer nos solutions
-                </Button>
-              </Link>
-              <Link to="/connexion">
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="border-white text-white hover:bg-white/20"
-                >
-                  Se connecter
-                </Button>
-              </Link>
-            </div>
           </motion.div>
         </div>
       </section>

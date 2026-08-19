@@ -25,25 +25,27 @@ public class UserService {
     }
 
     /**
-     * Get all Users.
-     * @return List of User.
+     * Users exposed in the SaaS Users backoffice. Client accounts are intentionally
+     * excluded so their personal data never leaves their bank scope.
      */
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<User> findAllForSaasBackoffice() {
+        return userRepository.findByRoleNotOrderByCreatedAtAsc(org.matchia.matchiabackend.entity.enums.RoleEnum.CLIENT);
     }
 
-    public List<User> findAllByBankSlug(String bankSlug) {
-        if (bankSlug == null || bankSlug.isBlank()) {
-            return findAll();
-        }
-        return userRepository.findByBank_Slug(bankSlug);
+    /**
+     * Users exposed to a bank administrator. The bank is always resolved from the
+     * authenticated administrator, never from a request header or request body.
+     */
+    public List<User> findAllForBankBackoffice(Long bankId) {
+        return userRepository.findByBank_IdOrderByCreatedAtAsc(bankId);
     }
 
-    public Optional<User> findDetailedByIdAndBankSlug(Long id, String bankSlug) {
-        if (bankSlug == null || bankSlug.isBlank()) {
-            return userRepository.findById(id);
-        }
-        return userRepository.findByIdAndBank_Slug(id, bankSlug);
+    public Optional<User> findDetailedForSaasBackoffice(Long id) {
+        return userRepository.findByIdAndRoleNot(id, org.matchia.matchiabackend.entity.enums.RoleEnum.CLIENT);
+    }
+
+    public Optional<User> findDetailedForBankBackoffice(Long id, Long bankId) {
+        return userRepository.findByIdAndBank_Id(id, bankId);
     }
 
     /**
@@ -53,6 +55,10 @@ public class UserService {
      */
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
+    }
+
+    public Optional<User> findByEmailIgnoreCase(String email) {
+        return userRepository.findByEmailIgnoreCase(email);
     }
 
     /**

@@ -8,6 +8,7 @@ import org.matchia.matchiabackend.entity.converter.RoleEnumConverter;
 import org.matchia.matchiabackend.entity.enums.RoleEnum;
 import org.matchia.matchiabackend.entity.enums.UserStatusEnum;
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 @Entity
 @Getter
@@ -33,6 +34,7 @@ public class User {
     private String phone;
     private String address;
     private String contactImageUrl;
+    private LocalDate birthDate;
 
     @Enumerated(EnumType.STRING)
     private RoleEnum role;

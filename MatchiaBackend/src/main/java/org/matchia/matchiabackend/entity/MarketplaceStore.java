@@ -32,4 +32,12 @@ public class MarketplaceStore {
     private Boolean enabled;
     private Boolean visible;
 
+    /**
+     * Banner configured by a bank for this exact marketplace/store pair.
+     * It intentionally does not live on {@link Store}: a catalog store can be
+     * used by several marketplaces and each marketplace needs its own image.
+     */
+    @Column(name = "banner_image_url")
+    private String bannerImageUrl;
+
 }

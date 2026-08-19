@@ -69,7 +69,7 @@ export function NotificationsPanel({
       `}
     >
       {/* En-tête */}
-      <div className="flex items-start justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3">
+      <div className="notification-panel-header flex items-start justify-between gap-4 border-b border-gray-200 bg-white px-4 py-3">
         <div className="min-w-0">
           <h2 className="text-base font-semibold text-gray-900">
             Notifications
@@ -86,7 +86,7 @@ export function NotificationsPanel({
           type="button"
           onClick={onMarkAllAsRead}
           disabled={unreadCount === 0}
-          className="
+          className="notification-mark-all
             inline-flex
             shrink-0
             items-center
@@ -129,7 +129,7 @@ export function NotificationsPanel({
             return (
               <div
                 key={notification.id}
-                className={`
+                className={`notification-panel-item
                   mb-2
                   rounded-lg
                   border
@@ -137,7 +137,7 @@ export function NotificationsPanel({
                   last:mb-0
                   ${
                     isUnread
-                      ? 'border-orange-200 bg-orange-50'
+                      ? 'notification-panel-item-unread border-orange-200 bg-orange-50'
                       : 'border-gray-200 bg-white'
                   }
                 `}
@@ -151,7 +151,7 @@ export function NotificationsPanel({
 
                       {isUnread && (
                         <span
-                          className="
+                          className="notification-panel-unread-badge
                             shrink-0
                             whitespace-nowrap
                             rounded-full
@@ -170,7 +170,7 @@ export function NotificationsPanel({
                       )}
                     </div>
 
-                    <div className="mt-1 text-[11px] font-medium uppercase tracking-wide text-orange-700">
+                    <div className="notification-panel-type mt-1 text-[11px] font-medium uppercase tracking-wide text-orange-700">
                       {getNotificationTypeLabel(notification.type)}
                     </div>
 
@@ -185,7 +185,7 @@ export function NotificationsPanel({
                     <button
                       type="button"
                       onClick={() => onOpenNotification(notification)}
-                      className="
+                      className="notification-panel-details
                         mt-3
                         text-sm
                         font-medium
@@ -204,7 +204,7 @@ export function NotificationsPanel({
                       event.stopPropagation();
                       onDeleteNotification(notification.id);
                     }}
-                    className="
+                    className="notification-panel-delete
                       inline-flex
                       h-8
                       w-8

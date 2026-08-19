@@ -79,30 +79,30 @@ public class DealerController {
     @GetMapping("/notifications")
     public List<NotificationDto> notifications(Authentication auth) {
         User user = securityService.requireDealer(auth);
-        return notificationService.findAllForRecipient(user.getId());
+        return notificationService.findAllForUser(user.getId());
     }
 
     @GetMapping("/notifications/unread-count")
     public Map<String, Long> unreadCount(Authentication auth) {
         User user = securityService.requireDealer(auth);
-        return Map.of("count", notificationService.countUnreadForRecipient(user.getId()));
+        return Map.of("count", notificationService.countUnreadForUser(user.getId()));
     }
 
     @PatchMapping("/notifications/{id}/read")
     public NotificationDto readNotification(Authentication auth, @PathVariable Long id) {
         User user = securityService.requireDealer(auth);
-        return notificationService.markAsReadForRecipient(id, user.getId());
+        return notificationService.markAsReadForUser(id, user.getId());
     }
 
     @PatchMapping("/notifications/read-all")
     public List<NotificationDto> readAllNotifications(Authentication auth) {
         User user = securityService.requireDealer(auth);
-        return notificationService.markAllAsReadForRecipient(user.getId());
+        return notificationService.markAllAsReadForUser(user.getId());
     }
 
     @DeleteMapping("/notifications/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteNotification(Authentication auth, @PathVariable Long id) {
         User user = securityService.requireDealer(auth);
-        notificationService.deleteByIdForRecipient(id, user.getId());
+        notificationService.deleteByIdForUser(id, user.getId());
     }
 }

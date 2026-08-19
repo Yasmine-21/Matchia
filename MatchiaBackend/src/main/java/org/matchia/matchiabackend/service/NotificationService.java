@@ -4,11 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.NotificationDto;
 import org.matchia.matchiabackend.entity.Notification;
+import org.matchia.matchiabackend.entity.FinancingRequest;
 import org.matchia.matchiabackend.entity.Payment;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.User;
 import org.matchia.matchiabackend.entity.enums.NotificationStatusEnum;
 import org.matchia.matchiabackend.entity.enums.NotificationTypeEnum;
+import org.matchia.matchiabackend.entity.enums.NotificationRecipientScope;
 import org.matchia.matchiabackend.entity.enums.RoleEnum;
 import org.matchia.matchiabackend.mapper.NotificationMapper;
 import org.matchia.matchiabackend.repository.NotificationRepository;
@@ -65,6 +67,22 @@ public class NotificationService {
     }
 
     @Transactional(readOnly = true)
+    public List<NotificationDto> findAllForBank(Long bankId) {
+        return notificationRepository.findAllBankNotifications(bankId)
+                .stream()
+                .map(notificationMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public List<NotificationDto> findAllForUser(Long userId) {
+        return notificationRepository.findAllUserNotifications(userId)
+                .stream()
+                .map(notificationMapper::toDto)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public long countUnread() {
         Long recipientId = resolveSaasRecipientId();
         long unreadCount = notificationRepository.countByRecipientIdIsNullAndStatus(NotificationStatusEnum.UNREAD);
@@ -77,6 +95,16 @@ public class NotificationService {
     @Transactional(readOnly = true)
     public long countUnreadForRecipient(Long recipientId) {
         return notificationRepository.countByRecipientIdAndStatus(recipientId, NotificationStatusEnum.UNREAD);
+    }
+
+    @Transactional(readOnly = true)
+    public long countUnreadForBank(Long bankId) {
+        return notificationRepository.countUnreadBankNotifications(bankId, NotificationStatusEnum.UNREAD);
+    }
+
+    @Transactional(readOnly = true)
+    public long countUnreadForUser(Long userId) {
+        return notificationRepository.countUnreadUserNotifications(userId, NotificationStatusEnum.UNREAD);
     }
 
     @Transactional
@@ -92,6 +120,28 @@ public class NotificationService {
     @Transactional
     public NotificationDto markAsReadForRecipient(Long id, Long recipientId) {
         Notification notification = findOrThrow(id, recipientId);
+        if (notification.getStatus() == NotificationStatusEnum.UNREAD) {
+            notification.setStatus(NotificationStatusEnum.READ);
+            notification.setReadAt(LocalDateTime.now());
+        }
+        return notificationMapper.toDto(notificationRepository.save(notification));
+    }
+
+    @Transactional
+    public NotificationDto markAsReadForBank(Long id, Long bankId) {
+        Notification notification = notificationRepository.findBankNotificationById(id, bankId)
+                .orElseThrow(() -> new NoSuchElementException("Notification introuvable."));
+        if (notification.getStatus() == NotificationStatusEnum.UNREAD) {
+            notification.setStatus(NotificationStatusEnum.READ);
+            notification.setReadAt(LocalDateTime.now());
+        }
+        return notificationMapper.toDto(notificationRepository.save(notification));
+    }
+
+    @Transactional
+    public NotificationDto markAsReadForUser(Long id, Long userId) {
+        Notification notification = notificationRepository.findUserNotificationById(id, userId)
+                .orElseThrow(() -> new NoSuchElementException("Notification introuvable."));
         if (notification.getStatus() == NotificationStatusEnum.UNREAD) {
             notification.setStatus(NotificationStatusEnum.READ);
             notification.setReadAt(LocalDateTime.now());
@@ -124,6 +174,30 @@ public class NotificationService {
     }
 
     @Transactional
+    public List<NotificationDto> markAllAsReadForBank(Long bankId) {
+        List<Notification> unreadNotifications = notificationRepository.findUnreadBankNotifications(bankId, NotificationStatusEnum.UNREAD);
+        LocalDateTime now = LocalDateTime.now();
+        unreadNotifications.forEach(notification -> {
+            notification.setStatus(NotificationStatusEnum.READ);
+            notification.setReadAt(now);
+        });
+        notificationRepository.saveAll(unreadNotifications);
+        return findAllForBank(bankId);
+    }
+
+    @Transactional
+    public List<NotificationDto> markAllAsReadForUser(Long userId) {
+        List<Notification> unreadNotifications = notificationRepository.findUnreadUserNotifications(userId, NotificationStatusEnum.UNREAD);
+        LocalDateTime now = LocalDateTime.now();
+        unreadNotifications.forEach(notification -> {
+            notification.setStatus(NotificationStatusEnum.READ);
+            notification.setReadAt(now);
+        });
+        notificationRepository.saveAll(unreadNotifications);
+        return findAllForUser(userId);
+    }
+
+    @Transactional
     public void deleteById(Long id) {
         Notification notification = findOrThrow(id, resolveSaasRecipientId());
         notificationRepository.delete(notification);
@@ -138,6 +212,20 @@ public class NotificationService {
     }
 
     @Transactional
+    public void deleteByIdForBank(Long id, Long bankId) {
+        Notification notification = notificationRepository.findBankNotificationById(id, bankId)
+                .orElseThrow(() -> new NoSuchElementException("Notification introuvable."));
+        notificationRepository.delete(notification);
+    }
+
+    @Transactional
+    public void deleteByIdForUser(Long id, Long userId) {
+        Notification notification = notificationRepository.findUserNotificationById(id, userId)
+                .orElseThrow(() -> new NoSuchElementException("Notification introuvable."));
+        notificationRepository.delete(notification);
+    }
+
+    @Transactional
     public Notification createNotification(
             String title,
             String message,
@@ -146,6 +234,18 @@ public class NotificationService {
             Long relatedRequestId,
             Long recipientId
     ) {
+        return createScopedNotification(title, message, type, status, relatedRequestId, recipientId, null);
+    }
+
+    private Notification createScopedNotification(
+            String title,
+            String message,
+            NotificationTypeEnum type,
+            NotificationStatusEnum status,
+            Long relatedRequestId,
+            Long recipientId,
+            NotificationRecipientScope recipientScope
+    ) {
         Notification notification = new Notification();
         notification.setTitle(title);
         notification.setMessage(message);
@@ -153,6 +253,7 @@ public class NotificationService {
         notification.setStatus(status);
         notification.setRelatedRequestId(relatedRequestId);
         notification.setRecipientId(recipientId);
+        notification.setRecipientScope(recipientScope);
         return notificationRepository.save(notification);
     }
 
@@ -349,6 +450,68 @@ public class NotificationService {
                 NotificationStatusEnum.UNREAD,
                 request.getId(),
                 recipientId
+        );
+    }
+
+    @Transactional
+    public Notification createFinancingDecisionNotification(FinancingRequest request) {
+        if (request == null || request.getClient() == null || request.getClient().getId() == null) {
+            return null;
+        }
+        boolean accepted = request.getStatus() == org.matchia.matchiabackend.entity.enums.FinancingRequestStatusEnum.ACCEPTED;
+        NotificationTypeEnum type = accepted ? NotificationTypeEnum.SUCCESS : NotificationTypeEnum.WARNING;
+        Optional<Notification> existing = notificationRepository
+                .findFirstByTypeAndRelatedRequestIdAndRecipientIdAndRecipientScopeOrderByCreatedAtDesc(
+                        type,
+                        request.getId(),
+                        request.getClient().getId(),
+                        NotificationRecipientScope.USER
+                );
+        if (existing.isPresent()) {
+            return existing.get();
+        }
+        String product = request.getDealerProduct() != null && hasText(request.getDealerProduct().getName())
+                ? request.getDealerProduct().getName()
+                : request.getProduct() != null && hasText(request.getProduct().getName()) ? request.getProduct().getName() : "votre produit";
+        String message = accepted
+                ? "Votre demande de financement pour " + product + " a été acceptée."
+                : "Votre demande de financement pour " + product + " a été rejetée."
+                    + (hasText(request.getRejectionReason()) ? " Motif : " + request.getRejectionReason().trim() : "");
+        return createScopedNotification(
+                accepted ? "Demande de financement acceptée" : "Demande de financement rejetée",
+                message,
+                type,
+                NotificationStatusEnum.UNREAD,
+                request.getId(),
+                request.getClient().getId(),
+                NotificationRecipientScope.USER
+        );
+    }
+
+    /**
+     * Shared bank-backoffice notification. recipient_id deliberately stores the
+     * bank id, allowing every admin of that bank to see the same item.
+     */
+    @Transactional
+    public Notification createBankFinancingRequestSubmittedNotification(FinancingRequest request) {
+        if (request == null || request.getId() == null || request.getBank() == null || request.getBank().getId() == null) {
+            return null;
+        }
+        String clientName = request.getClient() != null && hasText(request.getClient().getFullName())
+                ? request.getClient().getFullName() : "Un client";
+        String productName = request.getDealerProduct() != null && hasText(request.getDealerProduct().getName())
+                ? request.getDealerProduct().getName()
+                : request.getProduct() != null && hasText(request.getProduct().getName()) ? request.getProduct().getName() : "un produit";
+        String storeName = request.getStore() != null && hasText(request.getStore().getName())
+                ? request.getStore().getName() : "le store concerné";
+        return createScopedNotification(
+                "Nouvelle demande de financement",
+                clientName + " a soumis la demande " + request.getReference() + " pour " + productName + " — " + storeName + ".",
+                NotificationTypeEnum.INFO,
+                NotificationStatusEnum.UNREAD,
+                request.getId(),
+                request.getBank().getId(),
+                NotificationRecipientScope.BANK
         );
     }
 

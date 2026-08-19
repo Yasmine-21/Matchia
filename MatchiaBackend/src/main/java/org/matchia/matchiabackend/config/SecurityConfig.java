@@ -47,6 +47,7 @@ public class SecurityConfig {
                 )
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh", "/api/auth/logout", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/client-registration").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/admin/marketplaces/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/contents/marketplace/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/marketplace-contents/marketplace/**").permitAll()
