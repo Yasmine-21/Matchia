@@ -48,7 +48,7 @@ pipeline {
 
                 dir('MatchiaFrontend') {
 
-                    nodejs(nodeJSInstallationName: 'NodeJS-22') {
+                    nodejs(nodeJSInstallationName: 'NodeJS-24') {
 
                         echo 'Build du frontend React...'
 
