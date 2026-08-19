@@ -58,7 +58,7 @@ pipeline {
         }
         stage('SonarQube Frontend') {
     steps {
-        dir('Matchia Frontend') {
+        dir('MatchiaFrontend') {
             nodejs(nodeJSInstallationName: 'NodeJS-24') {
                 withSonarQubeEnv('Matchia-SonarQube') {
                     sh '''
