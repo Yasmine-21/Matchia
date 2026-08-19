@@ -56,6 +56,18 @@ pipeline {
                 }
             }
         }
+        stage('SonarQube Backend') {
+            steps {
+                dir('MatchiaBackend') {
+                    withSonarQubeEnv('Matchia-SonarQube') {
+                        sh '''
+                            ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
+                            -Dsonar.projectKey=matchia-backend
+                        '''
+                    }
+                }
+            }
+        }
 
     }
 
