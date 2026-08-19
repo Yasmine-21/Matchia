@@ -56,6 +56,21 @@ pipeline {
                 }
             }
         }
+        stage('SonarQube Frontend') {
+    steps {
+        dir('Matchia Frontend') {
+            nodejs(nodeJSInstallationName: 'NodeJS-24') {
+                withSonarQubeEnv('Matchia-SonarQube') {
+                    sh '''
+                        npx @sonar/scan \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.token=$SONAR_AUTH_TOKEN
+                    '''
+                }
+            }
+        }
+    }
+}
        stage('SonarQube Backend') {
     steps {
         dir('MatchiaBackend') {
