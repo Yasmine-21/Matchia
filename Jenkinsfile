@@ -56,18 +56,19 @@ pipeline {
                 }
             }
         }
-        stage('SonarQube Backend') {
-            steps {
-                dir('MatchiaBackend') {
-                    withSonarQubeEnv('Matchia-SonarQube') {
-                        sh '''
-                            ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:sonar \
-                            -Dsonar.projectKey=matchia-backend
-                        '''
-                    }
-                }
+       stage('SonarQube Backend') {
+    steps {
+        dir('MatchiaBackend') {
+            withSonarQubeEnv('Matchia-SonarQube') {
+                sh '''
+                    ./mvnw org.sonarsource.scanner.maven:sonar-maven-plugin:5.7.0.6970:sonar \
+                    -Dsonar.projectKey=matchia-backend \
+                    -Dsonar.coverage.jacoco.xmlReportPaths=target/site/jacoco/jacoco.xml
+                '''
             }
         }
+    }
+}
 
     }
 
