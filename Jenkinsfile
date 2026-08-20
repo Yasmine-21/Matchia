@@ -91,6 +91,24 @@ pipeline {
                 }
             }
         }
+        stage('Docker Build') {
+    steps {
+
+        echo 'Construction des images Docker Matchia...'
+
+        sh '''
+            docker build \
+                -t matchia-backend:latest \
+                ./MatchiaBackend
+        '''
+
+        sh '''
+            docker build \
+                -t matchia-frontend:latest \
+                ./MatchiaFrontend
+        '''
+    }
+}
     }
 
     post {

@@ -8,6 +8,7 @@ import org.matchia.matchiabackend.dto.ModuleDto;
 import org.matchia.matchiabackend.dto.StoreDto;
 import org.matchia.matchiabackend.entity.Module;
 import org.matchia.matchiabackend.entity.ModuleStore;
+import org.matchia.matchiabackend.entity.ModuleStoreParameter;
 import org.matchia.matchiabackend.entity.Store;
 import org.matchia.matchiabackend.entity.enums.ModuleStatusEnum;
 import org.matchia.matchiabackend.mapper.ModuleStoreMapper;
@@ -114,5 +115,31 @@ class ModuleStoreServiceTest {
         when(moduleStoreRepository.existsById(1L)).thenReturn(true);
         moduleStoreService.deleteModuleStore(1L);
         verify(moduleStoreRepository).deleteById(1L);
+    }
+
+    @Test
+    void managesOrdersPricesAssignmentsAndParameters() {
+        Module module = new Module(); module.setStatus(ModuleStatusEnum.active);
+        ModuleStore assignment = new ModuleStore(); assignment.setModule(module); assignment.setParameters(new java.util.ArrayList<>());
+        ModuleStoreResponseDto dto = new ModuleStoreResponseDto();
+        when(moduleStoreRepository.findByStoreIdAndModuleId(1L, 2L)).thenReturn(Optional.of(assignment));
+        when(moduleStoreRepository.findById(3L)).thenReturn(Optional.of(assignment));
+        when(moduleStoreRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        when(moduleStoreMapper.toDto(any())).thenReturn(dto);
+        when(moduleStoreRepository.countByStoreId(1L)).thenReturn(2L);
+        when(moduleStoreRepository.existsByStoreIdAndModuleId(1L, 2L)).thenReturn(true);
+
+        assertThat(moduleStoreService.getActiveModulesByStore(1L)).isEmpty();
+        assertThat(moduleStoreService.updateOrder(1L, 2L, 4)).isSameAs(dto);
+        assertThat(moduleStoreService.updateModuleStorePrice(3L, BigDecimal.TEN)).isSameAs(dto);
+        assertThat(moduleStoreService.countModulesByStore(1L)).isEqualTo(2L);
+        moduleStoreService.deleteAssignment(1L, 2L);
+
+        ModuleStoreParameter parameter = new ModuleStoreParameter(); parameter.setName("Color"); parameter.setCode("color"); parameter.setType("select"); parameter.setValue(" blue "); parameter.setOptions("red\n blue\n");
+        when(parameterRepository.save(any())).thenAnswer(i -> i.getArgument(0));
+        assertThat(moduleStoreService.addParameterToModule(3L, parameter)).isSameAs(dto);
+        assertThat(parameter.getValue()).isEqualTo("blue");
+        assertThat(parameter.getOptions()).isEqualTo("red,blue");
+        verify(moduleStoreRepository).deleteByStoreIdAndModuleId(1L, 2L);
     }
 }

@@ -23,30 +23,30 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">81.81% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>0/22</span>
+                <span class='fraction'>18/22</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">81.57% </span>
                 <span class="quiet">Branches</span>
-                <span class='fraction'>0/38</span>
+                <span class='fraction'>31/38</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">80% </span>
                 <span class="quiet">Functions</span>
-                <span class='fraction'>0/5</span>
+                <span class='fraction'>4/5</span>
             </div>
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">0% </span>
+                <span class="strong">89.47% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>0/19</span>
+                <span class='fraction'>17/19</span>
             </div>
         
             
@@ -61,7 +61,7 @@
             </div>
         </template>
     </div>
-    <div class='status-line low'></div>
+    <div class='status-line high'></div>
     <pre><table class="coverage">
 <tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
 <a name='L2'></a><a href='#L2'>2</a>
@@ -151,38 +151,38 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">3x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -228,39 +228,39 @@ interface PaymentResultPageProps {
   status: 'success' | 'cancel';
 }
 &nbsp;
-export function <span class="fstat-no" title="function not covered" >PaymentResultPage({</span> status }: PaymentResultPageProps) {
-  const [searchParams] = <span class="cstat-no" title="statement not covered" >useSearchParams()</span>;
-  const requestId = <span class="cstat-no" title="statement not covered" >searchParams.get('request_id');</span>
-  const sessionId = <span class="cstat-no" title="statement not covered" >searchParams.get('session_id');</span>
-  const isSuccess = <span class="cstat-no" title="statement not covered" >status === 'success';</span>
-  const [confirmationState, setConfirmationState] = <span class="cstat-no" title="statement not covered" >useState&lt;'idle' | 'loading' | 'confirmed' | 'failed'&gt;(</span>
-    isSuccess &amp;&amp; sessionId ? 'loading' : isSuccess ? 'confirmed' : 'idle',
+export function PaymentResultPage({ status }: PaymentResultPageProps) {
+  const [searchParams] = useSearchParams();
+  const requestId = searchParams.get('request_id');
+  const sessionId = searchParams.get('session_id');
+  const isSuccess = status === 'success';
+  const [confirmationState, setConfirmationState] = useState&lt;'idle' | 'loading' | 'confirmed' | 'failed'&gt;(
+    isSuccess &amp;&amp; sessionId ? 'loading' : isSuccess ? <span class="branch-0 cbranch-no" title="branch not covered" >'confirmed' : '</span>idle',
   );
-  const paymentConfirmed = <span class="cstat-no" title="statement not covered" >isSuccess &amp;&amp; confirmationState === 'confirmed';</span>
-  const Icon = <span class="cstat-no" title="statement not covered" >paymentConfirmed ? CheckCircle : XCircle;</span>
+  const paymentConfirmed = isSuccess &amp;&amp; confirmationState === 'confirmed';
+  const Icon = paymentConfirmed ? CheckCircle : XCircle;
 &nbsp;
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >    if (!isSuccess || !sessionId) <span class="cstat-no" title="statement not covered" >return;</span></span>
+  useEffect(() =&gt; {
+    if (!isSuccess || !sessionId) return;
 &nbsp;
-    let active = <span class="cstat-no" title="statement not covered" >true;</span>
-<span class="cstat-no" title="statement not covered" >    apiClient.post(`/api/payments/checkout-session/${encodeURIComponent(sessionId)}/confirm`)</span>
-      .<span class="fstat-no" title="function not covered" >then((r</span>esponse) =&gt; {
-<span class="cstat-no" title="statement not covered" >        if (!active) <span class="cstat-no" title="statement not covered" >return;</span></span>
-<span class="cstat-no" title="statement not covered" >        setConfirmationState(response.data?.status?.toLowerCase() === 'paid' ? 'confirmed' : 'failed');</span>
+    let active = true;
+    apiClient.post(`/api/payments/checkout-session/${encodeURIComponent(sessionId)}/confirm`)
+      .then((response) =&gt; {
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (!active) <span class="cstat-no" title="statement not covered" >return;</span>
+        setConfirmationState(response.data?.status?.toLowerCase() === 'paid' ? 'confirmed' : <span class="branch-1 cbranch-no" title="branch not covered" >'failed')</span>;
       })
       .<span class="fstat-no" title="function not covered" >catch((e</span>rror) =&gt; {
 <span class="cstat-no" title="statement not covered" >        console.error('Stripe checkout confirmation failed:', error);</span>
 <span class="cstat-no" title="statement not covered" >        if (active) <span class="cstat-no" title="statement not covered" >setConfirmationState('failed');</span></span>
       });
 &nbsp;
-<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >    return () =&gt; {</span></span>
-<span class="cstat-no" title="statement not covered" >      active = false;</span>
+    return () =&gt; {
+      active = false;
     };
   }, [isSuccess, sessionId]);
 &nbsp;
-  const isVerifying = <span class="cstat-no" title="statement not covered" >isSuccess &amp;&amp; confirmationState === 'loading';</span>
+  const isVerifying = isSuccess &amp;&amp; confirmationState === 'loading';
 &nbsp;
-<span class="cstat-no" title="statement not covered" >  return (</span>
+  return (
     &lt;main className="min-h-screen bg-slate-50 px-4 py-12"&gt;
       &lt;div className="mx-auto max-w-lg rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-sm"&gt;
         &lt;div className={`mx-auto flex h-14 w-14 items-center justify-center rounded-full ${paymentConfirmed ? 'bg-emerald-50 text-emerald-600' : 'bg-red-50 text-red-500'}`}&gt;
@@ -272,7 +272,7 @@ export function <span class="fstat-no" title="function not covered" >PaymentResu
             : paymentConfirmed
               ? 'Paiement confirme avec succes'
               : isSuccess
-                ? 'Paiement non confirme'
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'Paiement non confirme'</span>
                 : 'Paiement annule'}
         &lt;/h1&gt;
         &lt;p className="mt-3 text-sm leading-6 text-slate-600"&gt;
@@ -281,7 +281,7 @@ export function <span class="fstat-no" title="function not covered" >PaymentResu
             : paymentConfirmed
               ? 'Votre paiement est confirme. Votre demande est maintenant en cours d activation.'
               : isSuccess
-                ? 'Stripe n a pas confirme ce paiement. Veuillez reessayer ou contacter le support.'
+                ? <span class="branch-0 cbranch-no" title="branch not covered" >'Stripe n a pas confirme ce paiement. Veuillez reessayer ou contacter le support.'</span>
                 : 'Le paiement a ete annule. Vous pouvez reessayer.'}
         &lt;/p&gt;
         {requestId &amp;&amp; (
@@ -304,7 +304,7 @@ export function <span class="fstat-no" title="function not covered" >PaymentResu
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2026-08-20T09:41:48.838Z
+                at 2026-08-20T12:22:26.842Z
             </div>
         <script src="../../../prettify.js"></script>
         <script>

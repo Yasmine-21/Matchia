@@ -216,4 +216,28 @@ class ProductServiceTest {
         assertThatThrownBy(() -> productService.update(1L, request, invalidImage))
                 .isInstanceOf(IllegalArgumentException.class);
     }
+
+    @Test
+    void createsProductWithStoreParameterValues() {
+        ProductRequestDto request = new ProductRequestDto();
+        request.setBankId(1L); request.setStoreId(2L); request.setName("Car"); request.setPrice(BigDecimal.valueOf(100));
+        ProductParameterValueRequestDto value = new ProductParameterValueRequestDto(); value.setParameterDefinitionId(9L); value.setValue("Blue");
+        request.setParameterValues(List.of(value));
+        ProductParameterDefinition definition = new ProductParameterDefinition(); definition.setId(9L); definition.setName("Color");
+        when(bankRepository.findById(1L)).thenReturn(Optional.of(createBank(1L)));
+        when(storeRepository.findById(2L)).thenReturn(Optional.of(createStore(2L)));
+        when(marketplaceStoreRepository.findByMarketplace_Bank_IdAndStore_Id(1L, 2L)).thenReturn(Optional.of(new MarketplaceStore()));
+        when(definitionRepository.findByStoreIdOrderByNameAsc(2L)).thenReturn(List.of(definition));
+        when(productRepository.save(any(Product.class))).thenAnswer(i -> i.getArgument(0));
+        when(mapper.toDto(any(Product.class))).thenReturn(new ProductDto());
+
+        productService.create(request);
+
+        var product = org.mockito.ArgumentCaptor.forClass(Product.class);
+        verify(productRepository).save(product.capture());
+        assertThat(product.getValue().getParameterValues()).singleElement().satisfies(item -> {
+            assertThat(item.getParameterDefinition()).isSameAs(definition);
+            assertThat(item.getValue()).isEqualTo("Blue");
+        });
+    }
 }

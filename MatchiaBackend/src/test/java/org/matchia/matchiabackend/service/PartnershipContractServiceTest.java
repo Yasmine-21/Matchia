@@ -22,6 +22,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.Authentication;
 
 import java.util.Optional;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -102,5 +104,27 @@ class PartnershipContractServiceTest {
         PartnershipContractDtos.View result = partnershipContractService.forBankPartnership(authentication, 1L);
 
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    void activatesAcceptedContractAndSynchronizesPartnership() {
+        Bank bank = new Bank(); bank.setId(1L); bank.setName("Bank");
+        Dealer dealer = new Dealer(); dealer.setId(2L); dealer.setCompanyName("Dealer");
+        Store store = new Store(); store.setId(3L); store.setName("Auto");
+        DealerBankPartnership partnership = new DealerBankPartnership(); partnership.setId(4L); partnership.setBank(bank); partnership.setDealer(dealer); partnership.setStore(store);
+        PartnershipContract contract = new PartnershipContract(); contract.setId(5L); contract.setBank(bank); contract.setDealer(dealer); contract.setStore(store); contract.setPartnership(partnership);
+        contract.setStatus(PartnershipContractStatusEnum.PENDING_ACCEPTANCE); contract.setDealerAcceptedAt(LocalDateTime.now()); contract.setStartDate(LocalDate.now()); contract.setEndDate(LocalDate.now().plusDays(20));
+        User bankAdmin = new User(); bankAdmin.setRole(RoleEnum.ADMIN_BANK); bankAdmin.setBank(bank);
+        when(security.requireBank(authentication)).thenReturn(bankAdmin);
+        when(contractRepository.findDetailedById(5L)).thenReturn(Optional.of(contract));
+        when(contractRepository.save(any(PartnershipContract.class))).thenAnswer(i -> i.getArgument(0));
+        when(partnershipRepository.save(any(DealerBankPartnership.class))).thenAnswer(i -> i.getArgument(0));
+        when(userRepository.findFirstByDealer_IdAndRoleOrderByCreatedAtAsc(2L, RoleEnum.DEALER_ADMIN)).thenReturn(Optional.empty());
+
+        PartnershipContractDtos.View view = partnershipContractService.activate(authentication, 5L);
+
+        assertThat(view.status()).isEqualTo(PartnershipContractStatusEnum.ACTIVE);
+        assertThat(partnership.getStatus()).isEqualTo(DealerPartnershipStatusEnum.ACTIVE);
+        verify(auditLogger).logAsync(any());
     }
 }

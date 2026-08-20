@@ -267,6 +267,23 @@ public class AuthServiceTest {
     }
 
     @Test
+    void resetPasswordRevokesEveryActiveRefreshToken() {
+        ResetPasswordRequest request = new ResetPasswordRequest();
+        request.setToken("valid-token"); request.setPassword("newPassword123"); request.setConfirmPassword("newPassword123");
+        User user = buildValidUser();
+        PasswordResetToken resetToken = new PasswordResetToken(); resetToken.setUser(user); resetToken.setExpiresAt(Instant.now().plusSeconds(60));
+        RefreshToken active = new RefreshToken();
+        when(passwordResetTokenRepository.findByTokenHash(anyString())).thenReturn(Optional.of(resetToken));
+        when(refreshTokenRepository.findAllByUser_Id(1L)).thenReturn(java.util.List.of(active));
+
+        authService.resetPassword(request);
+
+        assertThat(active.getRevokedAt()).isNotNull();
+        assertThat(active.getRevokedReason()).isEqualTo("PASSWORD_RESET");
+        verify(refreshTokenRepository).saveAll(java.util.List.of(active));
+    }
+
+    @Test
     void resetPassword_passwordsNotMatch_throwsBadRequest() {
         ResetPasswordRequest request = new ResetPasswordRequest();
         request.setToken("valid-token");

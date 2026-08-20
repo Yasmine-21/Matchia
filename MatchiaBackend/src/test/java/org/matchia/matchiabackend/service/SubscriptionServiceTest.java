@@ -21,6 +21,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -103,5 +104,40 @@ class SubscriptionServiceTest {
         SubscriptionOverviewDto result = subscriptionService.getOverview();
         
         assertThat(result).isNotNull();
+    }
+
+    @Test
+    void createsRenewalRequestAndCopiesCommercialContext() {
+        Bank bank = new Bank(); bank.setId(8L);
+        Marketplace marketplace = new Marketplace(); marketplace.setId(9L); bank.setMarketplace(marketplace);
+        Request original = new Request(); original.setId(10L); original.setBank(bank); original.setBankName("Bank"); original.setTotalAmount(99d);
+        Subscription subscription = new Subscription(); subscription.setId(11L); subscription.setRequest(original); subscription.setMarketplace(marketplace);
+        Payment paid = new Payment(); paid.setAmount(java.math.BigDecimal.valueOf(120));
+        when(subscriptionRepository.findById(11L)).thenReturn(Optional.of(subscription));
+        when(requestRepository.existsBySubscription_IdAndRequestTypeAndStatus(anyLong(), any(), any())).thenReturn(false);
+        when(paymentRepository.findTopBySubscription_IdAndStatusOrderByPaidAtDesc(11L, PaymentStatusEnum.paid)).thenReturn(Optional.of(paid));
+        when(requestRepository.save(any(Request.class))).thenAnswer(i -> { Request saved = i.getArgument(0); saved.setId(12L); return saved; });
+
+        Request renewal = subscriptionService.createRenewalRequest(11L, 8L, "admin@matchia.com");
+
+        assertThat(renewal.getOriginalRequest()).isSameAs(original);
+        assertThat(renewal.getTotalAmount()).isEqualTo(120d);
+        verify(notificationService).createRequestCreatedNotification(renewal);
+        verify(auditLogger).logAsync(any());
+    }
+
+    @Test
+    void synchronizesExpiredStatusAndBuildsUrgentExpiryAlert() {
+        Marketplace marketplace = new Marketplace(); marketplace.setId(3L); marketplace.setStatus(MarketplaceStatusEnum.active);
+        Subscription expired = new Subscription(); expired.setId(1L); expired.setMarketplace(marketplace); expired.setStatus(SubscriptionStatusEnum.ACTIVE); expired.setExpirationDate(LocalDate.now().minusDays(1));
+        Subscription expiring = new Subscription(); expiring.setId(2L); expiring.setMarketplace(marketplace); expiring.setStatus(SubscriptionStatusEnum.ACTIVE); expiring.setExpirationDate(LocalDate.now().plusDays(2));
+        when(subscriptionRepository.findAll()).thenReturn(List.of(expired, expiring));
+        when(subscriptionRepository.findByMarketplace_Id(3L)).thenReturn(List.of(expiring));
+        when(subscriptionRepository.findByStatusAndExpirationDateBetween(eq(SubscriptionStatusEnum.ACTIVE), any(), any())).thenReturn(List.of(expiring));
+        when(paymentRepository.findTopBySubscription_IdAndStatusOrderByPaidAtDesc(anyLong(), eq(PaymentStatusEnum.paid))).thenReturn(Optional.empty());
+
+        subscriptionService.synchronizeExpirationStatuses();
+        assertThat(expired.getStatus()).isEqualTo(SubscriptionStatusEnum.EXPIRED);
+        assertThat(subscriptionService.getExpiringAlerts()).singleElement().satisfies(alert -> assertThat(alert.alertLevel()).isEqualTo("Urgent"));
     }
 }

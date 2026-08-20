@@ -19,6 +19,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.never;
@@ -297,6 +298,29 @@ class DealerPartnershipServiceTest {
 
         assertEquals(DealerPartnershipStatusEnum.WAITING_CONTRACT, result.status());
         verify(contractService).createDraftForApprovedPartnership(partnership);
+    }
+
+    @Test
+    void bankRejectsDealerRequestAndNotifiesDealerAdmin() {
+        Bank bank = activeBank(31L, "Banque partenaire");
+        User bankAdmin = new User(); bankAdmin.setRole(RoleEnum.ADMIN_BANK); bankAdmin.setBank(bank);
+        User dealerAdmin = new User(); dealerAdmin.setId(12L); dealerAdmin.setEmail("dealer@matchia.com");
+        dealer.setCompanyName("Concessionnaire"); store.setName("Auto");
+        DealerBankPartnership partnership = new DealerBankPartnership();
+        partnership.setId(41L); partnership.setBank(bank); partnership.setDealer(dealer); partnership.setStore(store);
+        partnership.setStatus(DealerPartnershipStatusEnum.PENDING); partnership.setInitiatedBy(PartnershipInitiatorEnum.DEALER);
+        when(security.requireBank(authentication)).thenReturn(bankAdmin);
+        when(repository.findById(41L)).thenReturn(Optional.of(partnership));
+        when(repository.save(any(DealerBankPartnership.class))).thenAnswer(i -> i.getArgument(0));
+        when(userRepository.findFirstByDealer_IdAndRoleOrderByCreatedAtAsc(11L, RoleEnum.DEALER_ADMIN)).thenReturn(Optional.of(dealerAdmin));
+        when(accountService.toDealerView(dealer)).thenReturn(new DealerDtos.DealerView(11L, "Concessionnaire", null, null, null, null, null, null, null, null, 7L, "Auto", DealerStatusEnum.ACTIVE, null));
+
+        DealerDtos.PartnershipView result = service.decide(authentication, 41L, DealerPartnershipStatusEnum.REJECTED, "  conditions  ");
+
+        assertEquals(DealerPartnershipStatusEnum.REJECTED, result.status());
+        assertEquals("conditions", partnership.getRejectionReason());
+        verify(notificationService).createNotification(any(), any(), eq(NotificationTypeEnum.WARNING), any(), eq(41L), eq(12L));
+        verify(emailService).sendDealerEventEmail(eq("dealer@matchia.com"), any(), any(), any(), any(), any(), any(), any());
     }
 
     private Bank activeBank(Long id, String name) {

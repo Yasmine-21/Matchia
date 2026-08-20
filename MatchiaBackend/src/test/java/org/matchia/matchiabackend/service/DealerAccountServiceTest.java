@@ -137,4 +137,17 @@ class DealerAccountServiceTest {
         assertThat(request.getStatus()).isEqualTo(DealerRequestStatusEnum.REJECTED);
         verify(requestRepository).save(request);
     }
+
+    @Test
+    void returnsActivePublicDealersAndCurrentDealerProfile() {
+        Store store = new Store(); store.setId(2L); store.setName("Auto"); store.setDescription("Vehicles");
+        Dealer dealer = new Dealer(); dealer.setId(3L); dealer.setStore(store); dealer.setCompanyName("Dealer"); dealer.setStatus(org.matchia.matchiabackend.entity.enums.DealerStatusEnum.ACTIVE);
+        dealer.setEmail("dealer@matchia.tn"); dealer.setPhone("123"); dealer.setAddress("Tunis");
+        when(dealerRepository.findByStatusOrderByCompanyNameAsc(org.matchia.matchiabackend.entity.enums.DealerStatusEnum.ACTIVE)).thenReturn(List.of(dealer));
+        User user = new User(); user.setDealer(dealer);
+        when(security.requireDealer(authentication)).thenReturn(user);
+
+        assertThat(dealerAccountService.activePublicDealers()).singleElement().satisfies(view -> assertThat(view.companyName()).isEqualTo("Dealer"));
+        assertThat(dealerAccountService.me(authentication).companyName()).isEqualTo("Dealer");
+    }
 }

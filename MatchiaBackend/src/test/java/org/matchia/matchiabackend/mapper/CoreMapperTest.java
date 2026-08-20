@@ -90,4 +90,74 @@ class CoreMapperTest {
         assertThat(mapper.toDto(null)).isNull();
         assertThat(mapper.toEntity(null)).isNull();
     }
+
+    @Test
+    void productMapperMapsBankStoreAndParameterDefinitions() {
+        Bank bank = new Bank();
+        bank.setId(10L);
+        bank.setName("Bank");
+        Store store = new Store();
+        store.setId(11L);
+        store.setName("Store");
+        ProductParameterDefinition definition = new ProductParameterDefinition();
+        definition.setId(12L);
+        definition.setName("Duration");
+        ProductParameterValue value = new ProductParameterValue();
+        value.setId(13L);
+        value.setValue("24");
+        value.setParameterDefinition(definition);
+        Product product = new Product();
+        product.setId(14L);
+        product.setName("Loan");
+        product.setBank(bank);
+        product.setStore(store);
+        product.setParameterValues(java.util.List.of(value));
+
+        ProductDto dto = new ProductMapper().toDto(product);
+        assertThat(dto.getBankId()).isEqualTo(10L);
+        assertThat(dto.getStoreName()).isEqualTo("Store");
+        assertThat(dto.getParameterValues()).singleElement().satisfies(parameter -> {
+            assertThat(parameter.getParameterDefinitionId()).isEqualTo(12L);
+            assertThat(parameter.getValue()).isEqualTo("24");
+        });
+        assertThat(new ProductMapper().toDto(null)).isNull();
+        assertThat(new ProductMapper().toParameterValueDto(null)).isNull();
+    }
+
+    @Test
+    void marketplaceStoreMappersHandleRelationshipsAndEditableFlags() {
+        Bank bank = new Bank();
+        bank.setId(20L);
+        Marketplace marketplace = new Marketplace();
+        marketplace.setId(21L);
+        marketplace.setBank(bank);
+        Store store = new Store();
+        store.setId(22L);
+        MarketplaceStore marketplaceStore = new MarketplaceStore();
+        marketplaceStore.setId(23L);
+        marketplaceStore.setMarketplace(marketplace);
+        marketplaceStore.setStore(store);
+        marketplaceStore.setEnabled(true);
+        marketplaceStore.setVisible(false);
+        MarketplaceStoreMapper storeMapper = new MarketplaceStoreMapper();
+
+        MarketplaceStoreDto storeDto = storeMapper.toDto(marketplaceStore);
+        assertThat(storeDto.getBankId()).isEqualTo(20L);
+        assertThat(storeMapper.toEntity(storeDto).getEnabled()).isTrue();
+
+        Module module = new Module();
+        module.setId(24L);
+        MarketplaceStoreModule link = new MarketplaceStoreModule();
+        link.setId(25L);
+        link.setMarketplaceStore(marketplaceStore);
+        link.setModule(module);
+        link.setEnabled(true);
+        link.setVisible(true);
+        MarketplaceStoreModuleMapper moduleMapper = new MarketplaceStoreModuleMapper();
+        MarketplaceStoreModuleDto moduleDto = moduleMapper.toDto(link);
+        assertThat(moduleDto.getModuleId()).isEqualTo(24L);
+        assertThat(moduleMapper.toEntity(moduleDto).getVisible()).isTrue();
+        assertThat(storeMapper.toDto(null)).isNull();
+        assertThat(moduleMapper.toEntity(null)).isNull();
+    }
 }

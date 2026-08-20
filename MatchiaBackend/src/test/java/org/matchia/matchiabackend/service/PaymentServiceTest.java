@@ -15,6 +15,8 @@ import org.matchia.matchiabackend.dto.ConfirmPaymentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentRequest;
 import org.matchia.matchiabackend.dto.CreatePaymentIntentResponse;
 import org.matchia.matchiabackend.dto.PaidSubscriptionDto;
+import org.matchia.matchiabackend.dto.MonthlyRevenueDto;
+import org.matchia.matchiabackend.dto.SubscriptionExpiryAlertDto;
 import org.matchia.matchiabackend.dto.SubscriptionRenewalResponse;
 import org.matchia.matchiabackend.entity.Bank;
 import org.matchia.matchiabackend.entity.Payment;
@@ -37,6 +39,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.util.List;
 import java.util.Optional;
 
@@ -305,5 +308,25 @@ public class PaymentServiceTest {
         
         assertThat(res).hasSize(1);
         assertThat(res.get(0).getBankName()).isEqualTo("TestBank");
+    }
+
+    @Test
+    void exposesBillingDashboardDataAndValidatesPublishableKey() {
+        Payment january = new Payment(); january.setAmount(BigDecimal.valueOf(12)); january.setPaidAt(YearMonth.now().withMonth(1).atDay(5).atStartOfDay());
+        Payment ignored = new Payment(); ignored.setAmount(null); ignored.setPaidAt(LocalDateTime.now());
+        when(paymentRepository.findByStatusAndPaidAtGreaterThanEqualAndPaidAtLessThan(eq(PaymentStatusEnum.paid), any(), any()))
+                .thenReturn(List.of(january, ignored));
+        List<MonthlyRevenueDto> revenue = paymentService.getMonthlyRevenue();
+        assertThat(revenue).hasSize(12);
+        assertThat(revenue).anyMatch(month -> month.month().equals(YearMonth.now().withMonth(1).toString()) && month.revenue().compareTo(BigDecimal.valueOf(12)) == 0);
+
+        List<SubscriptionExpiryAlertDto> alerts = List.of();
+        when(subscriptionService.getExpiringAlerts()).thenReturn(alerts);
+        assertThat(paymentService.getExpiringSubscriptionAlerts()).isSameAs(alerts);
+        paymentService.syncExpiredMarketplaceSubscriptions();
+        verify(subscriptionService, atLeastOnce()).synchronizeExpirationStatuses();
+        assertThat(paymentService.getPublishableKey()).isEqualTo("pk_test_123");
+        ReflectionTestUtils.setField(paymentService, "stripePublishableKey", " ");
+        assertThatThrownBy(() -> paymentService.getPublishableKey()).isInstanceOf(IllegalStateException.class);
     }
 }
