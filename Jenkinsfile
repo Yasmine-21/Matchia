@@ -104,13 +104,52 @@ pipeline {
                 '''
             }
         }
+        stage('Push Docker Images') {
+    steps {
+        withCredentials([
+            usernamePassword(
+                credentialsId: 'dockerhub',
+                usernameVariable: 'DOCKER_USER',
+                passwordVariable: 'DOCKER_PASS'
+            )
+        ]) {
+            sh '''
+                echo "$DOCKER_PASS" | docker login \
+                    -u "$DOCKER_USER" \
+                    --password-stdin
+
+                # Backend
+                docker tag matchia-backend:latest \
+                    yassmine24/matchia-backend:$BUILD_NUMBER
+
+                docker tag matchia-backend:latest \
+                    yassmine24/matchia-backend:latest
+
+                # Frontend
+                docker tag matchia-frontend:latest \
+                    yassmine24/matchia-frontend:$BUILD_NUMBER
+
+                docker tag matchia-frontend:latest \
+                    yassmine24/matchia-frontend:latest
+
+                # Push Backend
+                docker push yassmine24/matchia-backend:$BUILD_NUMBER
+                docker push yassmine24/matchia-backend:latest
+
+                # Push Frontend
+                docker push yassmine24/matchia-frontend:$BUILD_NUMBER
+                docker push yassmine24/matchia-frontend:latest
+            '''
+        }
+    }
+}
     }
 
     post {
 
         success {
             echo 'PIPELINE MATCHIA SUCCESS ✅'
-        }
+
 
         failure {
             echo 'PIPELINE MATCHIA FAILED ❌'
