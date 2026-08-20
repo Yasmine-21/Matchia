@@ -1,0 +1,487 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/services/dealerService.ts</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../prettify.css" />
+    <link rel="stylesheet" href="../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../index.html">All files</a> / <a href="index.html">src/services</a> dealerService.ts</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">4.68% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>3/64</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/10</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/47</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">5.45% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>3/55</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import apiClient from '../api/apiClient';
+&nbsp;
+export type DealerStatus = 'PENDING' | 'ACTIVE' | 'INACTIVE' | 'SUSPENDED' | 'REJECTED';
+export type RequestStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type PartnershipStatus = 'PENDING' | 'APPROVED' | 'WAITING_CONTRACT' | 'ACTIVE' | 'REJECTED' | 'SUSPENDED' | 'TERMINATED';
+export type PartnershipInitiator = 'DEALER' | 'BANK';
+export type ProductStatus = 'DRAFT' | 'ACTIVE' | 'INACTIVE';
+export type PublicationStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'INACTIVE';
+export type PartnershipContractStatus = 'DRAFT' | 'PENDING_ACCEPTANCE' | 'ACTIVE' | 'EXPIRED' | 'TERMINATED' | 'CANCELLED';
+export type PartnershipCommissionType = 'PERCENTAGE' | 'FIXED_AMOUNT';
+&nbsp;
+export interface DealerView {
+  id: number; companyName: string; registrationNumber: string; address: string; contactPerson: string;
+  email: string; phone: string; website?: string; logoUrl?: string; contactPhotoUrl?: string; storeId: number; storeName: string; status: DealerStatus;
+}
+export interface DealerRequest extends Omit&lt;DealerView, 'status'&gt; {
+  status: RequestStatus;
+  documentUrls: string[]; rejectionReason?: string; submittedAt: string; processedAt?: string;
+}
+export interface StoreOption { storeId: number; storeName: string; description?: string }
+export interface BankOption { bankId: number; bankName: string; bankLogoUrl?: string; marketplaceId: number; bankSlug?: string; stores: StoreOption[] }
+export interface Partnership {
+  id: number; dealer: DealerView; bankId: number; bankName: string; bankLogoUrl?: string; storeId: number; storeName: string;
+  initiatedBy: PartnershipInitiator; status: PartnershipStatus; message?: string; rejectionReason?: string;
+  requestDate: string; processingDate?: string; approvedAt?: string; rejectedAt?: string;
+}
+export interface ParameterValue { definitionId: number; name?: string; value?: string }
+export interface DealerProduct {
+  id: number; dealerId: number; dealerName: string; storeId: number; storeName: string; name: string;
+  description?: string; price: number; imageUrl?: string; eligibilityConditions?: string; status: ProductStatus;
+  parameterValues: ParameterValue[]; createdAt?: string; updatedAt?: string;
+}
+export interface Publication {
+  id: number; product: DealerProduct; dealerId: number; dealerName: string; bankId: number; bankName: string;
+  bankLogoUrl?: string; marketplaceId: number; storeId: number; storeName: string; status: PublicationStatus; active: boolean;
+  rejectionReason?: string; submittedAt: string; processedAt?: string;
+}
+export interface DashboardStats { products: number; activePartnerships: number; pendingPartnerships: number; pendingPublications: number; approvedPublications: number }
+export interface DealerSettingsPayload {
+  companyName: string;
+  registrationNumber: string;
+  storeId: number;
+  website: string;
+  removeLogo: boolean;
+}
+export interface PartnershipContract {
+  id: number; contractNumber: string; partnershipId: number; dealerId: number; dealerName: string;
+  bankId: number; bankName: string; storeId: number; storeName: string; status: PartnershipContractStatus;
+  startDate: string; endDate: string; billingModel: 'FREE'; partnershipFee: number;
+  commissionApplicable: boolean; commissionType?: PartnershipCommissionType; commissionValue?: number;
+  contractTerms: string; terminationConditions: string; dealerAcceptedAt?: string; bankAcceptedAt?: string;
+  sentAt?: string; rejectionReason?: string; createdAt: string; updatedAt: string;
+}
+export interface PartnershipContractPayload {
+  startDate: string; endDate: string; commissionApplicable: boolean;
+  commissionType?: PartnershipCommissionType; commissionValue?: number;
+  contractTerms?: string; terminationConditions?: string;
+}
+export interface Page&lt;T&gt; { content: T[]; totalElements: number; totalPages: number; number: number }
+&nbsp;
+const <span class="fstat-no" title="function not covered" >jsonPart = (v</span>alue: unknown) =&gt; <span class="cstat-no" title="statement not covered" >new Blob([JSON.stringify(value)], { type: 'application/json' });</span>
+&nbsp;
+export const DEALER_BRANDING_UPDATED_EVENT = 'dealer-branding-updated';
+&nbsp;
+export const dealerService = {
+<span class="fstat-no" title="function not covered" >  register(d</span>ata: Record&lt;string, unknown&gt;, logo: File, documents: File[], contactPhoto?: File) {
+    const form = <span class="cstat-no" title="statement not covered" >new FormData(); <span class="cstat-no" title="statement not covered" >f</span>orm.append('data', jsonPart(data)); <span class="cstat-no" title="statement not covered" >f</span>orm.append('logo', logo);</span>
+<span class="cstat-no" title="statement not covered" >    if (contactPhoto) <span class="cstat-no" title="statement not covered" >form.append('contactPhoto', contactPhoto);</span></span>
+<span class="cstat-no" title="statement not covered" >    documents.<span class="fstat-no" title="function not covered" >forEach((d</span>ocument) =&gt; <span class="cstat-no" title="statement not covered" >form.append('documents', document))</span>;</span>
+<span class="cstat-no" title="statement not covered" >    return apiClient.post&lt;DealerRequest&gt;('/api/public/dealers/requests', form);</span>
+  },
+<span class="fstat-no" title="function not covered" >  getSaasRequests(p</span>arams: Record&lt;string, unknown&gt;) { <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Page&lt;DealerRequest&gt;&gt;('/api/saas/dealers/requests', { params }); }</span>,
+<span class="fstat-no" title="function not covered" >  getRequestDocument(r</span>equestId: number, documentIndex: number) {
+<span class="cstat-no" title="statement not covered" >    return apiClient.get&lt;Blob&gt;(`/api/saas/dealers/requests/${requestId}/documents/${documentIndex}`, {</span>
+      responseType: 'blob',
+    });
+  },
+<span class="fstat-no" title="function not covered" >  approveRequest(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.put&lt;DealerView&gt;(`/api/saas/dealers/requests/${id}/approve`); }</span>,
+<span class="fstat-no" title="function not covered" >  rejectRequest(i</span>d: number, reason: string) { <span class="cstat-no" title="statement not covered" >return apiClient.put&lt;DealerRequest&gt;(`/api/saas/dealers/requests/${id}/reject`, { reason }); }</span>,
+<span class="fstat-no" title="function not covered" >  me() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;DealerView&gt;('/api/dealer/me'); }</span>,
+<span class="fstat-no" title="function not covered" >  updateSettings(d</span>ata: DealerSettingsPayload, logo?: File) {
+    const form = <span class="cstat-no" title="statement not covered" >new FormData();</span>
+<span class="cstat-no" title="statement not covered" >    form.append('data', jsonPart(data));</span>
+<span class="cstat-no" title="statement not covered" >    if (logo) <span class="cstat-no" title="statement not covered" >form.append('logo', logo);</span></span>
+<span class="cstat-no" title="statement not covered" >    return apiClient.put&lt;DealerView&gt;('/api/dealer/me', form);</span>
+  },
+<span class="fstat-no" title="function not covered" >  dashboard() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;DashboardStats&gt;('/api/dealer/dashboard'); }</span>,
+<span class="fstat-no" title="function not covered" >  availableBanks() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;BankOption[]&gt;('/api/dealer/available-banks'); }</span>,
+<span class="fstat-no" title="function not covered" >  partnerships() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Partnership[]&gt;('/api/dealer/partnerships'); }</span>,
+<span class="fstat-no" title="function not covered" >  dealerSentPartnerships() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Partnership[]&gt;('/api/dealer/partnerships/sent'); }</span>,
+<span class="fstat-no" title="function not covered" >  dealerReceivedPartnerships() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Partnership[]&gt;('/api/dealer/partnerships/received'); }</span>,
+<span class="fstat-no" title="function not covered" >  dealerActivePartnerships() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Partnership[]&gt;('/api/dealer/partnerships/active'); }</span>,
+<span class="fstat-no" title="function not covered" >  requestPartnership(b</span>ankId: number, storeId: number, message?: string) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Partnership&gt;('/api/dealer/partnerships', { bankId, storeId, message }); }</span>,
+<span class="fstat-no" title="function not covered" >  approveDealerInvitation(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Partnership&gt;(`/api/dealer/partnerships/${id}/approve`); }</span>,
+<span class="fstat-no" title="function not covered" >  rejectDealerInvitation(i</span>d: number, reason: string) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Partnership&gt;(`/api/dealer/partnerships/${id}/reject`, { reason }); }</span>,
+<span class="fstat-no" title="function not covered" >  cancelDealerRequest(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Partnership&gt;(`/api/dealer/partnerships/${id}/cancel`); }</span>,
+<span class="fstat-no" title="function not covered" >  bankPartnershipStores() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;StoreOption[]&gt;('/api/bank/dealers/stores'); }</span>,
+<span class="fstat-no" title="function not covered" >  dealersByStore(s</span>toreId: number) { <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;DealerView[]&gt;(`/api/bank/dealers/stores/${storeId}/dealers`); }</span>,
+<span class="fstat-no" title="function not covered" >  availableDealers(s</span>toreId?: number) {
+<span class="cstat-no" title="statement not covered" >    return apiClient.get&lt;DealerView[]&gt;('/api/bank/dealers/available', {</span>
+      params: storeId ? { storeId } : undefined,
+    });
+  },
+<span class="fstat-no" title="function not covered" >  inviteDealer(d</span>ealerId: number, storeId: number, message?: string) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Partnership&gt;('/api/bank/dealers/partnerships', { dealerId, storeId, message }); }</span>,
+<span class="fstat-no" title="function not covered" >  bankPartnerships() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Partnership[]&gt;('/api/bank/dealers/partnerships'); }</span>,
+<span class="fstat-no" title="function not covered" >  bankSentPartnerships() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Partnership[]&gt;('/api/bank/dealers/partnerships/sent'); }</span>,
+<span class="fstat-no" title="function not covered" >  bankReceivedPartnerships() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Partnership[]&gt;('/api/bank/dealers/partnerships/received'); }</span>,
+<span class="fstat-no" title="function not covered" >  bankActivePartnerships() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Partnership[]&gt;('/api/bank/dealers/partnerships/active'); }</span>,
+<span class="fstat-no" title="function not covered" >  approveBankRequest(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Partnership&gt;(`/api/bank/dealers/partnerships/${id}/approve`); }</span>,
+<span class="fstat-no" title="function not covered" >  rejectBankRequest(i</span>d: number, reason: string) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Partnership&gt;(`/api/bank/dealers/partnerships/${id}/reject`, { reason }); }</span>,
+<span class="fstat-no" title="function not covered" >  cancelBankInvitation(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Partnership&gt;(`/api/bank/dealers/partnerships/${id}/cancel`); }</span>,
+<span class="fstat-no" title="function not covered" >  decidePartnership(i</span>d: number, status: PartnershipStatus, reason?: string) { <span class="cstat-no" title="statement not covered" >return apiClient.put&lt;Partnership&gt;(`/api/bank/dealers/partnerships/${id}/${status}`, { reason }); }</span>,
+<span class="fstat-no" title="function not covered" >  bankContracts() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;PartnershipContract[]&gt;('/api/bank/dealers/contracts'); }</span>,
+<span class="fstat-no" title="function not covered" >  saveContract(p</span>artnershipId: number, data: PartnershipContractPayload) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;PartnershipContract&gt;(`/api/bank/dealers/partnerships/${partnershipId}/contract`, data); }</span>,
+<span class="fstat-no" title="function not covered" >  sendContract(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;PartnershipContract&gt;(`/api/bank/dealers/contracts/${id}/send`); }</span>,
+<span class="fstat-no" title="function not covered" >  activateContract(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;PartnershipContract&gt;(`/api/bank/dealers/contracts/${id}/activate`); }</span>,
+<span class="fstat-no" title="function not covered" >  terminateContract(i</span>d: number, reason: string) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;PartnershipContract&gt;(`/api/bank/dealers/contracts/${id}/terminate`, { reason }); }</span>,
+<span class="fstat-no" title="function not covered" >  dealerContracts() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;PartnershipContract[]&gt;('/api/dealer/contracts'); }</span>,
+<span class="fstat-no" title="function not covered" >  acceptContract(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;PartnershipContract&gt;(`/api/dealer/contracts/${id}/accept`); }</span>,
+<span class="fstat-no" title="function not covered" >  rejectContract(i</span>d: number, reason: string) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;PartnershipContract&gt;(`/api/dealer/contracts/${id}/reject`, { reason }); }</span>,
+<span class="fstat-no" title="function not covered" >  products() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;DealerProduct[]&gt;('/api/dealer/products'); }</span>,
+<span class="fstat-no" title="function not covered" >  saveProduct(d</span>ata: Record&lt;string, unknown&gt;, image?: File, id?: number) {
+    const form = <span class="cstat-no" title="statement not covered" >new FormData(); <span class="cstat-no" title="statement not covered" >f</span>orm.append('data', jsonPart(data)); <span class="cstat-no" title="statement not covered" >i</span>f (image) <span class="cstat-no" title="statement not covered" >form.append('image', image);</span></span>
+<span class="cstat-no" title="statement not covered" >    return id ? apiClient.put&lt;DealerProduct&gt;(`/api/dealer/products/${id}`, form) : apiClient.post&lt;DealerProduct&gt;('/api/dealer/products', form);</span>
+  },
+<span class="fstat-no" title="function not covered" >  deleteProduct(i</span>d: number) { <span class="cstat-no" title="statement not covered" >return apiClient.delete(`/api/dealer/products/${id}`); }</span>,
+<span class="fstat-no" title="function not covered" >  publications() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Publication[]&gt;('/api/dealer/publications'); }</span>,
+<span class="fstat-no" title="function not covered" >  submitProduct(p</span>roductId: number, partnershipId: number) { <span class="cstat-no" title="statement not covered" >return apiClient.post&lt;Publication&gt;('/api/dealer/publications', { productId, partnershipId }); }</span>,
+<span class="fstat-no" title="function not covered" >  bankPublications() {</span> <span class="cstat-no" title="statement not covered" >return apiClient.get&lt;Publication[]&gt;('/api/bank/dealers/publications'); }</span>,
+<span class="fstat-no" title="function not covered" >  decidePublication(i</span>d: number, status: PublicationStatus, reason?: string) { <span class="cstat-no" title="statement not covered" >return apiClient.put&lt;Publication&gt;(`/api/bank/dealers/publications/${id}/${status}`, { reason }); }</span>,
+<span class="fstat-no" title="function not covered" >  marketplaceProducts(b</span>ankSlug: string, storeId: number) {
+<span class="cstat-no" title="statement not covered" >    return apiClient.get&lt;DealerProduct[]&gt;(`/api/public/dealers/marketplaces/${encodeURIComponent(bankSlug)}/stores/${storeId}/products`);</span>
+  },
+};
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-08-20T09:41:47.987Z
+            </div>
+        <script src="../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../sorter.js"></script>
+        <script src="../../block-navigation.js"></script>
+    </body>
+</html>
+    

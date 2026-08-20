@@ -19,10 +19,10 @@ pipeline {
             steps {
                 dir('MatchiaBackend') {
 
-                    echo 'Build du backend Spring Boot...'
+                    echo 'Build + Tests du backend Spring Boot...'
 
                     sh 'chmod +x mvnw'
-                    sh './mvnw clean package -DskipTests'
+                    sh './mvnw clean verify'
                 }
             }
         }
@@ -45,13 +45,16 @@ pipeline {
             }
         }
 
-        stage('Tests Backend') {
+        stage('Tests Frontend') {
             steps {
-                dir('MatchiaBackend') {
+                dir('MatchiaFrontend') {
 
-                    echo 'Exécution des tests backend...'
+                    nodejs(nodeJSInstallationName: 'NodeJS-24') {
 
-                    sh './mvnw test'
+                        echo 'Exécution des tests frontend...'
+
+                        sh 'npm run test:coverage'
+                    }
                 }
             }
         }

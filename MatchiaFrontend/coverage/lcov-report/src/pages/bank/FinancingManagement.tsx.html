@@ -1,0 +1,568 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/pages/bank/FinancingManagement.tsx</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/pages/bank</a> FinancingManagement.tsx</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/134</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/110</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/43</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/88</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router';
+import { ArrowLeft, CheckCircle2, Clock3, Download, Eye, FileText, Loader2, Search, UserRound, XCircle } from 'lucide-react';
+import { convertToHtml } from 'mammoth';
+import { Badge } from '../../components/ui/Badge';
+import { Button } from '../../components/ui/Button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Input } from '../../components/ui/Input';
+import { KpiCard } from '../../components/ui/KpiCard';
+import apiClient from '../../api/apiClient';
+import { useBankTenant } from '../../hooks/useBankTenant';
+import { financingRequestService, type FinancingDetail, type FinancingSummary } from '../../services/financingRequestService';
+import { getBackendAssetUrl } from '../../utils/tenant';
+&nbsp;
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >statusLabel = (s</span>tatus: string) =&gt; <span class="cstat-no" title="statement not covered" >status === 'ACCEPTED' ? 'Acceptée' : status === 'REJECTED' ? 'Rejetée' : status === 'DRAFT' ? 'Brouillon' : 'En attente';</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >statusVariant = (s</span>tatus: string) =&gt; <span class="cstat-no" title="statement not covered" >status === 'ACCEPTED' ? 'success' : status === 'REJECTED' ? 'danger' : status === 'DRAFT' ? 'secondary' : 'warning';</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >formatAmount = (v</span>alue?: number) =&gt; <span class="cstat-no" title="statement not covered" >new Intl.NumberFormat('fr-TN', { style: 'currency', currency: 'TND', minimumFractionDigits: 2 }).format(value || 0);</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >formatDateTime = (v</span>alue?: string) =&gt; <span class="cstat-no" title="statement not covered" >value ? new Intl.DateTimeFormat('fr-TN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value)) : '-';</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >mimeTypeFromFilename = (<span class="cstat-no" title="statement not covered" >f</span>ilename: string) =&gt; ({ pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml', txt: 'text/plain' }[filename.split('.').pop()?.toLowerCase() || ''] || 'application/octet-stream');</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >isDocx = (f</span>ilename: string, contentType?: string) =&gt; <span class="cstat-no" title="statement not covered" >filename.toLowerCase().endsWith('.docx') || contentType?.includes('wordprocessingml.document') === true;</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >documentTypeLabel = (f</span>ilename: string) =&gt; <span class="cstat-no" title="statement not covered" >filename.split('.').pop()?.toUpperCase() || 'FICHIER';</span></span>
+&nbsp;
+export function <span class="fstat-no" title="function not covered" >BankFinancingRequests() {</span>
+  const { stores } = <span class="cstat-no" title="statement not covered" >useBankTenant()</span>;
+  const [storeId, setStoreId] = <span class="cstat-no" title="statement not covered" >useState&lt;number | null&gt;(null);</span>
+  const [status, setStatus] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const [search, setSearch] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const [requests, setRequests] = <span class="cstat-no" title="statement not covered" >useState&lt;FinancingSummary[]&gt;([]);</span>
+  const [isLoading, setIsLoading] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+  const [error, setError] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >    if (!storeId &amp;&amp; stores.length) <span class="cstat-no" title="statement not covered" >setStoreId(stores[0].storeId ?? stores[0].id);</span></span>
+  }, [stores, storeId]);
+&nbsp;
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span></span>
+<span class="cstat-no" title="statement not covered" >    if (!storeId) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >    setIsLoading(true); <span class="cstat-no" title="statement not covered" >s</span>etError('');</span>
+<span class="cstat-no" title="statement not covered" >    financingRequestService.bankRequests(storeId, status, search)</span>
+      .<span class="fstat-no" title="function not covered" >then((r</span>esponse) =&gt; <span class="cstat-no" title="statement not covered" >setRequests(response.data))</span>
+      .<span class="fstat-no" title="function not covered" >catch(() =&gt; {</span> <span class="cstat-no" title="statement not covered" >setRequests([]); <span class="cstat-no" title="statement not covered" >s</span>etError('Impossible de charger les demandes de financement.'); }</span>)
+      .<span class="fstat-no" title="function not covered" >finally(() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etIsLoading(false))</span>;
+  }, [storeId, status, search]);
+&nbsp;
+  const pendingCount = <span class="cstat-no" title="statement not covered" >requests.<span class="fstat-no" title="function not covered" >filter((r</span>equest) =&gt; <span class="cstat-no" title="statement not covered" >request.status === 'PENDING')</span>.length;</span>
+  const acceptedCount = <span class="cstat-no" title="statement not covered" >requests.<span class="fstat-no" title="function not covered" >filter((r</span>equest) =&gt; <span class="cstat-no" title="statement not covered" >request.status === 'ACCEPTED')</span>.length;</span>
+  const rejectedCount = <span class="cstat-no" title="statement not covered" >requests.<span class="fstat-no" title="function not covered" >filter((r</span>equest) =&gt; <span class="cstat-no" title="statement not covered" >request.status === 'REJECTED')</span>.length;</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return &lt;div className="w-full space-y-6"&gt;</span>
+    &lt;div className="mb-6 flex items-center justify-between gap-4"&gt;
+      &lt;div&gt;&lt;h1 className="mb-2 text-3xl font-bold"&gt;Demandes de financement&lt;/h1&gt;&lt;p className="text-muted-foreground"&gt;Consultez et traitez les dossiers soumis par vos clients.&lt;/p&gt;&lt;/div&gt;
+    &lt;/div&gt;
+&nbsp;
+    &lt;div className="grid gap-4 md:grid-cols-4"&gt;
+      &lt;KpiCard label="Total des demandes" value={requests.length} icon={&lt;FileText className="h-5 w-5" /&gt;} tone="primary" badge={`${requests.length} dossier${requests.length !== 1 ? 's' : ''}`} /&gt;
+      &lt;KpiCard label="En attente" value={pendingCount} icon={&lt;Clock3 className="h-5 w-5" /&gt;} tone="warning" badge={`${pendingCount} à traiter`} /&gt;
+      &lt;KpiCard label="Acceptées" value={acceptedCount} icon={&lt;CheckCircle2 className="h-5 w-5" /&gt;} tone="success" badge={`${acceptedCount} approuvée${acceptedCount !== 1 ? 's' : ''}`} /&gt;
+      &lt;KpiCard label="Rejetées" value={rejectedCount} icon={&lt;XCircle className="h-5 w-5" /&gt;} tone="danger" badge={`${rejectedCount} refusée${rejectedCount !== 1 ? 's' : ''}`} /&gt;
+    &lt;/div&gt;
+&nbsp;
+    &lt;Card className="mb-6"&gt;&lt;CardHeader&gt;&lt;CardTitle&gt;Filtres&lt;/CardTitle&gt;&lt;CardDescription&gt;Affinez les dossiers par store, statut ou recherche.&lt;/CardDescription&gt;&lt;/CardHeader&gt;&lt;CardContent&gt;&lt;div className="grid gap-4 md:grid-cols-[1fr_1fr_2fr]"&gt;
+      &lt;div&gt;&lt;label className="mb-2 block text-sm text-foreground"&gt;Store&lt;/label&gt;&lt;select className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:ring-2 focus:ring-ring" value={storeId || ''} <span class="fstat-no" title="function not covered" >onChange={(e</span>vent) =&gt; <span class="cstat-no" title="statement not covered" >setStoreId(Number(event.target.value))}&gt;</span>
+        {stores.<span class="fstat-no" title="function not covered" >filter((s</span>tore) =&gt; <span class="cstat-no" title="statement not covered" >store.enabled !== false &amp;&amp; store.visible !== false)</span>.<span class="fstat-no" title="function not covered" >map((s</span>tore) =&gt; <span class="cstat-no" title="statement not covered" >&lt;option key={store.id} value={store.storeId ?? store.id}&gt;{store.name || `Store ${store.storeId ?? store.id}`}&lt;/option&gt;)</span>}
+      &lt;/select&gt;&lt;/div&gt;
+      &lt;div&gt;&lt;label className="mb-2 block text-sm text-foreground"&gt;Statut&lt;/label&gt;&lt;select className="h-10 w-full rounded-lg border border-input bg-background px-3 text-sm outline-none transition-colors focus:ring-2 focus:ring-ring" value={status} <span class="fstat-no" title="function not covered" >onChange={(e</span>vent) =&gt; <span class="cstat-no" title="statement not covered" >setStatus(event.target.value)}&gt;&lt;</span>option value=""&gt;Tous les statuts&lt;/option&gt;&lt;option value="PENDING"&gt;En attente&lt;/option&gt;&lt;option value="ACCEPTED"&gt;Acceptée&lt;/option&gt;&lt;option value="REJECTED"&gt;Rejetée&lt;/option&gt;&lt;/select&gt;&lt;/div&gt;
+      &lt;Input label="Rechercher" className="h-10" icon={&lt;Search className="h-4 w-4" /&gt;} placeholder="Client, produit ou référence..." value={search} <span class="fstat-no" title="function not covered" >onChange={(e</span>vent) =&gt; <span class="cstat-no" title="statement not covered" >setSearch(event.target.value)} /&gt;</span>
+    &lt;/div&gt;&lt;/CardContent&gt;&lt;/Card&gt;
+&nbsp;
+    &lt;Card&gt;&lt;CardHeader&gt;&lt;CardTitle&gt;Liste des demandes&lt;/CardTitle&gt;&lt;CardDescription&gt;Toutes les demandes de financement du store sélectionné.&lt;/CardDescription&gt;&lt;/CardHeader&gt;&lt;CardContent&gt;
+      {isLoading ? &lt;div className="flex items-center justify-center py-10 text-muted-foreground"&gt;&lt;Loader2 className="mr-2 h-5 w-5 animate-spin" /&gt;Chargement des demandes...&lt;/div&gt; : error ? &lt;div className="py-8 text-center text-destructive"&gt;{error}&lt;/div&gt; : &lt;div className="overflow-x-auto"&gt;&lt;table className="w-full min-w-[760px]"&gt;&lt;thead&gt;&lt;tr className="border-b border-border"&gt;&lt;th className="px-4 py-3 text-left"&gt;Référence&lt;/th&gt;&lt;th className="px-4 py-3 text-left"&gt;Client&lt;/th&gt;&lt;th className="px-4 py-3 text-left"&gt;Produit&lt;/th&gt;&lt;th className="px-4 py-3 text-left"&gt;Montant&lt;/th&gt;&lt;th className="px-4 py-3 text-left"&gt;Statut&lt;/th&gt;&lt;th className="px-4 py-3 text-right"&gt;Actions&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;
+        {requests.<span class="fstat-no" title="function not covered" >map((r</span>equest) =&gt; <span class="cstat-no" title="statement not covered" >&lt;tr className="border-b border-border hover:bg-muted/50" key={request.id}&gt;&lt;td className="px-4 py-3 font-medium"&gt;{request.reference}&lt;/td&gt;&lt;td className="px-4 py-3"&gt;{request.clientName}&lt;/td&gt;&lt;td className="px-4 py-3"&gt;&lt;span className="inline-flex items-center gap-3"&gt;&lt;span className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted"&gt;&lt;ProductThumbnail imageUrl={request.productImageUrl} productName={request.productName} /&gt;&lt;/span&gt;&lt;span className="font-medium"&gt;{request.productName}&lt;/span&gt;&lt;/span&gt;&lt;/td&gt;&lt;td className="px-4 py-3 font-medium"&gt;{formatAmount(request.requestedAmount)}&lt;/td&gt;&lt;td className="px-4 py-3"&gt;&lt;Badge variant={statusVariant(request.status)}&gt;&lt;span className="inline-flex items-center gap-1"&gt;{request.status === 'ACCEPTED' ? &lt;CheckCircle2 className="h-3 w-3" /&gt; : request.status === 'REJECTED' ? &lt;XCircle className="h-3 w-3" /&gt; : &lt;Clock3 className="h-3 w-3" /&gt;}{statusLabel(request.status)}&lt;/span&gt;&lt;/Badge&gt;&lt;/td&gt;&lt;td className="px-4 py-3"&gt;&lt;div className="flex justify-end"&gt;&lt;Link className="rounded-lg p-2 text-primary transition-colors hover:bg-muted" title="Voir le dossier" to={`/bank/financing-requests/${request.id}`}&gt;&lt;Eye className="h-4 w-4" /&gt;&lt;/Link&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;)</span>}
+        {!requests.length &amp;&amp; &lt;tr&gt;&lt;td colSpan={6} className="py-10 text-center text-muted-foreground"&gt;Aucune demande de financement trouvée.&lt;/td&gt;&lt;/tr&gt;}
+      &lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;}
+    &lt;/CardContent&gt;&lt;/Card&gt;
+  &lt;/div&gt;;
+}
+&nbsp;
+function <span class="fstat-no" title="function not covered" >BankRequestOverview({</span> request }: { request: FinancingDetail }) {
+  const [documentBusyId, setDocumentBusyId] = <span class="cstat-no" title="statement not covered" >useState&lt;number | null&gt;(null);</span>
+  const [documentError, setDocumentError] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >fetchDocument = (d</span>ocumentId: number) =&gt; <span class="cstat-no" title="statement not covered" >apiClient.get&lt;Blob&gt;(financingRequestService.bankDocumentUrl(request.id, documentId), { responseType: 'blob' });</span></span>
+  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >toFileBlob = (r</span>esponse: { data: Blob; headers: Record&lt;string, unknown&gt; }, document: FinancingDetail['documents'][number]) =&gt; {</span>
+    const responseType = <span class="cstat-no" title="statement not covered" >response.headers['content-type'];</span>
+    const declaredType = <span class="cstat-no" title="statement not covered" >document.contentType || (typeof responseType === 'string' ? responseType : '');</span>
+    const mimeType = <span class="cstat-no" title="statement not covered" >!declaredType || declaredType === 'application/octet-stream' ? mimeTypeFromFilename(document.originalFilename) : declaredType;</span>
+<span class="cstat-no" title="statement not covered" >    return new Blob([response.data], { type: mimeType });</span>
+  };
+  const previewDocument = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (d</span>ocument: FinancingDetail['documents'][number]) =&gt; {</span>
+    const previewWindow = <span class="cstat-no" title="statement not covered" >window.open('', '_blank');</span>
+<span class="cstat-no" title="statement not covered" >    setDocumentBusyId(document.id); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('');</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const response = <span class="cstat-no" title="statement not covered" >await fetchDocument(document.id);</span>
+<span class="cstat-no" title="statement not covered" >      if (isDocx(document.originalFilename, document.contentType)) {</span>
+        const preview = <span class="cstat-no" title="statement not covered" >await convertToHtml({ arrayBuffer: await response.data.arrayBuffer() });</span>
+<span class="cstat-no" title="statement not covered" >        if (!previewWindow) <span class="cstat-no" title="statement not covered" >throw new Error('Preview blocked');</span></span>
+<span class="cstat-no" title="statement not covered" >        previewWindow.document.open();</span>
+<span class="cstat-no" title="statement not covered" >        previewWindow.document.write(`&lt;!doctype html&gt;&lt;html lang="fr"&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;Prévisualisation du document&lt;/title&gt;&lt;style&gt;body{max-width:900px;margin:40px auto;padding:0 24px;color:#172554;font:16px/1.65 Arial,sans-serif}img{max-width:100%;height:auto}table{width:100%;border-collapse:collapse}td,th{border:1px solid #cbd5e1;padding:8px}h1,h2,h3{color:#0f172a}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;${preview.value || '&lt;p&gt;Ce document ne contient aucun contenu affichable.&lt;/p&gt;'}&lt;/body&gt;&lt;/html&gt;`);</span>
+<span class="cstat-no" title="statement not covered" >        previewWindow.document.close();</span>
+<span class="cstat-no" title="statement not covered" >        return;</span>
+      }
+      const url = <span class="cstat-no" title="statement not covered" >URL.createObjectURL(toFileBlob(response, document));</span>
+<span class="cstat-no" title="statement not covered" >      if (previewWindow) <span class="cstat-no" title="statement not covered" >previewWindow.location.replace(url);</span></span>
+      else { const link = <span class="cstat-no" title="statement not covered" >window.document.createElement('a'); <span class="cstat-no" title="statement not covered" >l</span>ink.href = url; <span class="cstat-no" title="statement not covered" >l</span>ink.target = '_blank'; <span class="cstat-no" title="statement not covered" >l</span>ink.click(); }</span>
+<span class="cstat-no" title="statement not covered" >      window.<span class="fstat-no" title="function not covered" >setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >U</span>RL.revokeObjectURL(url), 6</span>0_000);</span>
+    } catch { <span class="cstat-no" title="statement not covered" >previewWindow?.close(); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('Impossible d’ouvrir ce document.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setDocumentBusyId(null); }</span>
+  };
+  const downloadDocument = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (d</span>ocument: FinancingDetail['documents'][number]) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    setDocumentBusyId(document.id); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('');</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const response = <span class="cstat-no" title="statement not covered" >await fetchDocument(document.id); c</span>onst url = <span class="cstat-no" title="statement not covered" >URL.createObjectURL(toFileBlob(response, document));</span>
+      const link = <span class="cstat-no" title="statement not covered" >window.document.createElement('a'); <span class="cstat-no" title="statement not covered" >l</span>ink.href = url; <span class="cstat-no" title="statement not covered" >l</span>ink.download = document.originalFilename; <span class="cstat-no" title="statement not covered" >w</span>indow.document.body.appendChild(link); <span class="cstat-no" title="statement not covered" >l</span>ink.click(); <span class="cstat-no" title="statement not covered" >l</span>ink.remove();</span>
+<span class="cstat-no" title="statement not covered" >      window.<span class="fstat-no" title="function not covered" >setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >U</span>RL.revokeObjectURL(url), 1</span>_000);</span>
+    } catch { <span class="cstat-no" title="statement not covered" >setDocumentError('Impossible de télécharger ce document.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setDocumentBusyId(null); }</span>
+  };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return &lt;div className="space-y-6"&gt;</span>
+    &lt;div&gt;&lt;Link className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline" to="/bank/financing-requests"&gt;&lt;ArrowLeft className="h-4 w-4" /&gt;Retour aux demandes&lt;/Link&gt;&lt;div className="flex flex-wrap items-center gap-3"&gt;&lt;h1 className="text-3xl font-bold"&gt;{request.reference}&lt;/h1&gt;&lt;Badge variant={statusVariant(request.status)}&gt;&lt;span className="inline-flex items-center gap-1"&gt;{request.status === 'ACCEPTED' ? &lt;CheckCircle2 className="h-3 w-3" /&gt; : request.status === 'REJECTED' ? &lt;XCircle className="h-3 w-3" /&gt; : &lt;Clock3 className="h-3 w-3" /&gt;}{statusLabel(request.status)}&lt;/span&gt;&lt;/Badge&gt;&lt;/div&gt;&lt;p className="mt-2 text-muted-foreground"&gt;Détail de la demande de financement&lt;/p&gt;&lt;/div&gt;
+&nbsp;
+    &lt;div className="grid gap-6 xl:grid-cols-2"&gt;&lt;Card&gt;&lt;CardHeader&gt;&lt;CardTitle className="flex items-center gap-2"&gt;&lt;span className="rounded-lg bg-primary/10 p-2 text-primary"&gt;&lt;UserRound className="h-4 w-4" /&gt;&lt;/span&gt;Informations client&lt;/CardTitle&gt;&lt;/CardHeader&gt;&lt;CardContent className="grid gap-4 sm:grid-cols-2"&gt;&lt;DetailValue label="Nom complet" value={request.client.fullName} /&gt;&lt;DetailValue label="E-mail" value={request.client.email} /&gt;&lt;DetailValue label="Téléphone" value={request.client.phone} /&gt;&lt;DetailValue label="Adresse" value={request.client.address} /&gt;&lt;/CardContent&gt;&lt;/Card&gt;&lt;Card&gt;&lt;CardHeader&gt;&lt;CardTitle className="flex items-center gap-2"&gt;&lt;span className="rounded-lg bg-secondary/10 p-2 text-secondary"&gt;&lt;FileText className="h-4 w-4" /&gt;&lt;/span&gt;Produit et simulation&lt;/CardTitle&gt;&lt;/CardHeader&gt;&lt;CardContent className="grid gap-4 sm:grid-cols-2"&gt;&lt;div className="flex items-center gap-4 rounded-lg bg-muted/50 p-3 sm:col-span-2"&gt;&lt;span className="flex h-20 w-24 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted"&gt;&lt;ProductThumbnail imageUrl={request.productImageUrl} productName={request.productName} /&gt;&lt;/span&gt;&lt;div&gt;&lt;p className="text-xs text-muted-foreground"&gt;Produit concerné&lt;/p&gt;&lt;p className="mt-1 font-semibold"&gt;{request.productName}&lt;/p&gt;&lt;p className="mt-1 text-sm text-muted-foreground"&gt;{request.storeName}&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;DetailValue label="Prix du produit" value={formatAmount(request.productPrice)} /&gt;&lt;DetailValue label="Apport personnel" value={formatAmount(request.downPayment)} /&gt;&lt;DetailValue label="Taux annuel" value={request.annualRate ? `${request.annualRate}%` : '-'} /&gt;&lt;DetailValue label="Créée le" value={formatDateTime(request.createdAt)} /&gt;&lt;/CardContent&gt;&lt;/Card&gt;&lt;/div&gt;
+&nbsp;
+    {request.rejectionReason &amp;&amp; &lt;Card className="border-destructive/30 bg-destructive/5"&gt;&lt;CardContent className="pt-6"&gt;&lt;h2 className="font-semibold text-destructive"&gt;Motif de rejet&lt;/h2&gt;&lt;p className="mt-2 text-sm text-destructive"&gt;{request.rejectionReason}&lt;/p&gt;&lt;/CardContent&gt;&lt;/Card&gt;}
+&nbsp;
+    &lt;Card&gt;&lt;CardHeader className="pb-4"&gt;&lt;CardTitle className="flex items-center gap-2"&gt;&lt;span className="rounded-lg bg-primary/10 p-2 text-primary"&gt;&lt;FileText className="h-4 w-4" /&gt;&lt;/span&gt;Documents fournis&lt;/CardTitle&gt;&lt;/CardHeader&gt;&lt;CardContent&gt;{documentError &amp;&amp; &lt;div className="mb-4 rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive"&gt;{documentError}&lt;/div&gt;}&lt;div className="overflow-x-auto rounded-lg border border-border"&gt;&lt;table className="w-full min-w-[650px] text-sm"&gt;&lt;thead className="bg-muted/50"&gt;&lt;tr className="border-b border-border text-left text-xs font-semibold text-muted-foreground"&gt;&lt;th className="px-4 py-3"&gt;Type de document&lt;/th&gt;&lt;th className="px-4 py-3"&gt;Nom du document&lt;/th&gt;&lt;th className="w-[220px] px-4 py-3"&gt;Action&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;{request.documents.<span class="fstat-no" title="function not covered" >map(d</span>ocument =&gt; <span class="cstat-no" title="statement not covered" >&lt;tr className="border-b border-border last:border-0" key={document.id}&gt;&lt;td className="px-4 py-3"&gt;&lt;span className="rounded-md bg-primary/10 px-2 py-1 text-xs font-bold text-primary"&gt;{documentTypeLabel(document.originalFilename)}&lt;/span&gt;&lt;/td&gt;&lt;td className="px-4 py-3 font-medium text-foreground"&gt;{document.originalFilename}&lt;/td&gt;&lt;td className="px-4 py-3"&gt;&lt;div className="flex items-center justify-start gap-7"&gt;&lt;button className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition-opacity hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-50" type="button" disabled={documentBusyId === document.id} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid previewDocument(document)}&gt;&lt;</span>Eye className="h-3.5 w-3.5" /&gt;Voir&lt;/button&gt;&lt;button className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition-opacity hover:opacity-75 disabled:cursor-not-allowed disabled:opacity-50" type="button" disabled={documentBusyId === document.id} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid downloadDocument(document)}&gt;&lt;</span>Download className="h-3.5 w-3.5" /&gt;Télécharger&lt;/button&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;)</span>}{!request.documents.length &amp;&amp; &lt;tr&gt;&lt;td colSpan={3} className="py-8 text-center text-sm text-muted-foreground"&gt;Aucun document n’a été fourni pour cette demande.&lt;/td&gt;&lt;/tr&gt;}&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;&lt;/CardContent&gt;&lt;/Card&gt;
+  &lt;/div&gt;;
+}
+&nbsp;
+function <span class="fstat-no" title="function not covered" >DetailValue({</span> label, value }: { label: string; value?: string | number | null }) { <span class="cstat-no" title="statement not covered" >return &lt;div className="rounded-lg bg-muted/50 px-4 py-3"&gt;&lt;p className="text-xs text-muted-foreground"&gt;{label}&lt;/p&gt;&lt;p className="mt-1 break-words font-medium"&gt;{value || '-'}&lt;/p&gt;&lt;/div&gt;; }</span>
+&nbsp;
+function <span class="fstat-no" title="function not covered" >ProductThumbnail({</span> imageUrl, productName }: { imageUrl?: string; productName: string }) {
+  const [imageFailed, setImageFailed] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+<span class="cstat-no" title="statement not covered" >  if (!imageUrl || imageFailed) <span class="cstat-no" title="statement not covered" >return &lt;FileText className="h-4 w-4 text-muted-foreground" /&gt;;</span></span>
+<span class="cstat-no" title="statement not covered" >  return &lt;img className="h-full w-full object-cover" src={getBackendAssetUrl(imageUrl)} alt={productName} <span class="fstat-no" title="function not covered" >onError={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etImageFailed(true)} /&gt;</span>;</span>
+}
+&nbsp;
+export function <span class="fstat-no" title="function not covered" >BankFinancingRequestDetail() {</span>
+  const { id } = <span class="cstat-no" title="statement not covered" >useParams()</span>;
+  const navigate = <span class="cstat-no" title="statement not covered" >useNavigate()</span>;
+  const [request, setRequest] = <span class="cstat-no" title="statement not covered" >useState&lt;FinancingDetail | null&gt;(null);</span>
+  const [reason, setReason] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const [error, setError] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const [isProcessing, setIsProcessing] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+&nbsp;
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span> <span class="cstat-no" title="statement not covered" >if (id) <span class="cstat-no" title="statement not covered" >financingRequestService.bankRequest(Number(id)).<span class="fstat-no" title="function not covered" >then((r</span>esponse) =&gt; <span class="cstat-no" title="statement not covered" >setRequest(response.data))</span>.catch(console.error); }</span></span>, [id]);</span>
+<span class="cstat-no" title="statement not covered" >  if (!request) <span class="cstat-no" title="statement not covered" >return &lt;div className="flex items-center justify-center py-16 text-muted-foreground"&gt;&lt;Loader2 className="mr-2 h-5 w-5 animate-spin" /&gt;Chargement de la demande...&lt;/div&gt;;</span></span>
+  const process = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (s</span>tatus: 'ACCEPTED' | 'REJECTED') =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (isProcessing || request.status !== 'PENDING') <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >    setIsProcessing(true); <span class="cstat-no" title="statement not covered" >s</span>etError('');</span>
+<span class="cstat-no" title="statement not covered" >    try { <span class="cstat-no" title="statement not covered" >setRequest((await financingRequestService.process(request.id, status, undefined, reason)).data); }</span></span>
+    catch (err: any) { <span class="cstat-no" title="statement not covered" >setError(err?.response?.data?.message || 'Traitement impossible.'); }</span>
+    finally { <span class="cstat-no" title="statement not covered" >setIsProcessing(false); }</span>
+  };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return &lt;div className="w-full space-y-6"&gt;&lt;BankRequestOverview request={request} /&gt;</span>
+    {request.status === 'PENDING' &amp;&amp; &lt;Card&gt;&lt;CardHeader&gt;&lt;CardTitle&gt;Traiter la demande&lt;/CardTitle&gt;&lt;CardDescription&gt;Choisissez une décision après vérification du dossier.&lt;/CardDescription&gt;&lt;/CardHeader&gt;&lt;CardContent className="space-y-4"&gt;
+      {error &amp;&amp; &lt;div className="text-destructive"&gt;{error}&lt;/div&gt;}
+      &lt;div&gt;&lt;label className="mb-2 block text-sm font-medium"&gt;Motif en cas de rejet&lt;/label&gt;&lt;textarea className="min-h-24 w-full rounded-lg border border-input bg-background p-3 text-sm outline-none focus:ring-2 focus:ring-ring" placeholder="Saisissez le motif en cas de rejet" value={reason} <span class="fstat-no" title="function not covered" >onChange={(e</span>vent) =&gt; <span class="cstat-no" title="statement not covered" >setReason(event.target.value)} d</span>isabled={isProcessing} /&gt;&lt;/div&gt;
+      &lt;div className="flex gap-3"&gt;&lt;Button variant="success" disabled={isProcessing} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid process('ACCEPTED')}&gt;{i</span>sProcessing ? 'Traitement...' : 'Accepter'}&lt;/Button&gt;&lt;Button variant="danger" disabled={isProcessing || !reason.trim()} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid process('REJECTED')}&gt;R</span>ejeter&lt;/Button&gt;&lt;/div&gt;
+    &lt;/CardContent&gt;&lt;/Card&gt;}
+    &lt;Button variant="outline" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >n</span>avigate('/bank/financing-requests')}&gt;R</span>etour aux demandes&lt;/Button&gt;
+  &lt;/div&gt;;
+}
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-08-20T09:41:47.987Z
+            </div>
+        <script src="../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
+    </body>
+</html>
+    

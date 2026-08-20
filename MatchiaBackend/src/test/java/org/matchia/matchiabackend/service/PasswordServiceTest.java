@@ -46,6 +46,41 @@ class PasswordServiceTest {
     }
 
     @Test
+    void validateRawPassword_throwsException_whenNull() {
+        PasswordService service = new PasswordService(new BCryptPasswordEncoder(), mock(UserRepository.class));
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.validateRawPassword(null));
+        assertTrue(ex.getMessage().contains("obligatoire"));
+    }
+
+    @Test
+    void validateRawPassword_throwsException_whenBlank() {
+        PasswordService service = new PasswordService(new BCryptPasswordEncoder(), mock(UserRepository.class));
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.validateRawPassword("   "));
+        assertTrue(ex.getMessage().contains("obligatoire"));
+    }
+
+    @Test
+    void validateRawPassword_throwsException_whenTooShort() {
+        PasswordService service = new PasswordService(new BCryptPasswordEncoder(), mock(UserRepository.class));
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.validateRawPassword("1234567"));
+        assertTrue(ex.getMessage().contains("8 caracteres"));
+    }
+
+    @Test
+    void setPassword_throwsException_whenUserIsNull() {
+        PasswordService service = new PasswordService(new BCryptPasswordEncoder(), mock(UserRepository.class));
+        assertThrows(IllegalArgumentException.class, () -> service.setPassword(null, "ValidPass#2026"));
+    }
+
+    @Test
+    void setPassword_updatesUserPasswordWithHash() {
+        PasswordService service = new PasswordService(new BCryptPasswordEncoder(), mock(UserRepository.class));
+        User user = new User();
+        service.setPassword(user, "ValidPass#2026");
+        assertTrue(service.isBcryptHash(user.getPassword()));
+    }
+
+    @Test
     void migratesLegacyClearTextPasswordsOnce() {
         UserRepository repository = mock(UserRepository.class);
         User legacyUser = new User();

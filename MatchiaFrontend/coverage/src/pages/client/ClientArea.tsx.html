@@ -1,0 +1,586 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <title>Code coverage report for src/pages/client/ClientArea.tsx</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="../../../prettify.css" />
+    <link rel="stylesheet" href="../../../base.css" />
+    <link rel="shortcut icon" type="image/x-icon" href="../../../favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <style type='text/css'>
+        .coverage-summary .sorter {
+            background-image: url(../../../sort-arrow-sprite.png);
+        }
+    </style>
+</head>
+    
+<body>
+<div class='wrapper'>
+    <div class='pad1'>
+        <h1><a href="../../../index.html">All files</a> / <a href="index.html">src/pages/client</a> ClientArea.tsx</h1>
+        <div class='clearfix'>
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Statements</span>
+                <span class='fraction'>0/293</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Branches</span>
+                <span class='fraction'>0/215</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Functions</span>
+                <span class='fraction'>0/85</span>
+            </div>
+        
+            
+            <div class='fl pad1y space-right2'>
+                <span class="strong">0% </span>
+                <span class="quiet">Lines</span>
+                <span class='fraction'>0/110</span>
+            </div>
+        
+            
+        </div>
+        <p class="quiet">
+            Press <em>n</em> or <em>j</em> to go to the next uncovered block, <em>b</em>, <em>p</em> or <em>k</em> for the previous block.
+        </p>
+        <template id="filterTemplate">
+            <div class="quiet">
+                Filter:
+                <input type="search" id="fileSearch">
+            </div>
+        </template>
+    </div>
+    <div class='status-line low'></div>
+    <pre><table class="coverage">
+<tr><td class="line-count quiet"><a name='L1'></a><a href='#L1'>1</a>
+<a name='L2'></a><a href='#L2'>2</a>
+<a name='L3'></a><a href='#L3'>3</a>
+<a name='L4'></a><a href='#L4'>4</a>
+<a name='L5'></a><a href='#L5'>5</a>
+<a name='L6'></a><a href='#L6'>6</a>
+<a name='L7'></a><a href='#L7'>7</a>
+<a name='L8'></a><a href='#L8'>8</a>
+<a name='L9'></a><a href='#L9'>9</a>
+<a name='L10'></a><a href='#L10'>10</a>
+<a name='L11'></a><a href='#L11'>11</a>
+<a name='L12'></a><a href='#L12'>12</a>
+<a name='L13'></a><a href='#L13'>13</a>
+<a name='L14'></a><a href='#L14'>14</a>
+<a name='L15'></a><a href='#L15'>15</a>
+<a name='L16'></a><a href='#L16'>16</a>
+<a name='L17'></a><a href='#L17'>17</a>
+<a name='L18'></a><a href='#L18'>18</a>
+<a name='L19'></a><a href='#L19'>19</a>
+<a name='L20'></a><a href='#L20'>20</a>
+<a name='L21'></a><a href='#L21'>21</a>
+<a name='L22'></a><a href='#L22'>22</a>
+<a name='L23'></a><a href='#L23'>23</a>
+<a name='L24'></a><a href='#L24'>24</a>
+<a name='L25'></a><a href='#L25'>25</a>
+<a name='L26'></a><a href='#L26'>26</a>
+<a name='L27'></a><a href='#L27'>27</a>
+<a name='L28'></a><a href='#L28'>28</a>
+<a name='L29'></a><a href='#L29'>29</a>
+<a name='L30'></a><a href='#L30'>30</a>
+<a name='L31'></a><a href='#L31'>31</a>
+<a name='L32'></a><a href='#L32'>32</a>
+<a name='L33'></a><a href='#L33'>33</a>
+<a name='L34'></a><a href='#L34'>34</a>
+<a name='L35'></a><a href='#L35'>35</a>
+<a name='L36'></a><a href='#L36'>36</a>
+<a name='L37'></a><a href='#L37'>37</a>
+<a name='L38'></a><a href='#L38'>38</a>
+<a name='L39'></a><a href='#L39'>39</a>
+<a name='L40'></a><a href='#L40'>40</a>
+<a name='L41'></a><a href='#L41'>41</a>
+<a name='L42'></a><a href='#L42'>42</a>
+<a name='L43'></a><a href='#L43'>43</a>
+<a name='L44'></a><a href='#L44'>44</a>
+<a name='L45'></a><a href='#L45'>45</a>
+<a name='L46'></a><a href='#L46'>46</a>
+<a name='L47'></a><a href='#L47'>47</a>
+<a name='L48'></a><a href='#L48'>48</a>
+<a name='L49'></a><a href='#L49'>49</a>
+<a name='L50'></a><a href='#L50'>50</a>
+<a name='L51'></a><a href='#L51'>51</a>
+<a name='L52'></a><a href='#L52'>52</a>
+<a name='L53'></a><a href='#L53'>53</a>
+<a name='L54'></a><a href='#L54'>54</a>
+<a name='L55'></a><a href='#L55'>55</a>
+<a name='L56'></a><a href='#L56'>56</a>
+<a name='L57'></a><a href='#L57'>57</a>
+<a name='L58'></a><a href='#L58'>58</a>
+<a name='L59'></a><a href='#L59'>59</a>
+<a name='L60'></a><a href='#L60'>60</a>
+<a name='L61'></a><a href='#L61'>61</a>
+<a name='L62'></a><a href='#L62'>62</a>
+<a name='L63'></a><a href='#L63'>63</a>
+<a name='L64'></a><a href='#L64'>64</a>
+<a name='L65'></a><a href='#L65'>65</a>
+<a name='L66'></a><a href='#L66'>66</a>
+<a name='L67'></a><a href='#L67'>67</a>
+<a name='L68'></a><a href='#L68'>68</a>
+<a name='L69'></a><a href='#L69'>69</a>
+<a name='L70'></a><a href='#L70'>70</a>
+<a name='L71'></a><a href='#L71'>71</a>
+<a name='L72'></a><a href='#L72'>72</a>
+<a name='L73'></a><a href='#L73'>73</a>
+<a name='L74'></a><a href='#L74'>74</a>
+<a name='L75'></a><a href='#L75'>75</a>
+<a name='L76'></a><a href='#L76'>76</a>
+<a name='L77'></a><a href='#L77'>77</a>
+<a name='L78'></a><a href='#L78'>78</a>
+<a name='L79'></a><a href='#L79'>79</a>
+<a name='L80'></a><a href='#L80'>80</a>
+<a name='L81'></a><a href='#L81'>81</a>
+<a name='L82'></a><a href='#L82'>82</a>
+<a name='L83'></a><a href='#L83'>83</a>
+<a name='L84'></a><a href='#L84'>84</a>
+<a name='L85'></a><a href='#L85'>85</a>
+<a name='L86'></a><a href='#L86'>86</a>
+<a name='L87'></a><a href='#L87'>87</a>
+<a name='L88'></a><a href='#L88'>88</a>
+<a name='L89'></a><a href='#L89'>89</a>
+<a name='L90'></a><a href='#L90'>90</a>
+<a name='L91'></a><a href='#L91'>91</a>
+<a name='L92'></a><a href='#L92'>92</a>
+<a name='L93'></a><a href='#L93'>93</a>
+<a name='L94'></a><a href='#L94'>94</a>
+<a name='L95'></a><a href='#L95'>95</a>
+<a name='L96'></a><a href='#L96'>96</a>
+<a name='L97'></a><a href='#L97'>97</a>
+<a name='L98'></a><a href='#L98'>98</a>
+<a name='L99'></a><a href='#L99'>99</a>
+<a name='L100'></a><a href='#L100'>100</a>
+<a name='L101'></a><a href='#L101'>101</a>
+<a name='L102'></a><a href='#L102'>102</a>
+<a name='L103'></a><a href='#L103'>103</a>
+<a name='L104'></a><a href='#L104'>104</a>
+<a name='L105'></a><a href='#L105'>105</a>
+<a name='L106'></a><a href='#L106'>106</a>
+<a name='L107'></a><a href='#L107'>107</a>
+<a name='L108'></a><a href='#L108'>108</a>
+<a name='L109'></a><a href='#L109'>109</a>
+<a name='L110'></a><a href='#L110'>110</a>
+<a name='L111'></a><a href='#L111'>111</a>
+<a name='L112'></a><a href='#L112'>112</a>
+<a name='L113'></a><a href='#L113'>113</a>
+<a name='L114'></a><a href='#L114'>114</a>
+<a name='L115'></a><a href='#L115'>115</a>
+<a name='L116'></a><a href='#L116'>116</a>
+<a name='L117'></a><a href='#L117'>117</a>
+<a name='L118'></a><a href='#L118'>118</a>
+<a name='L119'></a><a href='#L119'>119</a>
+<a name='L120'></a><a href='#L120'>120</a>
+<a name='L121'></a><a href='#L121'>121</a>
+<a name='L122'></a><a href='#L122'>122</a>
+<a name='L123'></a><a href='#L123'>123</a>
+<a name='L124'></a><a href='#L124'>124</a>
+<a name='L125'></a><a href='#L125'>125</a>
+<a name='L126'></a><a href='#L126'>126</a>
+<a name='L127'></a><a href='#L127'>127</a>
+<a name='L128'></a><a href='#L128'>128</a>
+<a name='L129'></a><a href='#L129'>129</a>
+<a name='L130'></a><a href='#L130'>130</a>
+<a name='L131'></a><a href='#L131'>131</a>
+<a name='L132'></a><a href='#L132'>132</a>
+<a name='L133'></a><a href='#L133'>133</a>
+<a name='L134'></a><a href='#L134'>134</a>
+<a name='L135'></a><a href='#L135'>135</a>
+<a name='L136'></a><a href='#L136'>136</a>
+<a name='L137'></a><a href='#L137'>137</a>
+<a name='L138'></a><a href='#L138'>138</a>
+<a name='L139'></a><a href='#L139'>139</a>
+<a name='L140'></a><a href='#L140'>140</a>
+<a name='L141'></a><a href='#L141'>141</a>
+<a name='L142'></a><a href='#L142'>142</a>
+<a name='L143'></a><a href='#L143'>143</a>
+<a name='L144'></a><a href='#L144'>144</a>
+<a name='L145'></a><a href='#L145'>145</a>
+<a name='L146'></a><a href='#L146'>146</a>
+<a name='L147'></a><a href='#L147'>147</a>
+<a name='L148'></a><a href='#L148'>148</a>
+<a name='L149'></a><a href='#L149'>149</a>
+<a name='L150'></a><a href='#L150'>150</a>
+<a name='L151'></a><a href='#L151'>151</a>
+<a name='L152'></a><a href='#L152'>152</a>
+<a name='L153'></a><a href='#L153'>153</a>
+<a name='L154'></a><a href='#L154'>154</a>
+<a name='L155'></a><a href='#L155'>155</a>
+<a name='L156'></a><a href='#L156'>156</a>
+<a name='L157'></a><a href='#L157'>157</a>
+<a name='L158'></a><a href='#L158'>158</a>
+<a name='L159'></a><a href='#L159'>159</a>
+<a name='L160'></a><a href='#L160'>160</a>
+<a name='L161'></a><a href='#L161'>161</a>
+<a name='L162'></a><a href='#L162'>162</a>
+<a name='L163'></a><a href='#L163'>163</a>
+<a name='L164'></a><a href='#L164'>164</a>
+<a name='L165'></a><a href='#L165'>165</a>
+<a name='L166'></a><a href='#L166'>166</a>
+<a name='L167'></a><a href='#L167'>167</a>
+<a name='L168'></a><a href='#L168'>168</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { Link, useLocation, useNavigate, useParams } from 'react-router';
+import { ArrowLeft, ArrowRight, Calculator, CalendarDays, Camera, ChartNoAxesColumnIncreasing, CheckCircle2, CircleCheck, CircleX, Clock3, Download, Eye, FileText, FileUp, History, Loader2, Package, Save, UserRound, WalletCards } from 'lucide-react';
+import { convertToHtml } from 'mammoth';
+import { Button } from '../../components/ui/Button';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
+import apiClient, { getApiBaseUrl } from '../../api/apiClient';
+import { financingRequestService, type ClientProfile, type FinancingDetail, type FinancingSummary, type SimulationRequest } from '../../services/financingRequestService';
+import { getBackendAssetUrl } from '../../utils/tenant';
+&nbsp;
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >money = (v</span>alue?: number) =&gt; <span class="cstat-no" title="statement not covered" >new Intl.NumberFormat('fr-TN', { style: 'currency', currency: 'TND' }).format(value || 0);</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >statusClass = (s</span>tatus: string) =&gt; <span class="cstat-no" title="statement not covered" >status === 'ACCEPTED' ? 'client-status-badge client-status-approved' : status === 'REJECTED' ? 'client-status-badge client-status-rejected' : status === 'DRAFT' ? 'client-status-badge client-status-draft' : 'client-status-badge client-status-pending';</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >statusLabel = (s</span>tatus: string) =&gt; <span class="cstat-no" title="statement not covered" >status === 'ACCEPTED' ? 'Acceptée' : status === 'REJECTED' ? 'Rejetée' : status === 'DRAFT' ? 'Brouillon' : 'En attente';</span></span>
+&nbsp;
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >documentMimeTypeFromFilename = (<span class="cstat-no" title="statement not covered" >f</span>ilename: string) =&gt; ({ pdf: 'application/pdf', png: 'image/png', jpg: 'image/jpeg', jpeg: 'image/jpeg', webp: 'image/webp', gif: 'image/gif', svg: 'image/svg+xml', txt: 'text/plain' }[filename.split('.').pop()?.toLowerCase() || ''] || 'application/octet-stream');</span></span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >isDocxDocument = (f</span>ilename: string, contentType?: string) =&gt; <span class="cstat-no" title="statement not covered" >filename.toLowerCase().endsWith('.docx') || contentType?.includes('wordprocessingml.document') === true;</span></span>
+&nbsp;
+export function <span class="fstat-no" title="function not covered" >ClientDashboard() {</span>
+  const [data, setData] = <span class="cstat-no" title="statement not covered" >useState&lt;{ total: number; pending: number; accepted: number; rejected: number; recent: FinancingSummary[] } | null&gt;(null);</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span> <span class="cstat-no" title="statement not covered" >financingRequestService.dashboard().<span class="fstat-no" title="function not covered" >then(r</span>esponse =&gt; <span class="cstat-no" title="statement not covered" >setData(response.data))</span>.catch(console.error); }</span>, []);</span>
+<span class="cstat-no" title="statement not covered" >  if (!data) <span class="cstat-no" title="statement not covered" >return &lt;Loading /&gt;;</span></span>
+<span class="cstat-no" title="statement not covered" >  return &lt;div className="client-page"&gt;</span>
+    &lt;div className="client-page-heading"&gt;&lt;h1&gt;Bonjour &lt;span aria-hidden="true"&gt;👋&lt;/span&gt;&lt;/h1&gt;&lt;p&gt;Suivez vos demandes de financement en temps réel.&lt;/p&gt;&lt;/div&gt;
+    &lt;div className="client-stat-grid"&gt;
+      &lt;StatCard type="total" icon={&lt;ChartNoAxesColumnIncreasing /&gt;} label="Total" value={data.total} description="Toutes vos demandes" /&gt;
+      &lt;StatCard type="pending" icon={&lt;Clock3 /&gt;} label="En attente" value={data.pending} description="En cours d’analyse" /&gt;
+      &lt;StatCard type="approved" icon={&lt;CircleCheck /&gt;} label="Acceptées" value={data.accepted} description="Demandes approuvées" /&gt;
+      &lt;StatCard type="rejected" icon={&lt;CircleX /&gt;} label="Rejetées" value={data.rejected} description="Demandes refusées" /&gt;
+    &lt;/div&gt;
+    &lt;RequestTable requests={data.recent} title="Demandes récentes" showAllLink /&gt;
+  &lt;/div&gt;;
+}
+&nbsp;
+export function <span class="fstat-no" title="function not covered" >ClientRequests() {</span>
+  const [requests, setRequests] = <span class="cstat-no" title="statement not covered" >useState&lt;FinancingSummary[]&gt;([]); c</span>onst [loading, setLoading] = <span class="cstat-no" title="statement not covered" >useState(true);</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span> <span class="cstat-no" title="statement not covered" >financingRequestService.list().<span class="fstat-no" title="function not covered" >then(r</span>esponse =&gt; <span class="cstat-no" title="statement not covered" >setRequests(response.data))</span>.catch(console.error).<span class="fstat-no" title="function not covered" >finally(() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etLoading(false))</span>; }</span>, []);</span>
+<span class="cstat-no" title="statement not covered" >  if (loading) <span class="cstat-no" title="statement not covered" >return &lt;Loading /&gt;;</span></span>
+<span class="cstat-no" title="statement not covered" >  return &lt;div className="client-page"&gt;&lt;div className="client-page-heading"&gt;&lt;h1&gt;Mes demandes&lt;/h1&gt;&lt;p&gt;Retrouvez et suivez l’avancement de vos demandes de financement.&lt;/p&gt;&lt;/div&gt;&lt;RequestTable requests={requests} title="Mes demandes de financement" /&gt;&lt;/div&gt;;</span>
+}
+&nbsp;
+export function <span class="fstat-no" title="function not covered" >ClientProfilePage() {</span>
+  const [profile, setProfile] = <span class="cstat-no" title="statement not covered" >useState&lt;ClientProfile | null&gt;(null); c</span>onst [saving, setSaving] = <span class="cstat-no" title="statement not covered" >useState(false); c</span>onst [profilePhoto, setProfilePhoto] = <span class="cstat-no" title="statement not covered" >useState&lt;File | null&gt;(null); c</span>onst [photoPreview, setPhotoPreview] = <span class="cstat-no" title="statement not covered" >useState(''); c</span>onst [error, setError] = <span class="cstat-no" title="statement not covered" >useState(''); c</span>onst photoInputRef = <span class="cstat-no" title="statement not covered" >useRef&lt;HTMLInputElement&gt;(null);</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span> <span class="cstat-no" title="statement not covered" >financingRequestService.profile().<span class="fstat-no" title="function not covered" >then(r</span>esponse =&gt; <span class="cstat-no" title="statement not covered" >setProfile(response.data))</span>.catch(console.error); }</span>, []);</span>
+<span class="cstat-no" title="statement not covered" >  if (!profile) <span class="cstat-no" title="statement not covered" >return &lt;Loading /&gt;;</span></span>
+  const photoSource = <span class="cstat-no" title="statement not covered" >photoPreview || getBackendAssetUrl(profile.contactImageUrl);</span>
+  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >choosePhoto = (f</span>ile?: File) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    if (!file) <span class="cstat-no" title="statement not covered" >return;</span></span>
+<span class="cstat-no" title="statement not covered" >    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type) || file.size &gt; 5 * 1024 * 1024) { <span class="cstat-no" title="statement not covered" >setError('Choisissez une image JPG, PNG ou WEBP de 5 Mo maximum.'); <span class="cstat-no" title="statement not covered" >r</span>eturn; }</span></span>
+<span class="cstat-no" title="statement not covered" >    if (photoPreview) <span class="cstat-no" title="statement not covered" >URL.revokeObjectURL(photoPreview);</span></span>
+<span class="cstat-no" title="statement not covered" >    setProfilePhoto(file); <span class="cstat-no" title="statement not covered" >s</span>etPhotoPreview(URL.createObjectURL(file)); <span class="cstat-no" title="statement not covered" >s</span>etError('');</span>
+  };
+  const save = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (e</span>vent: React.FormEvent) =&gt; { <span class="cstat-no" title="statement not covered" >event.preventDefault(); <span class="cstat-no" title="statement not covered" >s</span>etSaving(true); <span class="cstat-no" title="statement not covered" >s</span>etError(''); <span class="cstat-no" title="statement not covered" >t</span>ry { let contactImageUrl = <span class="cstat-no" title="statement not covered" >profile.contactImageUrl; <span class="cstat-no" title="statement not covered" >i</span>f (profilePhoto) { const data = <span class="cstat-no" title="statement not covered" >new FormData(); <span class="cstat-no" title="statement not covered" >d</span>ata.append('contactImage', profilePhoto); <span class="cstat-no" title="statement not covered" >c</span>ontactImageUrl = (await apiClient.post&lt;{ contactImageUrl: string }&gt;('/api/v1/users/upload-contact-image', data)).data.contactImageUrl; }</span> c</span>onst <span class="cstat-no" title="statement not covered" >updated = (await financingRequestService.updateProfile({ ...profile, contactImageUrl })).data; <span class="cstat-no" title="statement not covered" >s</span>etProfile(updated); <span class="cstat-no" title="statement not covered" >i</span>f (photoPreview) <span class="cstat-no" title="statement not covered" >URL.revokeObjectURL(photoPreview); <span class="cstat-no" title="statement not covered" >s</span></span>etPhotoPreview(''); <span class="cstat-no" title="statement not covered" >s</span>etProfilePhoto(null); <span class="cstat-no" title="statement not covered" >w</span>indow.dispatchEvent(new Event('matchia-client-profile-updated')); }</span> catch (requestError: any) { <span class="cstat-no" title="statement not covered" >setError(requestError?.response?.data?.message || 'Impossible d’enregistrer les modifications.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setSaving(false); }</span> }</span>;</span>
+  const cancel = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span> <span class="cstat-no" title="statement not covered" >if (photoPreview) <span class="cstat-no" title="statement not covered" >URL.revokeObjectURL(photoPreview); <span class="cstat-no" title="statement not covered" >s</span></span>etPhotoPreview(''); <span class="cstat-no" title="statement not covered" >s</span>etProfilePhoto(null); <span class="cstat-no" title="statement not covered" >s</span>etError(''); <span class="cstat-no" title="statement not covered" >t</span>ry { <span class="cstat-no" title="statement not covered" >setProfile((await financingRequestService.profile()).data); }</span> catch { <span class="cstat-no" title="statement not covered" >setError('Impossible de restaurer les informations du profil.'); }</span> }</span>;</span>
+<span class="cstat-no" title="statement not covered" >  return &lt;div className="client-page client-profile-page"&gt;&lt;div className="client-page-heading"&gt;&lt;h1&gt;Mon profil&lt;/h1&gt;&lt;p&gt;Gérez vos informations personnelles.&lt;/p&gt;&lt;/div&gt;&lt;div className="client-profile-layout"&gt;&lt;aside className="client-profile-summary-card"&gt;&lt;button className="client-profile-summary-avatar" type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >p</span>hotoInputRef.current?.click()} a</span>ria-label="Modifier la photo de profil"&gt;{photoSource ? &lt;img src={photoSource} alt="Photo de profil" /&gt; : &lt;UserRound aria-hidden="true" /&gt;}&lt;span className="client-profile-photo-edit"&gt;&lt;Camera aria-hidden="true" /&gt;&lt;/span&gt;&lt;/button&gt;&lt;h2&gt;{profile.fullName}&lt;/h2&gt;&lt;p&gt;Client&lt;/p&gt;&lt;input ref={photoInputRef} className="sr-only" type="file" accept="image/jpeg,image/png,image/webp" <span class="fstat-no" title="function not covered" >onChange={e</span>vent =&gt; { <span class="cstat-no" title="statement not covered" >choosePhoto(event.target.files?.[0]); <span class="cstat-no" title="statement not covered" >e</span>vent.target.value = ''; }</span>} /&gt;&lt;button className="client-change-photo-button" type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >p</span>hotoInputRef.current?.click()}&gt;&lt;</span>Camera aria-hidden="true" /&gt;Changer la photo&lt;/button&gt;&lt;/aside&gt;&lt;section className="client-content-card client-profile-card"&gt;&lt;div className="client-content-card-header"&gt;&lt;h2 className="client-content-card-title"&gt;&lt;span className="client-content-card-title-icon"&gt;&lt;FileText /&gt;&lt;/span&gt;Informations personnelles&lt;/h2&gt;&lt;/div&gt;&lt;form className="client-profile-form" onSubmit={save}&gt;&lt;ProfileField label="Nom complet" value={profile.fullName} <span class="fstat-no" title="function not covered" >onChange={f</span>ullName =&gt; <span class="cstat-no" title="statement not covered" >setProfile({ ...profile, fullName })} /&gt;</span>&lt;ProfileField label="E-mail" value={profile.email} disabled /&gt;&lt;ProfileField label="Téléphone" value={profile.phone} <span class="fstat-no" title="function not covered" >onChange={p</span>hone =&gt; <span class="cstat-no" title="statement not covered" >setProfile({ ...profile, phone })} /&gt;</span>&lt;ProfileField label="Date de naissance" value={profile.birthDate || ''} type="date" <span class="fstat-no" title="function not covered" >onChange={b</span>irthDate =&gt; <span class="cstat-no" title="statement not covered" >setProfile({ ...profile, birthDate })} /&gt;</span>&lt;ProfileField label="Adresse" value={profile.address} <span class="fstat-no" title="function not covered" >onChange={a</span>ddress =&gt; <span class="cstat-no" title="statement not covered" >setProfile({ ...profile, address })} w</span>ide /&gt;{error &amp;&amp; &lt;p className="client-profile-error client-profile-wide" role="alert"&gt;{error}&lt;/p&gt;}&lt;div className="client-profile-actions client-profile-wide"&gt;&lt;button className="client-cancel-button" disabled={saving} type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid cancel()}&gt;A</span>nnuler&lt;/button&gt;&lt;button className="client-primary-button" disabled={saving} type="submit"&gt;&lt;Save aria-hidden="true" /&gt;{saving ? 'Enregistrement...' : 'Enregistrer les modifications'}&lt;/button&gt;&lt;/div&gt;&lt;/form&gt;&lt;/section&gt;&lt;/div&gt;&lt;/div&gt;;</span>
+}
+&nbsp;
+export function <span class="fstat-no" title="function not covered" >FinancingApplicationPage() {</span>
+  const location = <span class="cstat-no" title="statement not covered" >useLocation()</span>; const navigate = <span class="cstat-no" title="statement not covered" >useNavigate()</span>;
+  const context = (<span class="cstat-no" title="statement not covered" >location.<span class="fstat-no" title="function not covered" >state || (() =&gt; {</span> <span class="cstat-no" title="statement not covered" >try { const saved = <span class="cstat-no" title="statement not covered" >sessionStorage.getItem('matchia-financing-context'); <span class="cstat-no" title="statement not covered" >r</span>eturn saved ? JSON.parse(saved) : null; }</span> catch { <span class="cstat-no" title="statement not covered" >return null; }</span> }</span>)()) as SimulationRequest &amp; { productName?: string; productImageUrl?: string; storeName?: string };</span>
+  const [step, setStep] = <span class="cstat-no" title="statement not covered" >useState(1); c</span>onst [profile, setProfile] = <span class="cstat-no" title="statement not covered" >useState&lt;ClientProfile | null&gt;(null); c</span>onst [requirements, setRequirements] = <span class="cstat-no" title="statement not covered" >useState&lt;{ documentType: string; label: string; required: boolean }[]&gt;([]); c</span>onst [request, setRequest] = <span class="cstat-no" title="statement not covered" >useState&lt;FinancingDetail | null&gt;(null); c</span>onst [files, setFiles] = <span class="cstat-no" title="statement not covered" >useState&lt;Record&lt;string, File&gt;&gt;({}); c</span>onst [error, setError] = <span class="cstat-no" title="statement not covered" >useState(''); c</span>onst [busy, setBusy] = <span class="cstat-no" title="statement not covered" >useState(false);</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span> <span class="cstat-no" title="statement not covered" >if (!context?.productId || !context?.storeId) <span class="cstat-no" title="statement not covered" >return; <span class="cstat-no" title="statement not covered" >P</span></span>romise.all([financingRequestService.profile(), financingRequestService.requirements(context.storeId)]).<span class="fstat-no" title="function not covered" >then(([</span>p, r]) =&gt; { <span class="cstat-no" title="statement not covered" >setProfile(p.data); <span class="cstat-no" title="statement not covered" >s</span>etRequirements(r.data); }</span>).<span class="fstat-no" title="function not covered" >catch(() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etError('Impossible de charger les données de la demande.'))</span>; }</span>, [context?.productId, context?.storeId]);</span>
+<span class="cstat-no" title="statement not covered" >  if (!context?.productId || !context?.storeId) <span class="cstat-no" title="statement not covered" >return &lt;ClientMessage title="Simulation requise" message="Retournez au simulateur et choisissez un produit pour continuer." /&gt;;</span></span>
+  const create = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span> <span class="cstat-no" title="statement not covered" >setBusy(true); <span class="cstat-no" title="statement not covered" >s</span>etError(''); <span class="cstat-no" title="statement not covered" >t</span>ry { const <span class="cstat-no" title="statement not covered" >created = (await financingRequestService.create(context)).data; <span class="cstat-no" title="statement not covered" >f</span>or (const item of requirements) <span class="cstat-no" title="statement not covered" >if (files[item.documentType]) <span class="cstat-no" title="statement not covered" >await financingRequestService.upload(created.id, item.documentType, files[item.documentType]); <span class="cstat-no" title="statement not covered" >s</span></span></span>etRequest((await financingRequestService.get(created.id)).data); <span class="cstat-no" title="statement not covered" >s</span>etStep(4); }</span> catch (e: any) { <span class="cstat-no" title="statement not covered" >setError(e?.response?.data?.message || 'Impossible d’enregistrer les documents.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setBusy(false); }</span> }</span>;</span>
+  const submit = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span> <span class="cstat-no" title="statement not covered" >if (!request) <span class="cstat-no" title="statement not covered" >return; <span class="cstat-no" title="statement not covered" >s</span></span>etBusy(true); <span class="cstat-no" title="statement not covered" >t</span>ry { <span class="cstat-no" title="statement not covered" >await financingRequestService.submit(request.id); <span class="cstat-no" title="statement not covered" >s</span>essionStorage.removeItem('matchia-financing-context'); <span class="cstat-no" title="statement not covered" >n</span>avigate(`/client/financing-requests/${request.id}`); }</span> catch (e: any) { <span class="cstat-no" title="statement not covered" >setError(e?.response?.data?.message || 'Impossible de soumettre la demande.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setBusy(false); }</span> }</span>;</span>
+  const productImage = <span class="cstat-no" title="statement not covered" >getBackendAssetUrl(context.productImageUrl);</span>
+  const stages = <span class="cstat-no" title="statement not covered" >[{ icon: &lt;UserRound /&gt;, label: 'Vos informations' }, { icon: &lt;Calculator /&gt;, label: 'Simulation' }, { icon: &lt;FileUp /&gt;, label: 'Documents' }, { icon: &lt;CheckCircle2 /&gt;, label: 'Validation' }];</span>
+<span class="cstat-no" title="statement not covered" >  return &lt;div className="client-page client-application-page"&gt;&lt;div className="client-page-heading"&gt;&lt;h1&gt;Demande de financement&lt;/h1&gt;&lt;p&gt;Constituez votre dossier en quelques étapes simples.&lt;/p&gt;&lt;/div&gt;&lt;div className="client-application-steps"&gt;{stages.<span class="fstat-no" title="function not covered" >map((s</span>tage, index) =&gt; <span class="cstat-no" title="statement not covered" >&lt;div className={`client-application-step${step === index + 1 ? ' client-application-step-active' : ''}${step &gt; index + 1 ? ' client-application-step-complete' : ''}`} key={stage.label}&gt;&lt;span&gt;{step &gt; index + 1 ? &lt;CheckCircle2 /&gt; : stage.icon}&lt;/span&gt;&lt;div&gt;&lt;b&gt;Étape {index + 1}&lt;/b&gt;&lt;small&gt;{stage.label}&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;)</span>}&lt;/div&gt;{error &amp;&amp; &lt;div className="client-application-error" role="alert"&gt;{error}&lt;/div&gt;}&lt;section className="client-content-card client-application-card"&gt;{step === 1 &amp;&amp; &lt;&gt;&lt;div className="client-application-card-header"&gt;&lt;span&gt;&lt;UserRound /&gt;&lt;/span&gt;&lt;div&gt;&lt;h2&gt;Vos informations personnelles&lt;/h2&gt;&lt;p&gt;Vérifiez les informations utilisées pour votre demande.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div className="client-application-profile"&gt;&lt;div className="client-application-avatar"&gt;{profile?.contactImageUrl ? &lt;img src={getBackendAssetUrl(profile.contactImageUrl)} alt="Profil" /&gt; : &lt;UserRound /&gt;}&lt;/div&gt;&lt;div className="client-application-profile-copy"&gt;&lt;h3&gt;{profile?.fullName || 'Client'}&lt;/h3&gt;&lt;p&gt;{profile?.email}&lt;/p&gt;&lt;p&gt;{profile?.phone}&lt;/p&gt;&lt;p&gt;{profile?.address}&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div className="client-application-actions"&gt;&lt;button className="client-secondary-button" type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >n</span>avigate('/client/profile')}&gt;M</span>odifier mon profil&lt;/button&gt;&lt;button className="client-primary-button" type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etStep(2)}&gt;C</span>ontinuer &lt;ArrowRight /&gt;&lt;/button&gt;&lt;/div&gt;&lt;/&gt;}{step === 2 &amp;&amp; &lt;&gt;&lt;div className="client-application-card-header"&gt;&lt;span&gt;&lt;Calculator /&gt;&lt;/span&gt;&lt;div&gt;&lt;h2&gt;Produit et simulation&lt;/h2&gt;&lt;p&gt;Voici le résultat de votre simulation de financement.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div className="client-application-summary-grid"&gt;&lt;article className="client-application-product"&gt;{productImage ? &lt;img src={productImage} alt={context.productName || 'Produit'} /&gt; : &lt;span&gt;&lt;Package /&gt;&lt;/span&gt;}&lt;div&gt;&lt;small&gt;Produit sélectionné&lt;/small&gt;&lt;h3&gt;{context.productName || `Produit #${context.productId}`}&lt;/h3&gt;&lt;p&gt;{context.storeName || 'Store de la marketplace'}&lt;/p&gt;&lt;/div&gt;&lt;/article&gt;&lt;div className="client-application-simulation"&gt;&lt;ApplicationValue label="Montant financé" value={money(context.requestedAmount)} /&gt;&lt;ApplicationValue label="Apport personnel" value={money(context.downPayment)} /&gt;&lt;ApplicationValue label="Durée" value={`${context.durationMonths || 0} mois`} /&gt;&lt;ApplicationValue label="Mensualité" value={money(context.monthlyPayment)} /&gt;&lt;/div&gt;&lt;/div&gt;&lt;div className="client-application-actions"&gt;&lt;button className="client-secondary-button" type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etStep(1)}&gt;R</span>etour&lt;/button&gt;&lt;button className="client-primary-button" type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etStep(3)}&gt;C</span>ontinuer &lt;ArrowRight /&gt;&lt;/button&gt;&lt;/div&gt;&lt;/&gt;}{step === 3 &amp;&amp; &lt;&gt;&lt;div className="client-application-card-header"&gt;&lt;span&gt;&lt;FileUp /&gt;&lt;/span&gt;&lt;div&gt;&lt;h2&gt;Documents requis&lt;/h2&gt;&lt;p&gt;Ajoutez les justificatifs demandés par la banque.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div className="client-application-documents"&gt;{requirements.<span class="fstat-no" title="function not covered" >map(i</span>tem =&gt; <span class="cstat-no" title="statement not covered" >&lt;label key={item.documentType} className={`client-application-upload${files[item.documentType] ? ' client-application-upload-complete' : ''}`}&gt;&lt;span className="client-application-upload-icon"&gt;{files[item.documentType] ? &lt;CheckCircle2 /&gt; : &lt;FileText /&gt;}&lt;/span&gt;&lt;span className="client-application-upload-copy"&gt;&lt;b&gt;{item.label}{item.required &amp;&amp; &lt;em&gt;Obligatoire&lt;/em&gt;}&lt;/b&gt;&lt;small&gt;{files[item.documentType]?.name || 'Choisir un fichier à téléverser'}&lt;/small&gt;&lt;/span&gt;&lt;span className="client-application-upload-button"&gt;{files[item.documentType] ? 'Remplacer' : 'Parcourir'}&lt;input type="file" <span class="fstat-no" title="function not covered" >onChange={e</span>vent =&gt; { const file = <span class="cstat-no" title="statement not covered" >event.target.files?.[0]; <span class="cstat-no" title="statement not covered" >i</span>f (file) <span class="cstat-no" title="statement not covered" >setFiles({ ...files, [item.documentType]: file }); }</span></span>} /&gt;&lt;/span&gt;&lt;/label&gt;)</span>}&lt;/div&gt;&lt;div className="client-application-actions"&gt;&lt;button className="client-secondary-button" type="button" disabled={busy} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etStep(2)}&gt;R</span>etour&lt;/button&gt;&lt;button className="client-primary-button" disabled={busy || requirements.<span class="fstat-no" title="function not covered" >some(i</span>tem =&gt; <span class="cstat-no" title="statement not covered" >item.required &amp;&amp; !files[item.documentType])</span>} type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid create()}&gt;{b</span>usy ? &lt;Loader2 className="animate-spin" /&gt; : &lt;FileUp /&gt;}{busy ? 'Enregistrement...' : 'Vérifier les documents'}&lt;/button&gt;&lt;/div&gt;&lt;/&gt;}{step === 4 &amp;&amp; &lt;&gt;&lt;div className="client-application-card-header"&gt;&lt;span&gt;&lt;CheckCircle2 /&gt;&lt;/span&gt;&lt;div&gt;&lt;h2&gt;Vérification et envoi&lt;/h2&gt;&lt;p&gt;Votre dossier est prêt. Confirmez l’envoi à la banque.&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;div className="client-application-confirmation"&gt;&lt;CheckCircle2 /&gt;&lt;div&gt;&lt;h3&gt;Dossier prêt à être envoyé&lt;/h3&gt;&lt;p&gt;{request?.productName || context.productName} · {money(request?.requestedAmount || context.requestedAmount)}&lt;/p&gt;&lt;small&gt;Les documents fournis seront transmis à la banque pour analyse.&lt;/small&gt;&lt;/div&gt;&lt;/div&gt;&lt;div className="client-application-actions"&gt;&lt;button className="client-secondary-button" type="button" disabled={busy} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >s</span>etStep(3)}&gt;R</span>etour&lt;/button&gt;&lt;button className="client-primary-button" disabled={busy} type="button" <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid submit()}&gt;{b</span>usy ? &lt;Loader2 className="animate-spin" /&gt; : &lt;CheckCircle2 /&gt;}{busy ? 'Envoi en cours...' : 'Soumettre la demande'}&lt;/button&gt;&lt;/div&gt;&lt;/&gt;}&lt;/section&gt;&lt;/div&gt;;</span>
+}
+&nbsp;
+export function <span class="fstat-no" title="function not covered" >ClientRequestDetail() {</span>
+  const { id } = <span class="cstat-no" title="statement not covered" >useParams()</span>; const [request, setRequest] = <span class="cstat-no" title="statement not covered" >useState&lt;FinancingDetail | null&gt;(null); c</span>onst [requirements, setRequirements] = <span class="cstat-no" title="statement not covered" >useState&lt;{ documentType: string; label: string; required: boolean }[]&gt;([]); c</span>onst [busy, setBusy] = <span class="cstat-no" title="statement not covered" >useState(false); c</span>onst [documentBusyId, setDocumentBusyId] = <span class="cstat-no" title="statement not covered" >useState&lt;number | null&gt;(null); c</span>onst [documentError, setDocumentError] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const reload = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async () =&gt; {</span> <span class="cstat-no" title="statement not covered" >if (!id) <span class="cstat-no" title="statement not covered" >return; c</span></span>onst <span class="cstat-no" title="statement not covered" >detail = (await financingRequestService.get(Number(id))).data; <span class="cstat-no" title="statement not covered" >s</span>etRequest(detail); <span class="cstat-no" title="statement not covered" >s</span>etRequirements((await financingRequestService.requirements(detail.storeId)).data); }</span>;</span>
+<span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >  useEffect(() =&gt; {</span> <span class="cstat-no" title="statement not covered" >void reload(); }</span>, [id]); <span class="cstat-no" title="statement not covered" >i</span>f (!request) <span class="cstat-no" title="statement not covered" >return &lt;Loading /&gt;;</span></span>
+  const editable = <span class="cstat-no" title="statement not covered" >request.status === 'DRAFT' || request.status === 'PENDING';</span>
+  const upload = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (t</span>ype: string, file?: File) =&gt; { <span class="cstat-no" title="statement not covered" >if (!file) <span class="cstat-no" title="statement not covered" >return; <span class="cstat-no" title="statement not covered" >s</span></span>etBusy(true); <span class="cstat-no" title="statement not covered" >t</span>ry { <span class="cstat-no" title="statement not covered" >await financingRequestService.upload(request.id, type, file); <span class="cstat-no" title="statement not covered" >a</span>wait reload(); }</span> finally { <span class="cstat-no" title="statement not covered" >setBusy(false); }</span> }</span>;</span>
+  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >fetchDocument = (d</span>ocumentId: number) =&gt; <span class="cstat-no" title="statement not covered" >apiClient.get&lt;Blob&gt;(`/api/client/financing-requests/${request.id}/documents/${documentId}/download`, { responseType: 'blob' });</span></span>
+  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >toFileBlob = (r</span>esponse: { data: Blob; headers: Record&lt;string, unknown&gt; }, document: FinancingDetail['documents'][number]) =&gt; {</span>
+    const responseType = <span class="cstat-no" title="statement not covered" >response.headers['content-type'];</span>
+    const declaredType = <span class="cstat-no" title="statement not covered" >document.contentType || (typeof responseType === 'string' ? responseType : '');</span>
+    const mimeType = <span class="cstat-no" title="statement not covered" >!declaredType || declaredType === 'application/octet-stream' ? documentMimeTypeFromFilename(document.originalFilename) : declaredType;</span>
+<span class="cstat-no" title="statement not covered" >    return new Blob([response.data], { type: mimeType });</span>
+  };
+  const previewDocument = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (d</span>ocument: FinancingDetail['documents'][number]) =&gt; {</span>
+    const previewWindow = <span class="cstat-no" title="statement not covered" >window.open('', '_blank');</span>
+<span class="cstat-no" title="statement not covered" >    setDocumentBusyId(document.id); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('');</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const response = <span class="cstat-no" title="statement not covered" >await fetchDocument(document.id);</span>
+<span class="cstat-no" title="statement not covered" >      if (isDocxDocument(document.originalFilename, document.contentType)) {</span>
+        const preview = <span class="cstat-no" title="statement not covered" >await convertToHtml({ arrayBuffer: await response.data.arrayBuffer() });</span>
+<span class="cstat-no" title="statement not covered" >        if (!previewWindow) <span class="cstat-no" title="statement not covered" >throw new Error('Preview blocked');</span></span>
+<span class="cstat-no" title="statement not covered" >        previewWindow.document.open();</span>
+<span class="cstat-no" title="statement not covered" >        previewWindow.document.write(`&lt;!doctype html&gt;&lt;html lang="fr"&gt;&lt;head&gt;&lt;meta charset="utf-8"&gt;&lt;title&gt;Prévisualisation du document&lt;/title&gt;&lt;style&gt;body{max-width:900px;margin:40px auto;padding:0 24px;color:#172554;font:16px/1.65 Arial,sans-serif}img{max-width:100%;height:auto}table{width:100%;border-collapse:collapse}td,th{border:1px solid #cbd5e1;padding:8px}h1,h2,h3{color:#0f172a}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;${preview.value || '&lt;p&gt;Ce document ne contient aucun contenu affichable.&lt;/p&gt;'}&lt;/body&gt;&lt;/html&gt;`);</span>
+<span class="cstat-no" title="statement not covered" >        previewWindow.document.close();</span>
+<span class="cstat-no" title="statement not covered" >        return;</span>
+      }
+      const url = <span class="cstat-no" title="statement not covered" >URL.createObjectURL(toFileBlob(response, document));</span>
+<span class="cstat-no" title="statement not covered" >      if (previewWindow) <span class="cstat-no" title="statement not covered" >previewWindow.location.replace(url);</span></span>
+      else { const link = <span class="cstat-no" title="statement not covered" >window.document.createElement('a'); <span class="cstat-no" title="statement not covered" >l</span>ink.href = url; <span class="cstat-no" title="statement not covered" >l</span>ink.target = '_blank'; <span class="cstat-no" title="statement not covered" >l</span>ink.click(); }</span>
+<span class="cstat-no" title="statement not covered" >      window.<span class="fstat-no" title="function not covered" >setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >U</span>RL.revokeObjectURL(url), 6</span>0_000);</span>
+    } catch { <span class="cstat-no" title="statement not covered" >previewWindow?.close(); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('Impossible d’ouvrir ce document.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setDocumentBusyId(null); }</span>
+  };
+  const downloadDocument = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (d</span>ocument: FinancingDetail['documents'][number]) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    setDocumentBusyId(document.id); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('');</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const response = <span class="cstat-no" title="statement not covered" >await fetchDocument(document.id); c</span>onst url = <span class="cstat-no" title="statement not covered" >URL.createObjectURL(toFileBlob(response, document)); c</span>onst link = <span class="cstat-no" title="statement not covered" >window.document.createElement('a'); <span class="cstat-no" title="statement not covered" >l</span>ink.href = url; <span class="cstat-no" title="statement not covered" >l</span>ink.download = document.originalFilename; <span class="cstat-no" title="statement not covered" >w</span>indow.document.body.appendChild(link); <span class="cstat-no" title="statement not covered" >l</span>ink.click(); <span class="cstat-no" title="statement not covered" >l</span>ink.remove(); <span class="cstat-no" title="statement not covered" >w</span>indow.<span class="fstat-no" title="function not covered" >setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >U</span>RL.revokeObjectURL(url), 1</span>_000);</span>
+    } catch { <span class="cstat-no" title="statement not covered" >setDocumentError('Impossible de télécharger ce document.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setDocumentBusyId(null); }</span>
+  };
+  const history = <span class="cstat-no" title="statement not covered" >[</span>
+    { label: 'Demande envoyée', date: request.createdAt, completed: true },
+    { label: 'En cours d’analyse', date: request.status !== 'DRAFT' ? request.createdAt : null, completed: request.status !== 'DRAFT' },
+    { label: statusLabel(request.status), date: request.processedAt, completed: request.status === 'ACCEPTED' || request.status === 'REJECTED' },
+  ];
+<span class="cstat-no" title="statement not covered" >  return &lt;div className="client-page client-detail-page"&gt;</span>
+    &lt;div className="client-detail-heading"&gt;&lt;Link to="/client/financing-requests" className="client-back-link"&gt;&lt;ArrowLeft /&gt;Retour à mes demandes&lt;/Link&gt;&lt;div className="client-detail-title-row"&gt;&lt;h1&gt;{request.reference}&lt;/h1&gt;&lt;span className={statusClass(request.status)}&gt;&lt;CheckCircle2 /&gt;{statusLabel(request.status)}&lt;/span&gt;&lt;/div&gt;&lt;p&gt;Détail de la demande de financement&lt;/p&gt;&lt;/div&gt;
+    &lt;div className="client-finance-summary"&gt;&lt;FinanceMetric icon={&lt;ChartNoAxesColumnIncreasing /&gt;} label="Montant financé" value={money(request.requestedAmount)} type="amount" /&gt;&lt;FinanceMetric icon={&lt;CalendarDays /&gt;} label="Durée" value={`${request.durationMonths || 0} mois`} type="duration" /&gt;&lt;FinanceMetric icon={&lt;WalletCards /&gt;} label="Mensualité" value={money(request.monthlyPayment)} type="monthly" /&gt;&lt;/div&gt;
+    &lt;div className="client-detail-two-columns"&gt;&lt;section className="client-content-card client-product-card"&gt;&lt;DetailCardTitle icon={&lt;Package /&gt;} title="Produit concerné" /&gt;&lt;div className="client-product-content"&gt;{request.productImageUrl ? &lt;img src={assetUrl(request.productImageUrl)} alt={request.productName} /&gt; : &lt;div className="client-product-placeholder"&gt;&lt;Package /&gt;&lt;/div&gt;}&lt;div&gt;&lt;h2&gt;{request.productName}&lt;/h2&gt;&lt;p&gt;Catégorie&lt;br /&gt;&lt;b&gt;{request.storeName}&lt;/b&gt;&lt;/p&gt;&lt;p&gt;Prix&lt;br /&gt;&lt;b&gt;{money(request.productPrice)}&lt;/b&gt;&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;&lt;/section&gt;&lt;section className="client-content-card client-simulation-card"&gt;&lt;DetailCardTitle icon={&lt;Calculator /&gt;} title="Simulation" /&gt;&lt;p className="client-simulation-subtitle"&gt;Résumé du financement&lt;/p&gt;&lt;div className="client-simulation-list"&gt;&lt;SimulationRow label="Montant financé" value={money(request.requestedAmount)} /&gt;&lt;SimulationRow label="Apport personnel" value={money(request.downPayment)} /&gt;&lt;SimulationRow label="Durée" value={`${request.durationMonths || 0} mois`} /&gt;&lt;SimulationRow label="Mensualité" value={money(request.monthlyPayment)} /&gt;&lt;/div&gt;&lt;/section&gt;&lt;/div&gt;
+    &lt;section className="client-content-card client-documents-card"&gt;&lt;DetailCardTitle icon={&lt;FileText /&gt;} title="Documents fournis" /&gt;{documentError &amp;&amp; &lt;p className="client-document-error"&gt;{documentError}&lt;/p&gt;}&lt;div className="client-documents-list"&gt;&lt;table className="client-documents-table"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Type de document&lt;/th&gt;&lt;th&gt;Nom du document&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;{request.documents.<span class="fstat-no" title="function not covered" >map(d</span>ocument =&gt; <span class="cstat-no" title="statement not covered" >&lt;tr key={document.id}&gt;&lt;td&gt;&lt;span className="client-document-type"&gt;{extension(document.originalFilename)}&lt;/span&gt;&lt;/td&gt;&lt;td className="client-document-name"&gt;{document.originalFilename}&lt;/td&gt;&lt;td&gt;&lt;div className="client-document-actions"&gt;&lt;button type="button" disabled={documentBusyId === document.id} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid previewDocument(document)}&gt;&lt;</span>Eye /&gt;Voir&lt;/button&gt;&lt;button type="button" disabled={documentBusyId === document.id} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid downloadDocument(document)}&gt;&lt;</span>Download /&gt;Télécharger&lt;/button&gt;&lt;/div&gt;&lt;/td&gt;&lt;/tr&gt;)</span>}{!request.documents.length &amp;&amp; &lt;tr&gt;&lt;td colSpan={3} className="client-documents-empty"&gt;Aucun document fourni.&lt;/td&gt;&lt;/tr&gt;}&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;&lt;/section&gt;
+    &lt;section className="client-content-card client-history-card"&gt;&lt;DetailCardTitle icon={&lt;History /&gt;} title="Historique de la demande" /&gt;&lt;div className="client-history-line"&gt;{history.<span class="fstat-no" title="function not covered" >map((i</span>tem, index) =&gt; <span class="cstat-no" title="statement not covered" >&lt;div className={`client-history-step${item.completed ? ' client-history-complete' : ''}`} key={item.label}&gt;&lt;span className="client-history-dot"&gt;{item.completed &amp;&amp; &lt;CheckCircle2 /&gt;}&lt;/span&gt;&lt;div&gt;&lt;strong&gt;{item.label}&lt;/strong&gt;&lt;small&gt;{item.date ? new Intl.DateTimeFormat('fr-TN', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(item.date)) : 'En attente'}&lt;/small&gt;&lt;/div&gt;{index &lt; history.length - 1 &amp;&amp; &lt;span className="client-history-connector" /&gt;}&lt;/div&gt;)</span>}&lt;/div&gt;&lt;/section&gt;
+    {editable &amp;&amp; &lt;section className="client-content-card client-manage-documents"&gt;&lt;DetailCardTitle icon={&lt;FileUp /&gt;} title="Gérer mes documents" /&gt;{requirements.<span class="fstat-no" title="function not covered" >map(i</span>tem =&gt; <span class="cstat-no" title="statement not covered" >&lt;label className="client-upload-row" key={item.documentType}&gt;&lt;span&gt;{item.label}{item.required &amp;&amp; ' *'}&lt;/span&gt;&lt;input disabled={busy} type="file" <span class="fstat-no" title="function not covered" >onChange={e</span>vent =&gt; <span class="cstat-no" title="statement not covered" >void upload(item.documentType, event.target.files?.[0])} /&gt;</span>&lt;/label&gt;)</span>}&lt;/section&gt;}
+  &lt;/div&gt;;
+}
+&nbsp;
+function <span class="fstat-no" title="function not covered" >FinanceMetric({</span> icon, label, value, type }: { icon: ReactNode; label: string; value: string; type: string }) { <span class="cstat-no" title="statement not covered" >return &lt;article className={`client-finance-metric client-finance-${type}`}&gt;&lt;span&gt;{icon}&lt;/span&gt;&lt;div&gt;&lt;small&gt;{label}&lt;/small&gt;&lt;strong&gt;{value}&lt;/strong&gt;&lt;/div&gt;&lt;/article&gt;; }</span>
+function <span class="fstat-no" title="function not covered" >DetailCardTitle({</span> icon, title }: { icon: ReactNode; title: string }) { <span class="cstat-no" title="statement not covered" >return &lt;div className="client-detail-card-title"&gt;&lt;span&gt;{icon}&lt;/span&gt;&lt;h2&gt;{title}&lt;/h2&gt;&lt;/div&gt;; }</span>
+function <span class="fstat-no" title="function not covered" >SimulationRow({</span> label, value }: { label: string; value: string }) { <span class="cstat-no" title="statement not covered" >return &lt;div&gt;&lt;span&gt;{label}&lt;/span&gt;&lt;i /&gt;&lt;b&gt;{value}&lt;/b&gt;&lt;/div&gt;; }</span>
+function <span class="fstat-no" title="function not covered" >ApplicationValue({</span> label, value }: { label: string; value: string }) { <span class="cstat-no" title="statement not covered" >return &lt;div&gt;&lt;small&gt;{label}&lt;/small&gt;&lt;strong&gt;{value}&lt;/strong&gt;&lt;/div&gt;; }</span>
+function <span class="fstat-no" title="function not covered" >assetUrl(v</span>alue: string) { <span class="cstat-no" title="statement not covered" >return value.startsWith('http://') || value.startsWith('https://') ? value : `${getApiBaseUrl()}${value}`; }</span>
+function <span class="fstat-no" title="function not covered" >extension(f</span>ilename: string) { const value = <span class="cstat-no" title="statement not covered" >filename.split('.').pop()?.toUpperCase(); <span class="cstat-no" title="statement not covered" >r</span>eturn value || 'FICHIER'; }</span>
+function <span class="fstat-no" title="function not covered" >StatCard({</span> type, icon, label, value, description }: { type: string; icon: ReactNode; label: string; value: number; description: string }) { <span class="cstat-no" title="statement not covered" >return &lt;article className={`client-stat-card client-stat-${type}`}&gt;&lt;span className="client-stat-icon"&gt;{icon}&lt;/span&gt;&lt;div className="client-stat-copy"&gt;&lt;div className="client-stat-label"&gt;{label}&lt;/div&gt;&lt;div className="client-stat-value"&gt;{value}&lt;/div&gt;&lt;div className="client-stat-description"&gt;{description}&lt;/div&gt;&lt;/div&gt;&lt;/article&gt;; }</span>
+function <span class="fstat-no" title="function not covered" >RequestTable({</span> requests, title, showAllLink = <span class="branch-0 cbranch-no" title="branch not covered" >false }: { requests: FinancingSummary[]; title: string; showAllLink?: boolean }) {</span> <span class="cstat-no" title="statement not covered" >return &lt;section className="client-content-card"&gt;&lt;div className="client-content-card-header"&gt;&lt;h2 className="client-content-card-title"&gt;&lt;span className="client-content-card-title-icon"&gt;&lt;FileText /&gt;&lt;/span&gt;{title}&lt;/h2&gt;{showAllLink &amp;&amp; &lt;Link className="client-view-all" to="/client/financing-requests"&gt;Voir toutes les demandes &lt;ArrowRight /&gt;&lt;/Link&gt;}&lt;/div&gt;&lt;div className="client-table-wrapper"&gt;&lt;table className="client-request-table"&gt;&lt;thead&gt;&lt;tr&gt;&lt;th&gt;Référence&lt;/th&gt;&lt;th&gt;Produit&lt;/th&gt;&lt;th&gt;Montant&lt;/th&gt;&lt;th&gt;Statut&lt;/th&gt;&lt;th&gt;Action&lt;/th&gt;&lt;/tr&gt;&lt;/thead&gt;&lt;tbody&gt;{requests.<span class="fstat-no" title="function not covered" >map(r</span>equest =&gt; <span class="cstat-no" title="statement not covered" >&lt;tr key={request.id}&gt;&lt;td className="client-request-reference"&gt;{request.reference}&lt;/td&gt;&lt;td&gt;{request.productName}&lt;/td&gt;&lt;td&gt;{money(request.requestedAmount)}&lt;/td&gt;&lt;td&gt;&lt;span className={statusClass(request.status)}&gt;{statusLabel(request.status)}&lt;/span&gt;&lt;/td&gt;&lt;td&gt;&lt;Link className="client-request-action" to={`/client/financing-requests/${request.id}`}&gt;Voir &lt;ArrowRight /&gt;&lt;/Link&gt;&lt;/td&gt;&lt;/tr&gt;)</span>}{!requests.length &amp;&amp; &lt;tr&gt;&lt;td className="client-empty-table" colSpan={5}&gt;Aucune demande pour le moment.&lt;/td&gt;&lt;/tr&gt;}&lt;/tbody&gt;&lt;/table&gt;&lt;/div&gt;&lt;/section&gt;; }</span>
+export function <span class="fstat-no" title="function not covered" >RequestDetail({</span> request, client = <span class="branch-0 cbranch-no" title="branch not covered" >false, o</span>nProcess }: { request: FinancingDetail; client?: boolean; onProcess?: () =&gt; void }) {
+  const [documentBusyId, setDocumentBusyId] = <span class="cstat-no" title="statement not covered" >useState&lt;number | null&gt;(null);</span>
+  const [documentError, setDocumentError] = <span class="cstat-no" title="statement not covered" >useState('');</span>
+  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >documentUrl = (d</span>ocumentId: number) =&gt; <span class="cstat-no" title="statement not covered" >client</span></span>
+    ? `/api/client/financing-requests/${request.id}/documents/${documentId}/download`
+    : financingRequestService.bankDocumentUrl(request.id, documentId);
+  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >fetchDocument = (d</span>ocumentId: number) =&gt; <span class="cstat-no" title="statement not covered" >apiClient.get&lt;Blob&gt;(documentUrl(documentId), { responseType: 'blob' });</span></span>
+  const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >fileBlob = (r</span>esponse: { data: Blob; headers: Record&lt;string, unknown&gt; }, document: FinancingDetail['documents'][number]) =&gt; {</span>
+    const responseType = <span class="cstat-no" title="statement not covered" >response.headers['content-type'];</span>
+<span class="cstat-no" title="statement not covered" >    return new Blob([response.data], { type: document.contentType || (typeof responseType === 'string' ? responseType : 'application/octet-stream') });</span>
+  };
+  const previewDocument = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (d</span>ocument: FinancingDetail['documents'][number]) =&gt; {</span>
+    const previewWindow = <span class="cstat-no" title="statement not covered" >window.open('', '_blank');</span>
+<span class="cstat-no" title="statement not covered" >    setDocumentBusyId(document.id); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('');</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const response = <span class="cstat-no" title="statement not covered" >await fetchDocument(document.id);</span>
+      const url = <span class="cstat-no" title="statement not covered" >URL.createObjectURL(fileBlob(response, document));</span>
+<span class="cstat-no" title="statement not covered" >      if (previewWindow) <span class="cstat-no" title="statement not covered" >previewWindow.location.href = url;</span></span>
+      else { const link = <span class="cstat-no" title="statement not covered" >window.document.createElement('a'); <span class="cstat-no" title="statement not covered" >l</span>ink.href = url; <span class="cstat-no" title="statement not covered" >l</span>ink.target = '_blank'; <span class="cstat-no" title="statement not covered" >l</span>ink.click(); }</span>
+<span class="cstat-no" title="statement not covered" >      window.<span class="fstat-no" title="function not covered" >setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >U</span>RL.revokeObjectURL(url), 6</span>0_000);</span>
+    } catch { <span class="cstat-no" title="statement not covered" >previewWindow?.close(); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('Impossible d’ouvrir ce document.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setDocumentBusyId(null); }</span>
+  };
+  const downloadDocument = <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >async (d</span>ocument: FinancingDetail['documents'][number]) =&gt; {</span>
+<span class="cstat-no" title="statement not covered" >    setDocumentBusyId(document.id); <span class="cstat-no" title="statement not covered" >s</span>etDocumentError('');</span>
+<span class="cstat-no" title="statement not covered" >    try {</span>
+      const response = <span class="cstat-no" title="statement not covered" >await fetchDocument(document.id);</span>
+      const url = <span class="cstat-no" title="statement not covered" >URL.createObjectURL(fileBlob(response, document));</span>
+      const link = <span class="cstat-no" title="statement not covered" >window.document.createElement('a'); <span class="cstat-no" title="statement not covered" >l</span>ink.href = url; <span class="cstat-no" title="statement not covered" >l</span>ink.download = document.originalFilename; <span class="cstat-no" title="statement not covered" >w</span>indow.document.body.appendChild(link); <span class="cstat-no" title="statement not covered" >l</span>ink.click(); <span class="cstat-no" title="statement not covered" >l</span>ink.remove();</span>
+<span class="cstat-no" title="statement not covered" >      window.<span class="fstat-no" title="function not covered" >setTimeout(() =&gt; <span class="cstat-no" title="statement not covered" >U</span>RL.revokeObjectURL(url), 1</span>_000);</span>
+    } catch { <span class="cstat-no" title="statement not covered" >setDocumentError('Impossible de télécharger ce document.'); }</span> finally { <span class="cstat-no" title="statement not covered" >setDocumentBusyId(null); }</span>
+  };
+&nbsp;
+<span class="cstat-no" title="statement not covered" >  return &lt;Card&gt;&lt;CardHeader&gt;&lt;div className="flex items-center justify-between"&gt;&lt;CardTitle&gt;{request.reference}&lt;/CardTitle&gt;&lt;span className={statusClass(request.status)}&gt;{statusLabel(request.status)}&lt;/span&gt;&lt;/div&gt;&lt;/CardHeader&gt;&lt;CardContent className="space-y-5"&gt;&lt;div className="grid gap-4 sm:grid-cols-2"&gt;&lt;div&gt;&lt;h3 className="font-semibold"&gt;Produit&lt;/h3&gt;&lt;p&gt;{request.productName}&lt;/p&gt;&lt;p className="text-muted-foreground"&gt;{request.storeName} · {money(request.productPrice)}&lt;/p&gt;&lt;/div&gt;&lt;div&gt;&lt;h3 className="font-semibold"&gt;Simulation&lt;/h3&gt;&lt;p&gt;{money(request.requestedAmount)} sur {request.durationMonths} mois&lt;/p&gt;&lt;p className="text-muted-foreground"&gt;Mensualité {money(request.monthlyPayment)}&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;{!client &amp;&amp; &lt;div&gt;&lt;h3 className="font-semibold"&gt;Client&lt;/h3&gt;&lt;p&gt;{request.client.fullName} · {request.client.email} · {request.client.phone}&lt;/p&gt;&lt;/div&gt;}{request.rejectionReason &amp;&amp; &lt;div className="rounded-lg bg-rose-50 p-3 text-rose-700"&gt;&lt;b&gt;Motif de rejet :&lt;/b&gt; {request.rejectionReason}&lt;/div&gt;}&lt;div&gt;&lt;h3 className="mb-2 font-semibold"&gt;Documents&lt;/h3&gt;{documentError &amp;&amp; &lt;p className="mb-2 text-sm text-destructive"&gt;{documentError}&lt;/p&gt;}&lt;div className="space-y-2"&gt;{request.documents.<span class="fstat-no" title="function not covered" >map(d</span>ocument =&gt; <span class="cstat-no" title="statement not covered" >&lt;div className="flex items-center gap-2" key={document.id}&gt;&lt;span className="min-w-0 flex-1 truncate"&gt;{document.originalFilename}&lt;/span&gt;&lt;Button variant="outline" size="sm" disabled={documentBusyId === document.id} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid previewDocument(document)}&gt;&lt;</span>Eye className="mr-1 h-4 w-4" /&gt;Voir&lt;/Button&gt;&lt;Button variant="outline" size="sm" disabled={documentBusyId === document.id} <span class="fstat-no" title="function not covered" >onClick={() =&gt; <span class="cstat-no" title="statement not covered" >v</span>oid downloadDocument(document)}&gt;&lt;</span>Download className="mr-1 h-4 w-4" /&gt;Télécharger&lt;/Button&gt;&lt;/div&gt;)</span>}&lt;/div&gt;&lt;/div&gt;{onProcess &amp;&amp; request.status === 'PENDING' &amp;&amp; &lt;Button onClick={onProcess}&gt;Traiter la demande&lt;/Button&gt;}&lt;/CardContent&gt;&lt;/Card&gt;;</span>
+}
+function <span class="fstat-no" title="function not covered" >ProfileField({</span> label, value, onChange, type = <span class="branch-0 cbranch-no" title="branch not covered" >'text', d</span>isabled, wide = <span class="branch-0 cbranch-no" title="branch not covered" >false }: { label: string; value?: string | null; onChange?: (value: string) =&gt; void; type?: string; disabled?: boolean; wide?: boolean }) {</span> <span class="cstat-no" title="statement not covered" >return &lt;div className={`client-profile-field${wide ? ' client-profile-wide' : ''}`}&gt;&lt;label&gt;{label}&lt;/label&gt;&lt;input type={type} value={value || ''} disabled={disabled} <span class="fstat-no" title="function not covered" >onChange={e</span>vent =&gt; <span class="cstat-no" title="statement not covered" >onChange?.(event.target.value)} /&gt;</span>&lt;/div&gt;; }</span>
+function <span class="fstat-no" title="function not covered" >ClientMessage({</span> title, message }: { title: string; message: string }) { <span class="cstat-no" title="statement not covered" >return &lt;div className="client-page"&gt;&lt;div className="client-page-heading"&gt;&lt;h1&gt;{title}&lt;/h1&gt;&lt;p&gt;{message}&lt;/p&gt;&lt;/div&gt;&lt;/div&gt;; }</span>
+const <span class="cstat-no" title="statement not covered" ><span class="fstat-no" title="function not covered" >Loading = () =&gt; <span class="cstat-no" title="statement not covered" >&lt;</span>div className="client-loading"&gt;&lt;Loader2 /&gt;Chargement...&lt;/div&gt;;</span></span>
+&nbsp;</pre></td></tr></table></pre>
+
+                <div class='push'></div><!-- for sticky footer -->
+            </div><!-- /wrapper -->
+            <div class='footer quiet pad2 space-top1 center small'>
+                Code coverage generated by
+                <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
+                at 2026-08-20T09:41:48.838Z
+            </div>
+        <script src="../../../prettify.js"></script>
+        <script>
+            window.onload = function () {
+                prettyPrint();
+            };
+        </script>
+        <script src="../../../sorter.js"></script>
+        <script src="../../../block-navigation.js"></script>
+    </body>
+</html>
+    
