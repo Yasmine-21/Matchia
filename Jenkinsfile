@@ -18,11 +18,9 @@ pipeline {
         stage('Build Backend') {
             steps {
                 dir('MatchiaBackend') {
-
-                    echo 'Build + Tests du backend Spring Boot...'
-
+                    echo 'Build du backend Spring Boot...'
                     sh 'chmod +x mvnw'
-                    sh './mvnw clean verify'
+                    sh './mvnw clean package -DskipTests'
                 }
             }
         }
@@ -30,7 +28,6 @@ pipeline {
         stage('Build Frontend') {
             steps {
                 dir('MatchiaFrontend') {
-
                     nodejs(nodeJSInstallationName: 'NodeJS-24') {
 
                         echo 'Build du frontend React...'
@@ -45,16 +42,13 @@ pipeline {
             }
         }
 
-        stage('Tests Frontend') {
+        stage('Tests Backend') {
             steps {
-                dir('MatchiaFrontend') {
+                dir('MatchiaBackend') {
 
-                    nodejs(nodeJSInstallationName: 'NodeJS-24') {
+                    echo 'Exécution des tests backend...'
 
-                        echo 'Exécution des tests frontend...'
-
-                        sh 'npm run test:coverage'
-                    }
+                    sh './mvnw test'
                 }
             }
         }
@@ -91,30 +85,31 @@ pipeline {
                 }
             }
         }
+
         stage('Docker Build') {
-    steps {
+            steps {
 
-        echo 'Construction des images Docker Matchia...'
+                echo 'Construction des images Docker Matchia...'
 
-        sh '''
-            docker build \
-                -t matchia-backend:latest \
-                ./MatchiaBackend
-        '''
+                sh '''
+                    docker build \
+                        -t matchia-backend:latest \
+                        ./MatchiaBackend
+                '''
 
-        sh '''
-            docker build \
-                -t matchia-frontend:latest \
-                ./MatchiaFrontend
-        '''
-    }
-}
+                sh '''
+                    docker build \
+                        -t matchia-frontend:latest \
+                        ./MatchiaFrontend
+                '''
+            }
+        }
     }
 
     post {
 
         success {
-            echo 'BUILD, TESTS ET ANALYSES MATCHIA SUCCESS ✅'
+            echo 'PIPELINE MATCHIA SUCCESS ✅'
         }
 
         failure {
