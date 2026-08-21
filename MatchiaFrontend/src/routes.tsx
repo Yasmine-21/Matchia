@@ -58,7 +58,7 @@ import { BlogModule } from './pages/marketplace/modules/Blog';
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
 
 // ==========================================
-// 1. ROUTEUR PRINCIPAL (lvh.me:5173)
+// 1. ROUTEUR PRINCIPAL
 // ==========================================
 export const saasRouter = createBrowserRouter([
   {
@@ -148,7 +148,7 @@ export const saasRouter = createBrowserRouter([
 ]);
 
 // ==========================================
-// 2. ROUTEUR BANQUE (ex: bh.lvh.me:5173)
+// 2. ROUTEUR BANQUE
 // ==========================================
 export const tenantRouter = createBrowserRouter([
   {

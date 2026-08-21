@@ -12,7 +12,7 @@ import { useBankTenant } from '../../hooks/useBankTenant';
 import { useApp } from '../../context/AppContext';
 import { productParameterService } from '../../services/productParameterService';
 import { productService } from '../../services/productService';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import type {
   MarketplaceStoreDetailDto,
   ProductDto,
@@ -103,7 +103,7 @@ const REAL_ESTATE_TEXT_FIELDS = new Set(['localisation']);
 
 const getStoreId = (store: MarketplaceStoreDetailDto) => store.storeId ?? store.id;
 const getStoreLabel = (store: MarketplaceStoreDetailDto) => store.name || `Store ${getStoreId(store)}`;
-const getProductImageUrl = (url?: string | null) => getBackendAssetUrl(url);
+const getProductImageUrl = (url?: string | null) => resolveApiUrl(url);
 const normalizeLookupKey = (value?: string | null) =>
   (value || '')
     .normalize('NFD')

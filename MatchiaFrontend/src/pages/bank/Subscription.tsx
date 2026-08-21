@@ -17,7 +17,7 @@ import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../../components/ui/Card';
 import { Modal } from '../../components/ui/Modal';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import type { RequestDto, SubscriptionDto } from '../../types/apiTypes';
 
 const formatTnd = (value?: number | string | null) =>
@@ -226,9 +226,9 @@ export function BankSubscription() {
                   <div className="flex flex-col gap-6 xl:flex-row xl:items-center xl:justify-between">
                     <div className="flex items-center gap-4">
                       <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
-                        {getBackendAssetUrl(bankLogoUrl) ? (
+                        {resolveApiUrl(bankLogoUrl) ? (
                           <img
-                            src={getBackendAssetUrl(bankLogoUrl)}
+                            src={resolveApiUrl(bankLogoUrl)}
                             alt={bankName}
                             className="h-full w-full object-contain p-2"
                           />

@@ -26,7 +26,7 @@ import { Modal } from '../../components/ui/Modal';
 import { dealerService, DealerRequest, RequestStatus } from '../../services/dealerService';
 import { storeService } from '../../services/storeService';
 import type { StoreDto } from '../../types/apiTypes';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 
 const statusMeta: Record<RequestStatus, { label: string; variant: 'warning' | 'success' | 'danger' }> = {
   PENDING: { label: 'En attente', variant: 'warning' },
@@ -388,7 +388,7 @@ export function DealerRequests() {
               <DetailSection title="Coordonnees" icon={<UserRound className="h-5 w-5" />}>
                 {selected.contactPhotoUrl && (
                   <img
-                    src={getBackendAssetUrl(selected.contactPhotoUrl)}
+                    src={resolveApiUrl(selected.contactPhotoUrl)}
                     alt={`Photo de ${selected.contactPerson}`}
                     className="mb-3 h-20 w-20 rounded-2xl border border-border bg-white object-cover"
                   />
@@ -493,7 +493,7 @@ export function DealerRequests() {
 function DealerLogo({ request, large = false }: { request: DealerRequest; large?: boolean }) {
   const size = large ? 'h-16 w-16 rounded-2xl' : 'h-11 w-11 rounded-xl';
   if (request.logoUrl) {
-    return <img src={getBackendAssetUrl(request.logoUrl)} alt={`Logo ${request.companyName}`} className={`${size} shrink-0 border border-border bg-white object-contain p-1`} />;
+    return <img src={resolveApiUrl(request.logoUrl)} alt={`Logo ${request.companyName}`} className={`${size} shrink-0 border border-border bg-white object-contain p-1`} />;
   }
   return <span className={`${size} flex shrink-0 items-center justify-center bg-primary/10 text-primary`}><Building2 className={large ? 'h-7 w-7' : 'h-5 w-5'} /></span>;
 }

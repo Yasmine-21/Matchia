@@ -5,7 +5,7 @@ import { Select } from '../../components/ui/Select';
 import { Toggle } from '../../components/ui/Toggle';
 import { Badge } from '../../components/ui/Badge';
 import { Building2, CheckCircle, Loader2, Package, Save, Wrench } from 'lucide-react';
-import apiClient from '../../api/apiClient';
+import apiClient, { resolveApiUrl } from '../../api/apiClient';
 import { bankService } from '../../services/bankService';
 import { storeService } from '../../services/storeService';
 import { moduleService } from '../../services/moduleService';
@@ -21,11 +21,7 @@ interface MarketplaceStoreAssignment {
   visible: boolean;
 }
 
-const getLogoUrl = (logoUrl?: string | null) => {
-  if (!logoUrl) return null;
-  if (logoUrl.startsWith('http')) return logoUrl;
-  return `http://localhost:8081${logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}`;
-};
+const getLogoUrl = (logoUrl?: string | null) => resolveApiUrl(logoUrl) || null;
 
 const getStoreLabel = (store: StoreDto) => store.name || `Store ${store.id}`;
 

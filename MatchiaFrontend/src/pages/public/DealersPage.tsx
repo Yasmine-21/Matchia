@@ -7,15 +7,10 @@ import { motion } from 'motion/react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
-import apiClient from '../../api/apiClient';
+import { resolveApiUrl } from '../../api/apiClient';
 import { PublicDealer, publicDealerService } from '../../services/publicDealerService';
 
-const getLogoUrl = (logoUrl?: string | null) => {
-  if (!logoUrl) return null;
-  if (logoUrl.startsWith('http') || logoUrl.startsWith('data:')) return logoUrl;
-  const baseUrl = (apiClient.defaults.baseURL || 'http://localhost:8081').replace(/\/$/, '');
-  return `${baseUrl}${logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}`;
-};
+const getLogoUrl = (logoUrl?: string | null) => resolveApiUrl(logoUrl) || null;
 
 function DealerLogo({ dealer }: { dealer: PublicDealer }) {
   const [hasError, setHasError] = useState(false);

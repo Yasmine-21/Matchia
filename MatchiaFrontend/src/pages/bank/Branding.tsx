@@ -6,7 +6,8 @@ import { Input } from '../../components/ui/Input';
 import { Eye, FileImage, Loader2, RotateCcw, Save, Upload } from 'lucide-react';
 import { bankTenantService } from '../../services/bankTenantService';
 import { useBankTenant } from '../../hooks/useBankTenant';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
+import { getMarketplaceUrl, getTenantSlugFromLocation } from '../../utils/tenant';
 
 interface BrandingDraft {
   primary_color: string;
@@ -410,7 +411,7 @@ export function BankBranding() {
   };
 
   const handleOpenMarketplace = () => {
-    window.open(`${window.location.origin}/`, '_blank', 'noopener,noreferrer');
+    window.open(getMarketplaceUrl(getTenantSlugFromLocation(), '/'), '_blank', 'noopener,noreferrer');
   };
 
   const handleSave = async () => {
@@ -488,8 +489,8 @@ export function BankBranding() {
     }
   };
 
-  const logoSrc = logoPreviewUrl || getBackendAssetUrl(draft.logo_image_url || branding?.logo_image_url || marketplace?.bankLogoUrl);
-  const bannerSrc = bannerPreviewUrl || getBackendAssetUrl(draft.banner_image_url || branding?.banner_image_url || marketplace?.banniereUrl || marketplace?.bannerImageUrl);
+  const logoSrc = logoPreviewUrl || resolveApiUrl(draft.logo_image_url || branding?.logo_image_url || marketplace?.bankLogoUrl);
+  const bannerSrc = bannerPreviewUrl || resolveApiUrl(draft.banner_image_url || branding?.banner_image_url || marketplace?.banniereUrl || marketplace?.bannerImageUrl);
   const primaryColorValid = isCssColor(draft.primary_color);
   const secondaryColorValid = isCssColor(draft.secondary_color);
 

@@ -21,6 +21,7 @@ import { productService } from '../../../services/productService';
 import type { ModuleAssignment, ModuleParameter, ProductDto } from '../../../types/apiTypes';
 import { useApp } from '../../../context/AppContext';
 import { isBannerModule } from '../../../utils/moduleVisibility';
+import { resolveApiUrl } from '../../../api/apiClient';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -102,14 +103,6 @@ const normalizeNumber = (value?: number | string | null) => {
 
   const parsed = Number(String(value).replace(',', '.'));
   return Number.isNaN(parsed) ? null : parsed;
-};
-
-const getBackendAssetUrl = (url?: string | null) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
-  }
-  return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
 };
 
 const formatTnd = (value?: number | string | null) => {
@@ -790,11 +783,11 @@ export function SimulatorModule() {
     return <div className="p-6">Store non trouve</div>;
   }
 
-  const simulatorImage = getBackendAssetUrl(selectedProduct?.imageUrl);
+  const simulatorImage = resolveApiUrl(selectedProduct?.imageUrl);
   const displaySelectedProduct = selectedProduct || products[0] || null;
-  const customStoreBannerUrl = isBannerActive ? getBackendAssetUrl(store?.bannerImageUrl) : '';
+  const customStoreBannerUrl = isBannerActive ? resolveApiUrl(store?.bannerImageUrl) : '';
   const storeBannerUrl = customStoreBannerUrl || (isBannerActive
-    ? getBackendAssetUrl(store?.banniereUrl || store?.banniere_url)
+    ? resolveApiUrl(store?.banniereUrl || store?.banniere_url)
     : '');
   const storeHeroOverlay = `linear-gradient(135deg, ${branding.primary_color}CC 0%, ${branding.secondary_color}C6 100%)`;
 

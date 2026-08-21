@@ -29,7 +29,7 @@ import {
 import { requestService } from '../../services/requestService';
 import { notifyNotificationsUpdated } from '../../services/notificationService';
 import { RequestDto, RequestStatus, RequestType } from '../../types/apiTypes';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 
 const requestTypeLabel: Record<RequestType, string> = {
   join: "Demande d'inscription",
@@ -108,7 +108,7 @@ const getSelectedStoresCount = (request: RequestDto) => (
 );
 
 const getLogoUrl = (logoUrl?: string | null) => {
-  return getBackendAssetUrl(logoUrl) || null;
+  return resolveApiUrl(logoUrl) || null;
 };
 
 const BankLogo = ({

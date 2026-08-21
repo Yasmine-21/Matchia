@@ -12,6 +12,7 @@ import {
   writeCompareProductIds,
 } from '../../../utils/comparison';
 import { isBannerModule } from '../../../utils/moduleVisibility';
+import { resolveApiUrl } from '../../../api/apiClient';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -80,14 +81,6 @@ const isComparatorModule = (module: MarketplaceModuleDetail) => {
   return keys.some((key) =>
     ['comparator', 'comparateur', 'comparatuer', 'compare'].includes(key) || key.includes('comparat')
   );
-};
-
-const getBackendAssetUrl = (url?: string | null) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
-  }
-  return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
 };
 
 const hexToRgba = (hex: string, alpha: number) => {
@@ -374,9 +367,9 @@ export function ComparatorModule() {
   }
 
   const storeLabel = store.label || store.name || `Store ${store.storeId || store.id}`;
-  const customStoreBannerUrl = isBannerActive ? getBackendAssetUrl(store?.bannerImageUrl) : '';
+  const customStoreBannerUrl = isBannerActive ? resolveApiUrl(store?.bannerImageUrl) : '';
   const storeBannerUrl = customStoreBannerUrl || (isBannerActive
-    ? getBackendAssetUrl(store?.banniereUrl || store?.banniere_url)
+    ? resolveApiUrl(store?.banniereUrl || store?.banniere_url)
     : '');
   const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(
     branding.secondary_color,
@@ -496,9 +489,9 @@ export function ComparatorModule() {
                         className="flex items-center gap-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-left"
                       >
                         <div className="h-14 w-14 shrink-0 overflow-hidden rounded-xl border border-slate-200 bg-white">
-                          {getBackendAssetUrl(product.imageUrl) ? (
+                          {resolveApiUrl(product.imageUrl) ? (
                             <img
-                              src={getBackendAssetUrl(product.imageUrl)}
+                              src={resolveApiUrl(product.imageUrl)}
                               alt={product.name}
                               className="h-full w-full object-contain p-1"
                             />
@@ -600,7 +593,7 @@ export function ComparatorModule() {
                           Caracteristique
                         </th>
                         {selectedProducts.map((product) => {
-                          const imageUrl = getBackendAssetUrl(product.imageUrl);
+                          const imageUrl = resolveApiUrl(product.imageUrl);
 
                           return (
                             <th

@@ -20,11 +20,12 @@ import {
 } from 'lucide-react';
 import { useEffect, useMemo, useState } from 'react';
 import { Button } from '../components/ui/Button';
-import apiClient from '../api/apiClient';
+import apiClient, { resolveApiUrl } from '../api/apiClient';
 import { useApp } from '../context/AppContext';
 import { authService } from '../services/authService';
 import { Chatbot } from '../components/Chatbot';
 import { isChatbotModule } from '../utils/moduleVisibility';
+import { getMarketplaceUrl, getTenantSlugFromLocation } from '../utils/tenant';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -71,41 +72,13 @@ interface MarketplacePublicDto {
   stores?: MarketplaceStoreDetail[];
 }
 
-const getSubdomain = () => {
-  const hostname = window.location.hostname;
-
-  if (/^[0-9.]+$/.test(hostname) || hostname === 'localhost') {
-    return null;
-  }
-
-  const parts = hostname.split('.');
-  if (parts.length >= 3) {
-    const subdomain = parts[0];
-    if (subdomain !== 'www') return subdomain;
-  }
-  return null;
-};
-
-const getBackendAssetUrl = (url?: string | null) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
-  }
-  return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
-};
-
 const getExternalUrl = (url?: string | null) => {
   if (!url) return '';
   if (url.startsWith('http://') || url.startsWith('https://')) return url;
   return `https://${url}`;
 };
 
-const getPlatformUrl = (path: string) => {
-  const { protocol, hostname, port } = window.location;
-  const hostParts = hostname.split('.');
-  const platformHost = hostParts.length >= 3 ? hostParts.slice(1).join('.') : hostname;
-  return `${protocol}//${platformHost}${port ? `:${port}` : ''}${path}`;
-};
+const getPlatformUrl = (path: string) => getMarketplaceUrl(null, path);
 
 const slugify = (value?: string | null) =>
   (value || '')
@@ -136,7 +109,7 @@ const getStoreMeta = (name?: string | null) => {
 };
 
 export function MarketplaceLayout() {
-  const bankSlug = getSubdomain();
+  const bankSlug = getTenantSlugFromLocation();
   const location = useLocation();
   const navigate = useNavigate();
   const { currentUser } = useApp();
@@ -147,8 +120,8 @@ export function MarketplaceLayout() {
   const [hasError, setHasError] = useState(false);
   const primaryColor = marketplace?.primaryColor || '#2563EB';
   const secondaryColor = marketplace?.secondaryColor || '#F97316';
-  const logoUrl = getBackendAssetUrl(marketplace?.logoImageUrl || marketplace?.bankLogoUrl);
-  const bannerImageUrl = getBackendAssetUrl(marketplace?.banniereUrl || marketplace?.bannerImageUrl);
+  const logoUrl = resolveApiUrl(marketplace?.logoImageUrl || marketplace?.bankLogoUrl);
+  const bannerImageUrl = resolveApiUrl(marketplace?.banniereUrl || marketplace?.bannerImageUrl);
   const stores = useMemo(() => (
     (marketplace?.stores || [])
       .filter((store) => store.enabled !== false && store.visible !== false)
@@ -158,8 +131,8 @@ export function MarketplaceLayout() {
         slug: slugify(store.name || `store-${store.storeId || store.id}`),
         label: store.name || `Store ${store.storeId || store.id}`,
         description: store.description || '',
-        banniere_url: getBackendAssetUrl(store.bannerImageUrl || store.banniereUrl),
-        bannerImageUrl: getBackendAssetUrl(store.bannerImageUrl || store.banniereUrl),
+        banniere_url: resolveApiUrl(store.bannerImageUrl || store.banniereUrl),
+        bannerImageUrl: resolveApiUrl(store.bannerImageUrl || store.banniereUrl),
         price: store.price,
         modules: (store.modules || [])
           .filter((module) => module.enabled !== false && module.visible !== false)
@@ -193,7 +166,7 @@ export function MarketplaceLayout() {
   const isAuthenticated = Boolean(currentUser);
   const profileName = currentUser?.name?.trim() || 'Mon profil';
   const profileFirstName = profileName.split(/\s+/)[0] || profileName;
-  const profileAvatar = getBackendAssetUrl(currentUser?.contactImageUrl);
+  const profileAvatar = resolveApiUrl(currentUser?.contactImageUrl);
   const logout = async () => {
     await authService.logout();
     setClientMenuOpen(false);

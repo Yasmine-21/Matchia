@@ -40,7 +40,7 @@ import {
 } from '../../services/dealerService';
 import { productParameterService } from '../../services/productParameterService';
 import type { ProductParameterDefinitionDto } from '../../types/apiTypes';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import { DealerContractsPanel } from '../../components/dealer/DealerContractsPanel';
 
 type Mode = 'dashboard' | 'partnerships' | 'contracts' | 'products' | 'publications' | 'profile';
@@ -540,7 +540,7 @@ function Dashboard({
                         <td className="px-5 py-4">
                           <div className="flex items-center gap-3">
                             <div className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-white p-1">
-                              {request.bankLogoUrl ? <img src={getBackendAssetUrl(request.bankLogoUrl)} alt={`Logo ${request.bankName}`} className="h-full w-full object-contain" /> : <Landmark className="h-5 w-5 text-muted-foreground" />}
+                              {request.bankLogoUrl ? <img src={resolveApiUrl(request.bankLogoUrl)} alt={`Logo ${request.bankName}`} className="h-full w-full object-contain" /> : <Landmark className="h-5 w-5 text-muted-foreground" />}
                             </div>
                             <span className="font-medium text-foreground">{request.bankName}</span>
                           </div>
@@ -570,7 +570,7 @@ function Dashboard({
                 {partnerBanks.map((partnership) => (
                   <div key={partnership.bankId} className="flex min-h-28 flex-col items-center justify-center rounded-xl border border-border bg-muted/10 p-4 text-center">
                     <div className="flex h-12 w-16 items-center justify-center overflow-hidden rounded-lg bg-white p-1">
-                      {partnership.bankLogoUrl ? <img src={getBackendAssetUrl(partnership.bankLogoUrl)} alt={`Logo ${partnership.bankName}`} className="h-full w-full object-contain" /> : <Landmark className="h-6 w-6 text-muted-foreground" />}
+                      {partnership.bankLogoUrl ? <img src={resolveApiUrl(partnership.bankLogoUrl)} alt={`Logo ${partnership.bankName}`} className="h-full w-full object-contain" /> : <Landmark className="h-6 w-6 text-muted-foreground" />}
                     </div>
                     <span className="mt-2 line-clamp-2 text-sm font-semibold text-foreground">{partnership.bankName}</span>
                   </div>
@@ -609,7 +609,7 @@ function Dashboard({
                       <td className="px-6 py-4">
                         <div className="flex min-w-0 items-center gap-3">
                           <div className="flex h-14 w-16 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-border bg-muted/20">
-                            {product.imageUrl ? <img src={getBackendAssetUrl(product.imageUrl)} alt={product.name} className="h-full w-full object-contain" /> : <Package className="h-6 w-6 text-muted-foreground" />}
+                            {product.imageUrl ? <img src={resolveApiUrl(product.imageUrl)} alt={product.name} className="h-full w-full object-contain" /> : <Package className="h-6 w-6 text-muted-foreground" />}
                           </div>
                           <span className="max-w-xs break-words font-semibold text-foreground">{product.name}</span>
                         </div>
@@ -621,7 +621,7 @@ function Dashboard({
                           <div className="flex -space-x-2">
                             {productBanks.map((publication) => (
                               <div key={publication.bankId} title={publication.bankName} className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full border-2 border-card bg-white p-1">
-                                {publication.bankLogoUrl ? <img src={getBackendAssetUrl(publication.bankLogoUrl)} alt={publication.bankName} className="h-full w-full object-contain" /> : <Landmark className="h-4 w-4 text-muted-foreground" />}
+                                {publication.bankLogoUrl ? <img src={resolveApiUrl(publication.bankLogoUrl)} alt={publication.bankName} className="h-full w-full object-contain" /> : <Landmark className="h-4 w-4 text-muted-foreground" />}
                               </div>
                             ))}
                           </div>
@@ -651,7 +651,7 @@ function DealerProfile({ dealer }: { dealer: DealerView }) {
     <div className="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
       <Card className="text-center">
         {dealer.logoUrl ? (
-          <img src={getBackendAssetUrl(dealer.logoUrl)} alt={`Logo ${dealer.companyName}`} className="mx-auto h-32 w-32 rounded-2xl border border-border object-contain p-2" />
+          <img src={resolveApiUrl(dealer.logoUrl)} alt={`Logo ${dealer.companyName}`} className="mx-auto h-32 w-32 rounded-2xl border border-border object-contain p-2" />
         ) : (
           <span className="mx-auto flex h-32 w-32 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Building2 className="h-14 w-14" /></span>
         )}
@@ -664,7 +664,7 @@ function DealerProfile({ dealer }: { dealer: DealerView }) {
           {dealer.contactPhotoUrl && (
             <div className="flex items-center gap-4 rounded-xl border border-border bg-muted/20 p-4 sm:col-span-2">
               <img
-                src={getBackendAssetUrl(dealer.contactPhotoUrl)}
+                src={resolveApiUrl(dealer.contactPhotoUrl)}
                 alt={`Photo de ${dealer.contactPerson}`}
                 className="h-16 w-16 shrink-0 rounded-full border border-border bg-white object-cover"
               />
@@ -855,7 +855,7 @@ function PartnershipTable({ rows, tab, actionKey, onApprove, onReject, onCancel 
               <td colSpan={4} className="px-5 py-14 text-center text-sm text-muted-foreground">Aucun élément dans cette section.</td>
             </tr>
           ) : rows.map((item) => {
-            const logoUrl = item.bankLogoUrl ? getBackendAssetUrl(item.bankLogoUrl) : '';
+            const logoUrl = item.bankLogoUrl ? resolveApiUrl(item.bankLogoUrl) : '';
             const displayedDate = tab === 'active'
               ? item.approvedAt || item.processingDate || item.requestDate
               : item.requestDate;
@@ -917,7 +917,7 @@ function Products({ products, publications, banks, onCreate, onEdit, onSubmit }:
             return (
             <article key={product.id} className="flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all hover:border-primary/30 hover:shadow-md">
               {product.imageUrl ? (
-                <img src={getBackendAssetUrl(product.imageUrl)} alt={product.name} className="h-52 w-full bg-muted/20 object-contain" />
+                <img src={resolveApiUrl(product.imageUrl)} alt={product.name} className="h-52 w-full bg-muted/20 object-contain" />
               ) : (
                 <div className="flex h-52 items-center justify-center bg-muted/40 text-muted-foreground"><ImageIcon className="h-12 w-12" /></div>
               )}
@@ -993,10 +993,10 @@ function Publications({ publications }: { publications: Publication[] }) {
                       ? 'Refusé'
                       : status.label;
                 const productImage = publication.product.imageUrl
-                  ? getBackendAssetUrl(publication.product.imageUrl)
+                  ? resolveApiUrl(publication.product.imageUrl)
                   : '';
                 const bankLogo = publication.bankLogoUrl
-                  ? getBackendAssetUrl(publication.bankLogoUrl)
+                  ? resolveApiUrl(publication.bankLogoUrl)
                   : '';
 
                 return (

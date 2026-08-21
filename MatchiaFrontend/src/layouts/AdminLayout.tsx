@@ -5,7 +5,7 @@ import { AdminSidebar } from '../components/layout/AdminSidebar';
 import { NotificationsPanel } from '../components/layout/NotificationsPanel';
 import { AiAssistantWidget } from '../components/ai/AiAssistantWidget';
 import { useBankTenant } from '../hooks/useBankTenant';
-import { getBackendAssetUrl } from '../utils/tenant';
+import { resolveApiUrl } from '../api/apiClient';
 import { authService } from '../services/authService';
 import { NotificationDto } from '../types/apiTypes';
 import {
@@ -40,7 +40,7 @@ export function AdminLayout({ type }: AdminLayoutProps) {
   const profileEmailLabel = type === 'saas'
     ? (currentUser?.email ?? '')
     : (currentUser?.email || 'Admin banque');
-  const profileImageUrl = getBackendAssetUrl(currentUser?.contactImageUrl || null);
+  const profileImageUrl = resolveApiUrl(currentUser?.contactImageUrl || null);
 
   const loadNotificationData = async () => {
     if (type !== 'saas' && !notificationRecipientId) {

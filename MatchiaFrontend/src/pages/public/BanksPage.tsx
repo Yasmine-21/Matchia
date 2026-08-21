@@ -10,15 +10,10 @@ import { motion } from 'motion/react';
 
 import { bankService } from '../../services/bankService';
 import { Bank } from '../../types';
-import apiClient from '../../api/apiClient';
+import { resolveApiUrl } from '../../api/apiClient';
+import { getMarketplaceUrl } from '../../utils/tenant';
 
-const getLogoUrl = (logoUrl?: string | null) => {
-  if (!logoUrl) return null;
-  if (logoUrl.startsWith('http') || logoUrl.startsWith('data:')) return logoUrl;
-
-  const baseUrl = (apiClient.defaults.baseURL || 'http://localhost:8081').replace(/\/$/, '');
-  return `${baseUrl}${logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}`;
-};
+const getLogoUrl = (logoUrl?: string | null) => resolveApiUrl(logoUrl) || null;
 
 const BankLogo = ({ bank, variant = 'card' }: { bank: Bank; variant?: 'card' | 'list' }) => {
   const [hasError, setHasError] = useState(false);
@@ -170,7 +165,7 @@ export function BanksPage() {
                       </div>
                     </CardContent>
                     <CardFooter>
-                      <a href={`http://${bank.slug}.lvh.me:5173/`} className="banks-search-input" style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
+                      <a href={getMarketplaceUrl(bank.slug, '/')} className="banks-search-input" style={{ textDecoration: 'none', display: 'block', width: '100%' }}>
                         <Button variant="secondary" className="banks-full-width" icon={<ExternalLink className="banks-icon" />}>
                           Voir la marketplace
                         </Button>
@@ -209,7 +204,7 @@ export function BanksPage() {
                         <div>Établie en {bank.establishedYear}</div>
                       </div>
                     </div>
-                    <a href={`http://${bank.slug}.lvh.me:5173/`} style={{ textDecoration: 'none' }}>
+                    <a href={getMarketplaceUrl(bank.slug, '/')} style={{ textDecoration: 'none' }}>
                       <Button variant="secondary" icon={<ExternalLink className="banks-icon" />}>
                         Voir la marketplace
                       </Button>

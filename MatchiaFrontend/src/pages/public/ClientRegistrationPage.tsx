@@ -17,7 +17,8 @@ import { MatchiaLogo } from '../../components/brand/MatchiaLogo';
 import apiClient from '../../api/apiClient';
 import { financingRequestService } from '../../services/financingRequestService';
 import type { MarketplacePublicDto } from '../../types/apiTypes';
-import { getBackendAssetUrl, getTenantSlugFromLocation } from '../../utils/tenant';
+import { getTenantSlugFromLocation } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 
 type RegistrationForm = {
   fullName: string;
@@ -89,7 +90,7 @@ export function ClientRegistrationPage() {
 
   const primaryColor = marketplace?.primaryColor || '#2563EB';
   const secondaryColor = marketplace?.secondaryColor || '#9333EA';
-  const marketplaceLogoUrl = getBackendAssetUrl(marketplace?.logoImageUrl || marketplace?.bankLogoUrl);
+  const marketplaceLogoUrl = resolveApiUrl(marketplace?.logoImageUrl || marketplace?.bankLogoUrl);
   const registrationStyles = useMemo(() => ({
     background: marketplace
       ? `radial-gradient(circle at 18% 76%, ${primaryColor}26, transparent 28%), radial-gradient(circle at 82% 9%, ${secondaryColor}20, transparent 22%), linear-gradient(135deg, #fbf9ff 0%, #eef4ff 45%, #f8fbff 100%)`

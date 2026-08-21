@@ -21,7 +21,7 @@ import {
   EyeOff,
 } from 'lucide-react';
 import { useBankTenant } from '../../hooks/useBankTenant';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import { userService, type UserPayload } from '../../services/userService';
 import type { UserDto } from '../../types/apiTypes';
 
@@ -128,7 +128,7 @@ export function BankUsers() {
       contactImageUrl: user.contactImageUrl || '',
     });
     setContactImageFile(null);
-    setContactImagePreviewUrl(getBackendAssetUrl(user.contactImageUrl));
+    setContactImagePreviewUrl(resolveApiUrl(user.contactImageUrl));
     setShowPassword(false);
     setFormError('');
     setActionError('');
@@ -168,7 +168,7 @@ export function BankUsers() {
 
   const clearSelectedContactImage = () => {
     setContactImageFile(null);
-    setContactImagePreviewUrl(userForm.contactImageUrl ? getBackendAssetUrl(userForm.contactImageUrl) : '');
+    setContactImagePreviewUrl(userForm.contactImageUrl ? resolveApiUrl(userForm.contactImageUrl) : '');
   };
 
   const handleSubmitUser = async () => {
@@ -385,7 +385,7 @@ export function BankUsers() {
                 <tbody>
                   {filteredUsers.length > 0 ? (
                     filteredUsers.map((user) => {
-                      const avatarUrl = getBackendAssetUrl(user.contactImageUrl);
+                      const avatarUrl = resolveApiUrl(user.contactImageUrl);
                       const isActive = normalizeStatus(user.status) === 'active';
 
                       return (

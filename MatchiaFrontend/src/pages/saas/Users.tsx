@@ -6,7 +6,7 @@ import { Input } from '../../components/ui/Input';
 import { Badge } from '../../components/ui/Badge';
 import { Modal } from '../../components/ui/Modal';
 import { Plus, Edit, Trash2, Mail, Shield, CheckCircle, XCircle, Upload } from 'lucide-react';
-import apiClient from '../../api/apiClient';
+import apiClient, { resolveApiUrl } from '../../api/apiClient';
 import { bankService } from '../../services/bankService';
 import type { Bank } from '../../types';
 
@@ -58,12 +58,6 @@ interface UserDto {
   createdAt?: string | null;
   created_at?: string | null;
 }
-
-const getBackendAssetUrl = (url?: string | null) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) return url;
-  return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
-};
 
 export function SaaSUsers() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -165,7 +159,7 @@ export function SaaSUsers() {
       contactImageUrl: user.contactImageUrl || '',
     });
     setContactImageFile(null);
-    setContactImagePreviewUrl(getBackendAssetUrl(user.contactImageUrl));
+    setContactImagePreviewUrl(resolveApiUrl(user.contactImageUrl));
     setCreateError('');
     setIsModalOpen(true);
   };
@@ -198,7 +192,7 @@ export function SaaSUsers() {
 
   const clearSelectedContactImage = () => {
     setContactImageFile(null);
-    setContactImagePreviewUrl(userForm.contactImageUrl ? getBackendAssetUrl(userForm.contactImageUrl) : '');
+    setContactImagePreviewUrl(userForm.contactImageUrl ? resolveApiUrl(userForm.contactImageUrl) : '');
   };
 
   const uploadContactImage = async (file: File) => {
@@ -384,7 +378,7 @@ export function SaaSUsers() {
                 <tbody>
                   {filtered.length > 0 ? (
                     filtered.map((user) => {
-                      const avatarUrl = getBackendAssetUrl(user.contactImageUrl);
+                      const avatarUrl = resolveApiUrl(user.contactImageUrl);
                       const createdAt = user.createdAt || user.created_at;
 
                       return (

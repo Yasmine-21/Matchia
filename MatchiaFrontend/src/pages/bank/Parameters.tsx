@@ -6,6 +6,7 @@ import { Input } from '../../components/ui/Input';
 import { Button } from '../../components/ui/Button';
 import { Badge } from '../../components/ui/Badge';
 import { useBankTenant } from '../../hooks/useBankTenant';
+import { getMarketplaceUrl, getTenantSlugFromLocation } from '../../utils/tenant';
 
 export function BankParameters() {
   const { marketplace, isLoading, error } = useBankTenant();
@@ -26,7 +27,7 @@ export function BankParameters() {
   useEffect(() => {
     setSettings({
       platformName: marketplace?.bankName || 'Plateforme bancaire',
-      platformUrl: marketplace?.bankWebsiteUrl || `${window.location.origin}`,
+      platformUrl: marketplace?.bankWebsiteUrl || getMarketplaceUrl(getTenantSlugFromLocation(), '/'),
       supportEmail: marketplace?.bankEmail || 'support@platform.tld',
       maintenanceMode: false,
       allowNewBankRegistration: true,

@@ -11,9 +11,9 @@ vi.mock('react-router', async () => {
   const actual = await vi.importActual<typeof import('react-router')>('react-router');
   return { ...actual, useNavigate: () => navigate };
 });
-vi.mock('../../api/apiClient', () => ({ default: { get: vi.fn(), post: vi.fn() } }));
+vi.mock('../../api/apiClient', () => ({ default: { get: vi.fn(), post: vi.fn() }, resolveApiUrl: vi.fn(() => null) }));
 vi.mock('../../services/financingRequestService', () => ({ financingRequestService: { register: vi.fn() } }));
-vi.mock('../../utils/tenant', () => ({ getBackendAssetUrl: vi.fn(() => null), getTenantSlugFromLocation: vi.fn(() => 'atlas') }));
+vi.mock('../../utils/tenant', () => ({ getTenantSlugFromLocation: vi.fn(() => 'atlas') }));
 
 describe('ClientRegistrationPage', () => {
   beforeEach(() => {

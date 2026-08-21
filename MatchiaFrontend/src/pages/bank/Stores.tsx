@@ -33,7 +33,7 @@ import type {
   RequestStoreSelectionDto,
   StoreDto,
 } from '../../types/apiTypes';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import { isBannerModule } from '../../utils/moduleVisibility';
 
 const getStoreKey = (store: { storeId?: number | null; id: number }) => String(store.storeId ?? store.id);
@@ -105,7 +105,7 @@ export function BankStores() {
     ),
     [selectedStore?.modules],
   );
-  const selectedStoreBannerUrl = getBackendAssetUrl(selectedStore?.bannerImageUrl || selectedStore?.banniereUrl);
+  const selectedStoreBannerUrl = resolveApiUrl(selectedStore?.bannerImageUrl || selectedStore?.banniereUrl);
   const activeStoresCount = useMemo(
     () => stores.filter((store) => store.enabled !== false && store.visible !== false).length,
     [stores],
@@ -613,7 +613,7 @@ export function BankStores() {
               <div className="space-y-4">
                 {stores.map((store) => {
                   const isSelected = getStoreKey(store) === selectedStoreId;
-                  const bannerUrl = getBackendAssetUrl(store.bannerImageUrl || store.banniereUrl);
+                  const bannerUrl = resolveApiUrl(store.bannerImageUrl || store.banniereUrl);
                   const isEnabled = store.enabled !== false;
                   const modulesCount = getVisibleModuleCountForStore(store);
                   const StoreContextIcon = getStoreContextIcon(store);

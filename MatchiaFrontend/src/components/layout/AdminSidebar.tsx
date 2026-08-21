@@ -28,7 +28,7 @@ import {
 } from '../../services/notificationService';
 import { NotificationDto } from '../../types/apiTypes';
 import { useBankTenant } from '../../hooks/useBankTenant';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import { useApp } from '../../context/AppContext';
 import { MatchiaLogo } from '../brand/MatchiaLogo';
 import {
@@ -323,7 +323,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
             {type === 'bank' ? (
               bankTenant.branding.logo_image_url ? (
                 <img
-                  src={getBackendAssetUrl(bankTenant.branding.logo_image_url)}
+                  src={resolveApiUrl(bankTenant.branding.logo_image_url)}
                   alt={bankTenant.marketplace?.bankName || 'Banque'}
                   className="h-10 w-10 rounded-lg border border-sidebar-border object-contain bg-white p-1"
                 />
@@ -335,7 +335,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
             ) : type === 'dealer' ? (
               connectedDealer?.logoUrl && !dealerLogoFailed ? (
                 <img
-                  src={getBackendAssetUrl(connectedDealer.logoUrl)}
+                  src={resolveApiUrl(connectedDealer.logoUrl)}
                   alt={`Logo ${connectedDealer.companyName}`}
                   className="h-16 w-full max-w-[205px] object-contain"
                   onError={() => setDealerLogoFailed(true)}
@@ -413,7 +413,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
           >
             {bankTenant.branding.logo_image_url ? (
               <img
-                src={getBackendAssetUrl(bankTenant.branding.logo_image_url)}
+                src={resolveApiUrl(bankTenant.branding.logo_image_url)}
                 alt={bankTenant.marketplace?.bankName || 'Marketplace'}
                 className="h-5 w-5 rounded-sm object-contain"
               />

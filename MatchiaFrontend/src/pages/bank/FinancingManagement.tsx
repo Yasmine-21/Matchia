@@ -10,7 +10,7 @@ import { KpiCard } from '../../components/ui/KpiCard';
 import apiClient from '../../api/apiClient';
 import { useBankTenant } from '../../hooks/useBankTenant';
 import { financingRequestService, type FinancingDetail, type FinancingSummary } from '../../services/financingRequestService';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 
 const statusLabel = (status: string) => status === 'ACCEPTED' ? 'Acceptée' : status === 'REJECTED' ? 'Rejetée' : status === 'DRAFT' ? 'Brouillon' : 'En attente';
 const statusVariant = (status: string) => status === 'ACCEPTED' ? 'success' : status === 'REJECTED' ? 'danger' : status === 'DRAFT' ? 'secondary' : 'warning';
@@ -129,7 +129,7 @@ function DetailValue({ label, value }: { label: string; value?: string | number 
 function ProductThumbnail({ imageUrl, productName }: { imageUrl?: string; productName: string }) {
   const [imageFailed, setImageFailed] = useState(false);
   if (!imageUrl || imageFailed) return <FileText className="h-4 w-4 text-muted-foreground" />;
-  return <img className="h-full w-full object-cover" src={getBackendAssetUrl(imageUrl)} alt={productName} onError={() => setImageFailed(true)} />;
+  return <img className="h-full w-full object-cover" src={resolveApiUrl(imageUrl)} alt={productName} onError={() => setImageFailed(true)} />;
 }
 
 export function BankFinancingRequestDetail() {

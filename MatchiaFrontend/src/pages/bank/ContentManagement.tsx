@@ -12,7 +12,7 @@ import { useBankTenant } from '../../hooks/useBankTenant';
 import { contentService } from '../../services/contentService';
 import { marketplaceContentService } from '../../services/marketplaceContentService';
 import type { ContentDto, ContentStatus, MarketplaceContentDto, MarketplaceStoreDetailDto } from '../../types/apiTypes';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import { Eye, EyeOff, Image as ImageIcon, Loader2, Pencil, Plus, Sparkles, Store as StoreIcon, Trash2 } from 'lucide-react';
 
 const STORE_COLORS = [
@@ -256,7 +256,7 @@ export function BankContentManagement() {
       status: content.status,
     });
     setImageFile(null);
-    setImagePreview(content.imageUrl ? getBackendAssetUrl(content.imageUrl) : '');
+    setImagePreview(content.imageUrl ? resolveApiUrl(content.imageUrl) : '');
     setFormError('');
     setIsModalOpen(true);
   };
@@ -481,7 +481,7 @@ export function BankContentManagement() {
 
                     <div className="grid gap-4 lg:grid-cols-2 xl:grid-cols-3">
                       {storeContents.map((content) => {
-                        const imageUrl = getBackendAssetUrl(content.imageUrl);
+                        const imageUrl = resolveApiUrl(content.imageUrl);
                         return (
                           <article
                             key={`${content.source}-${content.id}`}

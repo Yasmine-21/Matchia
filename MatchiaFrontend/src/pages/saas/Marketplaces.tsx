@@ -29,7 +29,8 @@ import {
 import { bankService } from '../../services/bankService';
 import { storeService } from '../../services/storeService';
 import { moduleService } from '../../services/moduleService';
-import apiClient from '../../api/apiClient';
+import apiClient, { resolveApiUrl } from '../../api/apiClient';
+import { getMarketplaceUrl } from '../../utils/tenant';
 import { Bank } from '../../types';
 import { ModuleAssignment, StoreDto } from '../../types/apiTypes';
 
@@ -86,11 +87,7 @@ interface MarketplaceModuleDetail {
   visible?: boolean | null;
 }
 
-const getLogoUrl = (logoUrl?: string | null) => {
-  if (!logoUrl) return null;
-  if (logoUrl.startsWith('http')) return logoUrl;
-  return `http://localhost:8081${logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}`;
-};
+const getLogoUrl = (logoUrl?: string | null) => resolveApiUrl(logoUrl) || null;
 
 const statusLabel = (status?: string) => {
   switch (status) {
@@ -747,7 +744,7 @@ export function Marketplaces() {
                           <div className="flex items-center justify-end gap-7">
                             {bank.slug ? (
                               <a
-                                href={`http://${bank.slug}.lvh.me:5173/bank/dashboard`}
+                                href={getMarketplaceUrl(bank.slug, '/bank/dashboard')}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-slate-800 transition-colors hover:text-blue-600"
@@ -995,7 +992,7 @@ export function Marketplaces() {
 
             <div className="flex justify-end pt-2">
               <a
-                href={`http://${detailsBank.slug}.lvh.me:5173`}
+                href={getMarketplaceUrl(detailsBank.slug, '/')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white shadow-[0_10px_24px_rgba(37,99,235,0.24)] transition-colors hover:bg-blue-700"
@@ -1056,7 +1053,7 @@ export function Marketplaces() {
                     placeholder="ma-banque"
                   />
                   <span className="flex items-center rounded-r-lg bg-muted px-3 text-sm text-muted-foreground">
-                    .lvh.me
+                    {getMarketplaceUrl(form.marketplaceSlug || 'slug', '/')}
                   </span>
                 </div>
               </div>
@@ -1280,7 +1277,7 @@ export function Marketplaces() {
                 )}
                 <div className="min-w-0">
                   <div className="truncate font-semibold text-gray-900">{selectedBank?.name || 'Banque'}</div>
-                  <div className="truncate text-xs text-gray-500">{form.marketplaceSlug || 'slug'}.lvh.me</div>
+                  <div className="truncate text-xs text-gray-500">{getMarketplaceUrl(form.marketplaceSlug || 'slug', '/')}</div>
                 </div>
               </div>
               <div

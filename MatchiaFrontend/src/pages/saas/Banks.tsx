@@ -23,6 +23,8 @@ import {
 import { bankService, BankFormPayload } from '../../services/bankService';
 import { Bank } from '../../types';
 import { BankStatus } from '../../types/apiTypes';
+import { resolveApiUrl } from '../../api/apiClient';
+import { getMarketplaceUrl } from '../../utils/tenant';
 
 type BankFormState = BankFormPayload & {
   establishmentYearInput: string;
@@ -46,11 +48,7 @@ const getYear = (bank: Bank) => bank.establishmentYear ?? bank.establishedYear ?
 const getUsers = (bank: Bank) => bank.totalUsers ?? 0;
 const getAssignedStores = (bank: Bank) => bank.assignedStoresCount ?? 0;
 
-const getLogoUrl = (logoUrl?: string | null) => {
-  if (!logoUrl) return null;
-  if (logoUrl.startsWith('http')) return logoUrl;
-  return `http://localhost:8081${logoUrl.startsWith('/') ? logoUrl : `/${logoUrl}`}`;
-};
+const getLogoUrl = (logoUrl?: string | null) => resolveApiUrl(logoUrl) || null;
 
 const statusLabel: Record<BankStatus, string> = {
   active: 'Actif',
@@ -473,7 +471,7 @@ export function SaaSBanks() {
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center justify-end gap-2">
-                        <a href={`http://${bank.slug}.lvh.me:5173/bank/dashboard`} className="rounded-lg p-2 text-primary transition-colors hover:bg-primary/10" title="Back-office">
+                        <a href={getMarketplaceUrl(bank.slug, '/bank/dashboard')} className="rounded-lg p-2 text-primary transition-colors hover:bg-primary/10" title="Back-office">
                           <ExternalLink className="h-4 w-4" />
                         </a>
                         <button onClick={() => { setSelectedBank(bank); setIsViewModalOpen(true); }} className="rounded-lg p-2 hover:bg-muted" title="Details">
@@ -532,12 +530,12 @@ export function SaaSBanks() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground">Slug</p>
-                <code className="rounded bg-muted px-2 py-1 text-sm">{selectedBank.slug}.lvh.me</code>
+                <code className="rounded bg-muted px-2 py-1 text-sm">{getMarketplaceUrl(selectedBank.slug, '/')}</code>
               </div>
             </div>
 
             <div className="flex gap-3 pt-4">
-              <a href={`http://${selectedBank.slug}.lvh.me:5173`} target="_blank" rel="noopener noreferrer" className="flex-1">
+              <a href={getMarketplaceUrl(selectedBank.slug, '/')} target="_blank" rel="noopener noreferrer" className="flex-1">
                 <Button className="w-full" icon={<ExternalLink className="h-4 w-4" />}>Voir la marketplace</Button>
               </a>
               <Button

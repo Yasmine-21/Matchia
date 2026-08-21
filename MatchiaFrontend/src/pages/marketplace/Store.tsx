@@ -25,6 +25,7 @@ import { Modal } from '../../components/ui/Modal';
 import type { ContentDto, MarketplaceContentDto, ProductDto } from '../../types/apiTypes';
 import { getCompareStorageKey, readCompareProductIds, writeCompareProductIds } from '../../utils/comparison';
 import { isBannerModule, isNavigableModule } from '../../utils/moduleVisibility';
+import { resolveApiUrl } from '../../api/apiClient';
 
 interface MarketplaceModuleDetail {
   id: number;
@@ -89,14 +90,6 @@ const normalizeSlug = (value?: string | null) =>
     .replace(/[\u0300-\u036f]/g, '')
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '');
-
-const getBackendAssetUrl = (url?: string | null) => {
-  if (!url) return '';
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
-  }
-  return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
-};
 
 const getModuleRoute = (moduleName?: string | null, storeSlug?: string) => {
   const normalized = normalizeSlug(moduleName);
@@ -210,7 +203,7 @@ function ContentBlock({
   fallbackImageUrl: string;
 }) {
   const reversed = index % 2 === 1;
-  const imageUrl = getBackendAssetUrl(content.imageUrl) || fallbackImageUrl;
+  const imageUrl = resolveApiUrl(content.imageUrl) || fallbackImageUrl;
 
   return (
      <motion.article
@@ -411,7 +404,7 @@ function ProductCard({
   onSimulate: (product: StoreProductItem) => void;
   onClick: () => void;
 }) {
-  const imageUrl = getBackendAssetUrl(product.imageUrl);
+  const imageUrl = resolveApiUrl(product.imageUrl);
 
   return (
     <motion.article
@@ -516,7 +509,7 @@ function ProductDetailsModal({
   storeLabel: string;
   onClose: () => void;
 }) {
-  const imageUrl = getBackendAssetUrl(product?.imageUrl);
+  const imageUrl = resolveApiUrl(product?.imageUrl);
   const parameterValues = product?.parameterValues || [];
 
   return (
@@ -809,10 +802,10 @@ export function MarketplaceStore() {
   const storeLabel = store?.label || store?.name || `Store ${store?.storeId || store?.id || ''}`;
   const modules = (store?.modules || []).filter((module) => module.enabled !== false && module.visible !== false);
   const isBannerActive = modules.some(isBannerModule);
-  const customStoreBannerUrl = isBannerActive ? getBackendAssetUrl(store?.bannerImageUrl) : '';
+  const customStoreBannerUrl = isBannerActive ? resolveApiUrl(store?.bannerImageUrl) : '';
   const hasCustomStoreBanner = Boolean(customStoreBannerUrl);
   const storeBannerUrl = customStoreBannerUrl || (isBannerActive
-    ? getBackendAssetUrl(store?.banniereUrl || store?.banniere_url)
+    ? resolveApiUrl(store?.banniereUrl || store?.banniere_url)
     : '');
   const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(branding.secondary_color, 0.78)} 100%)`;
   const activeStoreSlug = store?.slug || normalizeSlug(storeSlug);

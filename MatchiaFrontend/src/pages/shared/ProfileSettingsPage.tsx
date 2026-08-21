@@ -7,7 +7,7 @@ import { useApp } from '../../context/AppContext';
 import { userService } from '../../services/userService';
 import type { User as AppUser } from '../../types';
 import type { UserDto } from '../../types/apiTypes';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 
 interface ProfileSettingsPageProps {
   type: 'saas' | 'bank' | 'dealer';
@@ -93,7 +93,7 @@ export function ProfileSettingsPage({ type }: ProfileSettingsPageProps) {
 
   useEffect(() => {
     setProfileForm(buildProfileState(currentUser));
-    setProfileImageUrl(getBackendAssetUrl(currentUser?.contactImageUrl || null));
+    setProfileImageUrl(resolveApiUrl(currentUser?.contactImageUrl || null));
     setFeedback(null);
     setIsEditing(false);
   }, [currentUser]);
@@ -103,7 +103,7 @@ export function ProfileSettingsPage({ type }: ProfileSettingsPageProps) {
   const displayPhone = currentUser?.phone || '-';
   const displayEmail = currentUser?.email || '-';
   const displayAddress = currentUser?.address || '-';
-  const currentImage = profileImageUrl || getBackendAssetUrl(currentUser?.contactImageUrl || null);
+  const currentImage = profileImageUrl || resolveApiUrl(currentUser?.contactImageUrl || null);
 
   const handleFieldChange = (field: keyof ProfileFormState, value: string) => {
     setProfileForm((current) => ({ ...current, [field]: value }));
@@ -111,7 +111,7 @@ export function ProfileSettingsPage({ type }: ProfileSettingsPageProps) {
 
   const handleCancel = () => {
     setProfileForm(buildProfileState(currentUser));
-    setProfileImageUrl(getBackendAssetUrl(currentUser?.contactImageUrl || null));
+    setProfileImageUrl(resolveApiUrl(currentUser?.contactImageUrl || null));
     setFeedback(null);
     setIsEditing(false);
   };
@@ -166,7 +166,7 @@ export function ProfileSettingsPage({ type }: ProfileSettingsPageProps) {
       const saved = await userService.update(userId, buildSavePayload());
       const updatedUser = toAppUser(saved, currentUser);
       setProfileForm(buildProfileState(updatedUser));
-      setProfileImageUrl(getBackendAssetUrl(updatedUser.contactImageUrl || null));
+      setProfileImageUrl(resolveApiUrl(updatedUser.contactImageUrl || null));
       updateCurrentUserInSession(updatedUser);
       setIsEditing(false);
       setFeedback({ type: 'success', message: 'Profil mis à jour avec succès.' });
@@ -213,7 +213,7 @@ export function ProfileSettingsPage({ type }: ProfileSettingsPageProps) {
       });
 
       const updatedUser = toAppUser(saved, currentUser);
-      setProfileImageUrl(getBackendAssetUrl(updatedUser.contactImageUrl || null));
+      setProfileImageUrl(resolveApiUrl(updatedUser.contactImageUrl || null));
       setProfileForm(buildProfileState(updatedUser));
       updateCurrentUserInSession(updatedUser);
       setFeedback({ type: 'success', message: 'Photo de profil mise à jour avec succès.' });

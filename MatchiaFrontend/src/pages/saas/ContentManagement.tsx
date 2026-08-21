@@ -11,7 +11,7 @@ import { Textarea } from '../../components/ui/textarea';
 import { contentService } from '../../services/contentService';
 import { storeService } from '../../services/storeService';
 import type { ContentDto, ContentStatus, StoreDto } from '../../types/apiTypes';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import { Plus, Image as ImageIcon, Loader2, RefreshCcw, Sparkles, Store as StoreIcon, Pencil, Trash2, FileText, Eye, EyeOff } from 'lucide-react';
 
 const statusLabel: Record<ContentStatus, string> = {
@@ -173,7 +173,7 @@ export function ContentManagement() {
       description: content.description,
       status: content.status,
     });
-    setImagePreview(content.imageUrl ? getBackendAssetUrl(content.imageUrl) : '');
+    setImagePreview(content.imageUrl ? resolveApiUrl(content.imageUrl) : '');
     setIsModalOpen(true);
   };
 
@@ -319,7 +319,7 @@ export function ContentManagement() {
           ) : (
             <div className="grid gap-5 lg:grid-cols-2 xl:grid-cols-3">
               {contents.map((content) => {
-                const imageUrl = getBackendAssetUrl(content.imageUrl);
+                const imageUrl = resolveApiUrl(content.imageUrl);
                 const storeColor = getStoreColor(content.storeId);
                 return (
                   <article

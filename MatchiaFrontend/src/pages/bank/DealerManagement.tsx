@@ -28,7 +28,7 @@ import {
   type Publication,
   type PublicationStatus,
 } from '../../services/dealerService';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 import { BankContractsPanel } from '../../components/dealer/BankContractsPanel';
 import type { PartnershipContract } from '../../services/dealerService';
 
@@ -541,7 +541,7 @@ function PartnershipCard({
       <div className="flex items-start gap-4">
         {item.dealer.logoUrl ? (
           <img
-            src={getBackendAssetUrl(item.dealer.logoUrl)}
+            src={resolveApiUrl(item.dealer.logoUrl)}
             alt={`Logo ${item.dealer.companyName}`}
             className="h-16 w-16 shrink-0 rounded-xl border border-border bg-white object-contain p-1"
           />
@@ -604,7 +604,7 @@ function PublicationCard({
       <div className="flex flex-col gap-4 p-5 sm:flex-row">
         {item.product.imageUrl ? (
           <img
-            src={getBackendAssetUrl(item.product.imageUrl)}
+            src={resolveApiUrl(item.product.imageUrl)}
             alt={item.product.name}
             className="h-40 w-full shrink-0 rounded-xl border border-border bg-muted/20 object-contain sm:h-28 sm:w-36"
           />

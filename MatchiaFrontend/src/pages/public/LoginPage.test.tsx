@@ -9,8 +9,8 @@ const app = { login: vi.fn(), setCurrentBank: vi.fn() };
 vi.mock('../../context/AppContext', () => ({ useApp: () => app }));
 vi.mock('../../services/authService', () => ({ authService: { login: vi.fn(), getRedirectUrl: vi.fn(() => '/dashboard') } }));
 vi.mock('../../services/bankService', () => ({ bankService: { getBankById: vi.fn() } }));
-vi.mock('../../api/apiClient', () => ({ default: { get: vi.fn() } }));
-vi.mock('../../utils/tenant', () => ({ getBackendAssetUrl: vi.fn(() => null), getTenantSlugFromLocation: vi.fn(() => null) }));
+vi.mock('../../api/apiClient', () => ({ default: { get: vi.fn() }, resolveApiUrl: vi.fn(() => null) }));
+vi.mock('../../utils/tenant', () => ({ getTenantSlugFromLocation: vi.fn(() => null) }));
 
 describe('LoginPage', () => {
   beforeEach(() => { vi.mocked(authService.login).mockReset(); app.login.mockReset(); app.setCurrentBank.mockReset(); });

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSearchParams } from 'react-router';
 import { BarChart3, CalendarX2, Clock3, Eye } from 'lucide-react';
-import apiClient from '../../api/apiClient';
+import apiClient, { resolveApiUrl } from '../../api/apiClient';
 import { subscriptionService } from '../../services/subscriptionService';
 import { SubscriptionDto } from '../../types/apiTypes';
 import { Badge } from '../../components/ui/Badge';
@@ -73,16 +73,6 @@ const getAnnualTermProgress = (expirationDate?: string | null, daysRemaining?: n
   termStart.setFullYear(termStart.getFullYear() - 1);
   const termDays = Math.max(1, Math.round((termEnd.getTime() - termStart.getTime()) / 86_400_000));
   return Math.max(0, Math.min(100, Math.round((daysRemaining / termDays) * 100)));
-};
-
-const getBackendAssetUrl = (url?: string | null) => {
-  if (!url) {
-    return '';
-  }
-  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
-    return url;
-  }
-  return `http://localhost:8081${url.startsWith('/') ? url : `/${url}`}`;
 };
 
 export function OffersAndSubscriptions() {
@@ -289,7 +279,7 @@ export function OffersAndSubscriptions() {
                         <div className="flex items-center gap-3">
                           {subscription.bankLogoUrl ? (
                             <img
-                              src={getBackendAssetUrl(subscription.bankLogoUrl)}
+                              src={resolveApiUrl(subscription.bankLogoUrl)}
                               alt={subscription.bankName}
                               className="h-8 w-8 rounded-full border border-border bg-white object-contain p-1"
                             />

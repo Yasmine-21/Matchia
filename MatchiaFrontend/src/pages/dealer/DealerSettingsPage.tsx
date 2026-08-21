@@ -12,7 +12,7 @@ import {
 } from '../../services/dealerService';
 import { storeService } from '../../services/storeService';
 import type { StoreDto } from '../../types/apiTypes';
-import { getBackendAssetUrl } from '../../utils/tenant';
+import { resolveApiUrl } from '../../api/apiClient';
 
 const MAX_LOGO_SIZE = 5 * 1024 * 1024;
 const ALLOWED_LOGO_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
@@ -80,7 +80,7 @@ export function DealerSettingsPage() {
   }, [logo]);
 
   const displayedLogo = logoPreview
-    || (!removeLogo && dealer?.logoUrl ? getBackendAssetUrl(dealer.logoUrl) : null);
+    || (!removeLogo && dealer?.logoUrl ? resolveApiUrl(dealer.logoUrl) : null);
 
   const updateField = (field: keyof SettingsForm, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));

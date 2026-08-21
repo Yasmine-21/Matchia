@@ -9,7 +9,8 @@ import { authService } from '../services/authService';
 import { financingRequestService, type ClientProfile } from '../services/financingRequestService';
 import apiClient from '../api/apiClient';
 import type { MarketplacePublicDto, NotificationDto } from '../types/apiTypes';
-import { getBackendAssetUrl, getTenantSlugFromLocation } from '../utils/tenant';
+import { getTenantSlugFromLocation } from '../utils/tenant';
+import { resolveApiUrl } from '../api/apiClient';
 import { NOTIFICATIONS_UPDATED_EVENT, notifyNotificationsUpdated, notificationService } from '../services/notificationService';
 
 const initials = (name?: string | null) => (name || 'Client')
@@ -97,8 +98,8 @@ export function ClientAreaLayout() {
     '--client-primary-border': `${primaryColor}2b`,
   } as CSSProperties), [primaryColor, secondaryColor]);
   const name = profile?.fullName || currentUser?.name || 'Client';
-  const photoUrl = getBackendAssetUrl(profile?.contactImageUrl || currentUser?.contactImageUrl);
-  const marketplaceLogo = getBackendAssetUrl(marketplace?.logoImageUrl || marketplace?.bankLogoUrl);
+  const photoUrl = resolveApiUrl(profile?.contactImageUrl || currentUser?.contactImageUrl);
+  const marketplaceLogo = resolveApiUrl(marketplace?.logoImageUrl || marketplace?.bankLogoUrl);
 
   const logout = async () => {
     await authService.logout();
