@@ -1,6 +1,9 @@
 pipeline {
 
     agent any
+    environment {
+        AZURE_BACKEND_URL = 'https://matchia-backend.orangeocean-5e0d9a35.francecentral.azurecontainerapps.io'
+    }
 
     options {
         skipDefaultCheckout(true)
@@ -36,7 +39,9 @@ pipeline {
                         sh 'npm --version'
 
                         sh 'npm ci'
-                        sh 'npm run build'
+                        sh '''
+                        VITE_API_URL=$AZURE_BACKEND_URL npm run build
+                        '''
                     }
                 }
             }
@@ -99,6 +104,7 @@ pipeline {
 
                 sh '''
                     docker build \
+                        --build-arg VITE_API_URL=$AZURE_BACKEND_URL \
                         -t matchia-frontend:latest \
                         ./MatchiaFrontend
                 '''
