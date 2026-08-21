@@ -150,6 +150,45 @@ pipeline {
                 }
             }
         }
+        stage('Deploy Backend Azure') {
+    steps {
+        sh '''
+            echo "Sélection de l'abonnement Azure..."
+
+            az account set \
+                --subscription "07ad1f36-8ed6-4652-854b-13599db84518"
+
+            echo "Déploiement du backend Azure..."
+
+            az containerapp update \
+                --name matchia-backend \
+                --resource-group rg-matchia \
+                --image yassmine24/matchia-backend:latest \
+                --revision-suffix v$BUILD_NUMBER \
+                --output none
+        '''
+    }
+}
+
+        stage('Deploy Frontend Azure') {
+    steps {
+        sh '''
+            echo "Sélection de l'abonnement Azure..."
+
+            az account set \
+                --subscription "07ad1f36-8ed6-4652-854b-13599db84518"
+
+            echo "Déploiement de la dernière image frontend..."
+
+            az containerapp update \
+                --name matchia-frontend \
+                --resource-group rg-matchia \
+                --image yassmine24/matchia-frontend:latest \
+                --revision-suffix v$BUILD_NUMBER
+                --output none
+        '''
+    }
+}
     }
 
     post {
