@@ -46,6 +46,7 @@ public class SecurityConfig {
                         .accessDeniedHandler(accessDeniedHandler)
                 )
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh", "/api/auth/logout", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/client-registration").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/admin/marketplaces/public/**").permitAll()
@@ -68,25 +69,41 @@ public class SecurityConfig {
         return http.build();
     }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(Arrays.asList(
-                "http://localhost:5173",
-                "http://lvh.me:5173",
-                "http://192.168.100.15:5173"
-        ));
-        configuration.setAllowedOriginPatterns(Arrays.asList(
-                "http://*.lvh.me:5173",
-                "http://*.lvh.me:8081",
-                "http://localhost:*"
-        ));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
+   @Bean
+public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfiguration configuration = new CorsConfiguration();
 
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+    configuration.setAllowedOrigins(Arrays.asList(
+            "http://localhost:5173",
+            "http://lvh.me:5173",
+            "http://192.168.100.15:5173",
+
+            // Frontend Azure
+            "https://matchia-frontend.orangeocean-5e0d9a35.francecentral.azurecontainerapps.io"
+    ));
+
+    configuration.setAllowedOriginPatterns(Arrays.asList(
+            "http://*.lvh.me:5173",
+            "http://localhost:*"
+    ));
+
+    configuration.setAllowedMethods(Arrays.asList(
+            "GET",
+            "POST",
+            "PUT",
+            "DELETE",
+            "PATCH",
+            "OPTIONS"
+    ));
+
+    configuration.setAllowedHeaders(List.of("*"));
+    configuration.setAllowCredentials(true);
+
+    UrlBasedCorsConfigurationSource source =
+            new UrlBasedCorsConfigurationSource();
+
+    source.registerCorsConfiguration("/**", configuration);
+
+    return source;
+}
 }
