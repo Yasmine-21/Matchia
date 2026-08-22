@@ -184,7 +184,7 @@ pipeline {
                 --name matchia-frontend \
                 --resource-group rg-matchia \
                 --image yassmine24/matchia-frontend:latest \
-                --revision-suffix v$BUILD_NUMBER
+                --revision-suffix v$BUILD_NUMBER\
                 --output none
         '''
     }
