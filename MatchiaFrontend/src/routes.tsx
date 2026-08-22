@@ -1,4 +1,5 @@
-import { createBrowserRouter } from 'react-router';
+import { createBrowserRouter, Outlet } from 'react-router';
+
 import { PublicLayout } from './layouts/PublicLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 import { MarketplaceLayout } from './layouts/MarketplaceLayout';
@@ -14,6 +15,7 @@ import { ResetPasswordPage } from './pages/public/ResetPasswordPage';
 import { PaymentDemoPage } from './pages/public/PaymentDemoPage';
 import { PaymentResultPage } from './pages/public/PaymentResultPage';
 import { DealerRegistrationPage } from './pages/public/DealerRegistrationPage';
+import { ClientRegistrationPage } from './pages/public/ClientRegistrationPage';
 
 // Imports SaaS
 import { SaaSDashboard } from './pages/saas/Dashboard';
@@ -27,8 +29,10 @@ import { OffersAndSubscriptions } from './pages/saas/OffersAndSubscriptions';
 import { Certificates } from './pages/saas/Certificates';
 import { SaaSStoresModules } from './pages/saas/StoresModules';
 import { ContentManagement } from './pages/saas/ContentManagementTabs';
-import { ProfileSettingsPage } from './pages/shared/ProfileSettingsPage';
 import { DealerRequests } from './pages/saas/DealerRequests';
+
+// Shared
+import { ProfileSettingsPage } from './pages/shared/ProfileSettingsPage';
 
 // Imports Bank
 import { BankDashboard } from './pages/bank/Dashboard';
@@ -42,12 +46,24 @@ import { BankSubscription } from './pages/bank/Subscription';
 import { BankContentManagement } from './pages/bank/ContentManagement';
 import { ProductManagement } from './pages/bank/ProductManagement';
 import { DealerManagement } from './pages/bank/DealerManagement';
+import {
+  BankFinancingRequestDetail,
+  BankFinancingRequests,
+} from './pages/bank/FinancingManagement';
+
+// Imports Dealer
 import { DealerWorkspace } from './pages/dealer/DealerWorkspace';
 import { DealerSettingsPage } from './pages/dealer/DealerSettingsPage';
+
+// Imports Client
 import { ClientAreaLayout } from './layouts/ClientAreaLayout';
-import { ClientDashboard, ClientProfilePage, ClientRequests, ClientRequestDetail, FinancingApplicationPage } from './pages/client/ClientArea';
-import { ClientRegistrationPage } from './pages/public/ClientRegistrationPage';
-import { BankFinancingRequestDetail, BankFinancingRequests } from './pages/bank/FinancingManagement';
+import {
+  ClientDashboard,
+  ClientProfilePage,
+  ClientRequests,
+  ClientRequestDetail,
+  FinancingApplicationPage,
+} from './pages/client/ClientArea';
 
 // Imports Marketplace
 import { MarketplaceHome } from './pages/marketplace/Home';
@@ -55,166 +71,446 @@ import { MarketplaceStore } from './pages/marketplace/Store';
 import { SimulatorModule } from './pages/marketplace/modules/Simulator';
 import { ComparatorModule } from './pages/marketplace/modules/Comparator';
 import { BlogModule } from './pages/marketplace/modules/Blog';
+
+// Routing
 import { ProtectedRoute } from './components/routing/ProtectedRoute';
+import TenantUrlSync from './components/TenantUrlSync';
+
 
 // ==========================================
-// 1. ROUTEUR PRINCIPAL
+// TENANT ROOT
 // ==========================================
+//
+// Ce composant englobe TOUT l'espace tenant.
+//
+// Azure :
+// ?tenant=test1234 est automatiquement conservé.
+//
+// Local :
+// test1234.lvh.me continue à fonctionner normalement.
+//
+const TenantRoot = () => {
+  return (
+    <>
+      <TenantUrlSync />
+      <Outlet />
+    </>
+  );
+};
+
+
+// ==========================================
+// 1. ROUTEUR PRINCIPAL SAAS / PUBLIC / DEALER
+// ==========================================
+
 export const saasRouter = createBrowserRouter([
   {
     path: '/',
     element: <PublicLayout />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: 'banques', element: <BanksPage /> },
-      { path: 'concessionnaires', element: <DealersPage /> },
-      { path: 'rejoindre', element: <JoinPage /> },
-      { path: 'connexion', element: <LoginPage /> },
-      { path: 'devenir-concessionnaire', element: <DealerRegistrationPage /> },
+      {
+        index: true,
+        element: <HomePage />,
+      },
+      {
+        path: 'banques',
+        element: <BanksPage />,
+      },
+      {
+        path: 'concessionnaires',
+        element: <DealersPage />,
+      },
+      {
+        path: 'rejoindre',
+        element: <JoinPage />,
+      },
+      {
+        path: 'connexion',
+        element: <LoginPage />,
+      },
+      {
+        path: 'devenir-concessionnaire',
+        element: <DealerRegistrationPage />,
+      },
     ],
   },
+
   {
     path: '/mot-de-passe-oublie',
     element: <ForgotPasswordPage />,
   },
+
   {
     path: '/reinitialiser-mot-de-passe',
     element: <ResetPasswordPage />,
   },
+
   {
     path: '/payment/demo',
     element: <PaymentDemoPage />,
   },
+
   {
     path: '/paiement',
     element: <PaymentDemoPage />,
   },
+
   {
     path: '/payment-success',
     element: <PaymentResultPage status="success" />,
   },
+
   {
     path: '/payment-cancel',
     element: <PaymentResultPage status="cancel" />,
   },
+
   {
     path: '/payment/success',
     element: <PaymentResultPage status="success" />,
   },
+
   {
     path: '/payment/cancel',
     element: <PaymentResultPage status="cancel" />,
   },
+
+  // ==========================================
+  // ESPACE ADMIN SAAS
+  // ==========================================
+
   {
     path: '/saas',
+
     element: (
       <ProtectedRoute requiredRole="saas">
         <AdminLayout type="saas" />
       </ProtectedRoute>
     ),
+
     children: [
-      { path: 'dashboard', element: <SaaSDashboard /> },
-      { path: 'banques', element: <SaaSBanks /> },
-      { path: 'demandes', element: <Requests /> },
-      { path: 'gestion-contenu', element: <ContentManagement /> },
-      { path: 'storesmodules', element: <SaaSStoresModules /> },
-      { path: 'marketplaces', element: <Marketplaces /> },
-      { path: 'certificates', element: <Certificates /> },
-      { path: 'offers-subscriptions', element: <OffersAndSubscriptions /> },
-      { path: 'utilisateurs', element: <SaaSUsers /> },
-      { path: 'audit', element: <AuditLogs /> },
-      { path: 'parametres', element: <SaaSSettings /> },
-      { path: 'profil', element: <ProfileSettingsPage type="saas" /> },
-      { path: 'concessionnaires', element: <DealerRequests /> },
+      {
+        path: 'dashboard',
+        element: <SaaSDashboard />,
+      },
+      {
+        path: 'banques',
+        element: <SaaSBanks />,
+      },
+      {
+        path: 'demandes',
+        element: <Requests />,
+      },
+      {
+        path: 'gestion-contenu',
+        element: <ContentManagement />,
+      },
+      {
+        path: 'storesmodules',
+        element: <SaaSStoresModules />,
+      },
+      {
+        path: 'marketplaces',
+        element: <Marketplaces />,
+      },
+      {
+        path: 'certificates',
+        element: <Certificates />,
+      },
+      {
+        path: 'offers-subscriptions',
+        element: <OffersAndSubscriptions />,
+      },
+      {
+        path: 'utilisateurs',
+        element: <SaaSUsers />,
+      },
+      {
+        path: 'audit',
+        element: <AuditLogs />,
+      },
+      {
+        path: 'parametres',
+        element: <SaaSSettings />,
+      },
+      {
+        path: 'profil',
+        element: <ProfileSettingsPage type="saas" />,
+      },
+      {
+        path: 'concessionnaires',
+        element: <DealerRequests />,
+      },
     ],
   },
+
+  // ==========================================
+  // ESPACE CONCESSIONNAIRE
+  // ==========================================
+
   {
     path: '/dealer',
+
     element: (
       <ProtectedRoute requiredRole="dealer">
         <AdminLayout type="dealer" />
       </ProtectedRoute>
     ),
+
     children: [
-      { path: 'dashboard', element: <DealerWorkspace mode="dashboard" /> },
-      { path: 'partenariats', element: <DealerWorkspace mode="partnerships" /> },
-      { path: 'contrats', element: <DealerWorkspace mode="contracts" /> },
-      { path: 'produits', element: <DealerWorkspace mode="products" /> },
-      { path: 'publications', element: <DealerWorkspace mode="publications" /> },
-      { path: 'profil', element: <ProfileSettingsPage type="dealer" /> },
-      { path: 'parametres', element: <DealerSettingsPage /> },
+      {
+        path: 'dashboard',
+        element: <DealerWorkspace mode="dashboard" />,
+      },
+      {
+        path: 'partenariats',
+        element: <DealerWorkspace mode="partnerships" />,
+      },
+      {
+        path: 'contrats',
+        element: <DealerWorkspace mode="contracts" />,
+      },
+      {
+        path: 'produits',
+        element: <DealerWorkspace mode="products" />,
+      },
+      {
+        path: 'publications',
+        element: <DealerWorkspace mode="publications" />,
+      },
+      {
+        path: 'profil',
+        element: <ProfileSettingsPage type="dealer" />,
+      },
+      {
+        path: 'parametres',
+        element: <DealerSettingsPage />,
+      },
     ],
   },
 ]);
 
+
 // ==========================================
-// 2. ROUTEUR BANQUE
+// 2. ROUTEUR TENANT / BANQUE
 // ==========================================
+//
+// Toutes les routes placées sous TenantRoot
+// conservent automatiquement le tenant sur Azure.
+//
+// Exemple :
+//
+// /?tenant=test1234
+// /store/medical?tenant=test1234
+// /connexion?tenant=test1234
+// /bank/dashboard?tenant=test1234
+// /client/dashboard?tenant=test1234
+//
+// En local :
+//
+// test1234.lvh.me:5173
+// test1234.lvh.me:5173/store/medical
+// test1234.lvh.me:5173/bank/dashboard
+//
+
 export const tenantRouter = createBrowserRouter([
   {
-    path: '/',
-    element: <MarketplaceLayout />,
+    element: <TenantRoot />,
+
     children: [
-      { index: true, element: <MarketplaceHome /> },
-      { path: 'store/:storeSlug', element: <MarketplaceStore /> },
-      { path: 'store/:storeSlug/simulator', element: <SimulatorModule /> },
-      { path: 'store/:storeSlug/comparator', element: <ComparatorModule /> },
-      { path: 'store/:storeSlug/blog', element: <BlogModule /> },
-    ],
-  },
-  {
-    path: '/connexion',
-    element: <LoginPage />,
-  },
-  {
-    path: '/rejoindre',
-    element: <JoinPage />,
-  },
-  {
-    path: '/inscription',
-    element: <ClientRegistrationPage />,
-  },
-  {
-    path: '/mot-de-passe-oublie',
-    element: <ForgotPasswordPage />,
-  },
-  {
-    path: '/reinitialiser-mot-de-passe',
-    element: <ResetPasswordPage />,
-  },
-  {
-    path: '/bank',
-    element: (
-      <ProtectedRoute requiredRole="bank">
-        <AdminLayout type="bank" />
-      </ProtectedRoute>
-    ),
-    children: [
-      { path: 'dashboard', element: <BankDashboard /> },
-      { path: 'utilisateurs', element: <BankUsers /> },
-      { path: 'stores', element: <BankStores /> },
-      { path: 'modules', element: <BankModules /> },
-      { path: 'products', element: <ProductManagement /> },
-      { path: 'gestion-contenu', element: <BankContentManagement /> },
-      { path: 'branding', element: <BankBranding /> },
-      { path: 'demandes', element: <BankRequests /> },
-      { path: 'abonnement', element: <BankSubscription /> },
-      { path: 'parametres', element: <BankParameters /> },
-      { path: 'profil', element: <ProfileSettingsPage type="bank" /> },
-      { path: 'concessionnaires', element: <DealerManagement /> },
-      { path: 'financing-requests', element: <BankFinancingRequests /> },
-      { path: 'financing-requests/:id', element: <BankFinancingRequestDetail /> },
-    ],
-  },
-  {
-    path: '/client',
-    element: <ProtectedRoute requiredRole="client"><ClientAreaLayout /></ProtectedRoute>,
-    children: [
-      { path: 'dashboard', element: <ClientDashboard /> },
-      { path: 'profile', element: <ClientProfilePage /> },
-      { path: 'financing-requests', element: <ClientRequests /> },
-      { path: 'financing-requests/new', element: <FinancingApplicationPage /> },
-      { path: 'financing-requests/:id', element: <ClientRequestDetail /> },
+
+      // ==========================================
+      // MARKETPLACE
+      // ==========================================
+
+      {
+        path: '/',
+
+        element: <MarketplaceLayout />,
+
+        children: [
+          {
+            index: true,
+            element: <MarketplaceHome />,
+          },
+
+          {
+            path: 'store/:storeSlug',
+            element: <MarketplaceStore />,
+          },
+
+          {
+            path: 'store/:storeSlug/simulator',
+            element: <SimulatorModule />,
+          },
+
+          {
+            path: 'store/:storeSlug/comparator',
+            element: <ComparatorModule />,
+          },
+
+          {
+            path: 'store/:storeSlug/blog',
+            element: <BlogModule />,
+          },
+        ],
+      },
+
+      // ==========================================
+      // AUTHENTIFICATION TENANT
+      // ==========================================
+
+      {
+        path: '/connexion',
+        element: <LoginPage />,
+      },
+
+      {
+        path: '/rejoindre',
+        element: <JoinPage />,
+      },
+
+      {
+        path: '/inscription',
+        element: <ClientRegistrationPage />,
+      },
+
+      {
+        path: '/mot-de-passe-oublie',
+        element: <ForgotPasswordPage />,
+      },
+
+      {
+        path: '/reinitialiser-mot-de-passe',
+        element: <ResetPasswordPage />,
+      },
+
+      // ==========================================
+      // BACK-OFFICE BANQUE
+      // ==========================================
+
+      {
+        path: '/bank',
+
+        element: (
+          <ProtectedRoute requiredRole="bank">
+            <AdminLayout type="bank" />
+          </ProtectedRoute>
+        ),
+
+        children: [
+          {
+            path: 'dashboard',
+            element: <BankDashboard />,
+          },
+
+          {
+            path: 'utilisateurs',
+            element: <BankUsers />,
+          },
+
+          {
+            path: 'stores',
+            element: <BankStores />,
+          },
+
+          {
+            path: 'modules',
+            element: <BankModules />,
+          },
+
+          {
+            path: 'products',
+            element: <ProductManagement />,
+          },
+
+          {
+            path: 'gestion-contenu',
+            element: <BankContentManagement />,
+          },
+
+          {
+            path: 'branding',
+            element: <BankBranding />,
+          },
+
+          {
+            path: 'demandes',
+            element: <BankRequests />,
+          },
+
+          {
+            path: 'abonnement',
+            element: <BankSubscription />,
+          },
+
+          {
+            path: 'parametres',
+            element: <BankParameters />,
+          },
+
+          {
+            path: 'profil',
+            element: <ProfileSettingsPage type="bank" />,
+          },
+
+          {
+            path: 'concessionnaires',
+            element: <DealerManagement />,
+          },
+
+          {
+            path: 'financing-requests',
+            element: <BankFinancingRequests />,
+          },
+
+          {
+            path: 'financing-requests/:id',
+            element: <BankFinancingRequestDetail />,
+          },
+        ],
+      },
+
+      // ==========================================
+      // ESPACE CLIENT
+      // ==========================================
+
+      {
+        path: '/client',
+
+        element: (
+          <ProtectedRoute requiredRole="client">
+            <ClientAreaLayout />
+          </ProtectedRoute>
+        ),
+
+        children: [
+          {
+            path: 'dashboard',
+            element: <ClientDashboard />,
+          },
+
+          {
+            path: 'profile',
+            element: <ClientProfilePage />,
+          },
+
+          {
+            path: 'financing-requests',
+            element: <ClientRequests />,
+          },
+
+          {
+            path: 'financing-requests/new',
+            element: <FinancingApplicationPage />,
+          },
+
+          {
+            path: 'financing-requests/:id',
+            element: <ClientRequestDetail />,
+          },
+        ],
+      },
     ],
   },
 ]);
