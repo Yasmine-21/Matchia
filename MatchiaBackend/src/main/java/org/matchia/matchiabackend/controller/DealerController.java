@@ -68,6 +68,11 @@ public class DealerController {
                                                   @RequestPart(value = "image", required = false) MultipartFile image) {
         return productService.update(auth, id, input, image);
     }
+    @PostMapping("/products/{id}/stock")
+    public DealerDtos.ProductView addStock(Authentication auth, @PathVariable Long id,
+                                            @Valid @RequestBody DealerDtos.StockAdjustment input) {
+        return productService.addStock(auth, id, input);
+    }
     @DeleteMapping("/products/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(Authentication auth, @PathVariable Long id) { productService.delete(auth, id); }
     @GetMapping("/publications") public List<DealerDtos.PublicationView> publications(Authentication auth) { return productService.publicationsMine(auth); }

@@ -79,6 +79,9 @@ interface StoreProductItem {
   dealerProduct?: boolean;
   dealerProductId?: number;
   dealerName?: string;
+  availableStock?: number | null;
+  totalStock?: number | null;
+  reservedStock?: number | null;
 }
 
 const normalizeSlug = (value?: string | null) =>
@@ -405,6 +408,7 @@ function ProductCard({
   onClick: () => void;
 }) {
   const imageUrl = resolveApiUrl(product.imageUrl);
+  const outOfStock = product.dealerProduct && product.availableStock === 0;
 
   return (
     <motion.article
@@ -453,6 +457,7 @@ function ProductCard({
         <p className="text-sm leading-6 text-slate-600">
           {product.description || 'Aucune description fournie pour ce produit.'}
         </p>
+        {outOfStock && <p className="mt-3 text-sm font-semibold text-rose-600">Rupture de stock</p>}
 
         <div className="mt-auto pt-4 space-y-3">
           <div className="flex justify-end">
@@ -472,6 +477,7 @@ function ProductCard({
                     event.stopPropagation();
                     onSimulate(product);
                   }}
+                  disabled={outOfStock}
                   style={{ backgroundColor: primaryColor }}
                 >
                   Simuler
@@ -772,6 +778,9 @@ export function MarketplaceStore() {
           dealerProduct: true,
           dealerProductId: product.id,
           dealerName: product.dealerName,
+          totalStock: product.totalStock,
+          availableStock: product.availableStock,
+          reservedStock: product.reservedStock,
         }));
         const allProducts = [...storeProducts, ...publishedDealerProducts]
           .sort((left, right) => getProductSortValue(right.createdAt) - getProductSortValue(left.createdAt));

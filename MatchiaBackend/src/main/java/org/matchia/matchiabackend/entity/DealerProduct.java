@@ -25,6 +25,9 @@ public class DealerProduct {
     @Column(name = "image_url") private String imageUrl;
     @Column(name = "eligibility_conditions", length = 3000) private String eligibilityConditions;
     @Enumerated(EnumType.STRING) @Column(nullable = false) private DealerProductStatusEnum status;
+    @Column(name = "total_stock") private Integer totalStock;
+    @Column(name = "available_stock") private Integer availableStock;
+    @Column(name = "reserved_stock") private Integer reservedStock;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore private List<DealerProductParameterValue> parameterValues = new ArrayList<>();
     @CreationTimestamp @Column(name = "created_at", updatable = false) private LocalDateTime createdAt;

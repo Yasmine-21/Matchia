@@ -1,12 +1,18 @@
 pipeline {
 
     agent any
+    options {
+        skipDefaultCheckout(true)
+    }
     environment {
         AZURE_BACKEND_URL = 'https://matchia-backend.orangeocean-5e0d9a35.francecentral.azurecontainerapps.io'
     }
 
     options {
         skipDefaultCheckout(true)
+    }
+    triggers {
+        githubPush()
     }
 
     stages {

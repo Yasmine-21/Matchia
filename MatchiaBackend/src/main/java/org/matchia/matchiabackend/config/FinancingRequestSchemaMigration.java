@@ -24,6 +24,11 @@ public class FinancingRequestSchemaMigration implements ApplicationRunner {
     public void run(ApplicationArguments args) {
         jdbcTemplate.execute("ALTER TABLE financing_request ADD COLUMN IF NOT EXISTS version BIGINT");
         jdbcTemplate.execute("ALTER TABLE financing_request ADD COLUMN IF NOT EXISTS dealer_product_id BIGINT");
+        jdbcTemplate.execute("ALTER TABLE financing_request ADD COLUMN IF NOT EXISTS stock_reserved BOOLEAN DEFAULT FALSE");
+        jdbcTemplate.update("UPDATE financing_request SET stock_reserved = FALSE WHERE stock_reserved IS NULL");
+        jdbcTemplate.execute("ALTER TABLE dealer_product ADD COLUMN IF NOT EXISTS total_stock INTEGER");
+        jdbcTemplate.execute("ALTER TABLE dealer_product ADD COLUMN IF NOT EXISTS available_stock INTEGER");
+        jdbcTemplate.execute("ALTER TABLE dealer_product ADD COLUMN IF NOT EXISTS reserved_stock INTEGER");
         jdbcTemplate.execute("ALTER TABLE financing_request ALTER COLUMN product_id DROP NOT NULL");
         int initializedRows = jdbcTemplate.update("UPDATE financing_request SET version = 0 WHERE version IS NULL");
         jdbcTemplate.execute("ALTER TABLE financing_request ALTER COLUMN version SET DEFAULT 0");

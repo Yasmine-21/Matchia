@@ -57,6 +57,7 @@ public class FinancingRequestService {
     private final RequiredFinancingDocumentRepository requirementRepository;
     private final NotificationService notificationService;
     private final EmailService emailService;
+    private final DealerProductStockService dealerProductStockService;
 
     @Value("${app.financing-upload.dir:uploads/financing-documents}")
     private String financingUploadDir;
@@ -95,7 +96,9 @@ public class FinancingRequestService {
         request.setBank(client.getBank());
         request.setStore(store);
         if (input.getDealerProductId() != null) {
-            request.setDealerProduct(publishedDealerProduct(input.getDealerProductId(), client, store));
+            DealerProduct dealerProduct = publishedDealerProduct(input.getDealerProductId(), client, store);
+            dealerProductStockService.assertAvailable(dealerProduct);
+            request.setDealerProduct(dealerProduct);
         } else {
             Product product = productRepository.findById(input.getProductId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Produit introuvable."));
@@ -117,7 +120,8 @@ public class FinancingRequestService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seule une demande brouillon peut être soumise.");
         }
         if (request.getDealerProduct() != null) {
-            publishedDealerProduct(request.getDealerProduct().getId(), client, request.getStore());
+            DealerProduct dealerProduct = publishedDealerProduct(request.getDealerProduct().getId(), client, request.getStore());
+            dealerProductStockService.assertAvailable(dealerProduct);
         }
         Set<String> uploadedTypes = request.getDocuments().stream().map(FinancingRequestDocument::getDocumentType).collect(java.util.stream.Collectors.toSet());
         List<String> missing = requirementsFor(request.getBank().getId(), request.getStore().getId()).stream()
@@ -242,7 +246,7 @@ public class FinancingRequestService {
     @Transactional
     public FinancingRequestDtos.DetailDto process(String email, Long id, FinancingRequestDtos.ProcessRequest input) {
         User admin = currentBankAdmin(email);
-        FinancingRequest request = bankRequest(admin, id);
+        FinancingRequest request = bankRequestForProcessing(admin, id);
         if (request.getStatus() != FinancingRequestStatusEnum.PENDING) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Seule une demande en attente peut être traitée.");
         }
@@ -251,6 +255,9 @@ public class FinancingRequestService {
         }
         if (input.getStatus() == FinancingRequestStatusEnum.REJECTED && (input.getRejectionReason() == null || input.getRejectionReason().isBlank())) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Un motif de rejet est obligatoire.");
+        }
+        if (input.getStatus() == FinancingRequestStatusEnum.ACCEPTED) {
+            dealerProductStockService.reserveForAcceptedRequest(request);
         }
         request.setStatus(input.getStatus());
         request.setProcessingComment(trim(input.getComment()));
@@ -334,6 +341,12 @@ public class FinancingRequestService {
     }
     private FinancingRequest bankRequest(User admin, Long id) {
         FinancingRequest request = requestRepository.findByIdAndBank_Id(id, admin.getBank().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Demande introuvable."));
+        verifyActiveBankStore(admin.getBank().getId(), request.getStore().getId());
+        return request;
+    }
+    private FinancingRequest bankRequestForProcessing(User admin, Long id) {
+        FinancingRequest request = requestRepository.findByIdAndBankIdForUpdate(id, admin.getBank().getId())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Demande introuvable."));
         verifyActiveBankStore(admin.getBank().getId(), request.getStore().getId());
         return request;

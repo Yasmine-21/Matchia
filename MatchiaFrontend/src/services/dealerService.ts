@@ -28,6 +28,7 @@ export interface ParameterValue { definitionId: number; name?: string; value?: s
 export interface DealerProduct {
   id: number; dealerId: number; dealerName: string; storeId: number; storeName: string; name: string;
   description?: string; price: number; imageUrl?: string; eligibilityConditions?: string; status: ProductStatus;
+  totalStock?: number | null; availableStock?: number | null; reservedStock?: number | null;
   parameterValues: ParameterValue[]; createdAt?: string; updatedAt?: string;
 }
 export interface Publication {
@@ -124,6 +125,7 @@ export const dealerService = {
     return id ? apiClient.put<DealerProduct>(`/api/dealer/products/${id}`, form) : apiClient.post<DealerProduct>('/api/dealer/products', form);
   },
   deleteProduct(id: number) { return apiClient.delete(`/api/dealer/products/${id}`); },
+  addProductStock(id: number, quantity: number) { return apiClient.post<DealerProduct>(`/api/dealer/products/${id}/stock`, { quantity }); },
   publications() { return apiClient.get<Publication[]>('/api/dealer/publications'); },
   submitProduct(productId: number, partnershipId: number) { return apiClient.post<Publication>('/api/dealer/publications', { productId, partnershipId }); },
   bankPublications() { return apiClient.get<Publication[]>('/api/bank/dealers/publications'); },

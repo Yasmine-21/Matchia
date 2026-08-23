@@ -280,6 +280,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
         price: Number(form.get('price')),
         eligibilityConditions: form.get('eligibilityConditions'),
         status: form.get('status'),
+        initialStock: editProduct?.totalStock ?? Number(form.get('initialStock')),
         parameterValues,
       }, image, editProduct?.id);
       toast.success(editProduct ? 'Produit modifie avec succes.' : 'Produit ajoute avec succes.');
@@ -300,6 +301,19 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
     }
     setProductToSubmit(product);
     setSelectedPartnershipId(approvedPartnerships.length === 1 ? String(approvedPartnerships[0].id) : '');
+  };
+
+  const addStock = async (product: DealerProduct) => {
+    const value = window.prompt(`Ajouter du stock pour ${product.name}`, '1');
+    const quantity = Number(value);
+    if (!Number.isInteger(quantity) || quantity <= 0) return;
+    try {
+      await dealerService.addProductStock(product.id, quantity);
+      toast.success(`${quantity} unité(s) ajoutée(s) au stock.`);
+      await load();
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Impossible d'ajouter du stock."));
+    }
   };
 
   const submitProduct = async () => {
@@ -375,6 +389,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
           banks={banks}
           onCreate={() => { setEditProduct(null); setShowProductForm(true); }}
           onEdit={(product) => { setEditProduct(product); setShowProductForm(true); }}
+          onAddStock={addStock}
           onSubmit={openSubmission}
         />
       )}
@@ -896,12 +911,13 @@ function PartnershipTable({ rows, tab, actionKey, onApprove, onReject, onCancel 
   );
 }
 
-function Products({ products, publications, banks, onCreate, onEdit, onSubmit }: {
+function Products({ products, publications, banks, onCreate, onEdit, onAddStock, onSubmit }: {
   products: DealerProduct[];
   publications: Publication[];
   banks: BankOption[];
   onCreate: () => void;
   onEdit: (product: DealerProduct) => void;
+  onAddStock: (product: DealerProduct) => void;
   onSubmit: (product: DealerProduct) => void;
 }) {
   return (
@@ -928,9 +944,16 @@ function Products({ products, publications, banks, onCreate, onEdit, onSubmit }:
                 </div>
                 <p className="mt-3 line-clamp-3 text-sm leading-6 text-muted-foreground">{product.description || 'Aucune description.'}</p>
                 <div className="mt-4 text-xl font-bold text-destructive">{formatTnd(Number(product.price))}</div>
+                <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-muted/40 p-3 text-center text-xs">
+                  <div><b className="block text-base">{product.totalStock ?? '-'}</b>Total</div>
+                  <div><b className="block text-base">{product.availableStock ?? '-'}</b>Disponible</div>
+                  <div><b className="block text-base">{product.reservedStock ?? '-'}</b>Réservé</div>
+                </div>
+                {product.availableStock === 0 && <p className="mt-2 text-sm font-medium text-destructive">Rupture de stock</p>}
                 <div className="mt-auto grid grid-cols-2 gap-3 pt-5">
                   <Button variant="outline" icon={<Edit3 className="h-4 w-4" />} onClick={() => onEdit(product)}>Modifier</Button>
-                  <Button variant="secondary" icon={<Send className="h-4 w-4" />} disabled={product.status !== 'ACTIVE'} onClick={() => onSubmit(product)}>Soumettre</Button>
+                  <Button variant="secondary" icon={<Plus className="h-4 w-4" />} onClick={() => onAddStock(product)}>Ajouter stock</Button>
+                  <Button variant="secondary" icon={<Send className="h-4 w-4" />} disabled={product.status !== 'ACTIVE' || product.availableStock === 0} onClick={() => onSubmit(product)}>Soumettre</Button>
                 </div>
                 {activePublications.length > 0 && (
                   <div className="mt-3 space-y-2 border-t border-border pt-3">
@@ -1057,6 +1080,9 @@ function ProductFormModal({ isOpen, product, definitions, saving, onClose, onSub
           </FormField>
           <FormField label="Prix en TND *">
             <input name="price" type="number" min="0" step="0.01" required defaultValue={product?.price} placeholder="0,00" className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring" />
+          </FormField>
+          <FormField label="Stock initial *">
+            <input name="initialStock" type="number" min="0" required={!product} defaultValue={product?.totalStock ?? 0} disabled={Boolean(product)} className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring disabled:cursor-not-allowed disabled:opacity-60" />
           </FormField>
         </div>
         <FormField label="Description">

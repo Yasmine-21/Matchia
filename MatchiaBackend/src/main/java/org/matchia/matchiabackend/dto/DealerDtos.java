@@ -63,11 +63,13 @@ public final class DealerDtos {
     public record ProductUpsert(@NotNull Long storeId, @NotBlank String name, @Size(max = 3000) String description,
                                 @NotNull @DecimalMin("0.0") BigDecimal price,
                                 @Size(max = 3000) String eligibilityConditions,
-                                DealerProductStatusEnum status, List<ParameterValue> parameterValues) {}
+                                DealerProductStatusEnum status, @NotNull @Min(0) Integer initialStock, List<ParameterValue> parameterValues) {}
     public record ProductView(Long id, Long dealerId, String dealerName, Long storeId, String storeName,
                               String name, String description, BigDecimal price, String imageUrl,
                               String eligibilityConditions, DealerProductStatusEnum status,
+                              Integer totalStock, Integer availableStock, Integer reservedStock,
                               List<ParameterValue> parameterValues, LocalDateTime createdAt, LocalDateTime updatedAt) {}
+    public record StockAdjustment(@NotNull @Min(1) Integer quantity) {}
     public record PublicationCreate(@NotNull Long productId, @NotNull Long partnershipId) {}
     public record PublicationView(Long id, ProductView product, Long dealerId, String dealerName,
                                   Long bankId, String bankName, String bankLogoUrl,

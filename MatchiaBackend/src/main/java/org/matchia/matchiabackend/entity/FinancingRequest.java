@@ -53,6 +53,7 @@ public class FinancingRequest {
     private LocalDateTime processedAt;
     @ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "processed_by_id")
     private User processedBy;
+    @Column(name = "stock_reserved", nullable = false) private Boolean stockReserved = false;
     @CreationTimestamp @Column(nullable = false, updatable = false) private LocalDateTime createdAt;
     @UpdateTimestamp @Column(nullable = false) private LocalDateTime updatedAt;
 

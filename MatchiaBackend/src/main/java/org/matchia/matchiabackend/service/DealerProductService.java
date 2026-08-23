@@ -51,6 +51,9 @@ public class DealerProductService {
         DealerProduct product = new DealerProduct();
         product.setDealer(dealer); product.setStore(dealer.getStore());
         apply(product, input);
+        product.setTotalStock(input.initialStock());
+        product.setAvailableStock(input.initialStock());
+        product.setReservedStock(0);
         product.setImageUrl(saveImage(image));
         product = productRepository.save(product);
         replaceValues(product, input.parameterValues());
@@ -83,6 +86,17 @@ public class DealerProductService {
         if (protectedPublication) throw badRequest("Le produit possede une publication active ou en attente et ne peut pas etre supprime.");
         productRepository.delete(product);
         audit("dealer.product.deleted", "dealer_product", id);
+    }
+
+    @Transactional
+    public DealerDtos.ProductView addStock(Authentication auth, Long id, DealerDtos.StockAdjustment input) {
+        User user = security.requireDealer(auth);
+        DealerProduct product = productRepository.findByIdAndDealerId(id, user.getDealer().getId())
+                .orElseThrow(() -> notFound("Produit introuvable."));
+        product.setTotalStock((product.getTotalStock() == null ? 0 : product.getTotalStock()) + input.quantity());
+        product.setAvailableStock((product.getAvailableStock() == null ? 0 : product.getAvailableStock()) + input.quantity());
+        if (product.getReservedStock() == null) product.setReservedStock(0);
+        return toProductView(productRepository.save(product));
     }
 
     @Transactional
@@ -235,7 +249,8 @@ public class DealerProductService {
                 .map(value -> new DealerDtos.ParameterValue(value.getParameterDefinition().getId(), value.getParameterDefinition().getName(), value.getValue())).toList();
         return new DealerDtos.ProductView(product.getId(), product.getDealer().getId(), product.getDealer().getCompanyName(),
                 product.getStore().getId(), product.getStore().getName(), product.getName(), product.getDescription(), product.getPrice(),
-                product.getImageUrl(), product.getEligibilityConditions(), product.getStatus(), values, product.getCreatedAt(), product.getUpdatedAt());
+                product.getImageUrl(), product.getEligibilityConditions(), product.getStatus(), product.getTotalStock(),
+                product.getAvailableStock(), product.getReservedStock(), values, product.getCreatedAt(), product.getUpdatedAt());
     }
 
     public DealerDtos.PublicationView toPublicationView(ProductPublicationRequest publication) {

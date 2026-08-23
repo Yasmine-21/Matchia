@@ -90,7 +90,7 @@ class DealerProductServiceTest {
         when(security.requireDealer(authentication)).thenReturn(user);
 
         DealerDtos.ProductUpsert input = new DealerDtos.ProductUpsert(
-                1L, "Name", "Desc", BigDecimal.ONE, "Conditions", null, null
+                1L, "Name", "Desc", BigDecimal.ONE, "Conditions", null, 0, null
         );
         MockMultipartFile image = new MockMultipartFile("image", "image.png", "image/png", "data".getBytes());
 
