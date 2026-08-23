@@ -4,15 +4,11 @@ pipeline {
     options {
         skipDefaultCheckout(true)
     }
+     triggers {
+        githubPush()
+    }
     environment {
         AZURE_BACKEND_URL = 'https://matchia-backend.orangeocean-5e0d9a35.francecentral.azurecontainerapps.io'
-    }
-
-    options {
-        skipDefaultCheckout(true)
-    }
-    triggers {
-        githubPush()
     }
 
     stages {
@@ -190,7 +186,7 @@ pipeline {
                 --name matchia-frontend \
                 --resource-group rg-matchia \
                 --image yassmine24/matchia-frontend:latest \
-                --revision-suffix v$BUILD_NUMBER\
+                --revision-suffix v$BUILD_NUMBER \
                 --output none
         '''
     }
