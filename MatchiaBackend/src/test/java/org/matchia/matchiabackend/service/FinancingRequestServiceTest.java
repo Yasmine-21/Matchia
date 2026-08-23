@@ -129,7 +129,7 @@ class FinancingRequestServiceTest {
         assertThat(financingRequestService.submit("client@matchia.com", 6L).getStatus()).isEqualTo(FinancingRequestStatusEnum.PENDING);
 
         pending.setStatus(FinancingRequestStatusEnum.PENDING);
-        when(requestRepository.findByIdAndBank_Id(6L, 1L)).thenReturn(Optional.of(pending));
+        when(requestRepository.findByIdAndBankIdForUpdate(6L, 1L)).thenReturn(Optional.of(pending));
         when(requestRepository.saveAndFlush(pending)).thenReturn(pending);
         doThrow(new IllegalStateException("mail unavailable")).when(emailService).sendFinancingDecisionEmail(pending);
         FinancingRequestDtos.ProcessRequest decision = new FinancingRequestDtos.ProcessRequest();
