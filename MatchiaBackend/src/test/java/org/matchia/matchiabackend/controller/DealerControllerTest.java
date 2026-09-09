@@ -19,7 +19,9 @@ class DealerControllerTest {
         DealerProductService products = mock(DealerProductService.class);
         DealerSecurityService security = mock(DealerSecurityService.class);
         NotificationService notifications = mock(NotificationService.class);
-        DealerController controller = new DealerController(accounts, partnerships, products, security, notifications);
+        FinancingRequestService financingRequests = mock(FinancingRequestService.class);
+        DealerController controller = new DealerController(
+                accounts, partnerships, products, security, notifications, financingRequests);
         Authentication auth = mock(Authentication.class);
         User user = new User(); user.setId(6L);
         NotificationDto notification = new NotificationDto();

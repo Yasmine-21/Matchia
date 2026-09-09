@@ -161,7 +161,7 @@ public class MarketplaceServiceTest {
         mkStore.setVisible(true);
         
         MarketplaceDto.MarketplaceStoreDetailDto detailDto = new MarketplaceDto.MarketplaceStoreDetailDto(
-            100L, 10L, "Test Store", "Desc", "url", "banner", BigDecimal.valueOf(100), true, true, List.of()
+            100L, 10L, "Test Store", "Desc", "url", "banner", List.of(), BigDecimal.valueOf(100), true, true, List.of()
         );
 
         when(marketplaceRepository.findByBank_Slug("test-bank")).thenReturn(Optional.of(marketplace));
