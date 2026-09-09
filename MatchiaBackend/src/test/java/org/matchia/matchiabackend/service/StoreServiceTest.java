@@ -206,7 +206,13 @@ class StoreServiceTest {
     @Test
     void deleteStore_shouldCallRepository() {
         Long id = 1L;
+        Store store = new Store();
+        store.setId(id);
+        when(storeRepository.findById(id)).thenReturn(Optional.of(store));
+
         storeService.deleteStore(id);
-        verify(storeRepository).deleteById(id);
+
+        verify(storeRepository).delete(store);
+        verify(storeRepository).flush();
     }
 }

@@ -13,6 +13,7 @@ import org.matchia.matchiabackend.entity.enums.PaymentStatusEnum;
 import org.matchia.matchiabackend.entity.enums.PaymentTypeEnum;
 import org.matchia.matchiabackend.entity.enums.SubscriptionStatusEnum;
 import org.matchia.matchiabackend.repository.MarketplaceRepository;
+import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
 import org.matchia.matchiabackend.repository.PaymentRepository;
 import org.matchia.matchiabackend.repository.RequestRepository;
 import org.matchia.matchiabackend.repository.SubscriptionRepository;
@@ -41,6 +42,8 @@ class SubscriptionServiceTest {
     private RequestRepository requestRepository;
     @Mock
     private MarketplaceRepository marketplaceRepository;
+    @Mock
+    private MarketplaceStoreRepository marketplaceStoreRepository;
     @Mock
     private AuditLogger auditLogger;
     @Mock
@@ -133,6 +136,7 @@ class SubscriptionServiceTest {
         Subscription expiring = new Subscription(); expiring.setId(2L); expiring.setMarketplace(marketplace); expiring.setStatus(SubscriptionStatusEnum.ACTIVE); expiring.setExpirationDate(LocalDate.now().plusDays(2));
         when(subscriptionRepository.findAll()).thenReturn(List.of(expired, expiring));
         when(subscriptionRepository.findByMarketplace_Id(3L)).thenReturn(List.of(expiring));
+        when(marketplaceStoreRepository.findByMarketplace_Id(3L)).thenReturn(List.of());
         when(subscriptionRepository.findByStatusAndExpirationDateBetween(eq(SubscriptionStatusEnum.ACTIVE), any(), any())).thenReturn(List.of(expiring));
         when(paymentRepository.findTopBySubscription_IdAndStatusOrderByPaidAtDesc(anyLong(), eq(PaymentStatusEnum.paid))).thenReturn(Optional.empty());
 

@@ -117,6 +117,7 @@ class PartnershipContractServiceTest {
         Store store = new Store(); store.setId(3L); store.setName("Auto");
         DealerBankPartnership partnership = new DealerBankPartnership(); partnership.setId(4L); partnership.setBank(bank); partnership.setDealer(dealer); partnership.setStore(store);
         PartnershipContract contract = new PartnershipContract(); contract.setId(5L); contract.setBank(bank); contract.setDealer(dealer); contract.setStore(store); contract.setPartnership(partnership);
+        contract.setContractNumber("CTR-2026-TEST-V1");
         contract.setStatus(PartnershipContractStatusEnum.PENDING_ACCEPTANCE); contract.setDealerAcceptedAt(LocalDateTime.now()); contract.setStartDate(LocalDate.now()); contract.setEndDate(LocalDate.now().plusDays(20));
         User bankAdmin = new User(); bankAdmin.setRole(RoleEnum.ADMIN_BANK); bankAdmin.setBank(bank);
         when(security.requireBank(authentication)).thenReturn(bankAdmin);

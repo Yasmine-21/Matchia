@@ -25,6 +25,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -65,7 +66,7 @@ class ClientRegistrationServiceTest {
         assertThat(pending.getPasswordHash()).isEqualTo("password-hash");
         assertThat(pending.getExpiresAt()).isAfter(pending.getCreatedAt());
         assertThat(response.expiresInSeconds()).isEqualTo(600);
-        verify(emailService).sendClientRegistrationVerificationCode("test@test.com", any());
+        verify(emailService).sendClientRegistrationVerificationCode(eq("test@test.com"), any());
         verify(userRepository, never()).save(any());
     }
 
