@@ -2,7 +2,7 @@
 import { toast } from 'sonner';
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
+import { Card, CardContent, CardHeader, CardTitle } from '../../components/ui/Card';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { Modal } from '../../components/ui/Modal';
 import { Input } from '../../components/ui/Input';
@@ -501,4 +501,3 @@ export function ContentManagement() {
     </div>
   );
 }
-
