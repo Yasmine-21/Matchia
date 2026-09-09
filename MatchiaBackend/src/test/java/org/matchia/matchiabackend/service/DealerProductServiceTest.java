@@ -39,6 +39,8 @@ class DealerProductServiceTest {
     @Mock private PartnershipContractRepository contractRepository;
     @Mock private DealerBankPartnershipRepository partnershipRepository;
     @Mock private ProductParameterDefinitionRepository definitionRepository;
+    @Mock private DealerProductDocumentRepository documentRepository;
+    @Mock private DealerProductCatalogImageRepository catalogImageRepository;
     @Mock private MarketplaceRepository marketplaceRepository;
     @Mock private DealerSecurityService security;
     @Mock private DealerAccountService accountService;
@@ -54,6 +56,7 @@ class DealerProductServiceTest {
     @BeforeEach
     void setUp() {
         ReflectionTestUtils.setField(dealerProductService, "uploadDirectory", "target/test-uploads/dealer-products");
+        ReflectionTestUtils.setField(dealerProductService, "catalogUploadDirectory", "target/test-uploads/dealer-product-catalog");
     }
 
     @Test

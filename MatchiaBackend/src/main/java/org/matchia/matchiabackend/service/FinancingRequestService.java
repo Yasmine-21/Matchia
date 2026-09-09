@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.ClientProfileDto;
 import org.matchia.matchiabackend.dto.FinancingRequestDtos;
+import org.matchia.matchiabackend.dto.DealerDtos;
 import org.matchia.matchiabackend.entity.*;
 import org.matchia.matchiabackend.entity.enums.FinancingRequestStatusEnum;
 import org.matchia.matchiabackend.entity.enums.DealerPartnershipStatusEnum;
@@ -17,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,6 +60,7 @@ public class FinancingRequestService {
     private final NotificationService notificationService;
     private final EmailService emailService;
     private final DealerProductStockService dealerProductStockService;
+    private final DealerSecurityService dealerSecurityService;
 
     @Value("${app.financing-upload.dir:uploads/financing-documents}")
     private String financingUploadDir;
@@ -243,6 +246,27 @@ public class FinancingRequestService {
         return toDetail(bankRequest(admin, id));
     }
 
+    @Transactional(readOnly = true)
+    public List<DealerDtos.FinancingRequestView> dealerRequests(Authentication auth, Long bankId, Long storeId,
+                                                                  Long productId, String status, String search) {
+        User dealerUser = dealerSecurityService.requireDealer(auth);
+        return requestRepository.findByDealerProduct_Dealer_IdOrderByCreatedAtDesc(dealerUser.getDealer().getId()).stream()
+                .filter(request -> bankId == null || Objects.equals(request.getBank().getId(), bankId))
+                .filter(request -> storeId == null || Objects.equals(request.getStore().getId(), storeId))
+                .filter(request -> productId == null || Objects.equals(request.getDealerProduct().getId(), productId))
+                .filter(request -> status == null || status.isBlank() || request.getStatus().name().equalsIgnoreCase(status))
+                .filter(request -> search == null || search.isBlank() || dealerMatches(request, search))
+                .map(this::toDealerView).toList();
+    }
+
+    @Transactional(readOnly = true)
+    public DealerDtos.FinancingRequestView dealerRequest(Authentication auth, Long id) {
+        User dealerUser = dealerSecurityService.requireDealer(auth);
+        FinancingRequest request = requestRepository.findByIdAndDealerProduct_Dealer_Id(id, dealerUser.getDealer().getId())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Demande introuvable."));
+        return toDealerView(request);
+    }
+
     @Transactional
     public FinancingRequestDtos.DetailDto process(String email, Long id, FinancingRequestDtos.ProcessRequest input) {
         User admin = currentBankAdmin(email);
@@ -400,6 +424,8 @@ public class FinancingRequestService {
     private BigDecimal positive(BigDecimal value) { return value != null && value.signum() >= 0 ? value : null; }
     private String nextReference() { return "FIN-" + UUID.randomUUID().toString().replace("-", "").substring(0, 10).toUpperCase(); }
     private boolean matches(FinancingRequest request, String search) { String needle = search.trim().toLowerCase(); return request.getReference().toLowerCase().contains(needle) || request.getClient().getFullName().toLowerCase().contains(needle) || financedProductName(request).toLowerCase().contains(needle); }
+    private boolean dealerMatches(FinancingRequest request, String search) { return matches(request, search)
+            || request.getBank().getName().toLowerCase().contains(search.trim().toLowerCase()); }
     private String normalizeType(String value) { if (value == null || !value.matches("[A-Za-z0-9_-]{1,100}")) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Type de document invalide."); return value.toUpperCase(); }
     private String trim(String value) { return value == null || value.isBlank() ? null : value.trim(); }
     private String trimRequired(String value, String message) { String trimmed = trim(value); if (trimmed == null) throw new ResponseStatusException(HttpStatus.BAD_REQUEST, message); return trimmed; }
@@ -412,6 +438,12 @@ public class FinancingRequestService {
     private String financedProductImageUrl(FinancingRequest request) { return isDealerProduct(request) ? request.getDealerProduct().getImageUrl() : request.getProduct().getImageUrl(); }
     private BigDecimal financedProductPrice(FinancingRequest request) { return isDealerProduct(request) ? request.getDealerProduct().getPrice() : request.getProduct().getPrice(); }
     private FinancingRequestDtos.SummaryDto toSummary(FinancingRequest request) { FinancingRequestDtos.SummaryDto dto = new FinancingRequestDtos.SummaryDto(); dto.setId(request.getId()); dto.setReference(request.getReference()); dto.setClientId(request.getClient().getId()); dto.setClientName(request.getClient().getFullName()); dto.setProductId(financedProductId(request)); dto.setDealerProduct(isDealerProduct(request)); dto.setProductName(financedProductName(request)); dto.setProductImageUrl(financedProductImageUrl(request)); dto.setProductPrice(financedProductPrice(request)); dto.setStoreId(request.getStore().getId()); dto.setStoreName(request.getStore().getName()); dto.setRequestedAmount(request.getRequestedAmount()); dto.setMonthlyPayment(request.getMonthlyPayment()); dto.setStatus(request.getStatus()); dto.setCreatedAt(request.getCreatedAt()); return dto; }
+    private DealerDtos.FinancingRequestView toDealerView(FinancingRequest request) { DealerProduct product = request.getDealerProduct(); return new DealerDtos.FinancingRequestView(
+            request.getId(), request.getReference(), product.getId(), product.getName(), product.getImageUrl(), product.getPrice(),
+            request.getClient().getFullName(), request.getClient().getEmail(), request.getClient().getPhone(), request.getBank().getId(),
+            request.getBank().getName(), request.getBank().getLogoUrl(), request.getStore().getId(), request.getStore().getName(),
+            request.getRequestedAmount(), request.getMonthlyPayment(), request.getDownPayment(), request.getDurationMonths(), request.getStatus(),
+            request.getCreatedAt(), request.getProcessedAt()); }
     private FinancingRequestDtos.DetailDto toDetail(FinancingRequest request) { FinancingRequestDtos.DetailDto dto = new FinancingRequestDtos.DetailDto(); FinancingRequestDtos.SummaryDto summary = toSummary(request); dto.setId(summary.getId()); dto.setReference(summary.getReference()); dto.setClientId(summary.getClientId()); dto.setClientName(summary.getClientName()); dto.setProductId(summary.getProductId()); dto.setDealerProduct(summary.isDealerProduct()); dto.setProductName(summary.getProductName()); dto.setProductImageUrl(summary.getProductImageUrl()); dto.setProductPrice(summary.getProductPrice()); dto.setStoreId(summary.getStoreId()); dto.setStoreName(summary.getStoreName()); dto.setRequestedAmount(summary.getRequestedAmount()); dto.setMonthlyPayment(summary.getMonthlyPayment()); dto.setStatus(summary.getStatus()); dto.setCreatedAt(summary.getCreatedAt()); dto.setBankId(request.getBank().getId()); dto.setBankName(request.getBank().getName()); dto.setDownPayment(request.getDownPayment()); dto.setDurationMonths(request.getDurationMonths()); dto.setAnnualRate(request.getAnnualRate()); dto.setSimulationData(request.getSimulationData()); dto.setProcessingComment(request.getProcessingComment()); dto.setRejectionReason(request.getRejectionReason()); dto.setProcessedAt(request.getProcessedAt()); dto.setProcessedByName(request.getProcessedBy() != null ? request.getProcessedBy().getFullName() : null); dto.setClient(toClientProfile(request.getClient())); dto.setDocuments(request.getDocuments().stream().map(this::toDocument).toList()); return dto; }
     private FinancingRequestDtos.DocumentDto toDocument(FinancingRequestDocument document) { FinancingRequestDtos.DocumentDto dto = new FinancingRequestDtos.DocumentDto(); dto.setId(document.getId()); dto.setDocumentType(document.getDocumentType()); dto.setOriginalFilename(document.getOriginalFilename()); dto.setContentType(document.getContentType()); dto.setFileSize(document.getFileSize()); dto.setUploadedAt(document.getUploadedAt()); return dto; }
     private record Requirement(String type, String label, boolean required) { }

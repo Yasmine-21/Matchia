@@ -29,6 +29,9 @@ public class WebConfig implements WebMvcConfigurer {
     @Value("${app.dealer.product.upload.dir:uploads/dealer-products}")
     private String dealerProductUploadDir;
 
+    @Value("${app.dealer.product.catalog-upload.dir:uploads/dealer-product-catalog}")
+    private String dealerProductCatalogUploadDir;
+
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         Path uploadPath = Paths.get(uploadDir).toAbsolutePath().normalize();
@@ -58,5 +61,10 @@ public class WebConfig implements WebMvcConfigurer {
         Path dealerProductUploadPath = Paths.get(dealerProductUploadDir).toAbsolutePath().normalize();
         registry.addResourceHandler("/uploads/dealer-products/**")
                 .addResourceLocations(dealerProductUploadPath.toUri().toString());
+
+        Path dealerProductCatalogUploadPath = Paths.get(dealerProductCatalogUploadDir).toAbsolutePath().normalize();
+        registry.addResourceHandler("/uploads/dealer-product-catalog/**")
+                .addResourceLocations(dealerProductCatalogUploadPath.toUri().toString());
+
     }
 }

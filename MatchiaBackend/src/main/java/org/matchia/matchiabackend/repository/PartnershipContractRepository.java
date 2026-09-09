@@ -11,7 +11,10 @@ import java.util.Optional;
 
 public interface PartnershipContractRepository extends JpaRepository<PartnershipContract, Long> {
     @EntityGraph(attributePaths = {"partnership", "dealer", "bank", "store"})
-    Optional<PartnershipContract> findByPartnershipId(Long partnershipId);
+    Optional<PartnershipContract> findTopByPartnershipIdOrderByVersionNumberDesc(Long partnershipId);
+
+    @EntityGraph(attributePaths = {"partnership", "dealer", "bank", "store"})
+    List<PartnershipContract> findByPartnershipIdOrderByVersionNumberDesc(Long partnershipId);
 
     @EntityGraph(attributePaths = {"partnership", "dealer", "bank", "store"})
     Optional<PartnershipContract> findDetailedById(Long id);
@@ -24,6 +27,9 @@ public interface PartnershipContractRepository extends JpaRepository<Partnership
 
     @EntityGraph(attributePaths = {"partnership", "dealer", "bank", "store"})
     List<PartnershipContract> findByStatusAndEndDateBefore(PartnershipContractStatusEnum status, LocalDate date);
+
+    @EntityGraph(attributePaths = {"partnership", "dealer", "bank", "store"})
+    List<PartnershipContract> findByPartnershipIdAndStatus(Long partnershipId, PartnershipContractStatusEnum status);
 
     boolean existsByPartnershipIdAndStatus(Long partnershipId, PartnershipContractStatusEnum status);
 }

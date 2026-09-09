@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="2400" height="2760" viewBox="0 0 2400 2760" role="img" aria-labelledby="title desc">
+  <title id="title">Diagramme global résumé des cas d'utilisation de Matchia</title>
+  <desc id="desc">Fonctionnalités synthétisées, acteurs à gauche, authentification à droite et systèmes externes à l'extrême droite.</desc>
+  <defs>
+    <marker id="tealArrow" markerWidth="11" markerHeight="11" refX="10" refY="5.5" orient="auto" markerUnits="strokeWidth"><path d="M0,0 L10,5.5 L0,11 z" fill="#14a9b5"/></marker>
+    <style>
+      .actor{font:14px Arial,sans-serif;fill:#333}.stereotype{font:italic 11px Arial,sans-serif;fill:#666}
+      .usecase{font:14px Arial,sans-serif;fill:#222;dominant-baseline:middle}
+      .association{fill:none;stroke:#555;stroke-width:1.15}.include{fill:none;stroke:#14a9b5;stroke-width:1.2;stroke-dasharray:6 5}
+      .include-label{font:11px Arial,sans-serif;fill:#39747a}.caption{font:16px Arial,sans-serif;fill:#444}
+    </style>
+  </defs>
+  <rect width="2400" height="2760" fill="#fff"/>
+  <path d="M190.0,496.0 L634.2,413.6" class="association"/>
+  <path d="M190.0,496.0 L520.0,496.0" class="association"/>
+  <path d="M190.0,496.0 L634.2,578.4" class="association"/>
+  <path d="M190.0,496.0 L706.7,687.7" class="association"/>
+  <path d="M190.0,986.0 L624.2,912.5" class="association"/>
+  <path d="M190.0,986.0 L521.9,991.4" class="association"/>
+  <path d="M190.0,986.0 L643.5,1077.4" class="association"/>
+  <path d="M190.0,986.0 L710.5,1187.5" class="association"/>
+  <path d="M190.0,986.0 L740.5,1301.2" class="association"/>
+  <path d="M190.0,1566.0 L546.2,1589.0" class="association"/>
+  <path d="M190.0,1566.0 L663.7,1680.6" class="association"/>
+  <path d="M190.0,1566.0 L717.4,1787.1" class="association"/>
+  <path d="M190.0,1566.0 L743.1,1896.1" class="association"/>
+  <path d="M190.0,1986.0 L741.4,2306.2" class="association"/>
+  <path d="M190.0,1986.0 L756.8,2415.7" class="association"/>
+  <path d="M190.0,1986.0 L624.2,2059.5" class="association"/>
+  <path d="M190.0,1986.0 L758.9,1536.4" class="association"/>
+  <path d="M120.0,1986.0 L12.0,1986.0 L12.0,111.0 L500.0,111.0 L520.0,111.0" class="association"/>
+  <path d="M120.0,1986.0 L52.0,1986.0 L52.0,216.0 L500.0,216.0 L520.0,216.0" class="association"/>
+  <path d="M190.0,2256.0 L564.4,2222.8" class="association"/>
+  <path d="M190.0,2256.0 L607.7,2316.6" class="association"/>
+  <path d="M190.0,2256.0 L693.6,2418.4" class="association"/>
+  <path d="M2205.0,141.0 L2064.5,134.2" class="association"/>
+  <path d="M2205.0,301.0 L1076.3,232.2" class="association"/>
+  <path d="M2205.0,716.0 L957.1,416.3" class="association"/>
+  <path d="M845.3,421.7 L1568.0,1254.0" class="include" marker-end="url(#tealArrow)"/><rect x="936.4137634031234" y="550.5095190645472" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="975.4137634031234" y="563.5095190645472" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M848.8,536.6 L1544.9,1265.1" class="include" marker-end="url(#tealArrow)"/><rect x="952.513442250831" y="664.9623557501851" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="991.513442250831" y="677.9623557501851" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M853.8,651.5 L1528.5,1276.2" class="include" marker-end="url(#tealArrow)"/><rect x="936.2197812738862" y="742.9624106740669" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="975.2197812738862" y="755.9624106740669" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M860.8,766.4 L1516.6,1287.2" class="include" marker-end="url(#tealArrow)"/><rect x="956.2508173360604" y="852.1429233397187" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="995.2508173360604" y="865.1429233397187" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M876.8,920.9 L1508.2,1298.3" class="include" marker-end="url(#tealArrow)"/><rect x="951.4273191057656" y="967.8324226315361" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="990.4273191057656" y="980.8324226315361" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M896.5,1035.1 L1502.9,1309.4" class="include" marker-end="url(#tealArrow)"/><rect x="981.8369167859729" y="1070.3542118587645" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="1020.8369167859729" y="1083.3542118587645" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M932.5,1148.2 L1500.3,1320.5" class="include" marker-end="url(#tealArrow)"/><rect x="995.6921679747024" y="1158.1773920419137" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="1034.6921679747024" y="1171.1773920419137" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M1006.9,1256.1 L1500.3,1331.5" class="include" marker-end="url(#tealArrow)"/><rect x="1069.0468784733587" y="1250.566271914987" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="1108.0468784733587" y="1263.566271914987" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M1100.0,1341.7 L1502.9,1342.6" class="include" marker-end="url(#tealArrow)"/><rect x="1133.4936656283912" y="1320.8450685051166" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="1172.4936656283912" y="1333.8450685051166" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M915.7,1567.8 L1508.2,1353.7" class="include" marker-end="url(#tealArrow)"/><rect x="998.1446011038067" y="1502.9226008421876" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="1037.1446011038067" y="1515.9226008421876" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M889.3,1676.6 L1516.6,1364.8" class="include" marker-end="url(#tealArrow)"/><rect x="963.2389615620573" y="1599.4409681778873" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="1002.2389615620573" y="1612.4409681778873" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M873.8,1786.0 L1528.5,1375.8" class="include" marker-end="url(#tealArrow)"/><rect x="969.0296675018452" y="1680.922854588554" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="1008.0296675018452" y="1693.922854588554" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M863.9,1895.7 L1544.9,1386.9" class="include" marker-end="url(#tealArrow)"/><rect x="947.4884149931597" y="1783.1323193100752" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="986.4884149931597" y="1796.1323193100752" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M848.4,2160.4 L1568.0,1398.0" class="include" marker-end="url(#tealArrow)"/><rect x="956.887985717013" y="1983.0764478485996" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="995.887985717013" y="1996.0764478485996" text-anchor="middle" class="include-label">«include»</text>
+  <path d="M1099.2,114.0 L1500.8,118.0" class="include" marker-end="url(#tealArrow)"/><rect x="1285.0902885444968" y="95.24581927086221" width="78" height="18" rx="3" fill="#fff" opacity="0.94"/><text x="1324.0902885444968" y="108.24581927086221" text-anchor="middle" class="include-label">«include»</text>
+  <g><circle cx="120" cy="453" r="14" fill="#fff" stroke="#555" stroke-width="1.4"/><path d="M120,467 L120,505 M95,481 L145,481 M120,505 L98,532 M120,505 L142,532" fill="none" stroke="#555" stroke-width="1.4"/><text x="120" y="542" text-anchor="middle" class="actor">Administrateur SaaS</text></g>
+  <g><circle cx="120" cy="943" r="14" fill="#fff" stroke="#555" stroke-width="1.4"/><path d="M120,957 L120,995 M95,971 L145,971 M120,995 L98,1022 M120,995 L142,1022" fill="none" stroke="#555" stroke-width="1.4"/><text x="120" y="1032" text-anchor="middle" class="actor">Administrateur Banque</text></g>
+  <g><circle cx="120" cy="1523" r="14" fill="#fff" stroke="#555" stroke-width="1.4"/><path d="M120,1537 L120,1575 M95,1551 L145,1551 M120,1575 L98,1602 M120,1575 L142,1602" fill="none" stroke="#555" stroke-width="1.4"/><text x="120" y="1612" text-anchor="middle" class="actor">Concessionnaire</text></g>
+  <g><circle cx="120" cy="1943" r="14" fill="#fff" stroke="#555" stroke-width="1.4"/><path d="M120,1957 L120,1995 M95,1971 L145,1971 M120,1995 L98,2022 M120,1995 L142,2022" fill="none" stroke="#555" stroke-width="1.4"/><text x="120" y="2032" text-anchor="middle" class="actor">Internaute</text></g>
+  <g><circle cx="120" cy="2213" r="14" fill="#fff" stroke="#555" stroke-width="1.4"/><path d="M120,2227 L120,2265 M95,2241 L145,2241 M120,2265 L98,2292 M120,2265 L142,2292" fill="none" stroke="#555" stroke-width="1.4"/><text x="120" y="2302" text-anchor="middle" class="actor">Client</text></g>
+  <g><circle cx="2275" cy="98" r="14" fill="#fff" stroke="#555" stroke-width="1.4"/><path d="M2275,112 L2275,150 M2250,126 L2300,126 M2275,150 L2253,177 M2275,150 L2297,177" fill="none" stroke="#555" stroke-width="1.4"/><text x="2275" y="187" text-anchor="middle" class="actor">Service d&apos;e-mail</text><text x="2275" y="205" text-anchor="middle" class="stereotype">«système externe»</text></g>
+  <g><circle cx="2275" cy="258" r="14" fill="#fff" stroke="#555" stroke-width="1.4"/><path d="M2275,272 L2275,310 M2250,286 L2300,286 M2275,310 L2253,337 M2275,310 L2297,337" fill="none" stroke="#555" stroke-width="1.4"/><text x="2275" y="347" text-anchor="middle" class="actor">Stripe</text><text x="2275" y="365" text-anchor="middle" class="stereotype">«système externe»</text></g>
+  <g><circle cx="2275" cy="673" r="14" fill="#fff" stroke="#555" stroke-width="1.4"/><path d="M2275,687 L2275,725 M2250,701 L2300,701 M2275,725 L2253,752 M2275,725 L2297,752" fill="none" stroke="#555" stroke-width="1.4"/><text x="2275" y="762" text-anchor="middle" class="actor">Gemini</text><text x="2275" y="780" text-anchor="middle" class="stereotype">«système externe»</text></g>
+  <g><ellipse cx="810" cy="111" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="102" text-anchor="middle" class="usecase"><tspan x="810" y="102">Soumettre une demande de marketplace</tspan><tspan x="810" y="121">pour une banque</tspan></text></g>
+  <g><ellipse cx="810" cy="216" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="216" text-anchor="middle" class="usecase"><tspan x="810" y="216">Payer et activer la marketplace et les services</tspan></text></g>
+  <g><ellipse cx="1790" cy="121" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="1790" y="121" text-anchor="middle" class="usecase"><tspan x="1790" y="121">Vérifier l&apos;e-mail et envoyer les notifications</tspan></text></g>
+  <g><ellipse cx="810" cy="381" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="372" text-anchor="middle" class="usecase"><tspan x="810" y="372">Piloter le SaaS : tableau de bord, profil,</tspan><tspan x="810" y="391">notifications, audit, logs et assistant IA</tspan></text></g>
+  <g><ellipse cx="810" cy="496" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="487" text-anchor="middle" class="usecase"><tspan x="810" y="487">Traiter les adhésions des banques</tspan><tspan x="810" y="506">et les comptes concessionnaires</tspan></text></g>
+  <g><ellipse cx="810" cy="611" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="602" text-anchor="middle" class="usecase"><tspan x="810" y="602">Gérer les banques, marketplaces,</tspan><tspan x="810" y="621">contenus et paramètres généraux</tspan></text></g>
+  <g><ellipse cx="810" cy="726" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="717" text-anchor="middle" class="usecase"><tspan x="810" y="717">Gérer stores, modules, associations,</tspan><tspan x="810" y="736">offres, abonnements et paiements</tspan></text></g>
+  <g><ellipse cx="810" cy="881" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="872" text-anchor="middle" class="usecase"><tspan x="810" y="872">Piloter l&apos;espace Banque : tableau de bord,</tspan><tspan x="810" y="891">profil, utilisateurs et notifications</tspan></text></g>
+  <g><ellipse cx="810" cy="996" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="987" text-anchor="middle" class="usecase"><tspan x="810" y="987">Personnaliser les contenus, stores,</tspan><tspan x="810" y="1006">modules, produits et simulateur</tspan></text></g>
+  <g><ellipse cx="810" cy="1111" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="1102" text-anchor="middle" class="usecase"><tspan x="810" y="1102">Gérer les abonnements, renouvellements</tspan><tspan x="810" y="1121">et services souscrits</tspan></text></g>
+  <g><ellipse cx="810" cy="1226" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="1217" text-anchor="middle" class="usecase"><tspan x="810" y="1217">Gérer concessionnaires, partenariats,</tspan><tspan x="810" y="1236">contrats et publications</tspan></text></g>
+  <g><ellipse cx="810" cy="1341" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="1332" text-anchor="middle" class="usecase"><tspan x="810" y="1332">Traiter les demandes de financement</tspan><tspan x="810" y="1351">et les documents associés</tspan></text></g>
+  <g><ellipse cx="810" cy="1496" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="1487" text-anchor="middle" class="usecase"><tspan x="810" y="1487">Déposer une demande d&apos;inscription</tspan><tspan x="810" y="1506">comme Concessionnaire</tspan></text></g>
+  <g><ellipse cx="810" cy="1606" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="1597" text-anchor="middle" class="usecase"><tspan x="810" y="1597">Gérer le profil, le tableau de bord</tspan><tspan x="810" y="1616">et les notifications</tspan></text></g>
+  <g><ellipse cx="810" cy="1716" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="1707" text-anchor="middle" class="usecase"><tspan x="810" y="1707">Gérer les produits, les stocks</tspan><tspan x="810" y="1726">et les publications multi-banque</tspan></text></g>
+  <g><ellipse cx="810" cy="1826" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="1817" text-anchor="middle" class="usecase"><tspan x="810" y="1817">Gérer demandes, invitations,</tspan><tspan x="810" y="1836">partenariats et contrats</tspan></text></g>
+  <g><ellipse cx="810" cy="1936" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="1927" text-anchor="middle" class="usecase"><tspan x="810" y="1927">Suivre les dossiers de financement</tspan><tspan x="810" y="1946">associés aux produits</tspan></text></g>
+  <g><ellipse cx="810" cy="2091" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="2091" text-anchor="middle" class="usecase"><tspan x="810" y="2091">S&apos;inscrire comme Client</tspan></text></g>
+  <g><ellipse cx="810" cy="2201" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="2192" text-anchor="middle" class="usecase"><tspan x="810" y="2192">Créer, documenter et suivre</tspan><tspan x="810" y="2211">une demande de financement</tspan></text></g>
+  <g><ellipse cx="810" cy="2346" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="2346" text-anchor="middle" class="usecase"><tspan x="810" y="2346">Consulter la marketplace</tspan></text></g>
+  <g><ellipse cx="810" cy="2456" rx="290" ry="41" fill="#d7f4ef" stroke="#5d7774" stroke-width="1.35"/><text x="810" y="2456" text-anchor="middle" class="usecase"><tspan x="810" y="2456">Comparer et simuler</tspan></text></g>
+  <g><ellipse cx="1670" cy="1326" rx="170" ry="90" fill="#dbe9ff" stroke="#7da3d6" stroke-width="1.35"/><text x="1670" y="1326" text-anchor="middle" class="usecase"><tspan x="1670" y="1326">S&apos;authentifier</tspan></text></g>
+  <text x="1200" y="2710" text-anchor="middle" class="caption">Figure : Diagramme global des cas d'utilisation de Matchia</text>
+</svg>

@@ -1,0 +1,41 @@
+@reference "./index.css";
+
+.dealers-hero-actions {
+  @apply mx-auto flex max-w-4xl flex-col items-stretch gap-4 md:flex-row;
+}
+
+.dealers-partner-button {
+  @apply h-full min-h-11 w-full whitespace-nowrap px-7 md:w-auto;
+}
+
+.dealers-card {
+  @apply min-h-[290px];
+}
+
+.dealers-contact-list {
+  @apply mt-auto flex flex-col gap-3 pt-1;
+}
+
+.dealers-contact-row {
+  @apply flex items-start gap-2 text-sm text-muted-foreground no-underline transition-colors;
+}
+
+a.dealers-contact-row:hover {
+  @apply text-primary;
+}
+
+.dealers-contact-row span {
+  @apply min-w-0 break-words;
+}
+
+.dealers-contact-row svg {
+  @apply mt-0.5 shrink-0;
+}
+
+.dealers-state {
+  @apply flex min-h-[320px] flex-col items-center justify-center gap-3 text-center text-muted-foreground;
+}
+
+.dealers-error {
+  @apply text-destructive;
+}

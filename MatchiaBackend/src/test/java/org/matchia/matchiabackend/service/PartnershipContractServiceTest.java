@@ -40,6 +40,9 @@ class PartnershipContractServiceTest {
     @Mock private NotificationService notificationService;
     @Mock private EmailService emailService;
     @Mock private AuditLogger auditLogger;
+    @Mock private PartnershipContractTemplate contractTemplate;
+    @Mock private PartnershipContractPdfGenerator pdfGenerator;
+    @Mock private PartnershipContractReferenceGenerator referenceGenerator;
     @Mock private Authentication authentication;
 
     @InjectMocks
@@ -60,7 +63,8 @@ class PartnershipContractServiceTest {
         partnership.setBank(bank);
         partnership.setStore(store);
 
-        when(contractRepository.findByPartnershipId(1L)).thenReturn(Optional.empty());
+        when(contractRepository.findTopByPartnershipIdOrderByVersionNumberDesc(1L)).thenReturn(Optional.empty());
+        when(referenceGenerator.next(1)).thenReturn("CTR-2026-TEST-V1");
         when(contractRepository.save(any())).thenAnswer(i -> {
             PartnershipContract c = i.getArgument(0);
             c.setId(1L);
@@ -99,7 +103,7 @@ class PartnershipContractServiceTest {
         store.setId(1L);
         contract.setStore(store);
 
-        when(contractRepository.findByPartnershipId(1L)).thenReturn(Optional.of(contract));
+        when(contractRepository.findTopByPartnershipIdOrderByVersionNumberDesc(1L)).thenReturn(Optional.of(contract));
 
         PartnershipContractDtos.View result = partnershipContractService.forBankPartnership(authentication, 1L);
 
@@ -118,6 +122,9 @@ class PartnershipContractServiceTest {
         when(security.requireBank(authentication)).thenReturn(bankAdmin);
         when(contractRepository.findDetailedById(5L)).thenReturn(Optional.of(contract));
         when(contractRepository.save(any(PartnershipContract.class))).thenAnswer(i -> i.getArgument(0));
+        when(contractRepository.findByPartnershipIdAndStatus(4L, PartnershipContractStatusEnum.ACTIVE)).thenReturn(java.util.List.of());
+        when(contractTemplate.render(any())).thenReturn(new PartnershipContractTemplate.Rendered("<html></html>", "Contrat"));
+        when(pdfGenerator.generate(any())).thenReturn(new byte[]{1, 2, 3});
         when(partnershipRepository.save(any(DealerBankPartnership.class))).thenAnswer(i -> i.getArgument(0));
         when(userRepository.findFirstByDealer_IdAndRoleOrderByCreatedAtAsc(2L, RoleEnum.DEALER_ADMIN)).thenReturn(Optional.empty());
 

@@ -68,7 +68,12 @@ public final class DealerDtos {
                               String name, String description, BigDecimal price, String imageUrl,
                               String eligibilityConditions, DealerProductStatusEnum status,
                               Integer totalStock, Integer availableStock, Integer reservedStock,
-                              List<ParameterValue> parameterValues, LocalDateTime createdAt, LocalDateTime updatedAt) {}
+                              List<ParameterValue> parameterValues, List<ProductDocumentView> documents,
+                              List<ProductCatalogImageView> catalogImages,
+                              LocalDateTime createdAt, LocalDateTime updatedAt) {}
+    public record ProductDocumentView(Long id, String documentType, String fileName, String url,
+                                      boolean publicDocument, LocalDateTime uploadedAt) {}
+    public record ProductCatalogImageView(Long id, String imageUrl, Integer displayOrder) {}
     public record StockAdjustment(@NotNull @Min(1) Integer quantity) {}
     public record PublicationCreate(@NotNull Long productId, @NotNull Long partnershipId) {}
     public record PublicationView(Long id, ProductView product, Long dealerId, String dealerName,
@@ -78,4 +83,10 @@ public final class DealerDtos {
                                   LocalDateTime submittedAt, LocalDateTime processedAt) {}
     public record Dashboard(long products, long activePartnerships, long pendingPartnerships,
                             long pendingPublications, long approvedPublications) {}
+    public record FinancingRequestView(Long id, String reference, Long productId, String productName, String productImageUrl,
+                                       BigDecimal productPrice, String clientName, String clientEmail, String clientPhone,
+                                       Long bankId, String bankName, String bankLogoUrl, Long storeId, String storeName,
+                                       BigDecimal requestedAmount, BigDecimal monthlyPayment, BigDecimal downPayment,
+                                       Integer durationMonths, FinancingRequestStatusEnum status,
+                                       LocalDateTime createdAt, LocalDateTime processedAt) {}
 }

@@ -69,6 +69,7 @@ public class MarketplaceDto {
         private String description;
         private String banniereUrl;
         private String bannerImageUrl;
+        private List<MarketplaceStoreBannerDto.BannerImageDto> bannerImages;
         private BigDecimal price;
         private Boolean enabled;
         private Boolean visible;

@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="5000" height="3300" viewBox="0 0 5000 3300" role="img" aria-labelledby="title desc">
+  <title id="title">Diagramme global exhaustif des cas d'utilisation de Matchia</title>
+  <desc id="desc">Toutes les fonctionnalités de la section besoins fonctionnels, regroupées par acteur, avec authentification et systèmes externes.</desc>
+  <defs>
+    <marker id="openArrow" markerWidth="12" markerHeight="12" refX="11" refY="6" orient="auto" markerUnits="strokeWidth"><path d="M1,1 L11,6 L1,11" fill="none" stroke="#777" stroke-width="1.2"/></marker>
+    <style>
+      .system-title{font:700 22px Arial,sans-serif;fill:#333}
+      .group-title{font:700 18px Arial,sans-serif;fill:#4a4034}
+      .actor-label{font:italic 700 16px Arial,sans-serif;fill:#333}
+      .stereotype{font:italic 12px Arial,sans-serif;fill:#666}
+      .uc-label{font:italic 700 16px Arial,sans-serif;fill:#222;dominant-baseline:middle}
+      .association{fill:none;stroke:#b0b0b0;stroke-width:0.8}
+      .relationship{fill:none;stroke:#777;stroke-width:1.2;stroke-dasharray:7 5}
+      .relationship-label{font:italic 13px Arial,sans-serif;fill:#555}
+    </style>
+  </defs>
+  <rect width="5000" height="3300" fill="#fff"/>
+  <rect x="300" y="30" width="4400" height="3210" fill="#fff" stroke="#8f8f8f" stroke-width="1.6"/>
+  <rect x="300" y="30" width="4400" height="44" fill="#faf7f2" stroke="#8f8f8f" stroke-width="1.6"/>
+  <text x="318" y="59" class="system-title">Plateforme SaaS Matchia</text>
+  <g><rect x="370" y="100" width="3100" height="850" rx="8" fill="#fffdf9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="100" width="3100" height="42" rx="8" fill="#fff7e9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="134" width="3100" height="8" fill="#fff7e9"/><text x="386" y="128" class="group-title">Cas d&apos;utilisation de l&apos;Administrateur SaaS</text></g>
+  <g><rect x="370" y="990" width="4280" height="720" rx="8" fill="#fffdf9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="990" width="4280" height="42" rx="8" fill="#fff7e9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="1024" width="4280" height="8" fill="#fff7e9"/><text x="386" y="1018" class="group-title">Cas d&apos;utilisation de l&apos;Administrateur Banque</text></g>
+  <g><rect x="370" y="1750" width="4280" height="500" rx="8" fill="#fffdf9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="1750" width="4280" height="42" rx="8" fill="#fff7e9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="1784" width="4280" height="8" fill="#fff7e9"/><text x="386" y="1778" class="group-title">Cas d&apos;utilisation du Concessionnaire</text></g>
+  <g><rect x="370" y="2290" width="4280" height="500" rx="8" fill="#fffdf9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="2290" width="4280" height="42" rx="8" fill="#fff7e9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="2324" width="4280" height="8" fill="#fff7e9"/><text x="386" y="2318" class="group-title">Cas d&apos;utilisation du Client</text></g>
+  <g><rect x="370" y="2830" width="4280" height="360" rx="8" fill="#fffdf9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="2830" width="4280" height="42" rx="8" fill="#fff7e9" stroke="#dfc79e" stroke-width="1.2"/><rect x="370" y="2864" width="4280" height="8" fill="#fff7e9"/><text x="386" y="2858" class="group-title">Cas d&apos;utilisation de l&apos;Internaute</text></g>
+  <g><rect x="3500" y="100" width="1150" height="850" rx="8" fill="#fffdf9" stroke="#dfc79e" stroke-width="1.2"/><rect x="3500" y="100" width="1150" height="42" rx="8" fill="#fff7e9" stroke="#dfc79e" stroke-width="1.2"/><rect x="3500" y="134" width="1150" height="8" fill="#fff7e9"/><text x="3516" y="128" class="group-title">Fonctions partagées et services intégrés</text></g>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,157.0 L810.0,157.0 L810.0,170.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,148.0 L1550.0,148.0 L1550.0,170.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,139.0 L2290.0,139.0 L2290.0,170.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,130.0 L3030.0,130.0 L3030.0,170.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,307.0 L810.0,307.0 L810.0,320.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,298.0 L1550.0,298.0 L1550.0,320.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,289.0 L2290.0,289.0 L2290.0,320.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,280.0 L3030.0,280.0 L3030.0,320.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,457.0 L810.0,457.0 L810.0,470.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,448.0 L1550.0,448.0 L1550.0,470.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,439.0 L2290.0,439.0 L2290.0,470.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,430.0 L3030.0,430.0 L3030.0,470.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,607.0 L810.0,607.0 L810.0,620.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,598.0 L1550.0,598.0 L1550.0,620.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,589.0 L2290.0,589.0 L2290.0,620.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,580.0 L3030.0,580.0 L3030.0,620.0" class="association"/>
+  <path d="M242.0,522.0 L335.0,522.0 L335.0,757.0 L810.0,757.0 L810.0,770.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1052.0 L810.0,1052.0 L810.0,1065.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1043.0 L1550.0,1043.0 L1550.0,1065.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1034.0 L2290.0,1034.0 L2290.0,1065.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1025.0 L3030.0,1025.0 L3030.0,1065.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1202.0 L810.0,1202.0 L810.0,1215.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1193.0 L1550.0,1193.0 L1550.0,1215.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1184.0 L2290.0,1184.0 L2290.0,1215.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1175.0 L3030.0,1175.0 L3030.0,1215.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1352.0 L810.0,1352.0 L810.0,1365.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1343.0 L1550.0,1343.0 L1550.0,1365.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1334.0 L2290.0,1334.0 L2290.0,1365.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1325.0 L3030.0,1325.0 L3030.0,1365.0" class="association"/>
+  <path d="M242.0,1347.0 L335.0,1347.0 L335.0,1502.0 L810.0,1502.0 L810.0,1515.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,1812.0 L810.0,1812.0 L810.0,1825.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,1803.0 L1550.0,1803.0 L1550.0,1825.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,1794.0 L2290.0,1794.0 L2290.0,1825.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,1785.0 L3030.0,1785.0 L3030.0,1825.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,1957.0 L810.0,1957.0 L810.0,1970.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,1948.0 L1550.0,1948.0 L1550.0,1970.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,1939.0 L2290.0,1939.0 L2290.0,1970.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,1930.0 L3030.0,1930.0 L3030.0,1970.0" class="association"/>
+  <path d="M242.0,1997.0 L335.0,1997.0 L335.0,2102.0 L810.0,2102.0 L810.0,2115.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2352.0 L810.0,2352.0 L810.0,2365.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2343.0 L1550.0,2343.0 L1550.0,2365.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2334.0 L2290.0,2334.0 L2290.0,2365.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2325.0 L3030.0,2325.0 L3030.0,2365.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2497.0 L810.0,2497.0 L810.0,2510.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2488.0 L1550.0,2488.0 L1550.0,2510.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2479.0 L2290.0,2479.0 L2290.0,2510.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2470.0 L3030.0,2470.0 L3030.0,2510.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2642.0 L810.0,2642.0 L810.0,2655.0" class="association"/>
+  <path d="M242.0,2537.0 L335.0,2537.0 L335.0,2633.0 L1550.0,2633.0 L1550.0,2655.0" class="association"/>
+  <path d="M242.0,3007.0 L335.0,3007.0 L335.0,2892.0 L810.0,2892.0 L810.0,2905.0" class="association"/>
+  <path d="M242.0,3007.0 L335.0,3007.0 L335.0,2883.0 L1550.0,2883.0 L1550.0,2905.0" class="association"/>
+  <path d="M242.0,3007.0 L335.0,3007.0 L335.0,2874.0 L2290.0,2874.0 L2290.0,2905.0" class="association"/>
+  <path d="M242.0,3007.0 L335.0,3007.0 L335.0,2865.0 L3030.0,2865.0 L3030.0,2905.0" class="association"/>
+  <path d="M242.0,3007.0 L335.0,3007.0 L335.0,3037.0 L810.0,3037.0 L810.0,3050.0" class="association"/>
+  <path d="M242.0,3007.0 L335.0,3007.0 L335.0,3028.0 L1550.0,3028.0 L1550.0,3050.0" class="association"/>
+  <path d="M242.0,3007.0 L335.0,3007.0 L335.0,3019.0 L2290.0,3019.0 L2290.0,3050.0" class="association"/>
+  <path d="M4783.0,467.0 L4304.0,407.5" class="association"/>
+  <path d="M4783.0,467.0 L4327.3,513.3" class="association"/>
+  <path d="M4783.0,707.0 L4408.4,702.8" class="association"/>
+  <path d="M4783.0,867.0 L4408.4,862.8" class="association"/>
+  <path d="M810.0,170.0 L810.0,146.0 L3400.0,146.0 L3400.0,223.0 L3685.0,223.0 L3740.0,223.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1038" y="125" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1085" y="140" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M810.0,1065.0 L810.0,1041.0 L3420.0,1041.0 L3420.0,223.0 L3685.0,223.0 L3740.0,223.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1038" y="1020" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1085" y="1035" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M1550.0,1825.0 L1550.0,1791.0 L3440.0,1791.0 L3440.0,223.0 L3685.0,223.0 L3740.0,223.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1778" y="1770" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1825" y="1785" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M1550.0,2365.0 L1550.0,2331.0 L3460.0,2331.0 L3460.0,223.0 L3685.0,223.0 L3740.0,223.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1778" y="2310" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1825" y="2325" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M2290.0,3050.0 L2290.0,3016.0 L3480.0,3016.0 L3480.0,223.0 L3685.0,223.0 L3740.0,223.0" class="relationship" marker-end="url(#openArrow)"/><rect x="2518" y="2995" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="2565" y="3010" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M810.0,2365.0 L810.0,2341.0 L3500.0,2341.0 L3500.0,379.0 L3685.0,379.0 L3740.0,379.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1038" y="2320" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1085" y="2335" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M1550.0,1365.0 L1550.0,1331.0 L3520.0,1331.0 L3520.0,699.0 L3685.0,699.0 L3740.0,699.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1778" y="1310" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1825" y="1325" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M3030.0,620.0 L3030.0,578.0 L3540.0,578.0 L3540.0,859.0 L3685.0,859.0 L3740.0,859.0" class="relationship" marker-end="url(#openArrow)"/><rect x="3258" y="557" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="3305" y="572" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M2290.0,620.0 L2290.0,588.0 L3560.0,588.0 L3560.0,539.0 L3685.0,539.0 L3740.0,539.0" class="relationship" marker-end="url(#openArrow)"/><rect x="2518" y="567" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="2565" y="582" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M810.0,1515.0 L810.0,1473.0 L3580.0,1473.0 L3580.0,539.0 L3685.0,539.0 L3740.0,539.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1038" y="1452" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1085" y="1467" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M810.0,2115.0 L810.0,2073.0 L3600.0,2073.0 L3600.0,539.0 L3685.0,539.0 L3740.0,539.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1038" y="2052" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1085" y="2067" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M1550.0,2655.0 L1550.0,2613.0 L3620.0,2613.0 L3620.0,539.0 L3685.0,539.0 L3740.0,539.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1778" y="2592" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1825" y="2607" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M2600.0,2546.0 L2720.0,2546.0" class="relationship" marker-end="url(#openArrow)"/><rect x="2613" y="2526" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="2660" y="2541" text-anchor="middle" class="relationship-label">«include»</text>
+  <path d="M810.0,3050.0 L810.0,3028.0 L2290.0,3028.0 L2290.0,2990.0 L2290.0,2977.0" class="relationship" marker-end="url(#openArrow)"/><rect x="1503" y="3002" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1550" y="3017" text-anchor="middle" class="relationship-label">«extend»</text>
+  <path d="M1550.0,3050.0 L1550.0,3012.0 L2320.0,3012.0 L2320.0,2990.0 L2312.0,2976.9" class="relationship" marker-end="url(#openArrow)"/><rect x="1893" y="2986" width="94" height="20" rx="3" fill="#fff" opacity="0.95"/><text x="1940" y="3001" text-anchor="middle" class="relationship-label">«extend»</text>
+  <g><circle cx="157" cy="475" r="15" fill="#fff" stroke="#777" stroke-width="1.5"/><path d="M157,490 L157,531 M129,505 L185,505 M157,531 L133,560 M157,531 L181,560" fill="none" stroke="#777" stroke-width="1.5"/><text x="157" y="583" text-anchor="middle" class="actor-label">Administrateur SaaS</text></g>
+  <g><circle cx="157" cy="1300" r="15" fill="#fff" stroke="#777" stroke-width="1.5"/><path d="M157,1315 L157,1356 M129,1330 L185,1330 M157,1356 L133,1385 M157,1356 L181,1385" fill="none" stroke="#777" stroke-width="1.5"/><text x="157" y="1408" text-anchor="middle" class="actor-label">Administrateur Banque</text></g>
+  <g><circle cx="157" cy="1950" r="15" fill="#fff" stroke="#777" stroke-width="1.5"/><path d="M157,1965 L157,2006 M129,1980 L185,1980 M157,2006 L133,2035 M157,2006 L181,2035" fill="none" stroke="#777" stroke-width="1.5"/><text x="157" y="2058" text-anchor="middle" class="actor-label">Concessionnaire</text></g>
+  <g><circle cx="157" cy="2490" r="15" fill="#fff" stroke="#777" stroke-width="1.5"/><path d="M157,2505 L157,2546 M129,2520 L185,2520 M157,2546 L133,2575 M157,2546 L181,2575" fill="none" stroke="#777" stroke-width="1.5"/><text x="157" y="2598" text-anchor="middle" class="actor-label">Client</text></g>
+  <g><circle cx="157" cy="2960" r="15" fill="#fff" stroke="#777" stroke-width="1.5"/><path d="M157,2975 L157,3016 M129,2990 L185,2990 M157,3016 L133,3045 M157,3016 L181,3045" fill="none" stroke="#777" stroke-width="1.5"/><text x="157" y="3068" text-anchor="middle" class="actor-label">Internaute</text></g>
+  <g><circle cx="4867" cy="420" r="15" fill="#fff" stroke="#777" stroke-width="1.5"/><path d="M4867,435 L4867,476 M4839,450 L4895,450 M4867,476 L4843,505 M4867,476 L4891,505" fill="none" stroke="#777" stroke-width="1.5"/><text x="4867" y="528" text-anchor="middle" class="actor-label">Service d&apos;e-mail</text><text x="4867" y="547" text-anchor="middle" class="stereotype">«système externe»</text></g>
+  <g><circle cx="4867" cy="660" r="15" fill="#fff" stroke="#777" stroke-width="1.5"/><path d="M4867,675 L4867,716 M4839,690 L4895,690 M4867,716 L4843,745 M4867,716 L4891,745" fill="none" stroke="#777" stroke-width="1.5"/><text x="4867" y="768" text-anchor="middle" class="actor-label">Stripe</text><text x="4867" y="787" text-anchor="middle" class="stereotype">«système externe»</text></g>
+  <g><circle cx="4867" cy="820" r="15" fill="#fff" stroke="#777" stroke-width="1.5"/><path d="M4867,835 L4867,876 M4839,850 L4895,850 M4867,876 L4843,905 M4867,876 L4891,905" fill="none" stroke="#777" stroke-width="1.5"/><text x="4867" y="928" text-anchor="middle" class="actor-label">Gemini</text><text x="4867" y="947" text-anchor="middle" class="stereotype">«système externe»</text></g>
+  <g><ellipse cx="810" cy="206" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="206" text-anchor="middle" class="uc-label"><tspan x="810" y="206">Accéder au Back-office SaaS</tspan></text></g>
+  <g><ellipse cx="1550" cy="206" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="206" text-anchor="middle" class="uc-label"><tspan x="1550" y="206">Gérer son profil</tspan></text></g>
+  <g><ellipse cx="2290" cy="206" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="206" text-anchor="middle" class="uc-label"><tspan x="2290" y="206">Consulter le tableau de bord global</tspan></text></g>
+  <g><ellipse cx="3030" cy="206" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="196" text-anchor="middle" class="uc-label"><tspan x="3030" y="196">Consulter et traiter les demandes</tspan><tspan x="3030" y="217">d&apos;adhésion des banques</tspan></text></g>
+  <g><ellipse cx="810" cy="356" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="356" text-anchor="middle" class="uc-label"><tspan x="810" y="356">Approuver ou rejeter une demande</tspan></text></g>
+  <g><ellipse cx="1550" cy="356" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="356" text-anchor="middle" class="uc-label"><tspan x="1550" y="356">Affecter un espace Back-office Banque</tspan></text></g>
+  <g><ellipse cx="2290" cy="356" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="356" text-anchor="middle" class="uc-label"><tspan x="2290" y="356">Gérer les banques enregistrées</tspan></text></g>
+  <g><ellipse cx="3030" cy="356" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="356" text-anchor="middle" class="uc-label"><tspan x="3030" y="356">Configurer la plateforme</tspan></text></g>
+  <g><ellipse cx="810" cy="506" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="506" text-anchor="middle" class="uc-label"><tspan x="810" y="506">Gérer les marketplaces des banques</tspan></text></g>
+  <g><ellipse cx="1550" cy="506" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="506" text-anchor="middle" class="uc-label"><tspan x="1550" y="506">Gérer les stores disponibles</tspan></text></g>
+  <g><ellipse cx="2290" cy="506" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="506" text-anchor="middle" class="uc-label"><tspan x="2290" y="506">Gérer les modules proposés</tspan></text></g>
+  <g><ellipse cx="3030" cy="506" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="506" text-anchor="middle" class="uc-label"><tspan x="3030" y="506">Associer les modules aux stores</tspan></text></g>
+  <g><ellipse cx="810" cy="656" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="656" text-anchor="middle" class="uc-label"><tspan x="810" y="656">Gérer les offres et les abonnements</tspan></text></g>
+  <g><ellipse cx="1550" cy="656" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="646" text-anchor="middle" class="uc-label"><tspan x="1550" y="646">Traiter les demandes de création</tspan><tspan x="1550" y="667">de comptes concessionnaires</tspan></text></g>
+  <g><ellipse cx="2290" cy="656" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="656" text-anchor="middle" class="uc-label"><tspan x="2290" y="656">Consulter les notifications</tspan></text></g>
+  <g><ellipse cx="3030" cy="656" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="656" text-anchor="middle" class="uc-label"><tspan x="3030" y="656">Interroger l&apos;assistant intelligent</tspan></text></g>
+  <g><ellipse cx="810" cy="806" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="806" text-anchor="middle" class="uc-label"><tspan x="810" y="806">Consulter les logs et l&apos;historique d&apos;audit</tspan></text></g>
+  <g><ellipse cx="810" cy="1101" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="1101" text-anchor="middle" class="uc-label"><tspan x="810" y="1101">Accéder au Back-office Banque</tspan></text></g>
+  <g><ellipse cx="1550" cy="1101" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="1101" text-anchor="middle" class="uc-label"><tspan x="1550" y="1101">Gérer son profil</tspan></text></g>
+  <g><ellipse cx="2290" cy="1101" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="1101" text-anchor="middle" class="uc-label"><tspan x="2290" y="1101">Consulter le tableau de bord de la banque</tspan></text></g>
+  <g><ellipse cx="3030" cy="1101" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="1101" text-anchor="middle" class="uc-label"><tspan x="3030" y="1101">Gérer les clients et les utilisateurs</tspan></text></g>
+  <g><ellipse cx="810" cy="1251" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="1251" text-anchor="middle" class="uc-label"><tspan x="810" y="1251">Gérer les stores associés et activés</tspan></text></g>
+  <g><ellipse cx="1550" cy="1251" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="1251" text-anchor="middle" class="uc-label"><tspan x="1550" y="1251">Personnaliser la marketplace</tspan></text></g>
+  <g><ellipse cx="2290" cy="1251" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="1241" text-anchor="middle" class="uc-label"><tspan x="2290" y="1241">Gérer et configurer les modules</tspan><tspan x="2290" y="1262">de chaque store</tspan></text></g>
+  <g><ellipse cx="3030" cy="1251" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="1251" text-anchor="middle" class="uc-label"><tspan x="3030" y="1251">Gérer les produits proposés</tspan></text></g>
+  <g><ellipse cx="810" cy="1401" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="1401" text-anchor="middle" class="uc-label"><tspan x="810" y="1401">Gérer les contenus de la marketplace</tspan></text></g>
+  <g><ellipse cx="1550" cy="1401" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="1401" text-anchor="middle" class="uc-label"><tspan x="1550" y="1401">Gérer les abonnements et les services souscrits</tspan></text></g>
+  <g><ellipse cx="2290" cy="1401" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="1401" text-anchor="middle" class="uc-label"><tspan x="2290" y="1401">Gérer les concessionnaires partenaires</tspan></text></g>
+  <g><ellipse cx="3030" cy="1401" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="1391" text-anchor="middle" class="uc-label"><tspan x="3030" y="1391">Traiter les demandes de financement</tspan><tspan x="3030" y="1412">et consulter les documents associés</tspan></text></g>
+  <g><ellipse cx="810" cy="1551" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="1551" text-anchor="middle" class="uc-label"><tspan x="810" y="1551">Consulter et gérer les notifications</tspan></text></g>
+  <g><ellipse cx="810" cy="1861" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="1861" text-anchor="middle" class="uc-label"><tspan x="810" y="1861">S&apos;inscrire et attendre la validation</tspan></text></g>
+  <g><ellipse cx="1550" cy="1861" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="1861" text-anchor="middle" class="uc-label"><tspan x="1550" y="1861">Accéder à son espace après validation</tspan></text></g>
+  <g><ellipse cx="2290" cy="1861" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="1861" text-anchor="middle" class="uc-label"><tspan x="2290" y="1861">Gérer son profil</tspan></text></g>
+  <g><ellipse cx="3030" cy="1861" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="1861" text-anchor="middle" class="uc-label"><tspan x="3030" y="1861">Consulter son tableau de bord</tspan></text></g>
+  <g><ellipse cx="810" cy="2006" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="2006" text-anchor="middle" class="uc-label"><tspan x="810" y="2006">Gérer ses produits et leurs stocks</tspan></text></g>
+  <g><ellipse cx="1550" cy="2006" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="2006" text-anchor="middle" class="uc-label"><tspan x="1550" y="2006">Gérer ses publications auprès des banques</tspan></text></g>
+  <g><ellipse cx="2290" cy="2006" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="1996" text-anchor="middle" class="uc-label"><tspan x="2290" y="1996">Gérer les demandes de partenariat</tspan><tspan x="2290" y="2017">et les invitations reçues</tspan></text></g>
+  <g><ellipse cx="3030" cy="2006" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="1996" text-anchor="middle" class="uc-label"><tspan x="3030" y="1996">Gérer les partenariats et consulter</tspan><tspan x="3030" y="2017">les contrats associés</tspan></text></g>
+  <g><ellipse cx="810" cy="2151" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="2151" text-anchor="middle" class="uc-label"><tspan x="810" y="2151">Recevoir les notifications liées à son activité</tspan></text></g>
+  <g><ellipse cx="810" cy="2401" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="2401" text-anchor="middle" class="uc-label"><tspan x="810" y="2401">S&apos;inscrire et activer son compte</tspan></text></g>
+  <g><ellipse cx="1550" cy="2401" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="2401" text-anchor="middle" class="uc-label"><tspan x="1550" y="2401">Accéder à son espace client</tspan></text></g>
+  <g><ellipse cx="2290" cy="2401" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="2401" text-anchor="middle" class="uc-label"><tspan x="2290" y="2401">Gérer son profil</tspan></text></g>
+  <g><ellipse cx="3030" cy="2401" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="2401" text-anchor="middle" class="uc-label"><tspan x="3030" y="2401">Consulter les produits et leurs détails</tspan></text></g>
+  <g><ellipse cx="810" cy="2546" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="2546" text-anchor="middle" class="uc-label"><tspan x="810" y="2546">Comparer les produits disponibles</tspan></text></g>
+  <g><ellipse cx="1550" cy="2546" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="2546" text-anchor="middle" class="uc-label"><tspan x="1550" y="2546">Effectuer une simulation de financement</tspan></text></g>
+  <g><ellipse cx="2290" cy="2546" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="2546" text-anchor="middle" class="uc-label"><tspan x="2290" y="2546">Créer et soumettre une demande de financement</tspan></text></g>
+  <g><ellipse cx="3030" cy="2546" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="2546" text-anchor="middle" class="uc-label"><tspan x="3030" y="2546">Gérer les documents associés à la demande</tspan></text></g>
+  <g><ellipse cx="810" cy="2691" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="2691" text-anchor="middle" class="uc-label"><tspan x="810" y="2691">Consulter et suivre l&apos;état de ses demandes</tspan></text></g>
+  <g><ellipse cx="1550" cy="2691" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="2691" text-anchor="middle" class="uc-label"><tspan x="1550" y="2691">Recevoir les notifications de traitement</tspan></text></g>
+  <g><ellipse cx="810" cy="2941" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="2941" text-anchor="middle" class="uc-label"><tspan x="810" y="2941">Accéder aux marketplaces bancaires publiques</tspan></text></g>
+  <g><ellipse cx="1550" cy="2941" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="2941" text-anchor="middle" class="uc-label"><tspan x="1550" y="2941">Consulter les stores disponibles</tspan></text></g>
+  <g><ellipse cx="2290" cy="2941" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="2941" text-anchor="middle" class="uc-label"><tspan x="2290" y="2941">Parcourir les produits proposés</tspan></text></g>
+  <g><ellipse cx="3030" cy="2941" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="3030" y="2941" text-anchor="middle" class="uc-label"><tspan x="3030" y="2941">Consulter les informations détaillées d&apos;un produit</tspan></text></g>
+  <g><ellipse cx="810" cy="3086" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="810" y="3086" text-anchor="middle" class="uc-label"><tspan x="810" y="3086">Comparer les produits si le module est actif</tspan></text></g>
+  <g><ellipse cx="1550" cy="3086" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="1550" y="3086" text-anchor="middle" class="uc-label"><tspan x="1550" y="3086">Utiliser le simulateur s&apos;il est disponible</tspan></text></g>
+  <g><ellipse cx="2290" cy="3086" rx="310" ry="36" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="2290" y="3076" text-anchor="middle" class="uc-label"><tspan x="2290" y="3076">S&apos;inscrire ou s&apos;authentifier pour</tspan><tspan x="2290" y="3097">déposer une demande de financement</tspan></text></g>
+  <g><ellipse cx="4075" cy="223" rx="335" ry="43" fill="#ffcc80" stroke="#d5aa6d" stroke-width="1.4"/><text x="4075" y="223" text-anchor="middle" class="uc-label"><tspan x="4075" y="223">S&apos;authentifier</tspan></text></g>
+  <g><ellipse cx="4075" cy="379" rx="335" ry="39" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="4075" y="379" text-anchor="middle" class="uc-label"><tspan x="4075" y="379">Vérifier l&apos;adresse e-mail</tspan></text></g>
+  <g><ellipse cx="4075" cy="539" rx="335" ry="39" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="4075" y="539" text-anchor="middle" class="uc-label"><tspan x="4075" y="539">Envoyer les notifications</tspan></text></g>
+  <g><ellipse cx="4075" cy="699" rx="335" ry="39" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="4075" y="699" text-anchor="middle" class="uc-label"><tspan x="4075" y="699">Effectuer un paiement sécurisé</tspan></text></g>
+  <g><ellipse cx="4075" cy="859" rx="335" ry="39" fill="#ffd79b" stroke="#d5aa6d" stroke-width="1.4"/><text x="4075" y="859" text-anchor="middle" class="uc-label"><tspan x="4075" y="859">Générer une réponse avec Gemini</tspan></text></g>
+</svg>

@@ -22,7 +22,8 @@ public final class PartnershipContractDtos {
             PartnershipCommissionTypeEnum commissionType,
             @DecimalMin(value = "0.0", inclusive = true) BigDecimal commissionValue,
             @Size(max = 6000) String contractTerms,
-            @Size(max = 4000) String terminationConditions
+            @Size(max = 4000) String terminationConditions,
+            @Size(max = 4000) String specificConditions
     ) {
         @AssertTrue(message = "La date de fin doit etre posterieure a la date de debut.")
         public boolean isDateRangeValid() {
@@ -35,6 +36,8 @@ public final class PartnershipContractDtos {
     public record View(
             Long id,
             String contractNumber,
+            Integer versionNumber,
+            String templateVersion,
             Long partnershipId,
             Long dealerId,
             String dealerName,
@@ -52,6 +55,8 @@ public final class PartnershipContractDtos {
             BigDecimal commissionValue,
             String contractTerms,
             String terminationConditions,
+            String specificConditions,
+            String generatedDocumentPath,
             LocalDateTime dealerAcceptedAt,
             LocalDateTime bankAcceptedAt,
             LocalDateTime sentAt,
@@ -59,4 +64,7 @@ public final class PartnershipContractDtos {
             LocalDateTime createdAt,
             LocalDateTime updatedAt
     ) {}
+
+    public record Preview(String html, String contractNumber, Integer versionNumber,
+                          boolean finalized) {}
 }

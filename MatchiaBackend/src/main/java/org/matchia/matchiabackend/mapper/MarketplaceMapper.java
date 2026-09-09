@@ -4,6 +4,8 @@ import org.matchia.matchiabackend.dto.MarketplaceDto;
 import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.MarketplaceStore;
 import org.matchia.matchiabackend.entity.MarketplaceStoreModule;
+import org.matchia.matchiabackend.entity.MarketplaceStoreBanner;
+import org.matchia.matchiabackend.dto.MarketplaceStoreBannerDto;
 import org.matchia.matchiabackend.entity.RequestModuleSelection;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.RequestStoreSelection;
@@ -104,6 +106,7 @@ public class MarketplaceMapper {
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
                 marketplaceStore.getBannerImageUrl(),
+                toBannerImages(marketplaceStore),
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
                 marketplaceStore.getEnabled(),
                 marketplaceStore.getVisible(),
@@ -119,6 +122,8 @@ public class MarketplaceMapper {
         if (marketplaceStores == null) return List.of();
 
         return marketplaceStores.stream()
+                .filter(marketplaceStore -> Boolean.TRUE.equals(marketplaceStore.getEnabled())
+                        && Boolean.TRUE.equals(marketplaceStore.getVisible()))
                 .map((marketplaceStore) -> new MarketplaceDto.MarketplaceStoreDetailDto(
                         marketplaceStore.getId(),
                         marketplaceStore.getStore() != null ? marketplaceStore.getStore().getId() : null,
@@ -126,6 +131,7 @@ public class MarketplaceMapper {
                         marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
                         marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
                         marketplaceStore.getBannerImageUrl(),
+                        toBannerImages(marketplaceStore),
                         marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
                         marketplaceStore.getEnabled(),
                         marketplaceStore.getVisible(),
@@ -206,6 +212,7 @@ public class MarketplaceMapper {
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
                 marketplaceStore.getBannerImageUrl(),
+                toBannerImages(marketplaceStore),
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
                 marketplaceStore.getEnabled(),
                 marketplaceStore.getVisible(),
@@ -245,6 +252,19 @@ public class MarketplaceMapper {
                         Boolean.TRUE
                 ))
                 .toList();
+    }
+
+    private List<MarketplaceStoreBannerDto.BannerImageDto> toBannerImages(MarketplaceStore marketplaceStore) {
+        List<MarketplaceStoreBanner> images = marketplaceStore.getBannerImages();
+        if (images != null && !images.isEmpty()) {
+            return images.stream()
+                    .map(image -> new MarketplaceStoreBannerDto.BannerImageDto(image.getId(), image.getImageUrl(), image.getDisplayOrder()))
+                    .toList();
+        }
+        if (hasText(marketplaceStore.getBannerImageUrl())) {
+            return List.of(new MarketplaceStoreBannerDto.BannerImageDto(null, marketplaceStore.getBannerImageUrl(), 0));
+        }
+        return List.of();
     }
 
     private List<MarketplaceDto.MarketplaceModuleDetailDto> toPublicModuleDetails(Long marketplaceStoreId) {

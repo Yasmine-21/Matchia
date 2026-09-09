@@ -6,6 +6,9 @@ import org.matchia.matchiabackend.dto.PartnershipContractDtos;
 import org.matchia.matchiabackend.service.PartnershipContractService;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import java.util.List;
 
@@ -36,6 +39,22 @@ public class PartnershipContractController {
         return contractService.prepare(auth, partnershipId, input);
     }
 
+    @PostMapping("/api/bank/dealers/partnerships/{partnershipId}/contract/revisions")
+    public PartnershipContractDtos.View createRevision(Authentication auth, @PathVariable Long partnershipId) {
+        return contractService.createRevision(auth, partnershipId);
+    }
+
+    @GetMapping("/api/bank/dealers/contracts/{contractId}/preview")
+    public PartnershipContractDtos.Preview bankPreview(Authentication auth, @PathVariable Long contractId) {
+        return contractService.previewForBank(auth, contractId);
+    }
+
+    @GetMapping(value = "/api/bank/dealers/contracts/{contractId}/download", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> bankDownload(Authentication auth, @PathVariable Long contractId) {
+        PartnershipContractDtos.Preview preview = contractService.previewForBank(auth, contractId);
+        return pdf(contractService.documentForBank(auth, contractId), preview.contractNumber());
+    }
+
     @PostMapping("/api/bank/dealers/contracts/{contractId}/send")
     public PartnershipContractDtos.View send(Authentication auth, @PathVariable Long contractId) {
         return contractService.send(auth, contractId);
@@ -62,6 +81,17 @@ public class PartnershipContractController {
         return contractService.forDealer(auth, contractId);
     }
 
+    @GetMapping("/api/dealer/contracts/{contractId}/preview")
+    public PartnershipContractDtos.Preview dealerPreview(Authentication auth, @PathVariable Long contractId) {
+        return contractService.previewForDealer(auth, contractId);
+    }
+
+    @GetMapping(value = "/api/dealer/contracts/{contractId}/download", produces = MediaType.APPLICATION_PDF_VALUE)
+    public ResponseEntity<byte[]> dealerDownload(Authentication auth, @PathVariable Long contractId) {
+        PartnershipContractDtos.Preview preview = contractService.previewForDealer(auth, contractId);
+        return pdf(contractService.documentForDealer(auth, contractId), preview.contractNumber());
+    }
+
     @PostMapping("/api/dealer/contracts/{contractId}/accept")
     public PartnershipContractDtos.View accept(Authentication auth, @PathVariable Long contractId) {
         return contractService.acceptByDealer(auth, contractId);
@@ -76,5 +106,11 @@ public class PartnershipContractController {
     @GetMapping("/api/saas/dealers/contracts")
     public List<PartnershipContractDtos.View> supervise(Authentication auth) {
         return contractService.supervise(auth);
+    }
+
+    private ResponseEntity<byte[]> pdf(byte[] document, String reference) {
+        String filename = "Partnership_Contract_" + reference.replaceAll("[^a-zA-Z0-9_-]", "_") + ".pdf";
+        return ResponseEntity.ok().contentType(MediaType.APPLICATION_PDF)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"").body(document);
     }
 }

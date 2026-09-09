@@ -1,0 +1,85 @@
+@reference "./index.css";
+
+.saas-dashboard-container {
+    @apply w-full;
+}
+
+.saas-dashboard-header {
+    @apply mb-6;
+}
+
+.saas-dashboard-title {
+    @apply text-3xl font-bold mb-2;
+}
+
+.saas-dashboard-subtitle {
+    @apply text-muted-foreground;
+}
+
+.saas-stats-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6;
+}
+
+.saas-stat-header {
+    @apply flex items-center justify-between mb-2;
+}
+
+.saas-stat-icon-wrapper {
+    @apply w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary;
+}
+
+.saas-stat-trend {
+    @apply flex items-center gap-1 text-sm;
+}
+
+.saas-stat-value {
+    @apply text-3xl font-bold mt-2;
+}
+
+.saas-charts-grid {
+    @apply grid lg:grid-cols-2 gap-6 mb-6;
+}
+
+.saas-lists-grid {
+    @apply grid lg:grid-cols-2 gap-6;
+}
+
+.saas-list-container {
+    @apply space-y-4;
+}
+
+.saas-bank-item {
+    @apply flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors;
+}
+
+.saas-bank-logo {
+    @apply w-10 h-10 rounded-lg object-cover;
+}
+
+.saas-bank-info {
+    @apply flex-1;
+}
+
+.saas-bank-name {
+    @apply font-medium;
+}
+
+.saas-bank-country {
+    @apply text-sm text-muted-foreground;
+}
+
+.saas-request-item {
+    @apply p-3 rounded-lg border border-border hover:border-primary transition-colors;
+}
+
+.saas-request-header {
+    @apply flex items-start justify-between mb-2;
+}
+
+.saas-request-notes {
+    @apply text-sm text-muted-foreground mb-2;
+}
+
+.saas-request-date {
+    @apply text-xs text-muted-foreground;
+}

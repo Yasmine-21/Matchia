@@ -48,7 +48,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/login", "/api/auth/refresh", "/api/auth/logout", "/api/auth/forgot-password", "/api/auth/reset-password").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/api/client-registration").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/client-registration/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/admin/marketplaces/public/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/contents/marketplace/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/marketplace-contents/marketplace/**").permitAll()
@@ -58,6 +58,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/public/dealers/requests").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/dealers").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/public/dealers/marketplaces/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/public/dealers/products/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/payments/config").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/payments/create-payment-intent", "/api/payments/create-checkout-session", "/api/payments/*/confirm", "/api/payments/checkout-session/*/confirm", "/api/payments/*/renewal").permitAll()
                         .requestMatchers("/chatbot/**", "/uploads/**").permitAll()

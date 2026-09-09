@@ -1,12 +1,14 @@
 package org.matchia.matchiabackend.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.matchia.matchiabackend.dto.AuditLogRequest;
 import org.matchia.matchiabackend.dto.PaidSubscriptionDto;
 import org.matchia.matchiabackend.dto.SubscriptionDto;
 import org.matchia.matchiabackend.dto.SubscriptionExpiryAlertDto;
 import org.matchia.matchiabackend.dto.SubscriptionOverviewDto;
 import org.matchia.matchiabackend.entity.Marketplace;
+import org.matchia.matchiabackend.entity.MarketplaceStore;
 import org.matchia.matchiabackend.entity.Payment;
 import org.matchia.matchiabackend.entity.Request;
 import org.matchia.matchiabackend.entity.RequestModuleSelection;
@@ -19,6 +21,7 @@ import org.matchia.matchiabackend.entity.enums.PaymentStatusEnum;
 import org.matchia.matchiabackend.entity.enums.PaymentTypeEnum;
 import org.matchia.matchiabackend.entity.enums.SubscriptionStatusEnum;
 import org.matchia.matchiabackend.repository.MarketplaceRepository;
+import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
 import org.matchia.matchiabackend.repository.PaymentRepository;
 import org.matchia.matchiabackend.repository.RequestRepository;
 import org.matchia.matchiabackend.repository.SubscriptionRepository;
@@ -26,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
@@ -34,6 +38,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class SubscriptionService {
 
     private static final int DEFAULT_DURATION_MONTHS = 12;
@@ -43,8 +48,10 @@ public class SubscriptionService {
     private final PaymentRepository paymentRepository;
     private final RequestRepository requestRepository;
     private final MarketplaceRepository marketplaceRepository;
+    private final MarketplaceStoreRepository marketplaceStoreRepository;
     private final AuditLogger auditLogger;
     private final NotificationService notificationService;
+    private final EmailService emailService;
 
     @Transactional
     public Subscription resolveOrCreateForRequest(Request request) {
@@ -97,7 +104,7 @@ public class SubscriptionService {
         subscription.setExpirationDate(periodStartDate.plusYears(SUBSCRIPTION_DURATION_YEARS));
         subscription.setStatus(SubscriptionStatusEnum.ACTIVE);
         Subscription saved = subscriptionRepository.save(subscription);
-        updateMarketplaceStatus(saved.getMarketplace());
+        recalculateMarketplaceAccess(saved.getMarketplace());
         audit(saved, "subscription.activated");
         return saved;
     }
@@ -175,10 +182,29 @@ public class SubscriptionService {
     public void synchronizeExpirationStatuses() {
         LocalDate today = LocalDate.now();
         List<Subscription> subscriptions = subscriptionRepository.findAll();
+        long remindersDue = subscriptions.stream()
+                .filter(subscription -> subscription.getExpirationDate() != null)
+                .filter(subscription -> subscription.getRenewalReminderSentAt() == null)
+                .filter(subscription -> ChronoUnit.DAYS.between(today, subscription.getExpirationDate()) == 7)
+                .filter(subscription -> subscription.getStatus() != SubscriptionStatusEnum.CANCELLED)
+                .count();
+        log.info("Synchronisation des abonnements: {} abonnement(s), {} rappel(s) J-7 à traiter.",
+                subscriptions.size(), remindersDue);
         for (Subscription subscription : subscriptions) {
+            // A future expiration date is authoritative. Legacy records may keep an
+            // old EXPIRED or PENDING_RENEWAL status even though they are still valid.
+            if (subscription.getStatus() != SubscriptionStatusEnum.ACTIVE
+                    && subscription.getStatus() != SubscriptionStatusEnum.CANCELLED
+                    && subscription.getExpirationDate() != null
+                    && subscription.getExpirationDate().isAfter(today)) {
+                subscription.setStatus(SubscriptionStatusEnum.ACTIVE);
+                subscriptionRepository.save(subscription);
+                audit(subscription, "subscription.reactivated_from_future_expiration");
+            }
+            sendRenewalReminderIfDue(subscription, today);
             if (subscription.getStatus() == SubscriptionStatusEnum.ACTIVE
                     && subscription.getExpirationDate() != null
-                    && subscription.getExpirationDate().isBefore(today)) {
+                    && !subscription.getExpirationDate().isAfter(today)) {
                 subscription.setStatus(SubscriptionStatusEnum.EXPIRED);
                 subscriptionRepository.save(subscription);
                 audit(subscription, "subscription.expired");
@@ -189,7 +215,26 @@ public class SubscriptionService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toMap(Marketplace::getId, marketplace -> marketplace, (left, right) -> left))
                 .values()
-                .forEach(this::updateMarketplaceStatus);
+                .forEach(this::recalculateMarketplaceAccess);
+    }
+
+    private void sendRenewalReminderIfDue(Subscription subscription, LocalDate today) {
+        if (subscription.getStatus() == SubscriptionStatusEnum.CANCELLED
+                || subscription.getExpirationDate() == null
+                || subscription.getRenewalReminderSentAt() != null
+                || ChronoUnit.DAYS.between(today, subscription.getExpirationDate()) != 7) {
+            return;
+        }
+        log.info("Rappel J-7 détecté pour l'abonnement {} (expiration: {}, statut: {}).",
+                subscription.getId(), subscription.getExpirationDate(), subscription.getStatus());
+        if (emailService.sendSubscriptionExpirationReminder(subscription)) {
+            subscription.setRenewalReminderSentAt(LocalDateTime.now());
+            subscriptionRepository.save(subscription);
+            audit(subscription, "subscription.renewal_reminder_sent");
+        } else {
+            log.warn("Le rappel J-7 de l'abonnement {} n'a pas été envoyé; il sera réessayé au prochain passage.",
+                    subscription.getId());
+        }
     }
 
     @Transactional
@@ -251,7 +296,8 @@ public class SubscriptionService {
         boolean renewalEligible = !renewalPending
                 && subscription.getStatus() != SubscriptionStatusEnum.CANCELLED
                 && subscription.getExpirationDate() != null
-                && daysRemaining <= 1;
+                && daysRemaining >= 0
+                && daysRemaining <= 7;
 
         return new SubscriptionDto(
                 subscription.getId(),
@@ -401,21 +447,46 @@ public class SubscriptionService {
         return request != null ? request.getLogoUrl() : null;
     }
 
-    private void updateMarketplaceStatus(Marketplace marketplace) {
+    private void recalculateMarketplaceAccess(Marketplace marketplace) {
         if (marketplace == null || marketplace.getId() == null) {
             return;
         }
         LocalDate today = LocalDate.now();
-        boolean hasUsableSubscription = subscriptionRepository.findByMarketplace_Id(marketplace.getId()).stream()
-                .anyMatch(subscription -> subscription.getExpirationDate() != null
-                        && !subscription.getExpirationDate().isBefore(today)
-                        && subscription.getStatus() != SubscriptionStatusEnum.EXPIRED
-                        && subscription.getStatus() != SubscriptionStatusEnum.CANCELLED);
-        MarketplaceStatusEnum expected = hasUsableSubscription ? MarketplaceStatusEnum.active : MarketplaceStatusEnum.inactive;
+        List<Subscription> activeSubscriptions = subscriptionRepository.findByMarketplace_Id(marketplace.getId()).stream()
+                .filter(subscription -> subscription.getStatus() == SubscriptionStatusEnum.ACTIVE)
+                .filter(subscription -> subscription.getExpirationDate() != null && subscription.getExpirationDate().isAfter(today))
+                .toList();
+        java.util.Set<Long> coveredStoreIds = activeSubscriptions.stream()
+                .flatMap(subscription -> coveredStoreIds(subscription).stream())
+                .collect(Collectors.toSet());
+        for (MarketplaceStore marketplaceStore : marketplaceStoreRepository.findByMarketplace_Id(marketplace.getId())) {
+            boolean covered = marketplaceStore.getStore() != null && coveredStoreIds.contains(marketplaceStore.getStore().getId());
+            if (!Objects.equals(marketplaceStore.getEnabled(), covered) || !Objects.equals(marketplaceStore.getVisible(), covered)) {
+                marketplaceStore.setEnabled(covered);
+                marketplaceStore.setVisible(covered);
+                marketplaceStoreRepository.save(marketplaceStore);
+            }
+        }
+        boolean hasActiveStores = !coveredStoreIds.isEmpty();
+        MarketplaceStatusEnum expected = hasActiveStores ? MarketplaceStatusEnum.active : MarketplaceStatusEnum.inactive;
         if (marketplace.getStatus() != expected) {
             marketplace.setStatus(expected);
             marketplaceRepository.save(marketplace);
         }
+    }
+
+    private java.util.Set<Long> coveredStoreIds(Subscription subscription) {
+        if (subscription == null || subscription.getRequest() == null) return java.util.Set.of();
+        Request request = subscription.getRequest();
+        java.util.Set<Long> ids = request.getStores().stream()
+                .map(store -> store.getId())
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        if (!ids.isEmpty() || request.getSelectedStoreDetails() == null) return ids;
+        return request.getSelectedStoreDetails().stream()
+                .map(RequestStoreSelection::getStoreId)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
     }
 
     private void audit(Subscription subscription, String action) {

@@ -8,12 +8,18 @@ import org.matchia.matchiabackend.entity.User;
 import org.matchia.matchiabackend.entity.enums.DealerPartnershipStatusEnum;
 import org.matchia.matchiabackend.service.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import java.util.List;
 import java.util.Map;
+import java.nio.file.Path;
+import java.net.MalformedURLException;
 
 @RestController
 @RequestMapping("/api/dealer")
@@ -24,6 +30,7 @@ public class DealerController {
     private final DealerProductService productService;
     private final DealerSecurityService securityService;
     private final NotificationService notificationService;
+    private final FinancingRequestService financingRequestService;
 
     @GetMapping("/me") public DealerDtos.DealerView me(Authentication auth) { return accountService.me(auth); }
     @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -59,22 +66,62 @@ public class DealerController {
     @GetMapping("/products") public List<DealerDtos.ProductView> products(Authentication auth) { return productService.mine(auth); }
     @PostMapping(value = "/products", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) @ResponseStatus(HttpStatus.CREATED)
     public DealerDtos.ProductView createProduct(Authentication auth, @Valid @RequestPart("data") DealerDtos.ProductUpsert input,
-                                                  @RequestPart(value = "image", required = false) MultipartFile image) {
-        return productService.create(auth, input, image);
+                                                  @RequestPart(value = "image", required = false) MultipartFile image,
+                                                  @RequestPart(value = "catalogImages", required = false) List<MultipartFile> catalogImages) {
+        return productService.create(auth, input, image, catalogImages);
     }
     @PutMapping(value = "/products/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public DealerDtos.ProductView updateProduct(Authentication auth, @PathVariable Long id,
                                                   @Valid @RequestPart("data") DealerDtos.ProductUpsert input,
-                                                  @RequestPart(value = "image", required = false) MultipartFile image) {
-        return productService.update(auth, id, input, image);
+                                                  @RequestPart(value = "image", required = false) MultipartFile image,
+                                                  @RequestPart(value = "catalogImages", required = false) List<MultipartFile> catalogImages,
+                                                  @RequestParam(value = "catalogImageIdsToDelete", required = false) List<Long> catalogImageIdsToDelete) {
+        return productService.update(auth, id, input, image, catalogImages, catalogImageIdsToDelete);
     }
     @PostMapping("/products/{id}/stock")
     public DealerDtos.ProductView addStock(Authentication auth, @PathVariable Long id,
                                             @Valid @RequestBody DealerDtos.StockAdjustment input) {
         return productService.addStock(auth, id, input);
     }
+    @PostMapping(value = "/products/{id}/documents", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) @ResponseStatus(HttpStatus.CREATED)
+    public DealerDtos.ProductDocumentView uploadProductDocument(Authentication auth, @PathVariable Long id,
+            @RequestParam("file") MultipartFile file, @RequestParam("documentType") String documentType,
+            @RequestParam(value = "publicDocument", defaultValue = "false") boolean publicDocument) {
+        return productService.uploadDocument(auth, id, documentType, publicDocument, file);
+    }
+    @DeleteMapping("/products/{productId}/documents/{documentId}") @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProductDocument(Authentication auth, @PathVariable Long productId, @PathVariable Long documentId) {
+        productService.deleteDocument(auth, productId, documentId);
+    }
+    @PostMapping(value = "/products/{id}/catalog-images", consumes = MediaType.MULTIPART_FORM_DATA_VALUE) @ResponseStatus(HttpStatus.CREATED)
+    public List<DealerDtos.ProductCatalogImageView> uploadProductCatalogImages(Authentication auth, @PathVariable Long id,
+                                                                                 @RequestParam("files") List<MultipartFile> files) {
+        return productService.uploadCatalogImages(auth, id, files);
+    }
+    @DeleteMapping("/products/{productId}/catalog-images/{imageId}")
+    public DealerDtos.ProductView deleteProductCatalogImage(Authentication auth, @PathVariable Long productId,
+                                                             @PathVariable Long imageId) {
+        return productService.deleteCatalogImage(auth, productId, imageId);
+    }
+    @GetMapping("/products/{productId}/documents/{documentId}/download")
+    public ResponseEntity<Resource> downloadProductDocument(Authentication auth, @PathVariable Long productId, @PathVariable Long documentId) throws MalformedURLException {
+        Path path = productService.documentForDealer(auth, productId, documentId);
+        Resource resource = new UrlResource(path.toUri());
+        return ResponseEntity.ok().header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + path.getFileName() + "\"").body(resource);
+    }
     @DeleteMapping("/products/{id}") @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteProduct(Authentication auth, @PathVariable Long id) { productService.delete(auth, id); }
+    @GetMapping("/financing-requests")
+    public List<DealerDtos.FinancingRequestView> financingRequests(Authentication auth,
+            @RequestParam(required = false) Long bankId, @RequestParam(required = false) Long storeId,
+            @RequestParam(required = false) Long productId, @RequestParam(required = false) String status,
+            @RequestParam(required = false) String search) {
+        return financingRequestService.dealerRequests(auth, bankId, storeId, productId, status, search);
+    }
+    @GetMapping("/financing-requests/{id}")
+    public DealerDtos.FinancingRequestView financingRequest(Authentication auth, @PathVariable Long id) {
+        return financingRequestService.dealerRequest(auth, id);
+    }
     @GetMapping("/publications") public List<DealerDtos.PublicationView> publications(Authentication auth) { return productService.publicationsMine(auth); }
     @PostMapping("/publications") @ResponseStatus(HttpStatus.CREATED)
     public DealerDtos.PublicationView publish(Authentication auth, @Valid @RequestBody DealerDtos.PublicationCreate input) {

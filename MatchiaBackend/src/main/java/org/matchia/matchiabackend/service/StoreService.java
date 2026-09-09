@@ -13,6 +13,9 @@ import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
 import org.matchia.matchiabackend.repository.StoreRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -76,8 +79,23 @@ public class StoreService {
         return storeMapper.toDto(storeRepository.save(existingStore));
     }
 
+    @Transactional
     public void deleteStore(Long id) {
-        storeRepository.deleteById(id);
+        Store store = storeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Store introuvable."));
+
+        try {
+            storeRepository.delete(store);
+            // Force the foreign-key checks before the response is returned so a
+            // database constraint can be reported as a controlled business error.
+            storeRepository.flush();
+        } catch (DataIntegrityViolationException exception) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Ce store ne peut pas etre supprime car il est encore utilise par des produits, des demandes ou des partenariats. Desactivez-le plutot, ou supprimez d'abord les donnees associees.",
+                    exception
+            );
+        }
     }
 
     private void validateStorePrice(BigDecimal price) {

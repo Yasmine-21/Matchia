@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -59,6 +61,36 @@ public class DealerPartnershipService {
                         dealerId, option.bankId(), dealerStoreId,
                         BLOCKING_STATUSES))
                 .toList();
+    }
+
+    /**
+     * Public marketplace directory: only dealers whose partnership is currently
+     * active with the requested bank can be shown to visitors.
+     */
+    @Transactional(readOnly = true)
+    public List<DealerDtos.PublicDealerView> publicActiveDealersForBank(String bankSlug) {
+        Bank bank = bankRepository.findBySlug(bankSlug == null ? "" : bankSlug.trim())
+                .orElseThrow(() -> notFound("Marketplace introuvable."));
+
+        Map<Long, DealerDtos.PublicDealerView> dealers = new LinkedHashMap<>();
+        repository.findByBankIdOrderByRequestDateDesc(bank.getId()).stream()
+                .filter(partnership -> partnership.getStatus() == DealerPartnershipStatusEnum.ACTIVE)
+                .filter(partnership -> partnership.getDealer().getStatus() == DealerStatusEnum.ACTIVE)
+                .forEach(partnership -> {
+                    Dealer dealer = partnership.getDealer();
+                    dealers.putIfAbsent(dealer.getId(), new DealerDtos.PublicDealerView(
+                            dealer.getCompanyName(),
+                            dealer.getLogoUrl(),
+                            partnership.getStore().getName(),
+                            partnership.getStore().getDescription(),
+                            dealer.getEmail(),
+                            dealer.getPhone(),
+                            dealer.getAddress(),
+                            dealer.getWebsite()
+                    ));
+                });
+
+        return List.copyOf(dealers.values());
     }
 
     @Transactional(readOnly = true)

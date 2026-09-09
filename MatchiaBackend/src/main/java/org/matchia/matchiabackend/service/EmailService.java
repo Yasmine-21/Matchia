@@ -27,6 +27,36 @@ import java.nio.charset.StandardCharsets;
 @Slf4j
 public class EmailService {
 
+    public boolean sendSubscriptionExpirationReminder(org.matchia.matchiabackend.entity.Subscription subscription) {
+        if (subscription == null || subscription.getRequest() == null) {
+            log.warn("Impossible d'envoyer le rappel d'expiration: abonnement ou demande d'origine manquant.");
+            return false;
+        }
+        Request request = subscription.getRequest();
+        String recipient = resolveBankRecipient(request);
+        if (recipient == null) {
+            log.warn("Impossible d'envoyer le rappel d'expiration pour l'abonnement {}: e-mail de l'administrateur banque manquant.",
+                    subscription.getId());
+            return false;
+        }
+        String stores = request.getStores().isEmpty() ? "Aucun store" : request.getStores().stream()
+                .map(org.matchia.matchiabackend.entity.Store::getName)
+                .collect(java.util.stream.Collectors.joining(", "));
+        String marketplace = subscription.getMarketplace() != null && subscription.getMarketplace().getBank() != null
+                ? subscription.getMarketplace().getBank().getSlug()
+                : request.getMarketplaceSlug();
+        log.info("Tentative d'envoi du rappel d'expiration pour l'abonnement {} vers {} (marketplace: {}).",
+                subscription.getId(), recipient, marketplace);
+        return sendTemplatedEmail(recipient, "Rappel : votre abonnement expire dans 7 jours", buildTemplate(
+                "Rappel de renouvellement", "Votre abonnement expire dans 7 jours",
+                "La marketplace « " + marketplace + " » doit être renouvelée pour conserver les stores associés actifs.",
+                "Accéder au paiement", frontendUrl + "/paiement?request_id=" + request.getId(),
+                "Stores concernés", stores,
+                "Expiration", String.valueOf(subscription.getExpirationDate()),
+                "Il reste 7 jours avant l'expiration.", "L'équipe Matchia"),
+                "rappel expiration abonnement", "ABONNEMENT EXPIRATION", request, "subscription_expiration_reminder.sent");
+    }
+
     private static final String MATCHIA_LOGO_CID = "matchia-logo";
     private static final String MATCHIA_LOGO_RESOURCE = "email/matchia-logo.b64";
 
@@ -193,6 +223,30 @@ public class EmailService {
                 "VERIFICATION ADRESSE E-MAIL",
                 null,
                 "join_email_verification.sent"
+        );
+    }
+
+    public boolean sendClientRegistrationVerificationCode(String recipient, String code) {
+        return sendTemplatedEmail(
+                recipient,
+                "Votre code de verification Matchia",
+                buildTemplate(
+                        "Verification de votre compte client",
+                        "Confirmez votre adresse e-mail",
+                        "Utilisez le code ci-dessous pour finaliser la creation de votre compte client Matchia.",
+                        null,
+                        null,
+                        "Code de verification",
+                        code,
+                        "Duree de validite",
+                        "Ce code est valable pendant 10 minutes et ne peut etre utilise qu'une seule fois.",
+                        "Si vous n'etes pas a l'origine de cette inscription, ignorez cet e-mail.",
+                        "L'equipe Matchia"
+                ),
+                "verification inscription client",
+                "CLIENT EMAIL VERIFICATION",
+                null,
+                "client_registration_verification.sent"
         );
     }
 

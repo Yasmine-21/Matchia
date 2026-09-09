@@ -27,6 +27,10 @@ public interface FinancingRequestRepository extends JpaRepository<FinancingReque
     List<FinancingRequest> findByBank_IdAndStore_IdOrderByCreatedAtDesc(Long bankId, Long storeId);
     @EntityGraph(attributePaths = {"client", "bank", "store", "product", "dealerProduct", "processedBy", "documents"})
     List<FinancingRequest> findByBank_IdAndClient_IdOrderByCreatedAtDesc(Long bankId, Long clientId);
+    @EntityGraph(attributePaths = {"client", "bank", "store", "dealerProduct", "processedBy"})
+    List<FinancingRequest> findByDealerProduct_Dealer_IdOrderByCreatedAtDesc(Long dealerId);
+    @EntityGraph(attributePaths = {"client", "bank", "store", "dealerProduct", "processedBy"})
+    Optional<FinancingRequest> findByIdAndDealerProduct_Dealer_Id(Long id, Long dealerId);
     long countByClient_IdAndStatus(Long clientId, FinancingRequestStatusEnum status);
     long countByClient_Id(Long clientId);
 }

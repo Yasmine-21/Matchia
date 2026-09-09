@@ -12,6 +12,7 @@ import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
 import org.matchia.matchiabackend.repository.PartnershipContractRepository;
 import org.matchia.matchiabackend.repository.UserRepository;
 import org.springframework.http.HttpStatus;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,10 +21,11 @@ import org.springframework.web.server.ResponseStatusException;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
 import java.util.List;
-import java.util.Locale;
-import java.util.UUID;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.io.IOException;
 
 @Service
 @RequiredArgsConstructor
@@ -40,10 +42,16 @@ public class PartnershipContractService {
     private final NotificationService notificationService;
     private final EmailService emailService;
     private final AuditLogger auditLogger;
+    private final PartnershipContractTemplate contractTemplate;
+    private final PartnershipContractPdfGenerator pdfGenerator;
+    private final PartnershipContractReferenceGenerator referenceGenerator;
+
+    @Value("${app.partnership-contract.document-upload.dir:uploads/partnership-contracts}")
+    private String documentUploadDirectory = "uploads/partnership-contracts";
 
     @Transactional
     public PartnershipContract createDraftForApprovedPartnership(DealerBankPartnership partnership) {
-        return contractRepository.findByPartnershipId(partnership.getId()).orElseGet(() -> {
+        return contractRepository.findTopByPartnershipIdOrderByVersionNumberDesc(partnership.getId()).orElseGet(() -> {
             PartnershipContract contract = baseContract(partnership);
             contract.setStatus(PartnershipContractStatusEnum.DRAFT);
             contract.setStartDate(LocalDate.now());
@@ -63,7 +71,7 @@ public class PartnershipContractService {
     public void migrateLegacyApprovedPartnerships() {
         partnershipRepository.findAll().stream()
                 .filter(partnership -> partnership.getStatus() == DealerPartnershipStatusEnum.APPROVED)
-                .filter(partnership -> contractRepository.findByPartnershipId(partnership.getId()).isEmpty())
+                .filter(partnership -> contractRepository.findTopByPartnershipIdOrderByVersionNumberDesc(partnership.getId()).isEmpty())
                 .forEach(partnership -> {
                     PartnershipContract contract = baseContract(partnership);
                     LocalDateTime acceptedAt = partnership.getProcessingDate() == null
@@ -91,7 +99,7 @@ public class PartnershipContractService {
             throw badRequest("Le contrat peut uniquement etre prepare apres l'approbation de la demande.");
         }
         validateStoreConfiguration(partnership);
-        PartnershipContract contract = contractRepository.findByPartnershipId(partnershipId)
+        PartnershipContract contract = contractRepository.findTopByPartnershipIdOrderByVersionNumberDesc(partnershipId)
                 .orElseGet(() -> createDraftForApprovedPartnership(partnership));
         if (contract.getStatus() != PartnershipContractStatusEnum.DRAFT) {
             throw badRequest("Seul un contrat brouillon peut etre modifie.");
@@ -116,8 +124,30 @@ public class PartnershipContractService {
     public PartnershipContractDtos.View forBankPartnership(Authentication auth, Long partnershipId) {
         User user = security.requireBank(auth);
         DealerBankPartnership partnership = ownedPartnership(user, partnershipId);
-        return contractRepository.findByPartnershipId(partnership.getId()).map(this::toView)
+        return contractRepository.findTopByPartnershipIdOrderByVersionNumberDesc(partnership.getId()).map(this::toView)
                 .orElseThrow(() -> notFound("Contrat introuvable."));
+    }
+
+    /** Creates V(n+1) while the previous accepted document remains immutable and usable. */
+    @Transactional
+    public PartnershipContractDtos.View createRevision(Authentication auth, Long partnershipId) {
+        User user = security.requireBank(auth);
+        DealerBankPartnership partnership = ownedPartnership(user, partnershipId);
+        PartnershipContract previous = contractRepository.findTopByPartnershipIdOrderByVersionNumberDesc(partnershipId)
+                .orElseThrow(() -> notFound("Contrat introuvable."));
+        if (previous.getStatus() == PartnershipContractStatusEnum.DRAFT) return toView(previous);
+        PartnershipContract revision = baseContract(partnership);
+        revision.setVersionNumber(previous.getVersionNumber() + 1);
+        revision.setContractNumber(referenceGenerator.next(revision.getVersionNumber()));
+        revision.setStatus(PartnershipContractStatusEnum.DRAFT);
+        revision.setStartDate(previous.getStartDate()); revision.setEndDate(previous.getEndDate());
+        revision.setBillingModel(previous.getBillingModel()); revision.setCommissionApplicable(previous.getCommissionApplicable());
+        revision.setCommissionType(previous.getCommissionType()); revision.setCommissionValue(previous.getCommissionValue());
+        revision.setContractTerms(previous.getContractTerms()); revision.setTerminationConditions(previous.getTerminationConditions());
+        revision.setSpecificConditions(previous.getSpecificConditions());
+        PartnershipContract saved = contractRepository.save(revision);
+        audit("dealer.contract.revision.created", saved.getId());
+        return toView(saved);
     }
 
     @Transactional
@@ -130,6 +160,7 @@ public class PartnershipContractService {
         validateComplete(contract);
         contract.setStatus(PartnershipContractStatusEnum.PENDING_ACCEPTANCE);
         contract.setSentAt(LocalDateTime.now());
+        persistDocument(contract);
         PartnershipContract saved = contractRepository.save(contract);
         notifyDealer(saved, "Nouveau contrat de partenariat",
                 "Le contrat gratuit avec " + saved.getBank().getName() + " est disponible pour validation.",
@@ -181,9 +212,13 @@ public class PartnershipContractService {
         contract.setStatus(PartnershipContractStatusEnum.CANCELLED);
         contract.setRejectionReason(reason.trim());
         PartnershipContract saved = contractRepository.save(contract);
-        saved.getPartnership().setStatus(DealerPartnershipStatusEnum.REJECTED);
-        saved.getPartnership().setRejectionReason(reason.trim());
-        partnershipRepository.save(saved.getPartnership());
+        boolean hasActiveVersion = contractRepository.findByPartnershipIdAndStatus(saved.getPartnership().getId(), PartnershipContractStatusEnum.ACTIVE)
+                .stream().anyMatch(item -> !item.getId().equals(saved.getId()));
+        if (!hasActiveVersion) {
+            saved.getPartnership().setStatus(DealerPartnershipStatusEnum.REJECTED);
+            saved.getPartnership().setRejectionReason(reason.trim());
+            partnershipRepository.save(saved.getPartnership());
+        }
         notifyBank(saved.getPartnership(), "Contrat refuse",
                 saved.getDealer().getCompanyName() + " a refuse le contrat. Motif : " + reason.trim(),
                 NotificationTypeEnum.WARNING, saved.getId());
@@ -202,6 +237,9 @@ public class PartnershipContractService {
         if (contract.getEndDate().isBefore(LocalDate.now())) throw badRequest("Le contrat est deja expire.");
         contract.setBankAcceptedAt(LocalDateTime.now());
         contract.setStatus(PartnershipContractStatusEnum.ACTIVE);
+        contractRepository.findByPartnershipIdAndStatus(contract.getPartnership().getId(), PartnershipContractStatusEnum.ACTIVE)
+                .stream().filter(item -> !item.getId().equals(contract.getId())).forEach(item -> item.setStatus(PartnershipContractStatusEnum.SUPERSEDED));
+        persistDocument(contract);
         PartnershipContract saved = contractRepository.save(contract);
         saved.getPartnership().setStatus(DealerPartnershipStatusEnum.ACTIVE);
         saved.getPartnership().setProcessingDate(LocalDateTime.now());
@@ -258,23 +296,46 @@ public class PartnershipContractService {
         return contractRepository.findAll().stream().map(this::toView).toList();
     }
 
+    @Transactional(readOnly = true)
+    public PartnershipContractDtos.Preview previewForBank(Authentication auth, Long contractId) {
+        return preview(ownedBankContract(security.requireBank(auth), contractId));
+    }
+
+    @Transactional(readOnly = true)
+    public PartnershipContractDtos.Preview previewForDealer(Authentication auth, Long contractId) {
+        return preview(ownedDealerContract(security.requireDealer(auth), contractId));
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] documentForBank(Authentication auth, Long contractId) {
+        return documentBytes(ownedBankContract(security.requireBank(auth), contractId));
+    }
+
+    @Transactional(readOnly = true)
+    public byte[] documentForDealer(Authentication auth, Long contractId) {
+        return documentBytes(ownedDealerContract(security.requireDealer(auth), contractId));
+    }
+
     public PartnershipContractDtos.View toView(PartnershipContract contract) {
         return new PartnershipContractDtos.View(
-                contract.getId(), contract.getContractNumber(), contract.getPartnership().getId(),
+                contract.getId(), contract.getContractNumber(), contract.getVersionNumber(), contract.getTemplateVersion(), contract.getPartnership().getId(),
                 contract.getDealer().getId(), contract.getDealer().getCompanyName(),
                 contract.getBank().getId(), contract.getBank().getName(),
                 contract.getStore().getId(), contract.getStore().getName(), contract.getStatus(),
                 contract.getStartDate(), contract.getEndDate(), contract.getBillingModel(), BigDecimal.ZERO,
                 Boolean.TRUE.equals(contract.getCommissionApplicable()), contract.getCommissionType(),
-                contract.getCommissionValue(), contract.getContractTerms(), contract.getTerminationConditions(),
+                contract.getCommissionValue(), contract.getContractTerms(), contract.getTerminationConditions(), contract.getSpecificConditions(), contract.getGeneratedDocumentPath(),
                 contract.getDealerAcceptedAt(), contract.getBankAcceptedAt(), contract.getSentAt(),
                 contract.getRejectionReason(), contract.getCreatedAt(), contract.getUpdatedAt());
     }
 
     private PartnershipContract baseContract(DealerBankPartnership partnership) {
         PartnershipContract contract = new PartnershipContract();
-        contract.setContractNumber("MTC-" + Year.now().getValue() + "-" + partnership.getId() + "-"
-                + UUID.randomUUID().toString().substring(0, 8).toUpperCase(Locale.ROOT));
+        int version = contractRepository.findTopByPartnershipIdOrderByVersionNumberDesc(partnership.getId())
+                .map(item -> item.getVersionNumber() + 1).orElse(1);
+        contract.setVersionNumber(version);
+        contract.setTemplateVersion(PartnershipContractTemplate.VERSION);
+        contract.setContractNumber(referenceGenerator.next(version));
         contract.setPartnership(partnership);
         contract.setDealer(partnership.getDealer());
         contract.setBank(partnership.getBank());
@@ -306,6 +367,7 @@ public class PartnershipContractService {
         contract.setContractTerms(hasText(input.contractTerms()) ? input.contractTerms().trim() : FREE_TERMS);
         contract.setTerminationConditions(hasText(input.terminationConditions())
                 ? input.terminationConditions().trim() : DEFAULT_TERMINATION);
+        contract.setSpecificConditions(hasText(input.specificConditions()) ? input.specificConditions().trim() : null);
         contract.setBillingModel(PartnershipBillingModelEnum.FREE);
     }
 
@@ -354,6 +416,38 @@ public class PartnershipContractService {
             throw forbidden("Ce contrat appartient a un autre concessionnaire.");
         }
         return contract;
+    }
+
+    private PartnershipContractDtos.Preview preview(PartnershipContract contract) {
+        PartnershipContractTemplate.Rendered rendered = contractTemplate.render(contract);
+        return new PartnershipContractDtos.Preview(rendered.html(), contract.getContractNumber(), contract.getVersionNumber(),
+                contract.getStatus() == PartnershipContractStatusEnum.ACTIVE || contract.getStatus() == PartnershipContractStatusEnum.SUPERSEDED);
+    }
+
+    private void persistDocument(PartnershipContract contract) {
+        PartnershipContractTemplate.Rendered rendered = contractTemplate.render(contract);
+        contract.setRenderedHtml(rendered.html());
+        byte[] pdf = pdfGenerator.generate(rendered.text());
+        String filename = safeFilename(contract) + ".pdf";
+        try {
+            Path directory = Paths.get(documentUploadDirectory).toAbsolutePath().normalize();
+            Files.createDirectories(directory);
+            Path file = directory.resolve(filename).normalize();
+            if (!file.startsWith(directory)) throw new IllegalStateException("Chemin de contrat invalide.");
+            Files.write(file, pdf);
+            contract.setGeneratedDocumentPath(filename);
+        } catch (IOException e) { throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "Impossible d'archiver le PDF du contrat.", e); }
+    }
+
+    private byte[] documentBytes(PartnershipContract contract) {
+        // The preview and download share the same rendering source, preventing any content drift.
+        return pdfGenerator.generate(contractTemplate.render(contract).text());
+    }
+
+    private String safeFilename(PartnershipContract contract) {
+        String bank = contract.getBank().getName().replaceAll("[^a-zA-Z0-9_-]", "_");
+        String dealer = contract.getDealer().getCompanyName().replaceAll("[^a-zA-Z0-9_-]", "_");
+        return "Partnership_Contract_" + bank + "_" + dealer + "_" + contract.getContractNumber().replaceAll("[^a-zA-Z0-9_-]", "_");
     }
 
     private void notifyDealer(PartnershipContract contract, String title, String message,

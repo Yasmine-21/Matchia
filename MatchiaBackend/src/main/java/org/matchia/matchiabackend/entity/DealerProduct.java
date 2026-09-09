@@ -30,6 +30,11 @@ public class DealerProduct {
     @Column(name = "reserved_stock") private Integer reservedStock;
     @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonIgnore private List<DealerProductParameterValue> parameterValues = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore private List<DealerProductDocument> documents = new ArrayList<>();
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC")
+    @JsonIgnore private List<DealerProductCatalogImage> catalogImages = new ArrayList<>();
     @CreationTimestamp @Column(name = "created_at", updatable = false) private LocalDateTime createdAt;
     @UpdateTimestamp @Column(name = "updated_at") private LocalDateTime updatedAt;
 }

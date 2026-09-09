@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,37 +60,6 @@ public class ProductController {
             return ResponseEntity.ok(service.getByStore(storeId));
         } catch (RuntimeException e) {
             return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PostMapping
-    public ResponseEntity<ProductDto> create(@RequestBody ProductRequestDto request) {
-        try {
-            return new ResponseEntity<>(service.create(request), HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<ProductDto> createMultipart(
-            @RequestParam("bankId") Long bankId,
-            @RequestParam("storeId") Long storeId,
-            @RequestParam("name") String name,
-            @RequestParam(value = "description", required = false) String description,
-            @RequestParam(value = "price", required = false) String price,
-            @RequestParam(value = "image", required = false) MultipartFile image,
-            @RequestParam(value = "parameterValues", required = false) String parameterValuesJson
-    ) {
-        try {
-            ProductRequestDto request = buildRequest(bankId, storeId, name, description, price, parameterValuesJson);
-            return new ResponseEntity<>(service.create(request, image), HttpStatus.CREATED);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().build();
-        } catch (IOException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 

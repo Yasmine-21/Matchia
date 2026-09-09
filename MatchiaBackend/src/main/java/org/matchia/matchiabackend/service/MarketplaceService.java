@@ -3,6 +3,7 @@ package org.matchia.matchiabackend.service;
 import org.matchia.matchiabackend.dto.MarketplaceConfigDto;
 import org.matchia.matchiabackend.dto.MarketplaceBrandingDto;
 import org.matchia.matchiabackend.dto.MarketplaceDto;
+import org.matchia.matchiabackend.dto.MarketplaceStoreBannerDto;
 import org.matchia.matchiabackend.entity.Bank;
 import org.matchia.matchiabackend.entity.MarketplaceStore;
 import org.matchia.matchiabackend.entity.MarketplaceStoreModule;
@@ -187,6 +188,9 @@ public class MarketplaceService {
             if (marketplaceStore.getStore() != null) {
                 marketplaceStore.getStore().getName();
             }
+            if (marketplaceStore.getBannerImages() != null) {
+                marketplaceStore.getBannerImages().forEach(image -> image.getImageUrl());
+            }
             if (marketplaceStore.getMarketplaceStoreModules() != null) {
                 marketplaceStore.getMarketplaceStoreModules().forEach((marketplaceStoreModule) -> {
                     if (marketplaceStoreModule.getModule() != null) {
@@ -217,6 +221,7 @@ public class MarketplaceService {
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getDescription() : null,
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getBanniereUrl() : null,
                 marketplaceStore.getBannerImageUrl(),
+                toBannerImages(marketplaceStore),
                 marketplaceStore.getStore() != null ? marketplaceStore.getStore().getPrice() : null,
                 marketplaceStore.getEnabled(),
                 marketplaceStore.getVisible(),
@@ -239,6 +244,18 @@ public class MarketplaceService {
                 marketplaceStoreModule.getEnabled(),
                 marketplaceStoreModule.getVisible()
         );
+    }
+
+    private List<MarketplaceStoreBannerDto.BannerImageDto> toBannerImages(MarketplaceStore marketplaceStore) {
+        if (marketplaceStore.getBannerImages() != null && !marketplaceStore.getBannerImages().isEmpty()) {
+            return marketplaceStore.getBannerImages().stream()
+                    .map(image -> new MarketplaceStoreBannerDto.BannerImageDto(image.getId(), image.getImageUrl(), image.getDisplayOrder()))
+                    .toList();
+        }
+        if (marketplaceStore.getBannerImageUrl() != null && !marketplaceStore.getBannerImageUrl().isBlank()) {
+            return List.of(new MarketplaceStoreBannerDto.BannerImageDto(null, marketplaceStore.getBannerImageUrl(), 0));
+        }
+        return List.of();
     }
 
     private boolean matchesStoreIdentifier(MarketplaceStore marketplaceStore, String storeIdentifier) {

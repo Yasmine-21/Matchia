@@ -1,0 +1,39 @@
+yassmine24/matchia-backend
+yassmine24/matchia-frontend
+dckr_pat_d72pBhFrjMBgdGRpmL2RJ1PqkmM
+
+SPRING_DATASOURCE_URL=jdbc:postgresql://matchia-postgresql.postgres.database.azure.com:5432/matchiaSaaS?sslmode=require
+
+SPRING_DATASOURCE_USERNAME=matchiaadmin
+
+SPRING_DATASOURCE_PASSWORD=ton_mot_de_passe_Azure
+
+
+Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):  |
+  https://apart-participant-chocolate-spend.trycloudflare.com     
+  
+  Redéploiement 
+  
+  Si tu veux relancer le déploiement Azure après avoir travaillé en local, fais l’inverse de l’arrêt.
+
+D’abord, remets les services Azure disponibles :
+
+1. PostgreSQL Azure → Start
+2. Backend Container App → ingress ON
+3. Frontend Container App → ingress ON
+
+Tu peux garder min replicas = 0, ce n’est pas bloquant.
+
+Ensuite reconnecte Azure CLI dans Jenkins si la session a expiré :
+
+docker exec -it matchia-jenkins az login --use-device-code
+
+Puis vérifie :
+
+docker exec matchia-jenkins az account show
+
+Après ça, relance ton tunnel Cloudflare :
+
+cloudflared tunnel --url http://localhost:8080
+
+et vérifie que le webhook GitHub est toujours Active.

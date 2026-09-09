@@ -40,4 +40,8 @@ public class MarketplaceStore {
     @Column(name = "banner_image_url")
     private String bannerImageUrl;
 
+    @OneToMany(mappedBy = "marketplaceStore", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OrderBy("displayOrder ASC, id ASC")
+    private List<MarketplaceStoreBanner> bannerImages = new ArrayList<>();
+
 }

@@ -1,0 +1,82 @@
+@startuml
+title Diagramme de cas d'utilisation global — Matchia
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+actor "Visiteur" as visitor
+actor "Client" as client
+actor "Administrateur\nSaaS" as saas
+actor "Administrateur\nBanque" as bank
+actor "Administrateur\nconcessionnaire" as dealer
+actor "Stripe" as stripe <<système externe>>
+actor "Gemini" as gemini <<système externe>>
+actor "Service e-mail\nSMTP" as smtp <<système externe>>
+
+rectangle "Système Matchia" {
+  usecase "S'authentifier" as UC_Auth
+  usecase "Consulter le marketplace\net les modules publics" as UC_Public
+  usecase "Créer un compte client" as UC_Account
+  usecase "Vérifier l'adresse e-mail" as UC_Verify
+  usecase "Gérer le profil et\nles notifications" as UC_Profile
+  usecase "Constituer et suivre un\ndossier de financement" as UC_Financing
+  usecase "Ajouter les pièces\njustificatives" as UC_Documents
+
+  usecase "Gouverner la plateforme\n(banques et marketplaces)" as UC_Govern
+  usecase "Gérer le catalogue global\n(stores et modules)" as UC_Catalog
+  usecase "Gérer les offres, abonnements\net paiements" as UC_Subscription
+  usecase "Auditer et interroger\nl'assistant IA" as UC_AuditAi
+
+  usecase "Configurer le marketplace\nde la banque" as UC_BankMarketplace
+  usecase "Gérer les utilisateurs, contenus\net produits de la banque" as UC_BankOperations
+  usecase "Gérer les partenariats, contrats\net publications" as UC_Partnership
+  usecase "Gérer le catalogue, le stock\net les documents concessionnaire" as UC_DealerCatalog
+  usecase "Notifier les acteurs\npar e-mail" as UC_Notify
+}
+
+visitor -- UC_Public
+visitor -- UC_Account
+visitor -- UC_Auth
+client -- UC_Profile
+client -- UC_Financing
+saas -- UC_Govern
+saas -- UC_Catalog
+saas -- UC_Subscription
+saas -- UC_AuditAi
+bank -- UC_BankMarketplace
+bank -- UC_BankOperations
+bank -- UC_Financing
+bank -- UC_Partnership
+dealer -- UC_DealerCatalog
+dealer -- UC_Partnership
+
+UC_Account .> UC_Verify : <<include>>
+UC_Financing .> UC_Documents : <<include>>
+UC_Subscription .> UC_Notify : <<include>>
+UC_Profile .> UC_Auth : <<include>>
+UC_Financing .> UC_Auth : <<include>>
+UC_Govern .> UC_Auth : <<include>>
+UC_Catalog .> UC_Auth : <<include>>
+UC_Subscription .> UC_Auth : <<include>>
+UC_AuditAi .> UC_Auth : <<include>>
+UC_BankMarketplace .> UC_Auth : <<include>>
+UC_BankOperations .> UC_Auth : <<include>>
+UC_Partnership .> UC_Auth : <<include>>
+UC_DealerCatalog .> UC_Auth : <<include>>
+
+stripe -- UC_Subscription
+gemini -- UC_AuditAi
+smtp -- UC_Verify
+smtp -- UC_Notify
+
+note right of UC_Auth
+  Toute fonctionnalité privée
+  inclut l'authentification.
+end note
+
+legend right
+  Acteur blanc : utilisateur humain
+  Acteur gris <<système externe>> : service tiers
+  Flèche pointillée <<include>> : sous-fonction obligatoire
+endlegend
+@enduml

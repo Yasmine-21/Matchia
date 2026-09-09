@@ -44,6 +44,10 @@ public class Subscription {
     @Column(name = "expiration_date")
     private LocalDate expirationDate;
 
+    /** Timestamp of the single renewal reminder sent seven days before expiry. */
+    @Column(name = "renewal_reminder_sent_at")
+    private LocalDateTime renewalReminderSentAt;
+
     @Column(name = "duration_months", nullable = false)
     private Integer durationMonths = 12;
 

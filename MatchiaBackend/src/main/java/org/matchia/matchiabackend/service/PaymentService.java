@@ -564,7 +564,10 @@ public class PaymentService {
         return subscriptionService.getExpiringAlerts();
     }
 
-    @Scheduled(fixedDelayString = "${app.subscription-status-sync-ms:3600000}")
+    @Scheduled(
+            cron = "${app.subscription-expiration-cron:0 40 13 * * *}",
+            zone = "${app.subscription-expiration-zone:Africa/Tunis}"
+    )
     @Transactional
     public void syncExpiredMarketplaceSubscriptions() {
         subscriptionService.synchronizeExpirationStatuses();

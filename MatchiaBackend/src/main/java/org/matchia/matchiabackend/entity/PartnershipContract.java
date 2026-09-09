@@ -17,7 +17,8 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "partnership_contract")
+@Table(name = "partnership_contract", uniqueConstraints =
+        @UniqueConstraint(name = "uk_partnership_contract_version", columnNames = {"partnership_id", "version_number"}))
 public class PartnershipContract {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,9 +27,15 @@ public class PartnershipContract {
     @Column(name = "contract_number", nullable = false, unique = true, length = 80)
     private String contractNumber;
 
-    @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "partnership_id", nullable = false, unique = true)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @JoinColumn(name = "partnership_id", nullable = false)
     private DealerBankPartnership partnership;
+
+    @Column(name = "version_number", nullable = false, columnDefinition = "integer default 1")
+    private Integer versionNumber = 1;
+
+    @Column(name = "template_version", nullable = false, length = 30, columnDefinition = "varchar(30) default 'PARTNERSHIP-V1'")
+    private String templateVersion = "PARTNERSHIP-V1";
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "dealer_id", nullable = false)
@@ -71,6 +78,15 @@ public class PartnershipContract {
 
     @Column(name = "termination_conditions", length = 4000)
     private String terminationConditions;
+
+    @Column(name = "specific_conditions", length = 4000)
+    private String specificConditions;
+
+    @Column(name = "rendered_html", length = 50000)
+    private String renderedHtml;
+
+    @Column(name = "generated_document_path", length = 1000)
+    private String generatedDocumentPath;
 
     @Column(name = "dealer_accepted_at")
     private LocalDateTime dealerAcceptedAt;
