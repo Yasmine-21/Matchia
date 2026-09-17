@@ -140,7 +140,43 @@ const diagrams = [
     ],
   },
   {
-    code: "AD-04", slug: "parcours_concessionnaire", title: "Parcours métier du Concessionnaire",
+    code: "AD-04", slug: "renouvellement_extension_abonnement", title: "Renouvellement et extension d'un abonnement",
+    nodes: [
+      n("start", "start", C, 55, "Début"),
+      n("auth", "action", C, 145, "S'authentifier en tant qu'Administrateur Banque"),
+      n("current", "action", C, 255, "Consulter l'abonnement et les services actifs"),
+      n("choice", "decision", C, 375, "Type de\ndemande ?"),
+      n("renew", "action", 300, 515, "Demander le renouvellement de l'abonnement", 540),
+      n("extend", "action", 1030, 515, "Sélectionner les nouveaux stores ou modules", 650),
+      n("summary", "action", C, 650, "Vérifier le récapitulatif et soumettre la demande"),
+      n("review", "action", C, 780, "L'Administrateur SaaS examine la demande"),
+      n("approved", "decision", C, 910, "Demande\nvalidée ?"),
+      n("correction", "correction", R, 910, "Notifier le rejet ou demander une correction", RW),
+      n("correctionEnd", "final", R, 1040, "Fin"),
+      n("checkout", "action", C, 1050, "Créer et transmettre le lien de paiement Stripe"),
+      n("pay", "action", C, 1175, "L'Administrateur Banque effectue le paiement"),
+      n("paid", "decision", C, 1305, "Paiement\nconfirmé ?"),
+      n("paymentError", "correction", R, 1305, "Signaler l'échec ou l'expiration et proposer un nouvel essai", RW),
+      n("paymentEnd", "final", R, 1435, "Fin"),
+      n("update", "action", C, 1450, "Mettre à jour l'abonnement"),
+      n("activate", "action", C, 1575, "Prolonger les services ou activer les services ajoutés"),
+      n("notify", "action", C, 1700, "Notifier l'Administrateur Banque"),
+      n("end", "final", C, 1840, "Fin"),
+    ],
+    edges: [
+      e("start", "auth"), e("auth", "current"), e("current", "choice"),
+      e("choice", "renew", "Renouvellement"), e("choice", "extend", "Extension"),
+      e("renew", "summary", "", [[300, 590], [510, 590]]),
+      e("extend", "summary", "", [[1030, 590], [510, 590]]),
+      e("summary", "review"), e("review", "approved"),
+      e("approved", "checkout", "Oui"), e("approved", "correction", "Non"), e("correction", "correctionEnd"),
+      e("checkout", "pay"), e("pay", "paid"), e("paid", "update", "Oui"), e("paid", "paymentError", "Non"),
+      e("paymentError", "paymentEnd"),
+      e("update", "activate"), e("activate", "notify"), e("notify", "end"),
+    ],
+  },
+  {
+    code: "AD-05", slug: "parcours_concessionnaire", title: "Parcours métier du Concessionnaire",
     nodes: [
       n("start", "start", C, 55, "Début"),
       n("register", "action", C, 145, "Déposer la demande d'inscription Concessionnaire"),
@@ -181,7 +217,7 @@ const diagrams = [
     ],
   },
   {
-    code: "AD-05", slug: "parcours_client", title: "Parcours Client et demande de financement",
+    code: "AD-06", slug: "parcours_client", title: "Parcours Client et demande de financement",
     nodes: [
       n("start", "start", C, 55, "Début"),
       n("browse", "action", C, 145, "Consulter les produits de la marketplace"),
@@ -320,7 +356,10 @@ function svgFor(def) {
 
 function drawioFragment(def) {
   const viewH = canvasHeight(def);
-  const cells = [];
+  const shiftY = 82;
+  const cells = [
+    `<mxCell id="title" value="${esc(def.title)}" style="text;html=1;align=center;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontStyle=1;fontColor=#17365d;" vertex="1" parent="1"><mxGeometry x="170" y="18" width="1160" height="44" as="geometry"/></mxCell>`,
+  ];
   for (const node of def.nodes) {
     let style;
     if (node.type === "start") style = "ellipse;html=1;aspect=fixed;fillColor=#e8f3ec;strokeColor=#17365d;strokeWidth=3;fontFamily=Arial;fontSize=18;fontStyle=1;";
@@ -328,13 +367,13 @@ function drawioFragment(def) {
     else if (node.type === "decision") style = "rhombus;whiteSpace=wrap;html=1;fillColor=#fff2cc;strokeColor=#2f75b5;strokeWidth=3;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#17365d;";
     else style = `rounded=1;arcSize=18;whiteSpace=wrap;html=1;fillColor=${node.type === "correction" ? "#fde9e7" : "#f2f6fb"};strokeColor=#2f75b5;strokeWidth=3;fontFamily=Arial;fontSize=18;fontStyle=1;fontColor=#17365d;`;
     const value = node.type === "start" ? "Début" : node.type === "final" ? "Fin" : node.label;
-    cells.push(`<mxCell id="${node.id}" value="${esc(value).replace(/\n/g, "&lt;br&gt;")}" style="${style}" vertex="1" parent="1"><mxGeometry x="${node.x - node.w / 2}" y="${node.y - node.h / 2}" width="${node.w}" height="${node.h}" as="geometry"/></mxCell>`);
+    cells.push(`<mxCell id="${node.id}" value="${esc(value).replace(/\n/g, "&lt;br&gt;")}" style="${style}" vertex="1" parent="1"><mxGeometry x="${node.x - node.w / 2}" y="${node.y - node.h / 2 + shiftY}" width="${node.w}" height="${node.h}" as="geometry"/></mxCell>`);
   }
   def.edges.forEach((edge, index) => {
-    const route = edge.points.length ? `<Array as="points">${edge.points.map(([x, y]) => `<mxPoint x="${x}" y="${y}"/>`).join("")}</Array>` : "";
+    const route = edge.points.length ? `<Array as="points">${edge.points.map(([x, y]) => `<mxPoint x="${x}" y="${y + shiftY}"/>`).join("")}</Array>` : "";
     cells.push(`<mxCell id="edge-${index}" value="${esc(edge.label)}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;endArrow=classic;endFill=1;strokeColor=#2f75b5;strokeWidth=3;fontFamily=Arial;fontSize=16;fontStyle=1;fontColor=#52697f;labelBackgroundColor=#ffffff;" edge="1" parent="1" source="${edge.from}" target="${edge.to}"><mxGeometry relative="1" as="geometry">${route}</mxGeometry></mxCell>`);
   });
-  return `<diagram id="${def.code}-${def.slug}" name="${esc(def.code + " " + def.title)}"><mxGraphModel dx="${W}" dy="${viewH}" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${W}" pageHeight="${viewH}" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>${cells.join("")}</root></mxGraphModel></diagram>`;
+  return `<diagram id="${def.code}-${def.slug}" name="${esc(def.code + " " + def.title)}"><mxGraphModel dx="${W}" dy="${viewH + shiftY}" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="${W}" pageHeight="${viewH + shiftY}" math="0" shadow="0"><root><mxCell id="0"/><mxCell id="1" parent="0"/>${cells.join("")}</root></mxGraphModel></diagram>`;
 }
 
 async function main() {
@@ -346,9 +385,9 @@ async function main() {
     await sharp(Buffer.from(svg)).resize({ width: 3000 }).png().toFile(path.join(OUT, `${base}.png`));
     const fragment = drawioFragment(def);
     fragments.push(fragment);
-    fs.writeFileSync(path.join(OUT, `${base}.drawio`), `<mxfile host="app.diagrams.net" agent="Codex" version="24.7.17" type="device">${fragment}</mxfile>`, "utf8");
+    fs.writeFileSync(path.join(OUT, `${base}.drawio`), `<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" modified="2026-09-11T00:00:00.000Z" agent="Codex" version="24.7.17" type="device" compressed="false">${fragment}</mxfile>`, "utf8");
   }
-  fs.writeFileSync(path.join(OUT, "Diagrammes_activite_Matchia_modele.drawio"), `<mxfile host="app.diagrams.net" agent="Codex" version="24.7.17" type="device">${fragments.join("")}</mxfile>`, "utf8");
+  fs.writeFileSync(path.join(OUT, "Diagrammes_activite_Matchia_modele.drawio"), `<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" modified="2026-09-11T00:00:00.000Z" agent="Codex" version="24.7.17" type="device" compressed="false">${fragments.join("")}</mxfile>`, "utf8");
   console.log(JSON.stringify({ output: OUT, count: diagrams.length }, null, 2));
 }
 

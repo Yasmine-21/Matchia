@@ -1,0 +1,3077 @@
+{
+  "paragraph_count": 844,
+  "table_count": 14,
+  "section_count": 13,
+  "paragraphs": [
+    {
+      "index": 0,
+      "style": "Normal",
+      "text": "République Tunisienne"
+    },
+    {
+      "index": 1,
+      "style": "Normal",
+      "text": "Ministère de l’Enseignement Supérieur et de la Recherche Scientifique"
+    },
+    {
+      "index": 2,
+      "style": "Normal",
+      "text": "Université de Tunis El Manar"
+    },
+    {
+      "index": 3,
+      "style": "Normal",
+      "text": "Faculté des Sciences de Tunis"
+    },
+    {
+      "index": 5,
+      "style": "Normal",
+      "text": "MEMOIRE DE MASTER"
+    },
+    {
+      "index": 6,
+      "style": "Normal",
+      "text": "Présenté en vue de l’obtention du"
+    },
+    {
+      "index": 7,
+      "style": "Normal",
+      "text": "Diplôme National de Mastère Professionnel"
+    },
+    {
+      "index": 8,
+      "style": "Normal",
+      "text": "En Système de Télécommunications et Réseaux"
+    },
+    {
+      "index": 10,
+      "style": "Normal",
+      "text": "Réalisé par :"
+    },
+    {
+      "index": 11,
+      "style": "Normal",
+      "text": "Yasmine Mouakhar"
+    },
+    {
+      "index": 12,
+      "style": "Normal",
+      "text": "Conception, développement et déploiement d’une plateforme SaaS multi-tenant pour la gestion de marketplaces bancaires avec mise en place d’un pipeline CI/CD"
+    },
+    {
+      "index": 16,
+      "style": "Normal",
+      "text": "Réalisé à :"
+    },
+    {
+      "index": 17,
+      "style": "Normal",
+      "text": "BRI-Technology"
+    },
+    {
+      "index": 21,
+      "style": "Normal",
+      "text": "Année Universitaire 2025 - 2026"
+    },
+    {
+      "index": 24,
+      "style": "Normal",
+      "text": "Encadrant Académique"
+    },
+    {
+      "index": 41,
+      "style": "Normal",
+      "text": "Encadrant Professionnel"
+    },
+    {
+      "index": 44,
+      "style": "Normal",
+      "text": "Remerciements"
+    },
+    {
+      "index": 46,
+      "style": "Normal",
+      "text": "Le travail exposé dans ce mémoire a été entrepris dans le cadre de la préparation du Diplôme National de Master Professionnel en Systèmes de Télécommunications et Réseaux à la Faculté des Sciences de Tunis."
+    },
+    {
+      "index": 47,
+      "style": "Normal",
+      "text": "Au thème de ce projet, je tiens à exprimer ma sincère gratitude envers toutes les personnes qui m’ont soutenue tout au long de mon parcours."
+    },
+    {
+      "index": 48,
+      "style": "Normal",
+      "text": "A cette occasion, j’exprime ma profonde gratitude et mes sincères remerciements à Monsieur Tarek Chabbani, mon encadrant professionnel, pour avoir accepté de m’accompagner durant ce projet. Je le remercie pour son suivi, ses orientations pertinentes ainsi que pour les précieux conseils qu’il m’a prodigués tout au long de mon stage."
+    },
+    {
+      "index": 49,
+      "style": "Normal",
+      "text": "Je tiens également à remercier chaleureusement Madame Naja Aguili, mon encadrante professionnelle, pour son accompagnement, son écoute et son soutien. Ses remarques constructives, ses recommandations et les compétences qu’elle a su me transmettre ont largement contribué à l’amélioration de ce travail."
+    },
+    {
+      "index": 50,
+      "style": "Normal (Web)",
+      "text": "Mes remerciements s’adressent également à Monsieur Riadh Bouhouchi, administrateur de l’entreprise, pour son accueil, ses précieux conseils,et les moyens mis à ma disposition afin de mener ce projet dans les meilleures conditions."
+    },
+    {
+      "index": 51,
+      "style": "Normal (Web)",
+      "text": "Je remercie aussi l’ensemble de l’équipe de BRI Technology pour son soutien quotidien, sa disponibilité et la qualité de son accueil. L’esprit de collaboration de ses membres a facilité mon intégration au sein de l’entreprise et a rendu cette expérience particulièrement enrichissante, aussi bien sur le plan professionnel que personnel."
+    },
+    {
+      "index": 52,
+      "style": "Normal (Web)",
+      "text": "Un remerciement particulier s’adresse aux membres du jury pour avoir accepté d’évaluer ce travail et de me faire bénéficier de leurs remarques, de leurs recommandations et de leurs conseils constructifs."
+    },
+    {
+      "index": 53,
+      "style": "Normal",
+      "text": "."
+    },
+    {
+      "index": 55,
+      "style": "Normal",
+      "text": "Dédicace"
+    },
+    {
+      "index": 57,
+      "style": "Normal",
+      "text": "C’est avec une profonde émotion et une grande reconnaissance que je dédie ce travail à toutes les personnes qui ont contribué, de près ou de loin, à son accomplissement"
+    },
+    {
+      "index": 58,
+      "style": "Normal",
+      "text": "A mes chers parents"
+    },
+    {
+      "index": 59,
+      "style": "Normal",
+      "text": "Kamel & Fatma"
+    },
+    {
+      "index": 60,
+      "style": "Normal",
+      "text": "Pour leur amour, leurs sacrifices, leur soutien permanent et leurs encouragements tout au long de mon parcours. Vous avez toujours été ma source de force et de motivation. J’espère rester toujours à la hauteur de votre confiance et ne jamais vous décevoir."
+    },
+    {
+      "index": 61,
+      "style": "Normal",
+      "text": "Que Dieu vous procure bonne santé et longue vie."
+    },
+    {
+      "index": 62,
+      "style": "Normal",
+      "text": "A mes chers frères"
+    },
+    {
+      "index": 63,
+      "style": "Normal",
+      "text": "Hamdi & Yassine"
+    },
+    {
+      "index": 64,
+      "style": "Normal",
+      "text": "Pour leur soutien moral, leurs encouragements et leurs précieux conseils, qui m’ont accompagnée durant toutes les étapes de ce travail."
+    },
+    {
+      "index": 65,
+      "style": "Normal",
+      "text": "A toute personne qui a marqué ma vie par un mot, un conseil ou un geste qui m’a guidée vers le bon chemin."
+    },
+    {
+      "index": 66,
+      "style": "Normal",
+      "text": "Merci pour tout l’amour et la confiance et pour votre énorme support pendant la réalisation de mon projet."
+    },
+    {
+      "index": 68,
+      "style": "Normal",
+      "text": "Table des matières"
+    },
+    {
+      "index": 71,
+      "style": "Heading 1",
+      "text": "Liste des figures"
+    },
+    {
+      "index": 73,
+      "style": "table of figures",
+      "text": "Figure 1: Logo de BRI Technology\t2"
+    },
+    {
+      "index": 74,
+      "style": "table of figures",
+      "text": "Figure 2: Cycle de vie de la méthodologie agile SCRUM\t7"
+    },
+    {
+      "index": 75,
+      "style": "table of figures",
+      "text": "Figure 3: Principales stratégies d’architecture multi-tenant\t11"
+    },
+    {
+      "index": 77,
+      "style": "Heading 1",
+      "text": "Liste des tableaux"
+    },
+    {
+      "index": 79,
+      "style": "table of figures",
+      "text": "Tableau 1: Planification de la Release 1\t9"
+    },
+    {
+      "index": 80,
+      "style": "table of figures",
+      "text": "Tableau 2: Planification de la Release 2\t10"
+    },
+    {
+      "index": 81,
+      "style": "table of figures",
+      "text": "Tableau 3: Planification de la Release 3\t10"
+    },
+    {
+      "index": 82,
+      "style": "table of figures",
+      "text": "Tableau 4: Acteurs de la plateforme Matchia\t12"
+    },
+    {
+      "index": 83,
+      "style": "table of figures",
+      "text": "Tableau 5: Description du scénario de cas d’utilisation << S'authentifier >>\t18"
+    },
+    {
+      "index": 84,
+      "style": "table of figures",
+      "text": "Tableau 6: Description du scénario de cas d’utilisation << Déposer une demande de marketplace >>\t20"
+    },
+    {
+      "index": 85,
+      "style": "table of figures",
+      "text": "Tableau 7: Description du scénario de cas d’utilisation << Administrer la plateforme >>\t22"
+    },
+    {
+      "index": 86,
+      "style": "table of figures",
+      "text": "Tableau 8: Description du scénario de cas d’utilisation << Traiter une demande et activer les services >>\t24"
+    },
+    {
+      "index": 87,
+      "style": "table of figures",
+      "text": "Tableau 9: Description du scénario de cas d’utilisation << Inscrire et valider un concessionnaire >>\t26"
+    },
+    {
+      "index": 88,
+      "style": "table of figures",
+      "text": "Tableau 10: Description du scénario de cas d’utilisation << Gérer et publier un produit >>\t28"
+    },
+    {
+      "index": 89,
+      "style": "table of figures",
+      "text": "Tableau 11: Description du scénario de cas d’utilisation << Déposer et traiter une demande de financement >>\t30"
+    },
+    {
+      "index": 94,
+      "style": "Heading 1",
+      "text": "Liste des acronymes"
+    },
+    {
+      "index": 96,
+      "style": "Normal",
+      "text": "SaaS : Software as a Service"
+    },
+    {
+      "index": 97,
+      "style": "Normal",
+      "text": "MVC : Model View Controller"
+    },
+    {
+      "index": 98,
+      "style": "Normal",
+      "text": "JDBC : Java Database Connectivity"
+    },
+    {
+      "index": 99,
+      "style": "Normal",
+      "text": "API : Application Programming Interface"
+    },
+    {
+      "index": 100,
+      "style": "Normal",
+      "text": "REST : Representational State Transfer"
+    },
+    {
+      "index": 101,
+      "style": "Normal (Web)",
+      "text": "DTO : Data Transfer Object"
+    },
+    {
+      "index": 102,
+      "style": "Normal (Web)",
+      "text": "JPA : Java Persistence API"
+    },
+    {
+      "index": 103,
+      "style": "Normal (Web)",
+      "text": "JSON : JavaScript Object Notation"
+    },
+    {
+      "index": 104,
+      "style": "Normal",
+      "text": "SMTP : Simple Mail Transfer Protocol"
+    },
+    {
+      "index": 105,
+      "style": "Normal",
+      "text": "NLP : Natural Language Processing"
+    },
+    {
+      "index": 106,
+      "style": "Normal",
+      "text": "LLM : Large Language Model"
+    },
+    {
+      "index": 107,
+      "style": "Normal",
+      "text": "CI : Continuous Integration"
+    },
+    {
+      "index": 108,
+      "style": "Normal",
+      "text": "CD : Continuous Deployment"
+    },
+    {
+      "index": 109,
+      "style": "Heading 1",
+      "text": "Introduction générale"
+    },
+    {
+      "index": 110,
+      "style": "Normal (Web)",
+      "text": "La transformation numérique occupe aujourd’hui une place importante dans le secteur bancaire. Les établissements financiers cherchent à diversifier leurs services et à proposer à leurs clients des expériences digitales plus accessibles, personnalisées et adaptées à leurs besoins. Dans ce contexte, les marketplaces bancaires constituent une nouvelle approche permettant de regrouper, au sein d’un même espace numérique, différents produits et services proposés en collaboration avec plusieurs partenaires."
+    },
+    {
+      "index": 111,
+      "style": "Normal (Web)",
+      "text": "Toutefois, la mise en place et la gestion de ces marketplaces présentent plusieurs défis. Le développement d’une application spécifique pour chaque banque entraîne la multiplication des versions, la duplication des opérations de configuration ainsi qu’une maintenance plus complexe. De plus, la gestion séparée des concessionnaires, des produits, des stocks et des demandes de financement limite la centralisation des informations et rend l’évolution globale de la solution plus difficile."
+    },
+    {
+      "index": 112,
+      "style": "Normal (Web)",
+      "text": "C’est dans ce contexte que s’inscrit notre projet de fin d’études, réalisé au sein de BRI Technology. Il consiste à concevoir, développer et déployer Matchia, une plateforme SaaS multi-tenant destinée à la création et à la gestion de plusieurs marketplaces bancaires. Cette solution vise à centraliser les principales fonctionnalités et ressources communes tout en permettant à chaque banque de disposer d’une marketplace personnalisée et d’un espace de gestion propre, avec une séparation des données entre les différents tenants."
+    },
+    {
+      "index": 113,
+      "style": "Normal (Web)",
+      "text": "Afin de présenter de manière structurée les différentes étapes de réalisation du projet, ce rapport est organisé en six chapitres."
+    },
+    {
+      "index": 114,
+      "style": "Normal (Web)",
+      "text": "Le premier chapitre, intitulé « Cadre général du projet », présente l’organisme d’accueil, le contexte du projet, l’étude de l’existant, la problématique identifiée, la solution proposée ainsi que la méthodologie de travail adoptée."
+    },
+    {
+      "index": 115,
+      "style": "pdq2pg_selectionanchorcontainer",
+      "text": "Le deuxième chapitre, intitulé « Analyse et spécification des besoins », présente les acteurs intervenant dans la plateforme ainsi que les besoins fonctionnels et non fonctionnels du système. Il expose également le diagramme de cas d’utilisation global et détaille les principaux cas d’utilisation à travers leurs scénarios."
+    },
+    {
+      "index": 116,
+      "style": "Normal (Web)",
+      "text": "Le troisième chapitre, intitulé « Architecture et conception », présente les concepts liés au SaaS et à l’architecture multi-tenant, les principales stratégies de gestion des tenants ainsi que le choix architectural retenu pour Matchia. Il décrit ensuite l’architecture globale de la plateforme, l’environnement de développement et les technologies utilisées dans sa réalisation."
+    },
+    {
+      "index": 117,
+      "style": "Normal",
+      "text": "Le quatrième chapitre, intitulé «Mise en œuvre de la plateforme SaaS et gestion du cycle de vie des marketplaces bancaires », présente la réalisation des principales fonctionnalités liées à la création, à la configuration, à l’activation et à l’administration des marketplaces bancaires."
+    },
+    {
+      "index": 118,
+      "style": "Normal",
+      "text": "Le cinquième chapitre, intitulé «Mise en œuvre des parcours des concessionnaires et des clients, et intégration des assistants conversationnels », présente les fonctionnalités destinées aux concessionnaires et aux clients, notamment la gestion des partenariats et des produits, le parcours de demande de financement ainsi que les assistants conversationnels intégrés à la plateforme."
+    },
+    {
+      "index": 119,
+      "style": "Normal",
+      "text": "Enfin, le sixième chapitre, intitulé « Mise en place du pipeline CI/CD et déploiement  sur Microsoft Azure », décrit la démarche DevOps adoptée, la conteneurisation de l’application, l’automatisation de la construction, des tests et de l’analyse de la qualité du code, ainsi que le processus de déploiement de la plateforme sur Microsoft Azure."
+    },
+    {
+      "index": 121,
+      "style": "Heading 1",
+      "text": "Chapitre 1 : Cadre général du projet"
+    },
+    {
+      "index": 122,
+      "style": "List Paragraph",
+      "text": "Introduction"
+    },
+    {
+      "index": 123,
+      "style": "Normal",
+      "text": "Ce projet est situé dans son contexte global en commençant par une introduction de l'organisme d'accueil. Nous examinons ensuite la situation actuelle pour identifier la solution appropriée au problème mentionné, tout en soulignant les objectifs à atteindre. Par la suite, nous étudierons la méthodologie appliquée."
+    },
+    {
+      "index": 124,
+      "style": "List Paragraph",
+      "text": "Présentation de l’organisme d’accueil"
+    },
+    {
+      "index": 125,
+      "style": "List Paragraph",
+      "text": "BRI Technology"
+    },
+    {
+      "index": 126,
+      "style": "Normal",
+      "text": "BRI Technology est une entreprise tunisienne fondée en 2010, spécialisée dans l’intelligence artificielle et la transformation digitale. Elle accompagne principalement les banques, les compagnies d’assurance, les opérateurs télécoms et les institutions publiques dans la modernisation de leurs services numériques. Grâce à son expertise technologique, l’entreprise propose des solutions intelligentes, sécurisées et évolutives adaptées aux besoins de chaque client. Elle intervient en Tunisie ainsi que dans plusieurs pays, notamment en Afrique, en Europe et en Amérique du Nord [1]."
+    },
+    {
+      "index": 128,
+      "style": "Caption",
+      "text": "Figure 1: Logo de BRI Technology"
+    },
+    {
+      "index": 129,
+      "style": "List Paragraph",
+      "text": "Présentation des services offerts par BRI Technology"
+    },
+    {
+      "index": 130,
+      "style": "Normal",
+      "text": "BRI Technology propose un ensemble de services destinés à accompagner les entreprises dans leur transformation numérique. Parmi ses principaux services, on distingue :"
+    },
+    {
+      "index": 131,
+      "style": "List Paragraph",
+      "text": "Conseil : BRI Technology accompagne les organisations dans leur transformation numérique à travers la réalisation d’études stratégiques et l’élaboration de feuilles de route détaillées. Cette approche permet d’orienter l’évolution des systèmes d’information et de transformer les processus traditionnels en écosystèmes numériques modernes, efficaces et performants."
+    },
+    {
+      "index": 132,
+      "style": "List Paragraph",
+      "text": "Recherche et développement : BRI Technology intervient dans la conception, le développement et la mise en œuvre de solutions numériques avancées, adaptées aux besoins spécifiques de différents secteurs d’activité. Ses réalisations couvrent notamment le commerce en ligne, les marketplaces et les plateformes digitales sur mesure. Chaque solution est conçue de manière personnalisée afin de répondre efficacement aux exigences et aux objectifs de chaque client."
+    },
+    {
+      "index": 133,
+      "style": "List Paragraph",
+      "text": "Audit : BRI Technology met à disposition son expertise pour analyser et évaluer les systèmes d’information existants. Elle accompagne également les établissements publics et privés dans la définition de plans directeurs stratégiques et opérationnels, favorisant ainsi l’amélioration continue, la performance et l’alignement avec les objectifs à long terme."
+    },
+    {
+      "index": 134,
+      "style": "List Paragraph",
+      "text": "Formation et certification : BRI Technology propose des programmes de formation adaptés aux besoins de ses clients et de leurs équipes. Ces formations sont accompagnées, si nécessaire, de services de certification permettant de valider les compétences acquises, de renforcer le savoir-faire des collaborateurs et d’assurer la conformité aux standards exigés."
+    },
+    {
+      "index": 135,
+      "style": "List Paragraph",
+      "text": "Les solutions proposées par BRI Technology"
+    },
+    {
+      "index": 136,
+      "style": "isselectedend",
+      "text": "Les solutions  proposées par BRI Technology couvrent plusieurs domaines technologiques. L’entreprise développe des solutions d’intelligence artificielle et d’analyse de données permettant d’exploiter les données afin de faciliter la prise de décision, la prédiction et l’automatisation intelligente. Elle accompagne également les organisations dans leur stratégie de transformation digitale à travers l’optimisation des processus, la modernisation des systèmes existants et l’adoption de nouvelles technologies."
+    },
+    {
+      "index": 137,
+      "style": "isselectedend",
+      "text": "Dans le domaine bancaire, BRI Technology propose des solutions de digital banking permettant l’intégration des systèmes bancaires, la mise en place de plateformes web et mobiles, les solutions de paiement et les portefeuilles numériques. Son produit phare, Matchia, est une marketplace de financement intelligente basée sur l’intelligence artificielle. Cette solution permet la simulation de produits financiers, l’évaluation d’éligibilité en temps réel, l’onboarding client automatisé et l’intégration avec différents partenaires."
+    },
+    {
+      "index": 138,
+      "style": "Normal (Web)",
+      "text": "L’entreprise propose également des solutions de cybersécurité, de développement logiciel sur mesure, d’applications web et mobiles, d’architectures API et microservices, ainsi que des solutions cloud natives. Ces solutions visent à offrir aux entreprises des plateformes modernes, performantes, sécurisées et capables d’évoluer selon leurs besoins."
+    },
+    {
+      "index": 139,
+      "style": "List Paragraph",
+      "text": "Présentation du projet"
+    },
+    {
+      "index": 140,
+      "style": "List Paragraph",
+      "text": "Contexte du projet"
+    },
+    {
+      "index": 141,
+      "style": "gjcqjg1a",
+      "text": "Le secteur bancaire connaît une évolution continue portée par la digitalisation des services et par l’apparition de nouveaux usages numériques. Dans ce contexte, les banques cherchent à enrichir leur offre en proposant à leurs clients des services complémentaires accessibles à travers des plateformes digitales."
+    },
+    {
+      "index": 142,
+      "style": "Normal (Web)",
+      "text": "Les marketplaces bancaires s’inscrivent dans cette évolution en permettant de regrouper, au sein d’un même environnement, différents produits et services proposés en collaboration avec plusieurs partenaires. Leur mise en œuvre nécessite toutefois une organisation capable de gérer efficacement la diversité des acteurs, des offres et des configurations associées à chaque établissement bancaire."
+    },
+    {
+      "index": 143,
+      "style": "Normal (Web)",
+      "text": "Avec l’augmentation du nombre de banques et de partenaires, la gestion de ces environnements peut rapidement devenir complexe. Il devient alors essentiel d’adopter une approche permettant de simplifier leur administration, de faciliter leur évolution et d’améliorer la centralisation des différentes opérations."
+    },
+    {
+      "index": 144,
+      "style": "List Paragraph",
+      "text": "Étude de l’existant"
+    },
+    {
+      "index": 145,
+      "style": "isselectedend",
+      "text": "Avant la mise en place de la solution proposée, la gestion des marketplaces bancaires reposait principalement sur une approche spécifique à chaque établissement. Chaque banque disposait de son propre environnement, configuré et adapté selon ses besoins."
+    },
+    {
+      "index": 146,
+      "style": "Normal (Web)",
+      "text": "Cette organisation permettait de répondre aux besoins particuliers de chaque banque, mais elle reposait fortement sur des interventions manuelles et sur la multiplication d’environnements indépendants. Avec l’augmentation du nombre de banques et de partenaires, plusieurs limites sont apparues."
+    },
+    {
+      "index": 147,
+      "style": "Normal (Web)",
+      "text": "Les principales caractéristiques de cette solution existante peuvent être résumées comme suit :"
+    },
+    {
+      "index": 148,
+      "style": "Normal (Web)",
+      "text": "Marketplace spécifique à chaque banque : Dans l’approche existante, chaque banque disposait d’une version spécifique et personnalisée de la marketplace, adaptée manuellement par l’équipe de développement selon ses besoins."
+    },
+    {
+      "index": 149,
+      "style": "Normal (Web)",
+      "text": "Chaque nouvelle mise en place nécessitait donc une configuration dédiée ainsi que, dans certains cas, des modifications ou des corrections du code. Cette multiplication des versions rendait la maintenance et l’évolution plus complexes, puisque certaines modifications devaient être reproduites sur plusieurs environnements."
+    },
+    {
+      "index": 150,
+      "style": "Normal (Web)",
+      "text": "Demande de marketplace et onboarding traditionnel : La création d’une marketplace nécessitait des échanges directs entre la banque et le fournisseur de la solution afin de définir les besoins, les services souhaités et les différentes configurations. Ce processus restait donc dépendant de plusieurs interventions humaines."
+    },
+    {
+      "index": 151,
+      "style": "Normal (Web)",
+      "text": "Paiement non intégré : Le paiement n’était pas intégré au processus de gestion de la marketplace et était traité manuellement ou à travers un système externe. Il n’était donc pas directement lié à l’activation automatique des services, ce qui nécessitait une intervention humaine pour confirmer le règlement, activer les services concernés et assurer le suivi des abonnements."
+    },
+    {
+      "index": 152,
+      "style": "Normal (Web)",
+      "text": "Gestion séparée des concessionnaires : La gestion des concessionnaires était répartie entre les différentes marketplaces. Lorsqu’un concessionnaire collaborait avec plusieurs banques, il devait gérer un compte et un espace distinct pour chaque marketplace. Les informations sur les produits et les stocks devaient alors être mises à jour dans plusieurs environnements, ce qui entraînait une dispersion des données et une charge de gestion supplémentaire."
+    },
+    {
+      "index": 153,
+      "style": "List Paragraph",
+      "text": "La problématique"
+    },
+    {
+      "index": 154,
+      "style": "isselectedend",
+      "text": "L’étude de l’existant met en évidence plusieurs limites majeures :"
+    },
+    {
+      "index": 155,
+      "style": "List Paragraph",
+      "text": "Multiplication des applications et complexité de maintenance : chaque banque disposant d’une marketplace spécifique, les évolutions et corrections devaient être reproduites sur plusieurs environnements."
+    },
+    {
+      "index": 156,
+      "style": "List Paragraph",
+      "text": "Processus de création peu automatisé : la mise en place d’une nouvelle marketplace nécessitait plusieurs échanges et interventions entre la banque et le fournisseur de la solution."
+    },
+    {
+      "index": 157,
+      "style": "List Paragraph",
+      "text": "Paiement et activation non intégrés : le règlement, sa vérification, la mise à jour de l’abonnement et l’activation des services nécessitaient des opérations supplémentaires."
+    },
+    {
+      "index": 158,
+      "style": "isselectedend",
+      "text": "Gestion décentralisée des concessionnaires : un même concessionnaire devait gérer plusieurs comptes, produits et stocks dans différentes marketplaces, entraînant une dispersion des données et une charge de gestion supplémentaire."
+    },
+    {
+      "index": 159,
+      "style": "List Paragraph",
+      "text": "La solution proposée"
+    },
+    {
+      "index": 160,
+      "style": "isselectedend",
+      "text": "Afin de répondre aux besoins identifiés, la solution proposée consiste à mettre en place Matchia, une plateforme SaaS multi-tenant permettant de centraliser la gestion de plusieurs marketplaces bancaires au sein d’un même système. Chaque banque dispose de son propre espace personnalisable, avec ses stores, modules, contenus et paramètres, tout en s’appuyant sur un socle applicatif commun. La plateforme intègre également le processus d’adhésion en regroupant les étapes de demande, de validation, de paiement et d’activation dans un même parcours. Par ailleurs, la gestion des concessionnaires est centralisée grâce à un compte unique leur permettant de collaborer avec plusieurs banques et de gérer leurs produits et partenariats depuis un seul espace. La solution offre ainsi une plateforme centralisée, configurable, automatisée et évolutive, adaptée à la gestion de plusieurs établissements bancaires et de leurs différents partenaires."
+    },
+    {
+      "index": 161,
+      "style": "List Paragraph",
+      "text": "Méthodologie de Gestion de Projet : SCRUM"
+    },
+    {
+      "index": 162,
+      "style": "gjcqjg1a",
+      "text": "Dans le cadre de notre projet, nous avons choisi d’appliquer la méthodologie agile Scrum pour structurer le développement. Le travail a ainsi été réparti en plusieurs sprints, chacun regroupant un ensemble cohérent de fonctionnalités à concevoir, développer et valider. Cette organisation nous a permis d’assurer un avancement progressif du projet, de mieux gérer les priorités et d’intégrer les ajustements nécessaires au fur et à mesure de l’évolution des besoins."
+    },
+    {
+      "index": 163,
+      "style": "List Paragraph",
+      "text": "Le cycle de vie de Scrum"
+    },
+    {
+      "index": 164,
+      "style": "isselectedend",
+      "text": "Le cycle de vie Scrum débute par la définition des User Stories par le Product Owner, qui les ajoute et les priorise dans le Product Backlog selon leur importance et leur valeur métier. Lors de la Sprint Planning, l’équipe sélectionne les User Stories à réaliser pendant le sprint et les décompose en tâches constituant le Sprint Backlog. Le sprint démarre ensuite pour une durée déterminée, généralement comprise entre deux et quatre semaines. Durant cette période, l’équipe réalise les tâches planifiées et organise quotidiennement un Daily Scrum afin de suivre l’avancement et d’identifier les éventuels obstacles. À la fin du sprint, l’incrément développé est présenté et évalué lors de la Sprint Review, puis l’équipe analyse son organisation et les améliorations possibles durant la Sprint Retrospective. Le cycle reprend ensuite avec la planification du sprint suivant, permettant ainsi une évolution progressive et continue du produit [2]."
+    },
+    {
+      "index": 166,
+      "style": "Caption",
+      "text": "Figure 2: Cycle de vie de la méthodologie agile SCRUM"
+    },
+    {
+      "index": 167,
+      "style": "List Paragraph",
+      "text": "L’équipe de Scrum"
+    },
+    {
+      "index": 168,
+      "style": "isselectedend",
+      "text": "Le projet repose sur les principaux rôles définis par la méthodologie SCRUM:"
+    },
+    {
+      "index": 169,
+      "style": "List Paragraph",
+      "text": "Product Owner : identifie les besoins fonctionnels, définit les priorités du Product Backlog et valide les fonctionnalités réalisées."
+    },
+    {
+      "index": 170,
+      "style": "List Paragraph",
+      "text": "Scrum Master : facilite l’application de Scrum, accompagne l’équipe et veille au bon déroulement des différentes itérations."
+    },
+    {
+      "index": 171,
+      "style": "isselectedend",
+      "text": "Équipe de développement : assure la conception, le développement, les tests et l’intégration des fonctionnalités de la plateforme."
+    },
+    {
+      "index": 172,
+      "style": "List Paragraph",
+      "text": "Planification du projet"
+    },
+    {
+      "index": 173,
+      "style": "Normal (Web)",
+      "text": "Afin d’organiser la réalisation de la solution de manière progressive et structurée, le projet a été réparti en deux releases, chacune regroupant plusieurs sprints. Cette planification permet de regrouper les fonctionnalités en ensembles cohérents, de suivre l’avancement du projet de manière itérative et d’assurer la réalisation progressive des différents blocs fonctionnels de la solution."
+    },
+    {
+      "index": 174,
+      "style": "List Paragraph",
+      "text": "Release 1 : Mise en œuvre de la plateforme SaaS et gestion du cycle de vie des marketplaces bancaires"
+    },
+    {
+      "index": 175,
+      "style": "Normal (Web)",
+      "text": "Cette release couvre la mise en place des principales fonctionnalités nécessaires au fonctionnement de la plateforme. Elle comprend notamment le socle multi-tenant, le processus de création de marketplace, l’administration SaaS, la gestion du paiement ainsi que la mise en œuvre des espaces bancaire et public."
+    },
+    {
+      "index": 176,
+      "style": "Caption",
+      "text": "Tableau 1: Planification de la Release 1"
+    },
+    {
+      "index": 178,
+      "style": "List Paragraph",
+      "text": "Release 2 : Mise en œuvre des parcours des concessionnaires et des clients, et intégration des assistants conversationnels"
+    },
+    {
+      "index": 179,
+      "style": "Normal (Web)",
+      "text": "Cette release couvre les principales fonctionnalités liées aux concessionnaires et aux clients. Elle intègre la gestion des inscriptions, des partenariats et des produits. Elle prend également en charge le dépôt et le traitement des demandes de financement. Enfin, elle comprend l’intégration de l’assistant IA et du chatbot de la marketplace."
+    },
+    {
+      "index": 180,
+      "style": "Caption",
+      "text": "Tableau 2: Planification de la Release 2"
+    },
+    {
+      "index": 182,
+      "style": "List Paragraph",
+      "text": "Release 3 : Mise en place du pipeline CI/CD et déploiement sur Microsoft Azure"
+    },
+    {
+      "index": 183,
+      "style": "Normal",
+      "text": "Cette release couvre la mise en place du processus d’intégration et de déploiement continus de la plateforme. Elle vise à automatiser les principales étapes de validation, de livraison et de déploiement de l’application dans un environnement Cloud."
+    },
+    {
+      "index": 184,
+      "style": "Caption",
+      "text": "Tableau 3: Planification de la Release 3"
+    },
+    {
+      "index": 186,
+      "style": "List Paragraph",
+      "text": "Conclusion"
+    },
+    {
+      "index": 187,
+      "style": "Normal",
+      "text": "En conclusion, ce chapitre a établi les bases du projet en présentant l’entreprise d’accueil, BRI-Technology. Il a également inclus une étude de l’existant, défini la problématique à résoudre et introduit la solution proposée ainsi que la méthodologie adopté"
+    },
+    {
+      "index": 191,
+      "style": "Heading 1",
+      "text": "Chapitre 2 : Analyse et spécification des besoins"
+    },
+    {
+      "index": 193,
+      "style": "Normal",
+      "text": "1. Introduction"
+    },
+    {
+      "index": 194,
+      "style": "Normal",
+      "text": "Ce chapitre porte sur l’analyse et la spécification des besoins de la plateforme. Il permet d’identifier les différents acteurs du système, de préciser leurs besoins fonctionnels et non fonctionnels, puis de modéliser les principales interactions à travers le diagramme de cas d’utilisation global, les cas d’utilisation détaillés et les scénarios associés."
+    },
+    {
+      "index": 195,
+      "style": "Normal",
+      "text": "2. Identification des Acteurs"
+    },
+    {
+      "index": 196,
+      "style": "Normal",
+      "text": "L’identification des acteurs permet de déterminer les différents intervenants de la plateforme et de préciser leur rôle dans le système. Elle constitue une étape essentielle pour structurer les besoins fonctionnels et définir les interactions propres à chaque type d’utilisateur."
+    },
+    {
+      "index": 197,
+      "style": "Caption",
+      "text": "Tableau 4: Acteurs de la plateforme Matchia"
+    },
+    {
+      "index": 199,
+      "style": "Heading 2",
+      "text": "3.  Besoins fonctionnels"
+    },
+    {
+      "index": 201,
+      "style": "Normal",
+      "text": "Les besoins fonctionnels traduisent les capacités que la plateforme doit offrir à chacun de ses acteurs. Ils permettent de structurer les fonctionnalités par profil utilisateur et de délimiter précisément les opérations accessibles selon les responsabilités et les droits associés à chaque rôle."
+    },
+    {
+      "index": 202,
+      "style": "isselectedend",
+      "text": "3.1.  En tant que Administrateur SaaS"
+    },
+    {
+      "index": 203,
+      "style": "isselectedend",
+      "text": "L’Administrateur SaaS dispose du niveau d’administration le plus élevé. Il assure la gestion globale de la plateforme et supervise les différents tenants."
+    },
+    {
+      "index": 204,
+      "style": "Normal (Web)",
+      "text": "Ses principales fonctionnalités sont les suivantes :"
+    },
+    {
+      "index": 205,
+      "style": "Normal (Web)",
+      "text": "S’authentifier et gérer son profil ;"
+    },
+    {
+      "index": 206,
+      "style": "Normal (Web)",
+      "text": "consulter le tableau de bord global de la plateforme ;"
+    },
+    {
+      "index": 207,
+      "style": "List Paragraph",
+      "text": "gérer les stores et les modules;"
+    },
+    {
+      "index": 208,
+      "style": "List Paragraph",
+      "text": "gérer les demandes d’adhésion des banques ;"
+    },
+    {
+      "index": 209,
+      "style": "List Paragraph",
+      "text": "gérer les utilisateurs"
+    },
+    {
+      "index": 210,
+      "style": "List Paragraph",
+      "text": "affecter un espace backoffice pour la demande approuvée"
+    },
+    {
+      "index": 211,
+      "style": "List Paragraph",
+      "text": "gérer les banques enregistrées dans la plateforme ;"
+    },
+    {
+      "index": 212,
+      "style": "List Paragraph",
+      "text": "gérer les marketplaces associées aux banques ainsi que leur contenu. ;"
+    },
+    {
+      "index": 213,
+      "style": "List Paragraph",
+      "text": "gérer les abonnements ;"
+    },
+    {
+      "index": 214,
+      "style": "List Paragraph",
+      "text": "consulter et traiter les demandes de création de comptes concessionnaires ;"
+    },
+    {
+      "index": 215,
+      "style": "List Paragraph",
+      "text": "consulter les notifications ;"
+    },
+    {
+      "index": 216,
+      "style": "Normal (Web)",
+      "text": "utiliser l’assistant intelligent pour interroger certaines informations autorisées de la plateforme ;"
+    },
+    {
+      "index": 217,
+      "style": "Normal (Web)",
+      "text": "Consulter les logs et l’historique d’audit"
+    },
+    {
+      "index": 218,
+      "style": "List Paragraph",
+      "text": "gérer les principales configurations de la plateforme ;"
+    },
+    {
+      "index": 219,
+      "style": "Normal",
+      "text": "L’espace SaaS constitue ainsi le point central d’administration permettant de superviser l’ensemble de l’écosystème Matchia."
+    },
+    {
+      "index": 220,
+      "style": "isselectedend",
+      "text": "3.2. En tant que Administrateur Banque"
+    },
+    {
+      "index": 221,
+      "style": "isselectedend",
+      "text": "L’Administrateur Banque assure la gestion de la marketplace appartenant à son établissement."
+    },
+    {
+      "index": 222,
+      "style": "Normal",
+      "text": "Il doit notamment pouvoir :"
+    },
+    {
+      "index": 223,
+      "style": "Normal",
+      "text": "s’authentifier et gérer son profil"
+    },
+    {
+      "index": 224,
+      "style": "Normal",
+      "text": "consulter le tableau de bord"
+    },
+    {
+      "index": 225,
+      "style": "Normal",
+      "text": "gérer les utilisateurs"
+    },
+    {
+      "index": 226,
+      "style": "Normal",
+      "text": "gérer la personnalisation de la marketplace"
+    },
+    {
+      "index": 227,
+      "style": "Normal",
+      "text": "gérer les contenus de la marketplace"
+    },
+    {
+      "index": 228,
+      "style": "Normal",
+      "text": "gérer les stores associés et activés pour sa marketplace"
+    },
+    {
+      "index": 229,
+      "style": "Normal",
+      "text": "gérer et configurer les modules disponibles dans chaque store"
+    },
+    {
+      "index": 230,
+      "style": "Normal",
+      "text": "gérer les concessionnaires partenaires"
+    },
+    {
+      "index": 231,
+      "style": "Normal",
+      "text": "gérer les demandes de partenariat envoyées et les invitations reçues"
+    },
+    {
+      "index": 232,
+      "style": "Normal",
+      "text": "gérer les contrats de partenariat"
+    },
+    {
+      "index": 233,
+      "style": "Normal",
+      "text": "Valider les produits proposés par les concessionnaires avant leur publication sur la marketplace."
+    },
+    {
+      "index": 234,
+      "style": "Normal",
+      "text": "gérer les abonnements et suivre les services souscrits"
+    },
+    {
+      "index": 235,
+      "style": "Normal",
+      "text": "gérer les demandes de financement"
+    },
+    {
+      "index": 236,
+      "style": "Normal",
+      "text": "Consulter les notifications"
+    },
+    {
+      "index": 237,
+      "style": "Normal",
+      "text": "L’administrateur Banque agit uniquement dans le périmètre de son établissement et ne doit pas accéder aux données appartenant aux autres banques."
+    },
+    {
+      "index": 238,
+      "style": "isselectedend",
+      "text": "3.3. En tant que Concessionnaire"
+    },
+    {
+      "index": 239,
+      "style": "Normal",
+      "text": "Le Concessionnaire dispose d’un espace centralisé lui permettant de collaborer avec plusieurs banques. Il doit pouvoir :"
+    },
+    {
+      "index": 240,
+      "style": "Normal",
+      "text": "s’inscrire et accéder à son espace après validation"
+    },
+    {
+      "index": 241,
+      "style": "Normal",
+      "text": "s’authentifier et gérer son profil"
+    },
+    {
+      "index": 242,
+      "style": "Normal",
+      "text": "consulter son tableau de bord de son espace"
+    },
+    {
+      "index": 243,
+      "style": "Normal",
+      "text": "gérer ses produits et leurs stocks"
+    },
+    {
+      "index": 244,
+      "style": "Normal",
+      "text": "gérer ses publications auprès des banques partenaires"
+    },
+    {
+      "index": 245,
+      "style": "Normal",
+      "text": "gérer les demandes de partenariat envoyées et les invitations reçues"
+    },
+    {
+      "index": 246,
+      "style": "Normal",
+      "text": "gérer les partenariats et consulter les contrats associés avec les banques partenaires"
+    },
+    {
+      "index": 247,
+      "style": "Normal",
+      "text": "Consulter les notifications"
+    },
+    {
+      "index": 248,
+      "style": "Normal",
+      "text": "L’un des besoins majeurs de cet espace est de permettre au concessionnaire de travailler avec plusieurs banques à partir d’un compte unique, sans multiplier les comptes et les espaces d’administration."
+    },
+    {
+      "index": 249,
+      "style": "Normal",
+      "text": "Cette centralisation facilite également la gestion des produits et réduit les opérations répétitives liées aux différents partenariats bancaires."
+    },
+    {
+      "index": 250,
+      "style": "isselectedend",
+      "text": "3.4. En tant que Client"
+    },
+    {
+      "index": 251,
+      "style": "isselectedend",
+      "text": "Le Client est un utilisateur authentifié d’une marketplace bancaire. Son espace est principalement orienté vers les demandes de financement."
+    },
+    {
+      "index": 252,
+      "style": "isselectedend",
+      "text": "Le client doit pouvoir :"
+    },
+    {
+      "index": 253,
+      "style": "List Paragraph",
+      "text": "S’inscrire, s’authentifier et gérer son profil"
+    },
+    {
+      "index": 254,
+      "style": "List Paragraph",
+      "text": "Consulter les produits et leurs détails"
+    },
+    {
+      "index": 255,
+      "style": "List Paragraph",
+      "text": "Comparer les produits disponibles"
+    },
+    {
+      "index": 256,
+      "style": "List Paragraph",
+      "text": "Effectuer une simulation de financement"
+    },
+    {
+      "index": 257,
+      "style": "List Paragraph",
+      "text": "Créer et soumettre une demande de financement"
+    },
+    {
+      "index": 258,
+      "style": "List Paragraph",
+      "text": "Gérer les documents associés à la demande"
+    },
+    {
+      "index": 259,
+      "style": "List Paragraph",
+      "text": "Consulter et suivre l’état de ses demandes"
+    },
+    {
+      "index": 260,
+      "style": "List Paragraph",
+      "text": "Recevoir les notifications liées au traitement de ses demandes"
+    },
+    {
+      "index": 261,
+      "style": "isselectedend",
+      "text": "3.5. En tant que Internaute"
+    },
+    {
+      "index": 262,
+      "style": "isselectedend",
+      "text": "L’Internaute représente un utilisateur non authentifié consultant les espaces publics des marketplaces."
+    },
+    {
+      "index": 263,
+      "style": "isselectedend",
+      "text": "Il peut notamment :"
+    },
+    {
+      "index": 264,
+      "style": "List Paragraph",
+      "text": "accéder aux marketplaces bancaires publiques;"
+    },
+    {
+      "index": 265,
+      "style": "List Paragraph",
+      "text": "consulter les stores disponibles ;"
+    },
+    {
+      "index": 266,
+      "style": "List Paragraph",
+      "text": "consulter les produits proposés ;"
+    },
+    {
+      "index": 267,
+      "style": "List Paragraph",
+      "text": "comparer les produits disponibles;"
+    },
+    {
+      "index": 268,
+      "style": "List Paragraph",
+      "text": "utiliser le simulateur de financement;"
+    },
+    {
+      "index": 269,
+      "style": "Normal",
+      "text": "L’internaute peut consulter et simuler sans être connecté. En revanche, lorsqu’il souhaite déposer une demande de financement, le système doit l’inviter à s’inscrire ou à s’authentifier."
+    },
+    {
+      "index": 270,
+      "style": "Heading 2",
+      "text": "4. Besoins non fonctionnels"
+    },
+    {
+      "index": 272,
+      "style": "Normal",
+      "text": "Les besoins non fonctionnels définissent les qualités attendues de la plateforme et les exigences nécessaires pour assurer un fonctionnement fiable, sécurisé, performant et adapté à une architecture SaaS multi-tenant. Parmi les principaux besoins non fonctionnels retenus pour la solution proposée, nous citons :"
+    },
+    {
+      "index": 273,
+      "style": "List Paragraph",
+      "text": "Sécurité : La plateforme doit assurer une authentification sécurisée des utilisateurs et appliquer un contrôle d’accès basé sur les rôles. La séparation logique des données entre les différentes banques doit également être garantie afin d’éviter tout accès non autorisé aux informations d’un autre tenant."
+    },
+    {
+      "index": 274,
+      "style": "List Paragraph",
+      "text": "Scalabilité : La solution doit être capable d’intégrer progressivement de nouvelles banques, marketplaces, concessionnaires, d’utilisateurs et de données, sans nécessiter la création d’une nouvelle application pour chaque établissement."
+    },
+    {
+      "index": 275,
+      "style": "List Paragraph",
+      "text": "Performance : La solution doit assurer des temps de réponse satisfaisants et une navigation fluide."
+    },
+    {
+      "index": 276,
+      "style": "List Paragraph",
+      "text": "Maintenabilité : L’architecture de la plateforme doit faciliter les corrections, les évolutions et l’ajout de nouvelles fonctionnalités."
+    },
+    {
+      "index": 277,
+      "style": "List Paragraph",
+      "text": "Disponibilité : La plateforme doit garantir une disponibilité suffisante des services et assurer un fonctionnement stable des différents composants."
+    },
+    {
+      "index": 278,
+      "style": "Heading 2",
+      "text": "5. Diagramme de cas d’utilisation global"
+    },
+    {
+      "index": 279,
+      "style": "Normal (Web)",
+      "text": "Dans le diagramme de cas d’utilisation global, nous regroupons l’ensemble des cas d’utilisation afin d’obtenir une vue d’ensemble du fonctionnement de notre solution et de mettre en évidence les différentes relations qui peuvent les rel"
+    },
+    {
+      "index": 283,
+      "style": "Heading 2",
+      "text": "6. Spécification détaillée des cas d’utilisation et scénarios"
+    },
+    {
+      "index": 284,
+      "style": "Normal (Web)",
+      "text": "Les cas d’utilisation détaillés sont présentés à travers plusieurs diagrammes, chacun décrivant un processus métier spécifique et les interactions entre les acteurs concernés et le système."
+    },
+    {
+      "index": 285,
+      "style": "isselectedend",
+      "text": "6.1. Cas d’utilisation détaillée : S’authentifier"
+    },
+    {
+      "index": 286,
+      "style": "isselectedend",
+      "text": "Ce cas d’utilisation décrit le processus d’authentification La figure et le tableau associés présentent les acteurs concernés, les principales étapes du processus ainsi que les conditions d’accès aux différents espaces de la plateforme."
+    },
+    {
+      "index": 288,
+      "style": "Normal",
+      "text": "Figure 3.5 — Diagramme de cas d’utilisation détaillé de l’authentification"
+    },
+    {
+      "index": 289,
+      "style": "Normal",
+      "text": "Le tableau suivant présente le scénario du cas d’utilisation UC-01 — S’authentifier."
+    },
+    {
+      "index": 290,
+      "style": "Caption",
+      "text": "Tableau 5: Description du scénario de cas d’utilisation << S'authentifier >>"
+    },
+    {
+      "index": 292,
+      "style": "Normal",
+      "text": "Remarque : Lorsqu’un Administrateur Banque ou un client accède à la connexion depuis la marketplace d’une banque, le système identifie le tenant correspondant à partir de la marketplace concernée. Il charge ainsi la page de connexion propre à cette banque. Après authentification, l’utilisateur accède uniquement aux données et aux fonctionnalités associées à ce tenant, selon son rôle et ses autorisations."
+    },
+    {
+      "index": 293,
+      "style": "isselectedend",
+      "text": "6.2. Cas d’utilisation détaillée : Déposer une demande de marketplace"
+    },
+    {
+      "index": 294,
+      "style": "isselectedend",
+      "text": "Ce cas d’utilisation décrit le processus de soumission d’une demande de création de marketplace bancaire. La figure et le tableau associés présentent les acteurs concernés, les principales étapes du processus ainsi que les contrôles effectués avant l’enregistrement de la demande."
+    },
+    {
+      "index": 295,
+      "style": "isselectedend",
+      "text": "Figure 3.6 — Diagramme de cas d’utilisation détaillé de la demande de création d’une marketplace"
+    },
+    {
+      "index": 296,
+      "style": "isselectedend",
+      "text": "Le tableau suivant présente le scénario du cas d’utilisation UC-02 — Déposer une demande de marketplace."
+    },
+    {
+      "index": 297,
+      "style": "Caption",
+      "text": "Tableau 6: Description du scénario de cas d’utilisation << Déposer une demande de marketplace >>"
+    },
+    {
+      "index": 298,
+      "style": "isselectedend",
+      "text": "6.3. Cas d’utilisation détaillée : Administrer la plateforme SaaS"
+    },
+    {
+      "index": 299,
+      "style": "isselectedend",
+      "text": "Ce cas d’utilisation décrit les principales opérations réalisées par l’Administrateur SaaS pour superviser, contrôler et administrer les ressources globales de la plateforme. La figure et le tableau associés présentent les différentes actions."
+    },
+    {
+      "index": 301,
+      "style": "isselectedend",
+      "text": "Figure 3.7 — Diagramme de cas d’utilisation détaillé de l’administration SaaS"
+    },
+    {
+      "index": 302,
+      "style": "isselectedend",
+      "text": "Le tableau suivant présente le scénario du cas d’utilisation UC-03 — Administrer la plateforme SaaS."
+    },
+    {
+      "index": 303,
+      "style": "Caption",
+      "text": "Tableau 7: Description du scénario de cas d’utilisation << Administrer la plateforme >>"
+    },
+    {
+      "index": 305,
+      "style": "isselectedend",
+      "text": "6.4. Cas d’utilisation détaillée : Traiter une demande et activer les services"
+    },
+    {
+      "index": 306,
+      "style": "Normal (Web)",
+      "text": "Ce cas d’utilisation décrit le processus de traitement d’une demande de création de marketplace, La figure et le tableau associés présentent les acteurs concernés, les principales étapes du processus."
+    },
+    {
+      "index": 308,
+      "style": "isselectedend",
+      "text": "Figure 3.8 — Diagramme de cas d’utilisation détaillé du traitement, du paiement et de l’activation"
+    },
+    {
+      "index": 309,
+      "style": "isselectedend",
+      "text": "Le tableau suivant présente le scénario du cas d’utilisation UC-04 — Traiter une demande et activer les services."
+    },
+    {
+      "index": 310,
+      "style": "Caption",
+      "text": "Tableau 8: Description du scénario de cas d’utilisation << Traiter une demande et activer les services >>"
+    },
+    {
+      "index": 311,
+      "style": "isselectedend",
+      "text": "6.5. Cas d’utilisation détaillée : Inscrire et valider un concessionnaire"
+    },
+    {
+      "index": 312,
+      "style": "isselectedend",
+      "text": "Ce cas d’utilisation décrit le processus d’inscription d’un concessionnaire, depuis le dépôt de sa demande jusqu’à sa validation par l’Administrateur SaaS. La figure et le tableau associés présentent les acteurs concernés, les principales étapes du processus avant l’activation du compte."
+    },
+    {
+      "index": 314,
+      "style": "isselectedend",
+      "text": "Figure 3.10 — Diagramme de cas d’utilisation détaillé de l’inscription et de la validation d’un concessionnaire"
+    },
+    {
+      "index": 315,
+      "style": "isselectedend",
+      "text": "Le tableau suivant présente le scénario du cas d’utilisation UC-05 — Inscrire et valider un concessionnaire."
+    },
+    {
+      "index": 316,
+      "style": "Caption",
+      "text": "Tableau 9: Description du scénario de cas d’utilisation << Inscrire et valider un concessionnaire >>"
+    },
+    {
+      "index": 317,
+      "style": "isselectedend",
+      "text": "6.6. Cas d’utilisation détaillée : Gérer et publier un produit concessionnaire"
+    },
+    {
+      "index": 318,
+      "style": "isselectedend",
+      "text": "Ce cas d’utilisation décrit le processus de gestion et de publication des produits par un concessionnaire, depuis la création du produit jusqu’à sa validation par une banque partenaire. La figure et le tableau associés présentent les acteurs concernés, les principales étapes du processus ainsi que les conditions nécessaires à la publication d’un produit dans une marketplace."
+    },
+    {
+      "index": 320,
+      "style": "isselectedend",
+      "text": "Figure 3.12 — Diagramme de cas d’utilisation détaillé de la gestion et de la publication des produits"
+    },
+    {
+      "index": 321,
+      "style": "isselectedend",
+      "text": "Le tableau suivant présente le scénario du cas d’utilisation UC-06 — Gérer et publier un produit."
+    },
+    {
+      "index": 322,
+      "style": "Caption",
+      "text": "Tableau 10: Description du scénario de cas d’utilisation << Gérer et publier un produit >>"
+    },
+    {
+      "index": 324,
+      "style": "isselectedend",
+      "text": "6.7. Cas d’utilisation détaillée : Déposer et traiter une demande de financement"
+    },
+    {
+      "index": 325,
+      "style": "isselectedend",
+      "text": "Ce cas d’utilisation décrit le processus de demande de financement, depuis la constitution du dossier par le client jusqu’à son traitement par l’Administrateur Banque. La figure et le tableau associés présentent les acteurs concernés, les principales étapes du processus ainsi que les différentes décisions pouvant être prises sur le dossier."
+    },
+    {
+      "index": 327,
+      "style": "isselectedend",
+      "text": "Figure 3.13 — Diagramme de cas d’utilisation détaillé de la demande de financement"
+    },
+    {
+      "index": 328,
+      "style": "Normal (Web)",
+      "text": "Le tableau suivant présente le scénario du cas d’utilisation UC-07 — Déposer et traiter une demande de financement."
+    },
+    {
+      "index": 329,
+      "style": "Caption",
+      "text": "Tableau 11: Description du scénario de cas d’utilisation << Déposer et traiter une demande de financement >>"
+    },
+    {
+      "index": 331,
+      "style": "Heading 2",
+      "text": "7. Conclusion"
+    },
+    {
+      "index": 332,
+      "style": "Normal (Web)",
+      "text": "En conclusion, ce chapitre a permis d’identifier les différents acteurs de la plateforme et de préciser leurs besoins fonctionnels et non fonctionnels. Le diagramme de cas d’utilisation global, complété par les cas d’utilisation détaillés et leurs scénarios, présente les principales fonctionnalités ainsi que les interactions entre les utilisateurs et le système."
+    },
+    {
+      "index": 338,
+      "style": "Heading 1",
+      "text": "Chapitre 3 : Architecture et Conception"
+    },
+    {
+      "index": 340,
+      "style": "Heading 2",
+      "text": "1. Introduction"
+    },
+    {
+      "index": 342,
+      "style": "Normal",
+      "text": "Ce chapitre présente les choix de conception qui structurent la plateforme Matchia. Il explique l’adoption d’un modèle SaaS multi-tenant, ensuite les architectures physique et logique, ainsi que l’environnement et les technologies mobilisés pour le développement."
+    },
+    {
+      "index": 343,
+      "style": "Heading 2",
+      "text": "2. Architecture SaaS et de la multi-tenant"
+    },
+    {
+      "index": 345,
+      "style": "Normal",
+      "text": "2.1. Présentation du SaaS"
+    },
+    {
+      "index": 346,
+      "style": "isselectedend",
+      "text": "Le Software as a Service (SaaS) est un modèle de distribution dans lequel une application est accessible en ligne sous forme de service, généralement hébergée dans le Cloud. Le fournisseur prend en charge l’hébergement, la maintenance, les mises à jour et l’exploitation technique, tandis que les utilisateurs accèdent à la solution à distance, souvent via un navigateur web et selon un modèle d’abonnement sans avoir à gérer directement l'installation, l'infrastructure ou la maintenance technique[3]."
+    },
+    {
+      "index": 347,
+      "style": "isselectedend",
+      "text": "2.2.  Principe de multi-tenant"
+    },
+    {
+      "index": 348,
+      "style": "Normal",
+      "text": "Le multi-tenant est un principe d’architecture fréquemment associé au modèle SaaS. Elle permet à plusieurs clients ou organisations d’utiliser la même application, tout en conservant chacun un environnement logique qui lui est propre. Chaque client, appelé tenant, partage ainsi le même socle technique, tandis que ses données restent isolées de celles des autres tenants."
+    },
+    {
+      "index": 349,
+      "style": "Normal",
+      "text": "Ce principe repose sur deux notions essentielles : la mutualisation des ressources et l’isolation des données. L’application est développée et maintenue une seule fois, puis mise à disposition de plusieurs tenants. Des mécanismes de contrôle permettent ensuite d’identifier le tenant concerné et de garantir que chaque utilisateur accède uniquement aux données et aux fonctionnalités relevant de son propre périmètre. Cette approche permet ainsi de combiner centralisation, personnalisation et séparation logique au sein d’une même plateforme."
+    },
+    {
+      "index": 350,
+      "style": "isselectedend",
+      "text": "2.3.  Principales stratégies multi-tenant"
+    },
+    {
+      "index": 351,
+      "style": "isselectedend",
+      "text": "Plusieurs stratégies peuvent être adoptées pour mettre en œuvre une architecture multi-tenant. Elles se distinguent principalement par la manière dont les données des différents tenants sont stockées, isolées et administrées [4]."
+    },
+    {
+      "index": 352,
+      "style": "isselectedend",
+      "text": "Base de données dédiée par tenant"
+    },
+    {
+      "index": 353,
+      "style": "isselectedend",
+      "text": "Dans cette stratégie, chaque tenant dispose de sa propre base de données. Les données de chaque organisation sont donc physiquement séparées de celles des autres tenants, ce qui offre une isolation maximale des données, ce qui renforce la sécurité et la confidentialité, et facilite les sauvegardes ou restaurations propres à un client. En revanche, elle engendre un coût d'infrastructure élevé, puisqu'il faut gérer autant de bases que de clients, et devient plus difficile à maintenir et à faire évoluer à mesure que le nombre de tenants augmente."
+    },
+    {
+      "index": 354,
+      "style": "isselectedend",
+      "text": "Schéma dédié par tenant"
+    },
+    {
+      "index": 355,
+      "style": "isselectedend",
+      "text": "Cette approche repose sur une base de données commune, mais chaque tenant possède son propre schéma. Les données restent ainsi séparées de manière structurelle, tout en partageant la même infrastructure de base de données. Cette stratégie constitue un compromis entre isolation et mutualisation, car elle réduit le nombre de bases à administrer. Toutefois, la gestion des schémas, des migrations et des évolutions peut devenir complexe lorsque le nombre de tenants devient important."
+    },
+    {
+      "index": 356,
+      "style": "isselectedend",
+      "text": "Base et schéma partagés"
+    },
+    {
+      "index": 357,
+      "style": "isselectedend",
+      "text": "Dans cette stratégie, tous les tenants utilisent la même base de données et le même schéma. Les données sont stockées dans des tables communes et sont distinguées à l’aide d’identifiants permettant de déterminer à quel tenant chaque donnée appartient. L’isolation est donc principalement assurée au niveau logique et applicatif. Cette approche facilite la mutualisation des ressources, réduit les coûts d’infrastructure et simplifie la maintenance globale. Elle exige \ntoutefois des contrôles rigoureux afin de garantir qu’un tenant ne puisse jamais accéder aux données d’un autre."
+    },
+    {
+      "index": 359,
+      "style": "Caption",
+      "text": "Figure 3: Principales stratégies d’architecture multi-tenant"
+    },
+    {
+      "index": 360,
+      "style": "isselectedend",
+      "text": "2.4.  Choix d’architecture"
+    },
+    {
+      "index": 361,
+      "style": "gjcqjg1a",
+      "text": "Après l’analyse des différentes stratégies de multi-tenant, le choix d’une base de données unique et partagée avec une isolation logique des données constitue la solution la plus adaptée à notre projet. Cette architecture permet de centraliser les données des différentes banques dans une même infrastructure, tout en maintenant une séparation stricte entre les tenants grâce à des mécanismes d’identification, de filtrage et de contrôle d’accès. Elle simplifie l’administration de la plateforme, facilite l’intégration de nouvelles banques et réduit la complexité liée à la gestion de plusieurs bases indépendantes. Ce choix offre ainsi un bon compromis entre mutualisation, maintenabilité, évolutivité et maîtrise des coûts, tout en exigeant une gestion rigoureuse de l’isolation des données au niveau applicatif."
+    },
+    {
+      "index": 362,
+      "style": "Heading 2",
+      "text": "3. Architecture globale"
+    },
+    {
+      "index": 363,
+      "style": "isselectedend",
+      "text": "Après avoir défini le modèle SaaS multi-tenant adopté pour Matchia, nous présentons l’organisation générale de la solution à travers ses aspects logique et physique. Cette analyse met en évidence la séparation entre l’interface utilisateur, la logique métier et l’accès aux données, ainsi que les interactions entre ces différents composants."
+    },
+    {
+      "index": 364,
+      "style": "isselectedend",
+      "text": "3.1. Architecture physique"
+    },
+    {
+      "index": 365,
+      "style": "isselectedend",
+      "text": "L’architecture physique de Matchia repose sur une organisation 3-tiers, composée d’un tiers de présentation, d’un tiers applicatif et d’un tiers de données. Cette organisation permet de séparer les principaux composants techniques de la plateforme tout en intégrant les services externes nécessaires à son fonctionnement."
+    },
+    {
+      "index": 366,
+      "style": "isselectedend",
+      "text": "Figure 3.x — Architecture physique de la plateforme Matchia"
+    },
+    {
+      "index": 367,
+      "style": "isselectedend",
+      "text": "Les différents acteurs de Matchia, notamment l’internaute, le client, l’Administrateur SaaS, l’Administrateur Banque et le concessionnaire, accèdent à la plateforme à travers un navigateur Web. Le tiers de présentation est constitué du frontend, développé avec React, TypeScript et Vite et servi par Nginx. Il assure l’affichage des interfaces, la gestion des interactions avec les utilisateurs ainsi que la transmission des requêtes vers le backend à travers des API REST. Le tiers applicatif correspond au backend, développé avec Spring Boot et Java 17. Celui-ci centralise les traitements et la logique métier de la plateforme et s’appuie sur Spring Security pour gérer l’authentification, l’autorisation et le contrôle des accès selon le rôle de chaque utilisateur. Le tiers de données repose sur PostgreSQL, avec laquelle le backend communique à l’aide de JPA/Hibernate et du pilote JDBC. La plateforme adopte une base de données et un schéma partagés entre les différentes banques. L’isolation des données est ainsi assurée logiquement au niveau applicatif, à travers des mécanismes de filtrage et de contrôle permettant à chaque banque d’accéder uniquement aux données relevant de son propre tenant. En complément, le backend peut communiquer avec plusieurs services externes selon la fonctionnalité sollicitée : Stripe pour la gestion des paiements, l’API Gemini de Google AI pour les fonctionnalités d’assistance intelligente et un serveur SMTP pour l’envoi des e-mails et des notifications."
+    },
+    {
+      "index": 368,
+      "style": "isselectedend",
+      "text": "3.2. Architecture logique"
+    },
+    {
+      "index": 369,
+      "style": "Normal (Web)",
+      "text": "L’architecture logique de Matchia repose sur une organisation en couches inspirée du modèle MVC, adaptée à la séparation entre le frontend et le backend. Elle distingue principalement la couche de présentation, la couche applicative et métier et la couche d’accès aux données. Chaque couche possède une responsabilité spécifique et intervient de manière successive dans le traitement des requêtes."
+    },
+    {
+      "index": 370,
+      "style": "Normal (Web)",
+      "text": "Figure X.X — Architecture logique de la plateforme Matchia"
+    },
+    {
+      "index": 371,
+      "style": "isselectedend",
+      "text": "La couche de présentation correspond au frontend de la plateforme. Elle fournit les différentes interfaces et prend en charge les interactions avec les utilisateurs. Lorsqu’une action nécessite un traitement côté serveur, le frontend envoie une requête au backend à travers une API REST, tandis que les données échangées sont principalement représentées au format JSON. La requête est ensuite reçue par les contrôleurs REST, qui constituent les points d’entrée du backend et assurent l’intermédiaire entre la couche de présentation et la logique applicative. Les contrôleurs délèguent ensuite le traitement aux services métier, chargés d’appliquer les règles fonctionnelles de l’application. Cette couche utilise également les entités pour représenter les objets métier et les DTO pour structurer les données échangées entre les différentes parties de l’application. Lorsque le traitement nécessite la consultation ou la modification de données, les services font appel aux Repositories JPA, qui constituent la couche d’accès aux données et assurent les opérations de persistance. Ces repositories communiquent avec la base PostgreSQL, commune aux différents tenants, tandis que l’isolation des données est assurée logiquement au niveau applicatif."
+    },
+    {
+      "index": 372,
+      "style": "isselectedend",
+      "text": "Cette organisation assure une séparation claire des responsabilités et contribue à rendre l’application plus lisible, maintenable et évolutive."
+    },
+    {
+      "index": 374,
+      "style": "Heading 2",
+      "text": "4. Environnement de développement et technologies utilisées"
+    },
+    {
+      "index": 375,
+      "style": "isselectedend",
+      "text": "4.1. Environnement matériel"
+    },
+    {
+      "index": 376,
+      "style": "Normal",
+      "text": "Pour développer notre solution, nous avons utilisé un ordinateur dont les principales caractéristiques matérielles sont présentées dans le tableau suivant."
+    },
+    {
+      "index": 379,
+      "style": "Normal",
+      "text": "Tableau : Caractéristiques de l’environnement matériel"
+    },
+    {
+      "index": 381,
+      "style": "isselectedend",
+      "text": "4.2.  Environnement logiciel"
+    },
+    {
+      "index": 382,
+      "style": "isselectedend",
+      "text": "Pour assurer le développement et les tests de notre solution, nous avons utilisé plusieurs outils logiciels présentés ci-dessous."
+    },
+    {
+      "index": 384,
+      "style": "isselectedend",
+      "text": "4.3. Technologies utilisées"
+    },
+    {
+      "index": 387,
+      "style": "isselectedend",
+      "text": "5. Conclusion"
+    },
+    {
+      "index": 394,
+      "style": "Heading 1",
+      "text": "Chapitre 4 : Mise en œuvre de la plateforme SaaS et gestion du cycle de vie des marketplaces bancaires"
+    },
+    {
+      "index": 396,
+      "style": "Heading 2",
+      "text": "1. Introduction"
+    },
+    {
+      "index": 397,
+      "style": "Normal (Web)",
+      "text": "Ce chapitre est consacré à la réalisation de la plateforme Matchia et à la mise en œuvre de ses principales fonctionnalités. Il présente le parcours complet de création d’une marketplace bancaire, depuis la soumission de la demande jusqu’à son activation et sa configuration par l’Administrateur Banque. Les différents espaces et workflows sont décrits afin de mettre en évidence le fonctionnement concret de la solution et les interactions entre ses principaux acteurs."
+    },
+    {
+      "index": 398,
+      "style": "Heading 2",
+      "text": "2. Authentification, autorisation et contexte multi-tenant"
+    },
+    {
+      "index": 399,
+      "style": "Normal",
+      "text": "Avant de présenter les différents parcours fonctionnels, il est nécessaire d’introduire les mécanismes qui assurent la sécurisation des accès et la gestion du contexte multi-tenant."
+    },
+    {
+      "index": 400,
+      "style": "Normal",
+      "text": "L’accès aux espaces privées repose sur un système d’authentification permettant notamment la connexion, la déconnexion, le renouvellement de la session ainsi que la réinitialisation du mot de passe. Une fois authentifié, l’utilisateur est dirigé vers l’espace correspondant à son rôle."
+    },
+    {
+      "index": 401,
+      "style": "Normal",
+      "text": "La plateforme distingue principalement quatre rôles : Administrateur SaaS, Administrateur Banque, Concessionnaire et Client. Chaque rôle dispose d’un périmètre fonctionnel spécifique et ne peut accéder qu’aux fonctionnalités qui lui sont autorisées."
+    },
+    {
+      "index": 402,
+      "style": "pdq2pg_selectionanchorcontainer",
+      "text": "L’Administrateur SaaS dispose d’une vision globale de la plateforme et en assure la supervision générale. L’Administrateur Banque gère uniquement les ressources et services liés à sa propre marketplace. Les Concessionnaires accèdent aux fonctionnalités associées à leurs partenariats bancaires, tandis que les Clients utilisent les services proposés par la marketplace correspondant à leur banque."
+    },
+    {
+      "index": 403,
+      "style": "Normal",
+      "text": "Dans le cadre de l’architecture multi-tenant, les utilisateurs de chaque banque sont également associés au contexte de leur établissement. Ce mécanisme permet à plusieurs banques d’utiliser le même socle applicatif tout en conservant leurs propres utilisateurs, contenus, produits et configurations."
+    },
+    {
+      "index": 404,
+      "style": "Normal",
+      "text": "Ces mécanismes constituent la base de sécurité et d’isolation sur laquelle reposent les différents workflows présentés dans la suite de ce chapitre."
+    },
+    {
+      "index": 405,
+      "style": "Normal",
+      "text": "Le diagramme d’activité suivant présente le déroulement du processus d’authentification l’utilisateur."
+    },
+    {
+      "index": 407,
+      "style": "Normal",
+      "text": "Figure 4.1 — Diagramme d’activité de l’authentification et du contexte d’accès"
+    },
+    {
+      "index": 408,
+      "style": "Normal",
+      "text": "Le diagramme de séquence suivant présente les principales interactions entre les composants du système."
+    },
+    {
+      "index": 410,
+      "style": "Normal",
+      "text": "Figure 4.2 — Diagramme de séquence de l’authentification et du contexte multi-tenant"
+    },
+    {
+      "index": 411,
+      "style": "Normal",
+      "text": "figure : Interface de connexion générale                           Figure : Interface de connexion du tenant"
+    },
+    {
+      "index": 412,
+      "style": "Heading 2",
+      "text": "3. Demande de création d’une marketplace bancaire"
+    },
+    {
+      "index": 413,
+      "style": "Normal",
+      "text": "La première étape du processus consiste pour une banque à soumettre une demande d’adhésion à Matchia. Cette démarche est accessible depuis l’espace public de la plateforme et permet au demandeur de renseigner progressivement les informations nécessaires à création de sa future marketplace."
+    },
+    {
+      "index": 414,
+      "style": "Normal",
+      "text": "Figure : Interface d’accueil de Matchia"
+    },
+    {
+      "index": 415,
+      "style": "Normal",
+      "text": "Afin de faciliter la saisie et de limiter les demandes incomplètes, le formulaire est organisé en plusieurs étapes successives. Le parcours comprend les informations de la banque, les coordonnées du futur administrateur, la configuration initiale de la marketplace, la sélection des stores et modules, puis la validation finale de la demande."
+    },
+    {
+      "index": 416,
+      "style": "isselectedend",
+      "text": "Le processus général peut être représenté par le diagramme d’activité suivant :"
+    },
+    {
+      "index": 419,
+      "style": "isselectedend",
+      "text": "Figure 4.3 — Diagramme d’activité de création d’une demande de marketplace bancaire"
+    },
+    {
+      "index": 420,
+      "style": "isselectedend",
+      "text": "Le diagramme de séquence suivant illustre le déroulement du processus ainsi que les échanges entre les principaux éléments du système."
+    },
+    {
+      "index": 422,
+      "style": "isselectedend",
+      "text": "Figure 4.4 — Diagramme de séquence de la création d’une demande de marketplace bancaire"
+    },
+    {
+      "index": 423,
+      "style": "isselectedend",
+      "text": "3.1. Renseignement des informations de la banque"
+    },
+    {
+      "index": 424,
+      "style": "Normal",
+      "text": "La première étape permet de recueillir les informations nécessaires à l’identification de l’établissement bancaire. Le demandeur renseigne notamment le nom de la banque, son adresse électronique, son numéro de téléphone, son site web, une description ainsi que certaines informations complémentaires relatives à l’établissement."
+    },
+    {
+      "index": 425,
+      "style": "Normal",
+      "text": "La figure présente le premier étape du formulaire avec les différentes informations demandées."
+    },
+    {
+      "index": 427,
+      "style": "Normal",
+      "text": "Figure 4.2 — Saisie des informations de la banque"
+    },
+    {
+      "index": 428,
+      "style": "isselectedend",
+      "text": "3.2. Informations du futur Administrateur Banque et vérification de l’adresse e-mail"
+    },
+    {
+      "index": 429,
+      "style": "Normal",
+      "text": "La deuxième étape est consacrée au futur administrateur de la marketplace. Le formulaire recueille notamment son nom, son prénom, son adresse électronique, son numéro de téléphone ainsi que son image de profil."
+    },
+    {
+      "index": 430,
+      "style": "Normal",
+      "text": "Une vérification de l’adresse électronique est intégrée à ce parcours. Après validation des informations saisies, un code de vérification est envoyé à l’adresse indiquée. Le demandeur doit saisir ce code dans le formulaire afin de confirmer que l’adresse lui appartient réellement."
+    },
+    {
+      "index": 431,
+      "style": "Normal",
+      "text": "Cette vérification joue un rôle important, car l’adresse validée sera ensuite utilisée dans le processus de communication avec la banque, notamment pour l’envoi des informations relatives au traitement de la demande, au paiement et à l’accès au Back-office Banque."
+    },
+    {
+      "index": 432,
+      "style": "Normal",
+      "text": "La figure présente la deuxième étape du formulaire, qui regroupe les différentes informations demandées ainsi que la validation de l’adresse e-mail par l’envoi d’un code de vérification à l’adresse renseignée."
+    },
+    {
+      "index": 434,
+      "style": "Normal",
+      "text": "Figure 4.2 — Saisie des informations de la banque"
+    },
+    {
+      "index": 436,
+      "style": "Normal",
+      "text": "Figure 4.3 — Vérification de l’adresse électronique du futur Administrateur Banque"
+    },
+    {
+      "index": 438,
+      "style": "isselectedend",
+      "text": "3.3. Configuration initiale de la marketplace, sélection des stores et modules"
+    },
+    {
+      "index": 439,
+      "style": "Normal",
+      "text": "Cette étape permet notamment de définir certains éléments propres à l’identité de la marketplace, notamment son identifiant d’accès (slug), ses couleurs de personnalisation ainsi que la bannière affichée sur la page d’accueil."
+    },
+    {
+      "index": 440,
+      "style": "Normal",
+      "text": "La banque sélectionne ensuite les stores qu’elle souhaite intégrer à sa future marketplace. Chaque store représente un univers fonctionnel dans lequel pourront être proposés des produits et services spécifiques."
+    },
+    {
+      "index": 441,
+      "style": "Normal",
+      "text": "Une fois un store sélectionné, la plateforme affiche les modules qui lui sont associés. La banque peut alors choisir les fonctionnalités adaptées à ses besoins et à son offre."
+    },
+    {
+      "index": 442,
+      "style": "Normal",
+      "text": "La figure présente la configuration de la marketplace, les stores disponibles ainsi que ceux sélectionnés par la banque."
+    },
+    {
+      "index": 444,
+      "style": "Normal",
+      "text": "Figure 4.4 — Configuration  de la marketplace"
+    },
+    {
+      "index": 445,
+      "style": "Normal",
+      "text": "3.4.   Récapitulatif et soumission de la demande"
+    },
+    {
+      "index": 446,
+      "style": "Normal (Web)",
+      "text": "La dernière étape du formulaire affiche un récapitulatif permettant au demandeur de vérifier l’ensemble des données renseignées avant la validation définitive de sa demande. Cette synthèse regroupe les informations de la banque, les coordonnées du futur administrateur Banque, les éléments de configuration de la marketplace, les stores sélectionnés, les modules associés à chaque store ainsi que les informations relatives à l’offre choisie."
+    },
+    {
+      "index": 447,
+      "style": "Normal (Web)",
+      "text": "Après la soumission, une notification est créée à l’intention de l’Administrateur SaaS afin de signaler l’arrivée d’une nouvelle demande. Parallèlement, un e-mail de confirmation est envoyé au contact de la banque."
+    },
+    {
+      "index": 448,
+      "style": "pdq2pg_selectionanchorcontainer",
+      "text": "Les figures suivantes présentent respectivement la synthèse du formulaire de demande et l’e-mail confirmant l’envoi de la demande pour traitement."
+    },
+    {
+      "index": 450,
+      "style": "isselectedend",
+      "text": "Figure 4.7 — Synthèse du formulaire de demande"
+    },
+    {
+      "index": 452,
+      "style": "isselectedend",
+      "text": "Figure 4.7 — E-mail de confirmation de l’envoi de la demande"
+    },
+    {
+      "index": 453,
+      "style": "Normal (Web)",
+      "text": "4. Back-office SaaS : administration et supervision de la plateforme"
+    },
+    {
+      "index": 454,
+      "style": "isselectedend",
+      "text": "Après la soumission d’une demande, son traitement est assuré par l’Administrateur SaaS."
+    },
+    {
+      "index": 455,
+      "style": "isselectedend",
+      "text": "Le Back-office SaaS constitue l’espace central de gouvernance de la plateforme. Il regroupe les fonctionnalités nécessaires au pilotage des ressources partagées, au suivi des demandes et au contrôle du cycle de vie des services proposés aux banques."
+    },
+    {
+      "index": 456,
+      "style": "Normal",
+      "text": "4.1. Tableau de bord"
+    },
+    {
+      "index": 457,
+      "style": "isselectedend",
+      "text": "Le tableau de bord fournit une vue globale de l’activité de la plateforme à travers différents indicateurs permettant de suivre notamment les banques, les demandes reçues, les abonnements et les principales informations. Il permet ainsi à l’Administrateur SaaS d’identifier rapidement les éléments nécessitant son intervention."
+    },
+    {
+      "index": 459,
+      "style": "isselectedend",
+      "text": "Figure 4.8 — Tableau de bord de l’Administrateur SaaS"
+    },
+    {
+      "index": 460,
+      "style": "Normal",
+      "text": "4.2. Gestion des stores et des modules"
+    },
+    {
+      "index": 461,
+      "style": "Normal",
+      "text": "Cette rubrique permet d’administrer le catalogue des stores et des modules proposés aux banques. L’Administrateur SaaS peut consulter les univers fonctionnels disponibles, organiser les modules associés et définir les éléments qui pourront être sélectionnés lors de la création d’une marketplace. Cette gestion centralisée garantit la cohérence des services mis à disposition des différents tenants."
+    },
+    {
+      "index": 463,
+      "style": "isselectedend",
+      "text": "Figure 4.8 — Gestion stores de la palteforme"
+    },
+    {
+      "index": 465,
+      "style": "Normal",
+      "text": "Figure : Gestion des modules de la plateforme"
+    },
+    {
+      "index": 467,
+      "style": "Normal",
+      "text": "Figure : Configuration des modules d’un store"
+    },
+    {
+      "index": 468,
+      "style": "Normal",
+      "text": "4.3. Gestion des demandes de marketplace"
+    },
+    {
+      "index": 469,
+      "style": "Normal (Web)",
+      "text": "La rubrique Demandes regroupe l’ensemble des demandes liées à la création ou à l’évolution des services d’une marketplace. Elle permet de les consulter, de les analyser et de les traiter de manière organisée tout en assurant leur suivi et leur traçabilité."
+    },
+    {
+      "index": 470,
+      "style": "Heading 4",
+      "text": "4.3.1. Traitement d’une demande de marketplace"
+    },
+    {
+      "index": 471,
+      "style": "isselectedend",
+      "text": "L’Administrateur SaaS dispose d’une interface permettant de consulter les demandes reçues et d’accéder à leur détail."
+    },
+    {
+      "index": 472,
+      "style": "isselectedend",
+      "text": "La fiche d’une demande présente les informations de la banque, celles du futur administrateur, la configuration souhaitée ainsi que les stores et modules sélectionnés."
+    },
+    {
+      "index": 473,
+      "style": "isselectedend",
+      "text": "Après vérification, deux décisions sont possibles : approbation ou rejet :"
+    },
+    {
+      "index": 474,
+      "style": "isselectedend",
+      "text": "En cas de rejet, l’administrateur peut renseigner un motif permettant d’expliquer la décision ainsi qu’un e-mail transmis au demandeur."
+    },
+    {
+      "index": 475,
+      "style": "Normal (Web)",
+      "text": "En cas d’approbation, le processus se poursuit vers l’étape de paiement."
+    },
+    {
+      "index": 477,
+      "style": "isselectedend",
+      "text": "Figure 4.9 — Liste des demandes de marketplace dans le Back-office SaaS"
+    },
+    {
+      "index": 479,
+      "style": "Normal (Web)",
+      "text": "Figure 4.10 — Consultation du détail d’une demande"
+    },
+    {
+      "index": 480,
+      "style": "Heading 4",
+      "text": "4.3.2. Approbation et déclenchement du paiement"
+    },
+    {
+      "index": 481,
+      "style": "isselectedend",
+      "text": "Lorsqu’une demande est approuvée, Matchia prépare les éléments nécessaires à la future activation de la banque et de sa marketplace. Toutefois, ces éléments restent inactifs tant que le paiement n’a pas été confirmé."
+    },
+    {
+      "index": 482,
+      "style": "Normal (Web)",
+      "text": "À cette étape, un e-mail contenant les instructions de paiement ainsi que le lien correspondant est envoyé au contact de la banque."
+    },
+    {
+      "index": 484,
+      "style": "pdq2pg_selectionanchorcontainer",
+      "text": "Figure : E-mail d’approbation de la demande avec lien de paiement"
+    },
+    {
+      "index": 485,
+      "style": "Normal (Web)",
+      "text": "4.3.3. Paiement sécurisé par Stripe et activation de la marketplace"
+    },
+    {
+      "index": 486,
+      "style": "Normal (Web)",
+      "text": "Le paiement constitue une étape déterminante dans le cycle de vie de la demande. Il est intégré à la plateforme au moyen de Stripe, service de paiement en ligne. Lorsque le futur Administrateur Banque accède à l’interface de paiement, il renseigne les informations requises afin d’effectuer la transaction. Une fois le paiement validé et confirmé par le prestataire, Matchia met à jour les ressources associées : la banque et sa marketplace sont activées, l’abonnement passe à l’état actif et le compte de l’Administrateur Banque est autorisé à accéder à son espace de gestion."
+    },
+    {
+      "index": 487,
+      "style": "Normal (Web)",
+      "text": "La plateforme génère ensuite les informations nécessaires à la première connexion et envoie au responsable de la banque un e-mail contenant ses identifiants d’accès au Back-office Banque."
+    },
+    {
+      "index": 488,
+      "style": "Normal (Web)",
+      "text": "Le processus décisionnel peut également être représenté à travers le diagramme d’activité suivant."
+    },
+    {
+      "index": 490,
+      "style": "Normal (Web)",
+      "text": "Figure 4.13 — Diagramme d’activité du traitement d’une demande et du paiement Stripe"
+    },
+    {
+      "index": 491,
+      "style": "isselectedend",
+      "text": "Le workflow complet est représenté par le diagramme de séquence suivant."
+    },
+    {
+      "index": 493,
+      "style": "isselectedend",
+      "text": "Figure 4.14 — Diagramme de séquence de l’approbation, du paiement et de l’activation"
+    },
+    {
+      "index": 495,
+      "style": "isselectedend",
+      "text": "Figure 4.13 — Interface de paiement de l’abonnement"
+    },
+    {
+      "index": 497,
+      "style": "Normal (Web)",
+      "text": "Figure 4.16 — E-mail de confirmation d’activation avec les accès au back-office"
+    },
+    {
+      "index": 498,
+      "style": "Normal (Web)",
+      "text": "4.4. Gestion des banques"
+    },
+    {
+      "index": 499,
+      "style": "Normal (Web)",
+      "text": "La rubrique Banques permet à l’Administrateur SaaS de consulter les établissements enregistrés sur la plateforme et de suivre leur état d’activation. Elle offre une vue sur les informations propres à chaque banque."
+    },
+    {
+      "index": 501,
+      "style": "Normal (Web)",
+      "text": "Figure 4.16 — Liste des Banques"
+    },
+    {
+      "index": 502,
+      "style": "Normal (Web)",
+      "text": "4.5. Gestions des utilisateurs et des rôles"
+    },
+    {
+      "index": 503,
+      "style": "Normal (Web)",
+      "text": "Cette fonctionnalité permet de consulter les utilisateurs de la plateforme et d’administrer les rôles attribués. Elle contribue à appliquer les règles d’autorisation : chaque utilisateur accède exclusivement aux espaces et aux opérations correspondant à son profil."
+    },
+    {
+      "index": 505,
+      "style": "Normal (Web)",
+      "text": "Figure 4.16 — Liste des utilisteurs"
+    },
+    {
+      "index": 506,
+      "style": "Normal (Web)",
+      "text": "4.6. Gestion des concessionnaires"
+    },
+    {
+      "index": 507,
+      "style": "Normal (Web)",
+      "text": "L’Administrateur SaaS peut consulter et traiter les demandes d’inscription des concessionnaires en vérifiant les informations et les documents transmis avant de les accepter ou de les refuser. Cette rubrique permet également de gérer les comptes concessionnaires actifs et de consulter leurs informations."
+    },
+    {
+      "index": 508,
+      "style": "Normal (Web)",
+      "text": "Figure 4.16 — Liste des concessionnaires"
+    },
+    {
+      "index": 509,
+      "style": "Normal (Web)",
+      "text": "4.7. Gestion des marketplaces"
+    },
+    {
+      "index": 510,
+      "style": "Normal (Web)",
+      "text": "La rubrique Marketplace permet de visualiser les marketplaces créées pour les banques et d’en suivre le statut. Elle constitue un point de contrôle sur les espaces publics associés aux tenants et sur leur disponibilité après validation de l’abonnement."
+    },
+    {
+      "index": 511,
+      "style": "Normal (Web)",
+      "text": "Figure 4.16 —liste marketplace"
+    },
+    {
+      "index": 512,
+      "style": "Normal (Web)",
+      "text": "4.8. Gestion du contenu des marketplaces"
+    },
+    {
+      "index": 513,
+      "style": "Normal (Web)",
+      "text": "La gestion du contenu permet de gérer les éléments visuels et textuels affichés au sein des marketplaces. L’Administrateur SaaS peut superviser les contenus disponibles tout en permettant à chaque banque de personnaliser les éléments propres à sa marketplace."
+    },
+    {
+      "index": 514,
+      "style": "Normal (Web)",
+      "text": "Figure 4.16 — Contenu marketplace"
+    },
+    {
+      "index": 515,
+      "style": "Normal (Web)",
+      "text": "4.9. Gestion des abonnements"
+    },
+    {
+      "index": 516,
+      "style": "isselectedend",
+      "text": "Cette rubrique permet de suivre les abonnements associés aux marketplaces. Chaque abonnement correspond aux services sélectionnés par la banque ainsi qu’à leur période de validité."
+    },
+    {
+      "index": 517,
+      "style": "isselectedend",
+      "text": "Lors de la création initiale, l’abonnement reste en attente du paiement. Une fois celui-ci confirmé, il devient actif et les stores et modules associés peuvent être exploités."
+    },
+    {
+      "index": 518,
+      "style": "isselectedend",
+      "text": "Le Back-office SaaS permet également de suivre les abonnements, leurs périodes de validité et leurs statuts. Des mécanismes permettent de surveiller leur échéance et d’informer les acteurs concernés lorsqu’un abonnement approche de sa date d’expiration."
+    },
+    {
+      "index": 519,
+      "style": "Normal (Web)",
+      "text": "Cette gestion permet d’assurer que seuls les services disposant d’un abonnement valide restent accessibles"
+    },
+    {
+      "index": 521,
+      "style": "Normal (Web)",
+      "text": "Figure 4.16 — liste des abonnements"
+    },
+    {
+      "index": 523,
+      "style": "Normal (Web)",
+      "text": "4.10. Audit et logs"
+    },
+    {
+      "index": 524,
+      "style": "Normal (Web)",
+      "text": "La rubrique Audit & Logs fournit une consultation des événements importants réalisés sur la plateforme. Elle contribue à la traçabilité des opérations d’administration, des actions liées aux demandes et des opérations de paiement, ce qui facilite le suivi et l’analyse des incidents."
+    },
+    {
+      "index": 526,
+      "style": "Normal (Web)",
+      "text": "Figure 4.16 —"
+    },
+    {
+      "index": 527,
+      "style": "Normal (Web)",
+      "text": "5. Back-office Banque : Administration de la marketplace"
+    },
+    {
+      "index": 528,
+      "style": "isselectedend",
+      "text": "Une fois connecté, l’Administrateur Banque dispose d’un espace exclusivement associé à son établissement. Le contexte tenant garantit que les informations affichées correspondent uniquement à sa marketplace."
+    },
+    {
+      "index": 529,
+      "style": "Normal (Web)",
+      "text": "Le tableau de bord fournit une synthèse de l’activité de la banque et constitue le point d’entrée vers les différentes fonctionnalités administratives."
+    },
+    {
+      "index": 530,
+      "style": "Normal (Web)",
+      "text": "Figure 4.17 — Tableau de bord de l’Administrateur Banque"
+    },
+    {
+      "index": 531,
+      "style": "Normal",
+      "text": "L’espace bancaire permet à l’Administrateur Banque de gérer la personnalisation de sa marketplace, les stores et les modules activés, les produits et les contenus publiés, ainsi que la configuration du simulateur. Il lui offre également la possibilité d’administrer les concessionnaires et les partenariats, de consulter les clients rattachés à sa banque, de traiter les demandes de financement, de gérer les abonnements et de consulter les notifications reçues."
+    },
+    {
+      "index": 532,
+      "style": "Normal (Web)",
+      "text": "5.1. Personnalisation de la marketplace"
+    },
+    {
+      "index": 533,
+      "style": "Normal (Web)",
+      "text": "Chaque banque peut personnaliser l’identité visuelle et le contenu de sa marketplace sans modifier le socle applicatif partagé. L’Administrateur Banque dispose ainsi d’outils lui permettant de définir les couleurs principales, le logo, les bannières, les textes d’accueil, les contenus propres à la marketplace ainsi que les contenus associés à chaque store."
+    },
+    {
+      "index": 534,
+      "style": "Normal (Web)",
+      "text": "Cette personnalisation permet à plusieurs établissements d’utiliser une même application tout en proposant une expérience adaptée à leur identité et à leur offre."
+    },
+    {
+      "index": 535,
+      "style": "isselectedend",
+      "text": "Figure 4.18 — Interface de personnalisation de la marketplace"
+    },
+    {
+      "index": 536,
+      "style": "Normal (Web)",
+      "text": "Figure 4.19 — Gestion des contenus et des bannières"
+    },
+    {
+      "index": 537,
+      "style": "Normal (Web)",
+      "text": "5.2. Gestion des stores, modules et paramètres"
+    },
+    {
+      "index": 538,
+      "style": "Normal (Web)",
+      "text": "La banque peut consulter les stores qui lui sont attribués dans le cadre de son abonnement. Chaque store dispose de modules fonctionnels qui lui sont propres. L’Administrateur Banque peut visualiser les fonctionnalités disponibles, gérer l’activation des modules autorisés et configurer leurs paramètres selon les besoins de sa marketplace."
+    },
+    {
+      "index": 539,
+      "style": "Normal (Web)",
+      "text": "Les paramètres configurables sont notamment utilisés par le simulateur. La banque peut définir les valeurs nécessaires aux calculs de financement. Ces valeurs sont ensuite exploitées par la marketplace publique lors de l’exécution d’une simulation."
+    },
+    {
+      "index": 540,
+      "style": "isselectedend",
+      "text": "Figure 4.20 — Stores associés à la marketplace"
+    },
+    {
+      "index": 541,
+      "style": "Normal (Web)",
+      "text": "Figure 4.21 — Gestion des modules et de leurs paramètres"
+    },
+    {
+      "index": 542,
+      "style": "Normal (Web)",
+      "text": "5.3. Renouvellement et l’ajout des services"
+    },
+    {
+      "index": 543,
+      "style": "Normal (Web)",
+      "text": "L’Administrateur Banque peut consulter les informations relatives à son abonnement, notamment son statut, sa période de validité, les services associés et son historique."
+    },
+    {
+      "index": 544,
+      "style": "Normal (Web)",
+      "text": "Lorsque la banque souhaite conserver les mêmes services après leur échéance, elle peut initier une demande de renouvellement. Lorsqu’elle souhaite intégrer de nouveaux stores ou modules, elle soumet une demande d’extension d’abonnement."
+    },
+    {
+      "index": 545,
+      "style": "Normal (Web)",
+      "text": "Dans les deux cas, la demande est transmise à l’espace SaaS, où elle est examinée et approuvée. Elle se poursuit ensuite par l’étape de paiement ; après confirmation de la transaction, l’abonnement est mis à jour et les nouveaux services sont activés."
+    },
+    {
+      "index": 546,
+      "style": "Normal (Web)",
+      "text": "Le diagramme d’activité suivant présente le déroulement du processus de renouvellement et d’extension d’un abonnement."
+    },
+    {
+      "index": 548,
+      "style": "Normal",
+      "text": "Figure 4.22 — Diagramme d’activité du renouvellement et de l’extension d’un abonnement"
+    },
+    {
+      "index": 549,
+      "style": "Normal",
+      "text": "Figure 4.23 — Consultation de l’abonnement et de son historique"
+    },
+    {
+      "index": 550,
+      "style": "Normal",
+      "text": "Figure 4.24 — Soumission d’une demande de renouvellement ou d’extension"
+    },
+    {
+      "index": 551,
+      "style": "Normal (Web)",
+      "text": "6. Marketplace publique"
+    },
+    {
+      "index": 552,
+      "style": "isselectedend",
+      "text": "Une fois la marketplace active et configurée, elle devient accessible depuis son espace public."
+    },
+    {
+      "index": 553,
+      "style": "Normal (Web)",
+      "text": "L’interface reprend les paramètres et éléments de personnalisation définis par la banque. Elle présente notamment le logo, les couleurs, les bannières, les contenus ainsi que les stores disponibles."
+    },
+    {
+      "index": 554,
+      "style": "Normal (Web)",
+      "text": "Figure 4.25 — Page d’accueil d’une marketplace bancaire"
+    },
+    {
+      "index": 555,
+      "style": "Normal (Web)",
+      "text": "La marketplace est organisée autour de plusieurs stores, chacun correspondant à un univers fonctionnel spécifique. Chaque store dispose de ses propres modules, définis selon la configuration de la banque. Ces modules déterminent les fonctionnalités accessibles dans le store et peuvent être activés ou désactivés en fonction des services souscrits et des besoins de la marketplace."
+    },
+    {
+      "index": 556,
+      "style": "Normal (Web)",
+      "text": "Figure 4.26 — Consultation d’un store"
+    },
+    {
+      "index": 557,
+      "style": "Normal (Web)",
+      "text": "7. Conclusion"
+    },
+    {
+      "index": 558,
+      "style": "Normal (Web)",
+      "text": "En conclusion, ce chapitre a permis de présenter la mise en œuvre de la plateforme à travers ses principaux parcours fonctionnels. Il a détaillé le cycle de vie d’une marketplace, depuis la soumission de la demande jusqu’à son activation, sa personnalisation et son exploitation. L’ensemble des fonctionnalités réalisées constitue ainsi une base concrète pour répondre aux besoins des différents acteurs et assurer le bon fonctionnement de la solution."
+    },
+    {
+      "index": 580,
+      "style": "Heading 1",
+      "text": "Chapitre 5 : Mise en œuvre des parcours des concessionnaires et des clients, et intégration des assistants conversationnels"
+    },
+    {
+      "index": 582,
+      "style": "Normal",
+      "text": "1. Introduction"
+    },
+    {
+      "index": 583,
+      "style": "Normal",
+      "text": "Ce chapitre a présenté les différentes fonctionnalités mises en œuvre pour les Concessionnaires et les Clients, depuis la gestion des produits et des partenariats jusqu’au processus de financement, ainsi que l’intégration de l’assistant IA et du chatbot."
+    },
+    {
+      "index": 584,
+      "style": "Normal",
+      "text": "2. Parcours concessionnaires"
+    },
+    {
+      "index": 585,
+      "style": "Normal",
+      "text": "Le concessionnaire constitue un acteur important de l’écosystème Matchia puisqu’il peut proposer ses produits auprès de plusieurs banques. Afin de faciliter cette collaboration, la plateforme lui fournit un espace centralisé à partir duquel il peut gérer son activité sans avoir à créer un compte distinct pour chaque banque partenaire. Cette approche permet de conserver un point de gestion unique tout en maintenant la séparation des partenariats et des publications selon chaque banque."
+    },
+    {
+      "index": 586,
+      "style": "Normal (Web)",
+      "text": "2.1. Inscription et validation du concessionnaire"
+    },
+    {
+      "index": 587,
+      "style": "Normal (Web)",
+      "text": "Le parcours débute par une demande d’inscription accessible depuis l’espace public. Le concessionnaire renseigne les informations relatives à son entreprise, ses coordonnées, le store concerné ainsi que les données nécessaires à l’identification de son activité. Il doit également transmettre les documents justificatifs requis, afin de permettre la vérification de son identité, de la conformité de son activité et de son éligibilité avant le traitement de la demande."
+    },
+    {
+      "index": 588,
+      "style": "Normal (Web)",
+      "text": "Une fois le formulaire soumis, la demande est enregistrée puis transmise à l’Administrateur SaaS pour traitement. Après analyse, elle peut être approuvée ou rejetée. En cas d’approbation, le système crée le compte du concessionnaire et lui donne accès à son espace personnel. Un e-mail contenant ses identifiants de connexion lui est alors envoyé. En cas de rejet, un e-mail précisant le motif de la décision est transmis au demandeur."
+    },
+    {
+      "index": 590,
+      "style": "gjcqjg1a",
+      "text": "Figure 5.1 — Diagramme d’activité du parcours d’inscription et de validation d’un concessionnaire"
+    },
+    {
+      "index": 591,
+      "style": "gjcqjg1a",
+      "text": "Le diagramme de séquence suivant précise la validation du dossier, sa transmission à l’Administrateur SaaS et les deux issues du traitement."
+    },
+    {
+      "index": 593,
+      "style": "gjcqjg1a",
+      "text": "Figure 5.2 — Diagramme de séquence de l’inscription et de la validation d’un concessionnaire"
+    },
+    {
+      "index": 594,
+      "style": "Normal (Web)",
+      "text": "Capture 5.1 — Formulaire d’inscription du concessionnaire"
+    },
+    {
+      "index": 595,
+      "style": "Normal (Web)",
+      "text": "Cette capture présente le formulaire permettant au concessionnaire de renseigner les informations nécessaires à la création de sa demande."
+    },
+    {
+      "index": 596,
+      "style": "Normal (Web)",
+      "text": "Capture 5.2 — Gestion des demandes concessionnaires par l’Administrateur SaaS"
+    },
+    {
+      "index": 597,
+      "style": "Normal (Web)",
+      "text": "Cette capture illustre l’interface permettant au SaaS de consulter, filtrer et traiter les demandes reçues."
+    },
+    {
+      "index": 598,
+      "style": "Normal (Web)",
+      "text": "2.2. Partenariats et contrats"
+    },
+    {
+      "index": 599,
+      "style": "Normal (Web)",
+      "text": "Une fois le compte concessionnaire validé, la collaboration avec une banque est organisée à travers un mécanisme de partenariat. Dans Matchia, le partenariat constitue le lien entre un concessionnaire, une banque et un store donné. Cette modélisation permet à un même concessionnaire de collaborer avec plusieurs banques tout en conservant un compte unique."
+    },
+    {
+      "index": 600,
+      "style": "Normal (Web)",
+      "text": "La demande de partenariat peut être initiée dans les deux sens. Depuis son espace, le concessionnaire sélectionne la banque auxquels il souhaite proposer sa collaboration ; la banque destinataire peut ensuite consulter la demande et l’approuver ou la rejeter. Inversement, l’Administrateur Banque peut sélectionner un concessionnaire disponible et lui adresser une demande de partenariat. Le concessionnaire reçoit alors cette demande dans son espace et peut à son tour l’accepter ou la rejeter."
+    },
+    {
+      "index": 601,
+      "style": "Normal (Web)",
+      "text": "Le contrat définit les conditions de collaboration entre la banque et le concessionnaire. Il précise notamment la période de validité, les commissions éventuellement applicables, les conditions contractuelles ainsi que les modalités de résiliation. Son cycle de vie comprend les états d’attente d’acceptation, d’activation, d’annulation, d’expiration ou de résiliation. L’activation intervient après l’acceptation du concessionnaire et la validation finale de la banque."
+    },
+    {
+      "index": 602,
+      "style": "Normal (Web)",
+      "text": "Capture 5.3 — partenariat Concessionnaire vers banque"
+    },
+    {
+      "index": 603,
+      "style": "Normal (Web)",
+      "text": "Capture 5.3 —partenariats Banque vers Concessionnaire"
+    },
+    {
+      "index": 604,
+      "style": "gjcqjg1a",
+      "text": "Figure 5.2 — Cycle de vie d’un partenariat, d’un contrat et d’une publication"
+    },
+    {
+      "index": 605,
+      "style": "Normal (Web)",
+      "text": "La figure permet de visualiser l’enchaînement entre la création du partenariat, la formalisation du contrat et l’autorisation de publication du produit."
+    },
+    {
+      "index": 606,
+      "style": "Normal (Web)",
+      "text": "Capture 5.3 — Gestion des partenariats et des contrats"
+    },
+    {
+      "index": 607,
+      "style": "Normal (Web)",
+      "text": "Cette interface permet au concessionnaire de consulter ses relations avec les différentes banques ainsi que les contrats associés."
+    },
+    {
+      "index": 608,
+      "style": "Normal (Web)",
+      "text": "2.3. Produits et publication multi-banque"
+    },
+    {
+      "index": 609,
+      "style": "Normal (Web)",
+      "text": "Après la validation du partenariat, le concessionnaire accède à un espace centralisé lui permettant de gérer son catalogue. Il peut y créer, modifier et mettre à jour les informations relatives à ses produits, tout en assurant le suivi de leur stock."
+    },
+    {
+      "index": 610,
+      "style": "Normal (Web)",
+      "text": "Le catalogue des produits est géré indépendamment de leur diffusion auprès des banques. Un même produit peut ainsi être proposé à plusieurs banques sans qu’il soit nécessaire de créer plusieurs copies du produit. Le concessionnaire conserve donc une référence centrale de son catalogue tandis que chaque publication est associée au partenariat et à la marketplace concernée."
+    },
+    {
+      "index": 611,
+      "style": "Normal (Web)",
+      "text": "Cette organisation permet au concessionnaire de gérer le stock de chaque produit depuis une seule fiche centralisée. Il peut ainsi suivre la quantité totale, la quantité disponible à la vente et la quantité réservée, sans devoir mettre à jour séparément le même produit dans chaque marketplace bancaire. Lorsqu’une information du produit ou de son stock est modifiée, cette mise à jour est automatiquement prise en compte pour l’ensemble de ses publications autorisées."
+    },
+    {
+      "index": 612,
+      "style": "Normal (Web)",
+      "text": "Cependant, la publication d’un produit reste soumise à plusieurs conditions. Le concessionnaire doit être approuvé, le partenariat et le contrat doivent être valide, le store concerné doit être actif et la publication doit être approuvée par la banque."
+    },
+    {
+      "index": 613,
+      "style": "Normal (Web)",
+      "text": "Le diagramme de séquence distingue la gestion du produit et la publication propre à chaque banque partenaire."
+    },
+    {
+      "index": 615,
+      "style": "Normal (Web)",
+      "text": "Figure 5.4 — Diagramme de séquence de la gestion et de la publication multi-banque d’un produit"
+    },
+    {
+      "index": 616,
+      "style": "gjcqjg1a",
+      "text": "Capture 5.4 — Création d’un produit et gestion du stock"
+    },
+    {
+      "index": 617,
+      "style": "Normal (Web)",
+      "text": "Capture 5.5 — Validation bancaire d’une publication"
+    },
+    {
+      "index": 618,
+      "style": "Normal (Web)",
+      "text": "2.4. Suivi des demandes de financement"
+    },
+    {
+      "index": 619,
+      "style": "Normal (Web)",
+      "text": "Le concessionnaire dispose également une section dédié au suivi des demandes de financement associées à ses produits. Cette fonctionnalité constitue le principe de compte unique : les demandes provenant de différentes marketplaces partenaires peuvent être consultées depuis le même espace."
+    },
+    {
+      "index": 620,
+      "style": "Normal (Web)",
+      "text": "La section de suivi permet notamment de consulter les références des dossiers, les produits concernés, la banque associée, le client concerné, le montant demandé, la date de création et le statut du dossier."
+    },
+    {
+      "index": 621,
+      "style": "Normal (Web)",
+      "text": "Lorsqu’une demande associée à un produit concessionnaire est acceptée par la banque, le stock correspondant peut être réservé automatiquement. En revanche, une demande rejetée ne provoque aucune réservation."
+    },
+    {
+      "index": 622,
+      "style": "gjcqjg1a",
+      "text": "Capture 5.6 — Suivi des demandes de financement par le concessionnaire"
+    },
+    {
+      "index": 623,
+      "style": "Normal (Web)",
+      "text": "3. Parcours client et demande de financement"
+    },
+    {
+      "index": 624,
+      "style": "Normal (Web)",
+      "text": "Le parcours client constitue un processus important de la plateforme. Il permet à un visiteur de découvrir les offres proposées dans la marketplace, de consulter et de comparer les produits disponibles, puis d’effectuer une simulation de financement. Lorsqu’il souhaite poursuivre sa démarche, il peut créer un compte client puis soumettre une demande de financement."
+    },
+    {
+      "index": 625,
+      "style": "Normal (Web)",
+      "text": "3.1. Consultation, comparaison et simulation"
+    },
+    {
+      "index": 626,
+      "style": "Normal (Web)",
+      "text": "Depuis la marketplace publique, le visiteur peut parcourir les différents stores et consulter les produits proposés par les concessionnaires partenaires. Chaque fiche produit présente les informations utiles à la prise de décision, telles que les caractéristiques, le prix, les images et, selon le store, les conditions d’éligibilité associées."
+    },
+    {
+      "index": 627,
+      "style": "Normal (Web)",
+      "text": "Lorsque les modules correspondants sont activés, le visiteur peut sélectionner plusieurs produits afin de les comparer selon différents critères. Il peut également utiliser le simulateur de financement pour obtenir une estimation à partir du montant du produit, de la durée souhaitée et de l’apport personnel. Ces fonctionnalités restent accessibles avant la création d’un compte et permettent au visiteur d’étudier les offres avant d’entamer une demande de financement."
+    },
+    {
+      "index": 628,
+      "style": "Normal (Web)",
+      "text": "Capture 5.7 — Comparateur /simulateur"
+    },
+    {
+      "index": 629,
+      "style": "Normal (Web)",
+      "text": "3.2. Inscription du client et activation du compte"
+    },
+    {
+      "index": 630,
+      "style": "gjcqjg1a",
+      "text": "Lorsqu’un visiteur souhaite déposer une demande de financement, il est orienté vers la création d’un compte client. Cette inscription s’effectue dans le contexte de la marketplace bancaire concernée afin de rattacher le compte au tenant correspondant."
+    },
+    {
+      "index": 631,
+      "style": "Normal (Web)",
+      "text": "Après validation du formulaire, un code de vérification à six chiffres est envoyé à l’adresse e-mail renseignée. Le compte est activé après la validation de ce code. Le client peut alors se connecter à son espace personnel et reprendre le processus de financement."
+    },
+    {
+      "index": 632,
+      "style": "Normal (Web)",
+      "text": "Le diagramme de séquence suivant détaille la création du compte et l’activation du Client dans la marketplace consultée."
+    },
+    {
+      "index": 634,
+      "style": "Normal (Web)",
+      "text": "Figure 5.5 — Diagramme de séquence de l’inscription et de l’activation du compte Client"
+    },
+    {
+      "index": 635,
+      "style": "Normal (Web)",
+      "text": "Capture 5.7 — Inscription et vérification du compte client"
+    },
+    {
+      "index": 636,
+      "style": "Normal (Web)",
+      "text": "3.3. Constitution et soumission du dossier"
+    },
+    {
+      "index": 637,
+      "style": "Normal (Web)",
+      "text": "Une fois authentifié, le client peut commencer sa demande depuis la fiche d’un produit ou à partir du résultat de sa simulation. Le dossier est créé initialement à l’état de brouillon, ce qui lui permet de compléter progressivement les informations requises et de déposer les documents justificatifs demandés."
+    },
+    {
+      "index": 638,
+      "style": "Normal (Web)",
+      "text": "Avant la soumission définitive, le système vérifie la présence des pièces obligatoires. Une fois le dossier complet, il est transmis à la banque pour traitement."
+    },
+    {
+      "index": 640,
+      "style": "Normal (Web)",
+      "text": "Figure 5.6 — Diagramme d’activité du parcours Client et de la demande de financement"
+    },
+    {
+      "index": 641,
+      "style": "Normal (Web)",
+      "text": "La figure présente les principales étapes du parcours client, depuis la simulation jusqu’à la soumission du dossier et sa transmission à la banque."
+    },
+    {
+      "index": 642,
+      "style": "Normal (Web)",
+      "text": "3.4. Traitement de la demande par la banque"
+    },
+    {
+      "index": 643,
+      "style": "Normal (Web)",
+      "text": "Après sa soumission, la demande est transmise à la banque concernée. L’Administrateur Banque peut alors consulter le détail du dossier ainsi que les documents fournis par le client avant de rendre sa décision. Lorsqu’elle est en attente de traitement, la demande peut être acceptée ou rejetée, avec l’ajout obligatoire d’un motif de rejet."
+    },
+    {
+      "index": 645,
+      "style": "gjcqjg1a",
+      "text": "Figure 5.5 — Diagramme de séquence du traitement d’une demande de financement"
+    },
+    {
+      "index": 646,
+      "style": "Normal (Web)",
+      "text": "Capture 5.8 — Simulation et création d’une demande de financement"
+    },
+    {
+      "index": 647,
+      "style": "Normal (Web)",
+      "text": "Capture 5.9 — Téléversement des documents justificatifs"
+    },
+    {
+      "index": 648,
+      "style": "Normal (Web)",
+      "text": "Capture 5.10 — Traitement et décision de la banque"
+    },
+    {
+      "index": 649,
+      "style": "Normal (Web)",
+      "text": "4. Assistants conversationnels de la plateforme"
+    },
+    {
+      "index": 650,
+      "style": "Normal (Web)",
+      "text": "La plateforme Matchia intègre deux solutions conversationnelles complémentaires répondant à des besoins distincts : un assistant IA destiné au pilotage du Back-office SaaS et un chatbot public accessible aux visiteurs des marketplaces bancaires. Bien que ces deux composants permettent une interaction en langage naturel, ils se distinguent par leurs objectifs, leurs utilisateurs cibles ainsi que par les mécanismes techniques sur lesquels ils reposent."
+    },
+    {
+      "index": 651,
+      "style": "Normal (Web)",
+      "text": "4.1. Assistant IA pour le pilotage du SaaS"
+    },
+    {
+      "index": 652,
+      "style": "isselectedend",
+      "text": "L’assistant IA est intégré au Back-office SaaS et est destiné principalement à l’Administrateur SaaS. Il facilite l’accès aux informations de pilotage en permettant à l’administrateur de formuler directement ses questions en langage naturel. Ces interrogations peuvent notamment concerner les banques, les marketplaces, les demandes, les abonnements, les paiements, les stores ou encore les modules disponibles sur la plateforme."
+    },
+    {
+      "index": 653,
+      "style": "Normal (Web)",
+      "text": "Cet assistant s’appuie sur le modèle Gemini, appartenant à la famille des LLM. Grâce à ses capacités de traitement du langage naturel (NLP), le modèle analyse la question formulée par l’utilisateur, en détermine le sens et génère une requête permettant de récupérer les informations correspondantes dans la base de données. Les résultats obtenus sont ensuite reformulés afin de fournir une réponse compréhensible et directement exploitable par l’administrateur."
+    },
+    {
+      "index": 654,
+      "style": "Normal (Web)",
+      "text": "4.2. Fonctionnement et sécurisation de l’assistant IA"
+    },
+    {
+      "index": 655,
+      "style": "isselectedend",
+      "text": "Lorsqu’une question est envoyée par l’administrateur, le backend commence par construire un schéma dynamique contenant uniquement les tables, les colonnes et les relations autorisées. Ce schéma, accompagné de la question formulée en langage naturel, est ensuite transmis au modèle Gemini."
+    },
+    {
+      "index": 656,
+      "style": "Normal (Web)",
+      "text": "À partir de ces informations, Gemini génère une proposition de requête SQL correspondant à la demande. Toutefois, cette requête n’est jamais exécutée directement sur la base de données. Elle est préalablement analysée par un validateur déterministe, chargé de vérifier qu’elle respecte les règles de sécurité définies par la plateforme."
+    },
+    {
+      "index": 657,
+      "style": "Normal (Web)",
+      "text": "Par ailleurs, les informations sensibles telles que les mots de passe, les tokens, les secrets, les clés, les données de vérification ainsi que certaines informations sont exclues du schéma transmis au modèle. Après validation, la requête est exécutée en lecture seule sur PostgreSQL, avec un contrôle du temps maximal d’exécution."
+    },
+    {
+      "index": 658,
+      "style": "Normal (Web)",
+      "text": "Les résultats obtenus sont ensuite transmis à Gemini afin de générer une réponse claire, précise et adaptée au contexte métier."
+    },
+    {
+      "index": 660,
+      "style": "Normal (Web)",
+      "text": "Figure 5.6 — Diagramme de séquence de l’assistant IA Text-to-SQL sécurisé"
+    },
+    {
+      "index": 661,
+      "style": "Normal (Web)",
+      "text": "4.3. Chatbot public des marketplaces"
+    },
+    {
+      "index": 662,
+      "style": "Normal (Web)",
+      "text": "Le chatbot public constitue le second composant conversationnel de la plateforme. Il est destiné aux visiteurs des marketplaces bancaires et apparaît uniquement lorsque le module Chatbot est activé pour le store consulté. Son rôle principal consiste à accompagner le visiteur dans la découverte des produits et à faciliter son accès aux différentes fonctionnalités disponibles au sein de la marketplace."
+    },
+    {
+      "index": 663,
+      "style": "Normal (Web)",
+      "text": "Ce chatbot public est un système conversationnel basé sur des règles métier. Son fonctionnement consiste à normaliser le message reçu, à rechercher des mots-clés et à identifier une intention prédéfinie afin de fournir une réponse adaptée."
+    },
+    {
+      "index": 664,
+      "style": "Normal (Web)",
+      "text": "Lorsqu’un visiteur envoie un message, le système identifie tout d’abord la marketplace et le store dans lesquels la conversation est effectuée. Le chatbot analyse ensuite le contenu du message afin d’en déterminer l’intention. Celle-ci peut notamment correspondre à la recherche d’un produit, à la consultation de sa disponibilité ou de ses caractéristiques, à l’identification du concessionnaire qui le propose, à une demande de comparaison ou encore à une orientation vers le simulateur de financement."
+    },
+    {
+      "index": 665,
+      "style": "Normal (Web)",
+      "text": "L’accès aux données reste limité au périmètre public de la marketplace consultée. Le chatbot refuse donc toute demande non autorisée."
+    },
+    {
+      "index": 666,
+      "style": "Normal (Web)",
+      "text": "Figure 5.7 — Fonctionnement du chatbot public dans une marketplace"
+    },
+    {
+      "index": 667,
+      "style": "Normal (Web)",
+      "text": "5. Introduction"
+    },
+    {
+      "index": 668,
+      "style": "Normal (Web)",
+      "text": "En conclusion, ce chapitre a permis de mettre en évidence l’ensemble des fonctionnalités métier développées pour les Concessionnaires et les Clients, ainsi que les mécanismes facilitant leurs interactions avec les banques. Il a également présenté l’apport de l’assistant IA et du chatbot dans l’amélioration de l’accès à l’information et de l’accompagnement des utilisateurs."
+    },
+    {
+      "index": 678,
+      "style": "Heading 1",
+      "text": "Chapitre 6 : Mise en place du pipeline CI/CD et déploiement sur Microsoft Azure"
+    },
+    {
+      "index": 681,
+      "style": "Normal",
+      "text": "1. Introduction"
+    },
+    {
+      "index": 682,
+      "style": "Normal",
+      "text": "Ce chapitre présente la démarche DevOps adoptée pour automatiser le processus de livraison et de déploiement de Matchia. Il décrit la conteneurisation de l’application avec Docker, la mise en place du pipeline CI/CD avec Jenkins, les tests et l’analyse de qualité avec SonarQube, ainsi que la publication des images Docker et le déploiement de la plateforme sur Microsoft Azure."
+    },
+    {
+      "index": 683,
+      "style": "Normal",
+      "text": "2. Démarche DevOps et principes de la CI/CD"
+    },
+    {
+      "index": 684,
+      "style": "isselectedend",
+      "text": "Le DevOps est une approche visant à rapprocher les activités de développement (Development)  et d’exploitation (Operations) afin d’améliorer la collaboration et d’automatiser les différentes étapes du cycle de livraison d’une application. Elle permet notamment d’enchaîner de manière cohérente la construction, les tests, le contrôle de la qualité, la conteneurisation et le déploiement, dans le but d’améliorer la rapidité, la fiabilité et la reproductibilité des mises en production."
+    },
+    {
+      "index": 685,
+      "style": "Normal (Web)",
+      "text": "Dans le cadre de Matchia, cette démarche repose principalement sur GitHub, Jenkins, SonarQube, Docker, Docker Hub et Microsoft Azure. L’objectif est de mettre en place un processus de livraison automatisé, fiable et reproductible, tout en réduisant les interventions manuelles lors du déploiement des nouvelles versions."
+    },
+    {
+      "index": 686,
+      "style": "Normal (Web)",
+      "text": "2.1. Intégration continue"
+    },
+    {
+      "index": 687,
+      "style": "Normal (Web)",
+      "text": "L’intégration continue consiste à intégrer régulièrement les modifications du code source et à les soumettre automatiquement à un ensemble de vérifications. Elle permet de détecter rapidement les erreurs introduites au cours du développement et de vérifier que la nouvelle version peut être construite correctement."
+    },
+    {
+      "index": 688,
+      "style": "Normal (Web)",
+      "text": "Dans Matchia, le processus d’intégration continue est orchestré par Jenkins et déclenché à la suite d’un push effectué sur le dépôt GitHub. Il comprend notamment la récupération du code source, la construction de l’application, l’exécution des tests backend et l’analyse de la qualité du backend et du frontend avec SonarQube."
+    },
+    {
+      "index": 689,
+      "style": "Normal (Web)",
+      "text": "2.2. Livraison et déploiement continus"
+    },
+    {
+      "index": 690,
+      "style": "Normal (Web)",
+      "text": "Le déploiement continu  intervient après l’intégration continue et vise à automatiser les étapes nécessaires à la mise à disposition d’une version validée de l’application."
+    },
+    {
+      "index": 691,
+      "style": "Normal (Web)",
+      "text": "Dans le cadre de Matchia, cette phase comprend la création des images Docker du frontend et du backend, leur publication sur Docker Hub, puis le déploiement des nouvelles versions dans l’environnement Microsoft Azure. Une erreur bloquante interrompt le pipeline afin d’empêcher le déploiement d’une version non validée."
+    },
+    {
+      "index": 692,
+      "style": "Normal (Web)",
+      "text": "Les différents composants et étapes présentés dans cette architecture seront détaillés dans les sections suivantes, depuis la gestion du code source et la conteneurisation jusqu’à l’automatisation du pipeline Jenkins et au déploiement sur Microsoft Azure."
+    },
+    {
+      "index": 693,
+      "style": "Normal (Web)",
+      "text": "3. Architecture globale de déploiement"
+    },
+    {
+      "index": 694,
+      "style": "Normal (Web)",
+      "text": "L’architecture suivante présente la chaîne complète de livraison de la plateforme, depuis la publication du code source jusqu’à son déploiement sur Microsoft Azure. Une modification envoyée vers GitHub déclenche Jenkins, qui construit l’application, exécute les tests, contrôle la qualité du code, génère les images Docker et les publie sur Docker Hub. Les images validées sont ensuite déployées sur Azure Container Apps, où elles communiquent avec la base de données PostgreSQL Azure."
+    },
+    {
+      "index": 695,
+      "style": "Normal (Web)",
+      "text": "figure : Architecture globale de la chaîne CI/CD et du déploiement Cloud de Matchia"
+    },
+    {
+      "index": 696,
+      "style": "Normal (Web)",
+      "text": "Les différents composants et étapes présentés dans cette architecture seront détaillés dans les sections suivantes, depuis la gestion du code source et la conteneurisation jusqu’à l’automatisation du pipeline Jenkins et déploiement sur Microsoft Azure."
+    },
+    {
+      "index": 697,
+      "style": "Normal (Web)",
+      "text": "4. Gestion du versioning et conteneurisation"
+    },
+    {
+      "index": 698,
+      "style": "Normal (Web)",
+      "text": "4.1. Gestion des versions avec Git et Github"
+    },
+    {
+      "index": 699,
+      "style": "Normal (Web)",
+      "text": "La gestion des versions permet de suivre l’évolution du code tout au long du développement. Elle assure la traçabilité des modifications, facilite le travail collaboratif et permet de restaurer une version stable en cas de problème."
+    },
+    {
+      "index": 700,
+      "style": "Normal (Web)",
+      "text": "Git est utilisé localement pour enregistrer les modifications sous forme de commits, tandis que GitHub héberge le dépôt distant de la plateforme. Ce dépôt centralise le frontend React, le backend Spring Boot, les Dockerfiles, le fichier docker-compose.yml et le Jenkinsfile. Après vérification, la commande git push publie les évolutions validées et les rend disponibles pour l’étape Checkout du pipeline Jenkins."
+    },
+    {
+      "index": 701,
+      "style": "Normal (Web)",
+      "text": "La figure suivante présente l’organisation fonctionnelle du dépôt utilisée par la chaîne CI/CD"
+    },
+    {
+      "index": 702,
+      "style": "Normal (Web)",
+      "text": "4.2. Conteneurisation avec Docker"
+    },
+    {
+      "index": 703,
+      "style": "Normal (Web)",
+      "text": "4.2.1. Principe de la conteneurisation"
+    },
+    {
+      "index": 704,
+      "style": "Normal (Web)",
+      "text": "La conteneurisation consiste à regrouper une application et l’ensemble des dépendances nécessaires à son exécution dans une unité isolée appelée conteneur. Contrairement à une machine virtuelle, le conteneur partage le noyau du système hôte tout en disposant de son propre environnement d’exécution. Cette approche rend l’application plus légère, plus rapide à démarrer et plus facile à déployer."
+    },
+    {
+      "index": 705,
+      "style": "Normal (Web)",
+      "text": "Docker est la technologie utilisée pour mettre en œuvre cette approche au sein de la plateforme. Son fonctionnement repose sur trois éléments complémentaires : le Dockerfile, l’image Docker et le conteneur. Le Dockerfile contient les instructions nécessaires à la préparation de l’environnement d’exécution, telles que l’image de base, les dépendances, les fichiers à copier, les commandes de compilation et la commande de démarrage de l’application."
+    },
+    {
+      "index": 706,
+      "style": "Normal (Web)",
+      "text": "À partir de ce Dockerfile, Docker construit une image, qui représente un modèle immuable intégrant l’application et ses dépendances. Lorsqu’une image est exécutée, elle crée un conteneur, c’est-à-dire une instance active et isolée de l’application."
+    },
+    {
+      "index": 707,
+      "style": "Normal (Web)",
+      "text": "Cette organisation garantit ainsi un environnement d’exécution reproductible, indépendant de la machine utilisée pour le développement, les tests ou le déploiement."
+    },
+    {
+      "index": 708,
+      "style": "Normal",
+      "text": "figure : Principe de conteneurisation avec Docker"
+    },
+    {
+      "index": 709,
+      "style": "Normal (Web)",
+      "text": "4.2.2. Conteneurisation du backend et du frontend"
+    },
+    {
+      "index": 710,
+      "style": "Normal",
+      "text": "Le backend est développé avec Spring Boot et Java 17. Son Dockerfile définit l’environnement nécessaire à la compilation du projet avec Maven, puis à son exécution dans un conteneur dédié sur le port 80."
+    },
+    {
+      "index": 711,
+      "style": "Normal",
+      "text": "Avant son intégration dans le pipeline, l’image a été construite et exécutée manuellement afin de vérifier le démarrage correct du backend et de corriger les éventuels problèmes de configuration."
+    },
+    {
+      "index": 712,
+      "style": "Normal",
+      "text": "Figure 6.3 — Dockerfile utilisé pour la conteneurisation du backend Matchia  ( docker build ..)"
+    },
+    {
+      "index": 713,
+      "style": "Normal (Web)",
+      "text": "Le frontend est développé avec React et TypeScript. Son Dockerfile prépare d’abord l’environnement nécessaire à l’installation des dépendances et à la génération des fichiers statiques de production. Lors de cette phase, la variable VITE_API_URL permet de définir l’adresse du backend à utiliser par l’interface. Les fichiers générés sont ensuite servis par Nginx à travers le port 80."
+    },
+    {
+      "index": 714,
+      "style": "Normal (Web)",
+      "text": "Cette image a également été testée manuellement avant l’automatisation afin de valider le build Vite, la configuration Nginx et la communication avec le backend."
+    },
+    {
+      "index": 715,
+      "style": "Normal",
+      "text": "Figure 6.3 — Dockerfile utilisé pour la conteneurisation du frontend Matchia  ( docker build ..)"
+    },
+    {
+      "index": 716,
+      "style": "Normal (Web)",
+      "text": "4.2.3. Orchestration avec Docker Compose"
+    },
+    {
+      "index": 717,
+      "style": "Normal",
+      "text": "Docker Compose permet de définir plusieurs services dans un même fichier de configuration. Dans Matchia, il décrit le frontend, le backend, les ports exposés, les variables d’environnement, le réseau de communication et le volume associé aux fichiers téléversés."
+    },
+    {
+      "index": 718,
+      "style": "Normal",
+      "text": "Cette étape locale a permis de valider le fonctionnement conjoint des deux composants avant que leur construction soit intégrée dans Jenkins."
+    },
+    {
+      "index": 719,
+      "style": "Normal",
+      "text": "Figure 6.5 — Configuration locale des services Matchia avec Docker Compose ( docker compose config)"
+    },
+    {
+      "index": 720,
+      "style": "Normal",
+      "text": "5. Mise en place du pipeline CI/CD avec Jenkins"
+    },
+    {
+      "index": 721,
+      "style": "Normal",
+      "text": "Jenkins constitue l’outil central d’orchestration de la chaîne CI/CD. Il est chargé d’exécuter automatiquement les différentes opérations nécessaires à la validation et à la livraison d’une nouvelle version de l’application."
+    },
+    {
+      "index": 722,
+      "style": "Normal (Web)",
+      "text": "5.1. Définition du pipeline avec jenkinsfile"
+    },
+    {
+      "index": 723,
+      "style": "Normal (Web)",
+      "text": "Le pipeline de Matchia est défini dans un Jenkinsfile placé à la racine du dépôt. Cette approche, appelée Pipeline as Code, permet de versionner la définition de la chaîne CI/CD avec le reste du projet et d’assurer que Jenkins exécute les étapes correspondant exactement à la version récupérée."
+    },
+    {
+      "index": 724,
+      "style": "Normal (Web)",
+      "text": "La figure suivante présente l’enchaînement des différentes étapes configurées dans le pipeline Jenkins, depuis la récupération du code source jusqu’au déploiement des composants frontend et backend."
+    },
+    {
+      "index": 726,
+      "style": "Normal (Web)",
+      "text": "Figure 6.X — Enchaînement des stages du pipeline Jenkins"
+    },
+    {
+      "index": 727,
+      "style": "Normal (Web)",
+      "text": "La séparation des stages facilite l’identification de l’étape responsable d’un échec et rend l’exécution plus lisible depuis l’interface Jenkins."
+    },
+    {
+      "index": 728,
+      "style": "Normal (Web)",
+      "text": "5.2. Déclenchement automatique avec GitHub Webhook"
+    },
+    {
+      "index": 729,
+      "style": "Normal",
+      "text": "Le déclenchement du pipeline est automatisé à l’aide d’un Webhook GitHub. À chaque push effectué sur le dépôt du projet, GitHub envoie automatiquement une notification à Jenkins afin de signaler la disponibilité d’une nouvelle version du code source."
+    },
+    {
+      "index": 730,
+      "style": "Normal",
+      "text": "À la réception de cet événement, Jenkins lance le pipeline et récupère la version la plus récente du projet. Les différentes étapes de construction, de test, d’analyse de qualité, de conteneurisation et de déploiement sont ensuite exécutées automatiquement selon l’ordre défini dans le pipeline."
+    },
+    {
+      "index": 732,
+      "style": "Normal",
+      "text": "Figure 6.8 — Configuration du Webhook GitHub déclenchant Jenkins"
+    },
+    {
+      "index": 733,
+      "style": "Normal",
+      "text": "Ce mécanisme évite le déclenchement manuel du pipeline et garantit que chaque nouvelle version déposée sur GitHub passe par le même processus automatisé de validation, de construction et de livraison."
+    },
+    {
+      "index": 734,
+      "style": "Normal",
+      "text": "6. Exécution automatisée du pipeline CI/CD"
+    },
+    {
+      "index": 735,
+      "style": "Normal (Web)",
+      "text": "6.1 Récupération du code et construction"
+    },
+    {
+      "index": 736,
+      "style": "Normal",
+      "text": "Après son déclenchement, Jenkins exécute le stage Checkout afin de récupérer la version du projet disponible sur GitHub. Le backend est construit avec Maven ; dans la configuration finale, le stage Build Backend utilise la commande ./mvnw clean package -DskipTests. Les tests sont volontairement exécutés dans un stage distinct afin de localiser clairement les erreurs de construction et de test."
+    },
+    {
+      "index": 737,
+      "style": "Normal",
+      "text": "Le frontend est construit avec Node.js. La commande npm ci installe les dépendances de manière reproductible, puis npm run build génère la version de production."
+    },
+    {
+      "index": 738,
+      "style": "Normal (Web)",
+      "text": "6.2. Exécution automatique des tests"
+    },
+    {
+      "index": 739,
+      "style": "Normal (Web)",
+      "text": "Le stage Tests Backend exécute  ./mvnw test. Il constitue une barrière de validation : un test en échec interrompt le pipeline avant la création des images Docker ; en cas de succès, l’exécution se poursuit vers l’analyse de qualité."
+    },
+    {
+      "index": 740,
+      "style": "Normal",
+      "text": "La couverture des tests backend est également générée avec JaCoCo. Les informations obtenues peuvent ensuite être exploitées par SonarQube afin de compléter l’évaluation de la qualité du code."
+    },
+    {
+      "index": 741,
+      "style": "Normal (Web)",
+      "text": "6.3. Analyse de la qualité avec SonarQube"
+    },
+    {
+      "index": 742,
+      "style": "Normal",
+      "text": "SonarQube est intégré à la chaîne CI/CD pour analyser la qualité du code source. Deux analyses distinctes sont réalisées : une pour le backend et une pour le frontend."
+    },
+    {
+      "index": 743,
+      "style": "Normal",
+      "text": "Il permet notamment d’identifier les problèmes susceptibles d’affecter la fiabilité, la sécurité et la maintenabilité du projet, tels que les bugs potentiels, les vulnérabilités et les duplications de code. Les résultats obtenus fournissent ainsi des indicateurs permettant de suivre et d’améliorer progressivement la qualité du code."
+    },
+    {
+      "index": 745,
+      "style": "Normal",
+      "text": "Figure : Projets Matchia analysés dans SonarQube"
+    },
+    {
+      "index": 746,
+      "style": "Normal (Web)",
+      "text": "6.4. Construction et publication des images Docker"
+    },
+    {
+      "index": 747,
+      "style": "Normal (Web)",
+      "text": "Après la construction, l’exécution des tests et l’analyse de la qualité du code, Jenkins génère les images Docker du frontend et du backend à partir de leurs Dockerfiles respectifs. Chaque image contient l’application concernée ainsi que les éléments nécessaires à son exécution."
+    },
+    {
+      "index": 748,
+      "style": "Normal (Web)",
+      "text": "Jenkins publie ensuite ces images sur Docker Hub, qui joue le rôle de registre distant. Elles peuvent alors être récupérées par les services Azure Container Apps afin de déployer la nouvelle version de l’application."
+    },
+    {
+      "index": 750,
+      "style": "Normal (Web)",
+      "text": "Figure 6.X — Registre Docker Hub des images"
+    },
+    {
+      "index": 751,
+      "style": "Heading 2",
+      "text": "7. Déploiement sur Microsoft Azure"
+    },
+    {
+      "index": 752,
+      "style": "Normal (Web)",
+      "text": "7.1. Choix de la plateforme Cloud"
+    },
+    {
+      "index": 753,
+      "style": "isselectedend",
+      "text": "Après la mise en place de la chaîne CI/CD, le déploiement de Matchia nécessite un environnement capable d’héberger les différents composants de la plateforme de manière fiable et évolutive. Le recours au Cloud permet de disposer de ressources accessibles à distance et adaptées à l’exécution d’applications conteneurisées, tout en facilitant leur gestion et leur mise à jour."
+    },
+    {
+      "index": 754,
+      "style": "Normal (Web)",
+      "text": "Dans ce contexte, Microsoft Azure a été choisi comme plateforme Cloud pour le déploiement de Matchia. Ce choix repose notamment sur les services proposés pour l’hébergement des conteneurs et la gestion des bases de données. Azure permet ainsi de déployer séparément le frontend et le backend tout en assurant leur communication avec les autres ressources nécessaires au fonctionnement de la plateforme."
+    },
+    {
+      "index": 755,
+      "style": "Normal (Web)",
+      "text": "7.2. Déploiement avec Azure Container Apps"
+    },
+    {
+      "index": 756,
+      "style": "Normal (Web)",
+      "text": "Pour le déploiement de Matchia, nous avons utilisé Azure Container Apps afin d’héberger les composants applicatifs sous forme de conteneurs. L’architecture repose sur deux Container Apps distinctes : la première exécute l’image Docker du frontend, tandis que la seconde exécute l’image Docker du backend. Cette séparation permet de déployer, gérer et mettre à jour chaque composant indépendamment, tout en conservant une architecture claire et modulaire. Une fois les services déployés, le frontend communique avec le backend à travers l’URL publique exposée par la Container App du backend sur Azure, ce qui permet d’assurer les échanges entre l’interface utilisateur et les services applicatifs."
+    },
+    {
+      "index": 757,
+      "style": "Normal (Web)",
+      "text": "Figure 6.14 — Ressources Azure préparées pour l’hébergement de Matchia"
+    },
+    {
+      "index": 758,
+      "style": "Normal (Web)",
+      "text": "7.3. Préparation de le base de données PostgreSQL Azure"
+    },
+    {
+      "index": 759,
+      "style": "Normal (Web)",
+      "text": "La base de données est hébergée dans Azure Database for PostgreSQL Flexible Server. Le transfert initial depuis l’environnement local est effectué avec pg_dump, qui crée une sauvegarde, puis pg_restore, qui restaure les données sur le serveur PostgreSQL Azure."
+    },
+    {
+      "index": 760,
+      "style": "Normal (Web)",
+      "text": "Figure 6.15 — Configuration de la base PostgreSQL Azure de Matchia"
+    },
+    {
+      "index": 761,
+      "style": "Normal (Web)",
+      "text": "7.4. Automatisation du déploiement"
+    },
+    {
+      "index": 762,
+      "style": "Normal",
+      "text": "Après la publication des images Docker, Jenkins poursuit automatiquement le processus de livraison vers Microsoft Azure. À l’aide d’Azure CLI, le pipeline met à jour les Container Apps du frontend et du backend avec les nouvelles images produites."
+    },
+    {
+      "index": 763,
+      "style": "Normal",
+      "text": "Chaque déploiement entraîne la création d’une nouvelle révision du service concerné sur Azure Container Apps. Cette étape permet d’automatiser la mise à disposition d’une nouvelle version de Matchia et complète ainsi la chaîne allant du push du code source jusqu’au déploiement dans l’environnement Cloud."
+    },
+    {
+      "index": 764,
+      "style": "Heading 2",
+      "text": "8. Validation du processus complet"
+    },
+    {
+      "index": 766,
+      "style": "Normal",
+      "text": "La validation de bout en bout consiste à envoyer une modification contrôlée vers la branche suivie par Jenkins. Le webhook GitHub déclenche alors automatiquement le pipeline ; chaque stage doit aboutir avec succès avant le passage au suivant."
+    },
+    {
+      "index": 767,
+      "style": "Normal",
+      "text": "La figure suivante de l’exécution Jenkins illustre cette validation : les étapes Checkout, Build Backend, Build Frontend, Tests Backend, SonarQube, Docker Build, Docker Push et déploiement des deux services Azure sont réalisées avec succès."
+    },
+    {
+      "index": 769,
+      "style": "Normal",
+      "text": "Figure : Exécution réussie du pipeline CI/CD de Matchia avec Jenkins"
+    },
+    {
+      "index": 770,
+      "style": "Heading 2",
+      "text": "9. Conclusion"
+    },
+    {
+      "index": 771,
+      "style": "Normal",
+      "text": "En conclusion, ce chapitre nous a permis de présenter la démarche DevOps adoptée pour la plateforme Matchia, en partant de la conteneurisation de l’application avec Docker jusqu’à son déploiement sur Microsoft Azure. Nous avons également mis en place un pipeline CI/CD avec Jenkins permettant d’automatiser les différentes étapes de construction, de test, d’analyse de la qualité avec SonarQube, de création et de publication des images Docker, puis de déploiement."
+    },
+    {
+      "index": 808,
+      "style": "Heading 1",
+      "text": "Conclusion générale"
+    },
+    {
+      "index": 809,
+      "style": "Normal",
+      "text": "Ce projet de fin d’études, réalisé au sein de BRI Technology, avait pour objectif de concevoir et de mettre en place une plateforme SaaS multi-tenant permettant de centraliser la création et la gestion de marketplaces bancaires."
+    },
+    {
+      "index": 810,
+      "style": "Normal",
+      "text": "La solution développée a permis de répondre aux principales problématiques identifiées au début du projet, notamment la multiplication des solutions spécifiques à chaque banque, la difficulté de centraliser les différents acteurs et services ainsi que le besoin d’automatiser plusieurs processus liés à la gestion des marketplaces. La plateforme propose ainsi un environnement configurable permettant à chaque banque de disposer de sa propre marketplace tout en bénéficiant d’une infrastructure commune et d’une séparation de ses données."
+    },
+    {
+      "index": 811,
+      "style": "Normal",
+      "text": "Les différentes fonctionnalités développées couvrent l’ensemble du cycle de gestion de la plateforme Matchia, depuis l’adhésion et l’activation d’une marketplace jusqu’à la gestion des abonnements, des partenaires, des produits et des demandes de financement. Les fonctionnalités de comparaison, de simulation ainsi que les services basés sur l’intelligence artificielle viennent également enrichir l’expérience proposée aux différents utilisateurs."
+    },
+    {
+      "index": 812,
+      "style": "Normal",
+      "text": "La mise en œuvre de cette solution s’est appuyée sur une architecture adaptée au fonctionnement multi-tenant et sur plusieurs technologies permettant d’assurer le développement, la sécurisation et le déploiement de l’application. La mise en place d’un pipeline CI/CD et le déploiement sur Microsoft Azure ont également permis d’automatiser les principales étapes de livraison et de rendre le processus de déploiement plus fiable et reproductible."
+    },
+    {
+      "index": 813,
+      "style": "Normal",
+      "text": "La réalisation de ce projet nous a permis de consolider nos compétences en développement full stack, en architecture SaaS multi-tenant, en intelligence artificielle et en DevOps. Elle nous a également permis de mieux comprendre les enjeux techniques et fonctionnels liés à la transformation numérique du secteur bancaire."
+    },
+    {
+      "index": 814,
+      "style": "Normal",
+      "text": "En perspective, nous envisageons d’intégrer plusieurs évolutions à Matchia, notamment le renforcement des mécanismes KYC et KYB afin de mieux vérifier l’identité des clients et des partenaires et de fiabiliser les informations fournies. Nous prévoyons également l’ajout d’un système intelligent de scoring des demandes de financement basé sur l’IA, capable d’analyser certains critères du dossier afin d’aider la banque dans leur évaluation et leur priorisation. Enfin, le développement d’une version mobile permettrait de faciliter l’accès aux principaux services de la plateforme depuis un smartphone et d’améliorer l’expérience des utilisateurs."
+    },
+    {
+      "index": 842,
+      "style": "Heading 1",
+      "text": "Webographie"
+    }
+  ]
+}

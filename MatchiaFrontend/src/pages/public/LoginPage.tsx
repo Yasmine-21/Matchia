@@ -72,8 +72,15 @@ export function LoginPage() {
     setError('');
     setLoading(true);
 
+    // Password managers can populate the visible inputs without triggering React's
+    // onChange handler. Read the submitted fields to authenticate with exactly what
+    // the user sees in the form.
+    const submittedForm = new FormData(e.currentTarget as HTMLFormElement);
+    const submittedEmail = String(submittedForm.get('email') ?? '').trim();
+    const submittedPassword = String(submittedForm.get('password') ?? '');
+
     try {
-      const user = await authService.login(email, password);
+      const user = await authService.login(submittedEmail, submittedPassword);
 
       if (user) {
         login(user);
@@ -150,6 +157,7 @@ export function LoginPage() {
                 <Mail className="login-input-icon" />
                 <input
                   type="text"
+                  name="email"
                   className="login-custom-input"
                   placeholder="Identifiant ou e-mail"
                   value={email}
@@ -163,6 +171,7 @@ export function LoginPage() {
                 <Lock className="login-input-icon" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  name="password"
                   className="login-custom-input login-password-input"
                   placeholder="Mot de passe"
                   value={password}

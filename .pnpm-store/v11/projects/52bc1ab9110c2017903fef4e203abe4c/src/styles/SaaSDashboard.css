@@ -1,85 +1,344 @@
 @reference "./index.css";
 
+:is(.admin-layout--saas, .admin-layout--bank, .admin-layout--dealer) {
+  --background: #f7fbff;
+  --card: #fbfdff;
+  --muted: #f1f6ff;
+  --border: #dce8fa;
+  --input: #dce8fa;
+  background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 55%, #fbfdff 100%);
+}
+
+:is(.admin-layout--saas, .admin-layout--bank, .admin-layout--dealer) .admin-layout__header {
+  height: 60px;
+  border: 0;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 4px 18px rgba(44, 99, 176, 0.08);
+}
+
+:is(.admin-layout--saas, .admin-layout--bank, .admin-layout--dealer) .admin-layout__header input {
+  border: 0;
+  border-radius: 11px;
+  background: #eef5ff;
+  color: #315988;
+  font-size: 13px;
+}
+
+:is(.admin-layout--saas, .admin-layout--bank, .admin-layout--dealer) .admin-layout__header input:focus {
+  box-shadow: 0 0 0 3px rgba(31, 112, 255, 0.12);
+}
+
+:is(.admin-layout--saas, .admin-layout--bank, .admin-layout--dealer) .admin-layout__main {
+  background: transparent;
+  padding: 26px 28px 22px;
+}
+
+/* Shared page frame: SaaS and dealer pages follow the dashboard grid. */
+:is(.admin-layout--saas, .admin-layout--dealer) .admin-layout__main > * {
+  width: 100%;
+  max-width: 1460px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+:is(.admin-layout--saas, .admin-layout--dealer) .admin-layout__main h1 {
+  color: #071e53;
+  font-family: inherit;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  line-height: 1.5;
+}
+
+:is(.admin-layout--saas, .admin-layout--dealer) .admin-layout__main h2,
+:is(.admin-layout--saas, .admin-layout--dealer) .admin-layout__main h3 {
+  color: #102d62;
+  font-family: inherit;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) {
+  --sidebar: #f7fbff;
+  --sidebar-foreground: #234779;
+  --sidebar-border: #dce9fa;
+  --sidebar-accent: #eaf3ff;
+  width: 244px;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(39, 118, 255, 0.13), transparent 24%),
+    linear-gradient(180deg, #fbfdff 0%, #f2f8ff 62%, #eef6ff 100%);
+  color: #234779;
+  box-shadow: 8px 0 28px rgba(43, 91, 157, 0.06);
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__brand {
+  min-height: 71px;
+  border-color: transparent;
+  padding: 17px 16px;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__brand svg,
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__brand button {
+  color: #24558f;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__collapse {
+  border-radius: 11px;
+  background: #eaf3ff;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__navigation {
+  padding: 8px 14px 14px;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__section-title {
+  color: #8ca4c8;
+  font-size: 9px;
+  letter-spacing: 0.2em;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__link {
+  min-height: 41px;
+  border: 1px solid transparent;
+  border-left: 1px solid transparent;
+  border-radius: 11px;
+  color: #2a4d7e;
+  font-weight: 500;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__link:hover {
+  background: #edf5ff;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__link--active {
+  border: 1px solid #dce9ff;
+  border-left: 4px solid #176dff;
+  background: linear-gradient(100deg, #e9f2ff 0%, #f6faff 100%);
+  color: #1463e8;
+  box-shadow: 0 5px 13px rgba(32, 105, 227, 0.09);
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) > .border-t {
+  border-color: #dce9fa;
+}
+
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) > .border-t button,
+:is(.admin-sidebar--saas, .admin-sidebar--bank, .admin-sidebar--dealer) > .border-t a {
+  color: #2a4d7e;
+}
+
+/* Bank and dealer workspaces follow the light grouped-navigation layout. */
+:is(.admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__section-title {
+  margin-top: 14px;
+  margin-bottom: 6px;
+  padding-left: 10px;
+}
+
+:is(.admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__section-list--grouped {
+  padding: 7px;
+  border: 1px solid #dce9fa;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.64);
+  box-shadow: 0 4px 14px rgba(43, 91, 157, 0.04);
+}
+
+/* Keep bank and dealer navigation directly below their logo. */
+:is(.admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__navigation {
+  padding-top: 0;
+}
+
+:is(.admin-sidebar--bank, .admin-sidebar--dealer) .admin-sidebar__navigation > :first-child .admin-sidebar__section-title {
+  margin-top: 0;
+}
+
+/* The SaaS console keeps the stronger blue navigation shown in its dashboard reference. */
+.admin-sidebar--saas {
+  --sidebar: #06327e;
+  --sidebar-foreground: #edf6ff;
+  --sidebar-border: rgba(132, 187, 255, 0.16);
+  --sidebar-accent: rgba(91, 153, 255, 0.16);
+  background:
+    radial-gradient(circle at 18% 104%, rgba(37, 111, 255, 0.42), transparent 28%),
+    linear-gradient(165deg, #073d91 0%, #052660 48%, #031d4c 100%);
+  color: #edf6ff;
+  box-shadow: 10px 0 30px rgba(7, 54, 124, 0.13);
+}
+
+.admin-sidebar--saas .admin-sidebar__brand svg,
+.admin-sidebar--saas .admin-sidebar__brand button,
+.admin-sidebar--saas > .border-t button,
+.admin-sidebar--saas > .border-t a {
+  color: #edf6ff;
+}
+
+.admin-sidebar--saas .admin-sidebar__collapse {
+  background: rgba(50, 130, 255, 0.18);
+}
+
+.admin-sidebar--saas .admin-sidebar__section-title { color: #b7d0f4; }
+
+.admin-sidebar--saas .admin-sidebar__section-list--grouped {
+  padding: 7px;
+  border: 1px solid rgba(125, 182, 255, 0.18);
+  border-radius: 14px;
+  background: rgba(4, 48, 117, 0.34);
+}
+
+.admin-sidebar--saas .admin-sidebar__link {
+  color: #edf6ff;
+}
+
+.admin-sidebar--saas .admin-sidebar__link:hover {
+  background: rgba(76, 145, 255, 0.18);
+}
+
+.admin-sidebar--saas .admin-sidebar__link--active {
+  border: 0;
+  border-left: 0;
+  background: linear-gradient(100deg, #177cff 0%, #0861ec 100%);
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(6, 58, 170, 0.36);
+}
+
+.admin-sidebar--saas > .border-t {
+  border-color: rgba(132, 187, 255, 0.16);
+}
+
 .saas-dashboard-container {
-    @apply w-full;
+  width: 100%;
+  max-width: 1460px;
+  margin: 0 auto;
+  color: #08275b;
+  font-family: inherit;
 }
 
 .saas-dashboard-header {
-    @apply mb-6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  margin: 0 0 17px;
 }
 
 .saas-dashboard-title {
-    @apply text-3xl font-bold mb-2;
+  margin: 0;
+  color: #071e53;
+  font-size: 1.875rem;
+  font-weight: 700;
+  letter-spacing: normal;
+  line-height: 1.5;
 }
 
 .saas-dashboard-subtitle {
-    @apply text-muted-foreground;
+  margin: 4px 0 0;
+  color: #6481ae;
+  font-size: 1rem;
 }
 
-.saas-stats-grid {
-    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6;
+.saas-dashboard-signout {
+  min-height: 41px;
+  border-color: #e2eafa;
+  border-radius: 12px;
+  background: #fff;
+  color: #123468;
+  font-weight: 700;
+  box-shadow: 0 5px 13px rgba(25, 77, 150, 0.06);
 }
 
-.saas-stat-header {
-    @apply flex items-center justify-between mb-2;
+.saas-panel {
+  border: 1px solid rgba(215, 230, 251, 0.85);
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(251, 254, 255, 0.98), rgba(243, 249, 255, 0.93));
+  box-shadow: 0 8px 24px rgba(57, 101, 173, 0.075);
 }
 
-.saas-stat-icon-wrapper {
-    @apply w-10 h-10 bg-primary/10 rounded-lg flex items-center justify-center text-primary;
+.saas-panel-heading__icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 13px;
 }
 
-.saas-stat-trend {
-    @apply flex items-center gap-1 text-sm;
-}
 
-.saas-stat-value {
-    @apply text-3xl font-bold mt-2;
-}
 
-.saas-charts-grid {
-    @apply grid lg:grid-cols-2 gap-6 mb-6;
-}
-
+.saas-charts-grid,
 .saas-lists-grid {
-    @apply grid lg:grid-cols-2 gap-6;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
 }
 
-.saas-list-container {
-    @apply space-y-4;
+.saas-panel { padding: 14px 16px 16px; }
+.saas-chart-panel { min-height: 331px; }
+.saas-list-panel { min-height: 186px; }
+
+.saas-panel-heading {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 45px;
 }
 
-.saas-bank-item {
-    @apply flex items-center gap-3 p-3 rounded-lg hover:bg-muted transition-colors;
+.saas-panel-heading h2 {
+  margin: 0;
+  color: #102d62;
+  font-size: 1.125rem;
+  font-weight: 500;
 }
 
-.saas-bank-logo {
-    @apply w-10 h-10 rounded-lg object-cover;
+.saas-panel-heading p {
+  margin: 2px 0 0;
+  color: #6681aa;
+  font-size: 0.875rem;
 }
 
-.saas-bank-info {
-    @apply flex-1;
+.saas-panel-heading__icon { width: 39px; height: 39px; }
+.saas-panel-heading__icon--blue { background: #eaf2ff; color: #156dff; }
+.saas-panel-heading__icon--orange { background: #fff0e6; color: #ff7618; }
+.saas-panel-menu { margin-left: auto; color: #3970b8; }
+.saas-chart { margin-top: 10px; }
+
+.saas-list-container { margin-top: 12px; }
+
+.saas-empty-alerts {
+  display: grid;
+  min-height: 105px;
+  place-items: center;
+  align-content: center;
+  gap: 8px;
+  color: #6380aa;
+  font-size: 0.875rem;
+  text-align: center;
 }
 
-.saas-bank-name {
-    @apply font-medium;
+.saas-empty-alerts span {
+  display: grid;
+  width: 55px;
+  height: 55px;
+  place-items: center;
+  border-radius: 999px;
+  background: #edf4ff;
+  color: #3d78cc;
 }
 
-.saas-bank-country {
-    @apply text-sm text-muted-foreground;
-}
+.saas-empty-alerts p { margin: 0; }
 
 .saas-request-item {
-    @apply p-3 rounded-lg border border-border hover:border-primary transition-colors;
+  padding: 10px 12px;
+  border: 1px solid #dce8fa;
+  border-radius: 9px;
+  background: #fff;
 }
 
-.saas-request-header {
-    @apply flex items-start justify-between mb-2;
-}
+.saas-request-item + .saas-request-item { margin-top: 8px; }
+.saas-request-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 0; }
+.saas-bank-name { color: #193666; font-size: 0.875rem; font-weight: 500; }
+.saas-request-date { margin-top: 2px; color: #7890b1; font-size: 0.75rem; }
 
-.saas-request-notes {
-    @apply text-sm text-muted-foreground mb-2;
-}
-
-.saas-request-date {
-    @apply text-xs text-muted-foreground;
+@media (max-width: 780px) {
+  :is(.admin-layout--saas, .admin-layout--bank, .admin-layout--dealer) .admin-layout__main { padding: 18px 14px; }
+  .saas-dashboard-header { align-items: flex-start; flex-direction: column; }
+  .saas-charts-grid,
+  .saas-lists-grid { grid-template-columns: 1fr; }
+  .saas-dashboard-signout { width: 100%; }
 }

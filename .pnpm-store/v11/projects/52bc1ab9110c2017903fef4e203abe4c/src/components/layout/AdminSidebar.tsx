@@ -110,39 +110,80 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   ];
 
   const bankSections: SidebarSection[] = [
-    
     {
-      title: '',
+      title: 'GÉNÉRAL',
       items: [
         { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/bank/dashboard' },
+      ],
+    },
+    {
+      title: 'GESTION',
+      items: [
         { label: 'Utilisateurs', icon: <Users className="w-5 h-5" />, path: '/bank/utilisateurs' },
-        { label: 'Stores assignés', icon: <Store className="w-5 h-5" />, path: '/bank/stores' },
-        { label: 'Modules assignés', icon: <Box className="w-5 h-5" />, path: '/bank/modules' },
-        { label: 'Manage content', icon: <FileText className="w-5 h-5" />, path: '/bank/gestion-contenu' },
-        { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/bank/products' },
         { label: 'Concessionnaires', icon: <Handshake className="w-5 h-5" />, path: '/bank/concessionnaires' },
         { label: 'Mes demandes', icon: <FileText className="w-5 h-5" />, path: '/bank/demandes' },
+      ],
+    },
+    {
+      title: 'MARKETPLACE',
+      items: [
+        { label: 'Stores assignés', icon: <Store className="w-5 h-5" />, path: '/bank/stores' },
+        { label: 'Modules assignés', icon: <Box className="w-5 h-5" />, path: '/bank/modules' },
+        { label: 'Contenu marketplace', icon: <FileText className="w-5 h-5" />, path: '/bank/gestion-contenu' },
+        { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/bank/products' },
+        { label: 'Branding', icon: <Settings className="w-5 h-5" />, path: '/bank/branding' },
+      ],
+    },
+    {
+      title: 'FINANCEMENT',
+      items: [
         { label: 'Financements', icon: <FileText className="w-5 h-5" />, path: '/bank/financing-requests' },
         { label: 'Abonnement', icon: <CreditCard className="w-5 h-5" />, path: '/bank/abonnement' },
-        { label: 'Branding', icon: <Settings className="w-5 h-5" />, path: '/bank/branding' },
+      ],
+    },
+    {
+      title: 'SYSTÈME',
+      items: [
         { label: 'Paramètres', icon: <Settings className="w-5 h-5" />, path: '/bank/parametres' },
       ],
     },
   ];
 
-  const dealerSections: SidebarSection[] = [{
-    title: '',
-    items: [
-      { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dealer/dashboard' },
-      { label: 'Partenariats', icon: <Handshake className="w-5 h-5" />, path: '/dealer/partenariats' },
-      { label: 'Contrats', icon: <FileText className="w-5 h-5" />, path: '/dealer/contrats' },
-      { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/dealer/produits' },
-      { label: 'Publications', icon: <Send className="w-5 h-5" />, path: '/dealer/publications' },
-      { label: 'Mes demandes de financement', icon: <FileText className="w-5 h-5" />, path: '/dealer/financing-requests' },
-      { label: 'Profil', icon: <Settings className="w-5 h-5" />, path: '/dealer/profil' },
-      { label: 'Paramètres', icon: <Settings className="w-5 h-5" />, path: '/dealer/parametres' },
-    ],
-  }];
+  const dealerSections: SidebarSection[] = [
+    {
+      title: 'GÉNÉRAL',
+      items: [
+        { label: 'Tableau de bord', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dealer/dashboard' },
+      ],
+    },
+    {
+      title: 'GESTION',
+      items: [
+        { label: 'Partenariats', icon: <Handshake className="w-5 h-5" />, path: '/dealer/partenariats' },
+        { label: 'Contrats', icon: <FileText className="w-5 h-5" />, path: '/dealer/contrats' },
+      ],
+    },
+    {
+      title: 'MARKETPLACE',
+      items: [
+        { label: 'Produits', icon: <Package className="w-5 h-5" />, path: '/dealer/produits' },
+        { label: 'Publications', icon: <Send className="w-5 h-5" />, path: '/dealer/publications' },
+      ],
+    },
+    {
+      title: 'FINANCEMENT',
+      items: [
+        { label: 'Mes demandes de financement', icon: <FileText className="w-5 h-5" />, path: '/dealer/financing-requests' },
+      ],
+    },
+    {
+      title: 'SYSTÈME',
+      items: [
+        { label: 'Profil', icon: <Settings className="w-5 h-5" />, path: '/dealer/profil' },
+        { label: 'Paramètres', icon: <Settings className="w-5 h-5" />, path: '/dealer/parametres' },
+      ],
+    },
+  ];
 
   const sections = type === 'saas' ? saasSections : type === 'bank' ? bankSections : dealerSections;
 
@@ -316,9 +357,9 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
   return (
     <motion.aside
       animate={{ width: collapsed ? 80 : 260 }}
-      className="h-screen bg-sidebar border-r border-sidebar-border flex flex-col sticky top-0"
+      className={`admin-sidebar admin-sidebar--${type} h-screen bg-sidebar border-r border-sidebar-border flex flex-col sticky top-0`}
     >
-      <div className="p-4 border-b border-sidebar-border flex items-center justify-between">
+      <div className="admin-sidebar__brand p-4 border-b border-sidebar-border flex items-center justify-between">
         {!collapsed && (
           <div className={`flex flex-1 items-center ${type === 'saas' || type === 'dealer' ? 'justify-center' : 'gap-3'}`}>
             {type === 'bank' ? (
@@ -367,21 +408,21 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
         )}
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1.5 hover:bg-sidebar-accent rounded-lg transition-colors"
+          className="admin-sidebar__collapse p-1.5 hover:bg-sidebar-accent rounded-lg transition-colors"
         >
           <ChevronLeft className={`w-5 h-5 transition-transform ${collapsed ? 'rotate-180' : ''}`} />
         </button>
       </div>
 
-      <nav className="flex-1 p-3 overflow-y-auto">
+      <nav className="admin-sidebar__navigation flex-1 p-3 overflow-y-auto">
         {sections.map((section) => (
           <div key={section.title || 'bank'} className="mb-4">
             {!collapsed && section.title && (
-              <div className="text-xs font-semibold text-gray-400 mt-6 mb-2 uppercase tracking-wider">
+              <div className="admin-sidebar__section-title text-xs font-semibold text-gray-400 mt-6 mb-2 uppercase tracking-wider">
                 {section.title}
               </div>
             )}
-            <ul className="space-y-1">
+            <ul className={`admin-sidebar__section-list space-y-1 ${section.items.length > 1 || type === 'dealer' || type === 'bank' ? 'admin-sidebar__section-list--grouped' : ''}`}>
               {section.items.map((item) => {
                 const normalizedPath = item.path?.split('?')[0];
                 const isActive = location.pathname === normalizedPath;
@@ -389,9 +430,9 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
                   <li key={item.path}>
                     <Link
                       to={item.path || '#'}
-                      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
+                      className={`admin-sidebar__link flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all ${
                         isActive
-                          ? 'bg-orange-50 text-orange-500 border-l-4 border-orange-500'
+                          ? 'admin-sidebar__link--active bg-orange-50 text-orange-500 border-l-4 border-orange-500'
                           : 'text-sidebar-foreground hover:bg-sidebar-accent'
                       }`}
                     >
@@ -421,7 +462,7 @@ export function AdminSidebar({ type }: AdminSidebarProps) {
             ) : (
               <ExternalLink className="w-5 h-5" />
             )}
-            {!collapsed && <span className="text-sm">View Marketplace</span>}
+            {!collapsed && <span className="text-sm">Voir la marketplace</span>}
           </a>
         )}
 

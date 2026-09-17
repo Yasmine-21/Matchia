@@ -1,0 +1,28 @@
+DIAGRAMMES UML MATCHIA - VERSION DRAW.IO COMPLETE ET EDITABLE
+
+Cette version corrige l'affichage incomplet observe dans les anciens fichiers.
+
+CORRECTIONS APPLIQUEES AUX DIAGRAMMES DE SEQUENCE
+- lignes de vie recreees comme connecteurs verticaux natifs ;
+- barres d'activation ajoutees comme objets editables ;
+- cadres UML alt, opt et loop reconstruits sans libelles tronques ;
+- separateurs et conditions de garde ajoutes dans chaque fragment ;
+- messages synchrones et retours representes par des connecteurs distincts ;
+- participants et services externes conserves comme objets independants.
+
+CORRECTIONS APPLIQUEES AUX DIAGRAMMES D'ACTIVITE
+- titre visible sur chaque page ;
+- noeuds initiaux et finaux, actions et decisions editables ;
+- gardes Oui et Non et chemins alternatifs conserves ;
+- connecteurs et points de routage modifiables.
+
+FICHIERS MULTIPAGES
+- Matchia_diagrammes_activite_complets_editables.drawio : 6 pages.
+- Matchia_diagrammes_sequence_complets_editables.drawio : 9 pages.
+
+Les sous-dossiers contiennent egalement les 15 diagrammes sous forme de fichiers
+Draw.io individuels. Les PNG servent uniquement d'apercus.
+
+OUVERTURE
+Dans https://app.diagrams.net/ : Fichier > Ouvrir depuis > Appareil, puis
+selectionner le fichier .drawio souhaite.

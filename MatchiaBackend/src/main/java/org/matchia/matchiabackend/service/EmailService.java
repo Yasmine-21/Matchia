@@ -186,7 +186,7 @@ public class EmailService {
                         "Compte approuve",
                         "Vos identifiants Matchia sont disponibles",
                         "Votre espace concessionnaire est pret. Utilisez ces identifiants pour votre premiere connexion.",
-                        "Ouvrir le back office",
+                        "Ouvrir votre espace",
                         backOfficeUrl,
                         "Login",
                         recipient,
@@ -1048,22 +1048,50 @@ public class EmailService {
     }
 
     private String buildBackOfficeUrl(Request request) {
-        String base = safePublicUrl();
+        String base = safeFrontendUrl();
         String slug = request != null ? request.getMarketplaceSlug() : null;
         if (!hasText(slug) || !slug.matches("[A-Za-z0-9-]+")) {
             return base + "/connexion";
         }
         try {
-            URI publicUri = URI.create(base);
-            String host = publicUri.getHost();
-            if (!hasText(host)) {
+            URI frontendUri = URI.create(base);
+            String host = frontendUri.getHost();
+            if (!hasText(host) || !hasText(frontendUri.getScheme())) {
                 return base + "/connexion";
             }
             host = host.replaceFirst("^www\\.", "");
-            return new URI("https", null, slug.toLowerCase() + "." + host, -1, "/connexion", null, null).toString();
+            return new URI(
+                    frontendUri.getScheme(),
+                    null,
+                    slug.toLowerCase() + "." + host,
+                    frontendUri.getPort(),
+                    "/connexion",
+                    null,
+                    null
+            ).toString();
         } catch (Exception exception) {
             return base + "/connexion";
         }
+    }
+
+    /**
+     * Keeps the link in credentials emails on the tenant's frontend origin.
+     * In development this preserves http and port 5173; in production it uses
+     * the public frontend URL configured through APP_FRONTEND_URL.
+     */
+    private String safeFrontendUrl() {
+        if (hasText(frontendUrl)) {
+            try {
+                URI uri = URI.create(frontendUrl.trim().replaceAll("/+$", ""));
+                if (("http".equalsIgnoreCase(uri.getScheme()) || "https".equalsIgnoreCase(uri.getScheme()))
+                        && hasText(uri.getHost())) {
+                    return uri.toString();
+                }
+            } catch (Exception ignored) {
+                // The public URL fallback below remains safe when frontendUrl is malformed.
+            }
+        }
+        return safePublicUrl();
     }
 
     private String sanitizeEmailActionUrl(String candidate) {
@@ -1077,13 +1105,13 @@ public class EmailService {
                     && hasText(host)
                     && uri.getPort() == -1
                     && !isDevelopmentHost(host);
-            return securePublicUrl || isTrustedFrontendPaymentUrl(uri) ? uri.toString() : safePublicUrl();
+            return securePublicUrl || isTrustedFrontendActionUrl(uri) ? uri.toString() : safePublicUrl();
         } catch (Exception exception) {
             return safePublicUrl();
         }
     }
 
-    private boolean isTrustedFrontendPaymentUrl(URI candidate) {
+    private boolean isTrustedFrontendActionUrl(URI candidate) {
         if (!hasText(frontendUrl) || candidate == null) {
             return false;
         }
@@ -1094,7 +1122,9 @@ public class EmailService {
                     && candidate.getHost().equalsIgnoreCase(configuredFrontend.getHost())
                     && java.util.Objects.equals(candidate.getScheme(), configuredFrontend.getScheme())
                     && candidate.getPort() == configuredFrontend.getPort()
-                    && ("/paiement".equals(path) || "/payment/demo".equals(path));
+                    && ("/paiement".equals(path)
+                    || "/payment/demo".equals(path)
+                    || "/reinitialiser-mot-de-passe".equals(path));
         } catch (Exception exception) {
             return false;
         }

@@ -1,0 +1,16 @@
+MATCHIA — DIAGRAMME DE CLASSES DÉTAILLÉ ET ÉDITABLE
+
+Fichier principal : Matchia_diagramme_classes_detaille_editable.drawio
+
+Contenu :
+1. Diagramme de classes UML global détaillé
+2. Vue globale et correspondance avec les interfaces front
+3. Noyau SaaS, demandes, abonnement et paiement
+4. Catalogue, stores, modules et marketplace
+5. Concessionnaires, partenariats, contrats et publication
+6. Financement client
+7. Sécurité, vérifications, notifications et audit
+8. Énumérations et valeurs exactes
+
+Sources analysées : entités et enums JPA du backend, mappings de contrôleurs, services API et pages TypeScript/React du frontend.
+Tous les objets, textes, cardinalités et connecteurs sont éditables dans draw.io / diagrams.net.

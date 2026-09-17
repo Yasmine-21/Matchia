@@ -1,0 +1,166 @@
+<?xml version='1.0' encoding='utf-8'?>
+<mxfile host="app.diagrams.net" modified="2026-09-09T14:33:11Z" agent="Codex" version="24.7.17" type="device" compressed="false">
+  <diagram id="c55a585d463f5d629324" name="UC-05 Gérer et publier un produit concessionnaire">
+    <mxGraphModel dx="1422" dy="793" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1920" pageHeight="1300" math="0" shadow="0" background="#FFFFFF">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="titlebar" value="" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#0B2F55;strokeColor=none;" parent="1" vertex="1">
+          <mxGeometry x="0" y="0" width="1920" height="78" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="title" value="&lt;b&gt;UC-05 — Gérer et publier un produit concessionnaire&lt;/b&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=24;fontStyle=1;spacingLeft=34;" parent="1" vertex="1">
+          <mxGeometry x="20" y="8" width="1250" height="38" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="subtitle" value="Catalogue centralisé, stock et publication dans une marketplace partenaire" style="text;html=1;strokeColor=none;fillColor=none;align=left;verticalAlign=middle;whiteSpace=wrap;fontColor=#CFE2F3;fontSize=13;spacingLeft=34;" parent="1" vertex="1">
+          <mxGeometry x="20" y="43" width="1350" height="28" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="brand" value="&lt;b&gt;MATCHIA&lt;/b&gt;&lt;br&gt;&lt;font style='font-size:11px'&gt;Diagramme UML éditable&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=right;verticalAlign=middle;whiteSpace=wrap;fontColor=#FFFFFF;fontSize=19;fontStyle=1;spacingRight=34;" parent="1" vertex="1">
+          <mxGeometry x="1450" y="8" width="430" height="58" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="system" value="Système Matchia" style="swimlane;horizontal=1;startSize=40;rounded=1;arcSize=8;whiteSpace=wrap;html=1;fillColor=#F8FAFC;swimlaneFillColor=#EAF2FB;strokeColor=#0B2F55;strokeWidth=2;fontColor=#0B2F55;fontSize=16;fontStyle=1;align=left;spacingLeft=16;" parent="1" vertex="1">
+          <mxGeometry x="220" y="105" width="1470" height="1080" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="a_dealer" value="Concessionnaire" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;whiteSpace=wrap;fontSize=14;fontStyle=1;strokeWidth=2;strokeColor=#0B2F55;fillColor=#DBEAFE;fontColor=#0B2F55;" parent="1" vertex="1">
+          <mxGeometry x="45" y="280" width="110" height="120" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="a_bank" value="Administrateur Banque" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;whiteSpace=wrap;fontSize=14;fontStyle=1;strokeWidth=2;strokeColor=#7C3AED;fillColor=#F1EAFE;fontColor=#7C3AED;" parent="1" vertex="1">
+          <mxGeometry x="1765" y="245" width="110" height="120" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="main" value="Gérer et publier&lt;br&gt;un produit" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#2563EB;strokeColor=#0B2F55;strokeWidth=2;fontColor=#FFFFFF;fontSize=14;fontStyle=1;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="330" y="480" width="430" height="92" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="edit" value="1. Créer ou modifier&lt;br&gt;un produit" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="825" y="175" width="350" height="70" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="details" value="2. Renseigner les informations,&lt;br&gt;documents et le stock" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="825" y="391" width="350" height="70" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="bank" value="3. Sélectionner une&lt;br&gt;banque partenaire" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="825" y="607" width="350" height="70" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="submit" value="4. Soumettre le produit&lt;br&gt;pour publication" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="825" y="823" width="350" height="70" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="review" value="5. Examiner la proposition&lt;br&gt;de publication" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="825" y="1040" width="350" height="70" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="approve" value="6. Approuver la publication" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="235" width="350" height="64" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="publish" value="7. Publier le produit dans&lt;br&gt;la marketplace" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="493" width="350" height="70" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="follow" value="8. Suivre les publications" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="751" width="350" height="64" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="financing" value="9. Consulter les demandes de&lt;br&gt;financement liées aux produits" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#DDF7EE;strokeColor=#16866A;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="1260" y="1010" width="350" height="70" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="correct" value="Corriger le produit&lt;br&gt;&lt;font color='#92400E' style='font-size:10px'&gt;[données incomplètes ou invalides]&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#FFF1D6;strokeColor=#D97706;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="360" y="705" width="450" height="90" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="reject" value="Rejeter la publication&lt;br&gt;&lt;font color='#92400E' style='font-size:10px'&gt;[publication refusée]&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#FFF1D6;strokeColor=#D97706;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="415" y="850" width="450" height="90" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="block" value="Bloquer la publication&lt;br&gt;&lt;font color='#92400E' style='font-size:10px'&gt;[partenariat ou contrat inactif]&lt;/font&gt;" style="ellipse;whiteSpace=wrap;html=1;aspect=fixed=0;shadow=0;fillColor=#FFF1D6;strokeColor=#D97706;strokeWidth=2;fontColor=#102A43;fontSize=14;fontStyle=0;spacing=8;" parent="1" vertex="1">
+          <mxGeometry x="470" y="995" width="450" height="90" relative="0" as="geometry" />
+        </mxCell>
+        <mxCell id="e1" value="" style="edgeStyle=none;rounded=0;html=1;strokeColor=#64748B;strokeWidth=1.6;endArrow=none;" edge="1" parent="1" source="a_dealer" target="main">
+          <mxGeometry x="0" y="0" width="0" height="0" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="252" y="340.0" />
+              <mxPoint x="252" y="526.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e2" value="" style="edgeStyle=none;rounded=0;html=1;strokeColor=#64748B;strokeWidth=1.6;endArrow=none;" edge="1" parent="1" source="a_bank" target="review">
+          <mxGeometry x="0" y="0" width="0" height="0" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1732" y="305.0" />
+              <mxPoint x="1732" y="1075.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e3" value="" style="edgeStyle=none;rounded=0;html=1;strokeColor=#64748B;strokeWidth=1.6;endArrow=none;" edge="1" parent="1" source="a_bank" target="approve">
+          <mxGeometry x="0" y="0" width="0" height="0" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1744" y="305.0" />
+              <mxPoint x="1744" y="267.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e4" value="" style="edgeStyle=none;rounded=0;html=1;strokeColor=#64748B;strokeWidth=1.6;endArrow=none;" edge="1" parent="1" source="a_bank" target="reject">
+          <mxGeometry x="0" y="0" width="0" height="0" relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="1756" y="305.0" />
+              <mxPoint x="1756" y="895.0" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e5" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="edit">
+          <mxGeometry x="0.55" y="-22" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e6" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="details">
+          <mxGeometry x="0.55" y="-12" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="bank">
+          <mxGeometry x="0.55" y="-22" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e8" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="submit">
+          <mxGeometry x="0.55" y="-12" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e9" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="review">
+          <mxGeometry x="0.55" y="-22" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="approve">
+          <mxGeometry x="0.55" y="-12" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e11" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="publish">
+          <mxGeometry x="0.55" y="-22" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e12" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="follow">
+          <mxGeometry x="0.55" y="-12" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e13" value="&lt;b&gt;«include»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#2563EB;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#2563EB;fontStyle=2;fontSize=11;" edge="1" parent="1" source="main" target="financing">
+          <mxGeometry x="0.55" y="-22" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e14" value="&lt;b&gt;«extend»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#D97706;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#D97706;fontStyle=2;fontSize=11;" edge="1" parent="1" source="correct" target="main">
+          <mxGeometry x="0.55" y="-12" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e15" value="&lt;b&gt;«extend»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#D97706;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#D97706;fontStyle=2;fontSize=11;" edge="1" parent="1" source="reject" target="review">
+          <mxGeometry x="0.55" y="-22" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e16" value="&lt;b&gt;«extend»&lt;/b&gt;" style="edgeStyle=none;rounded=0;html=1;dashed=1;dashPattern=7 5;strokeColor=#D97706;strokeWidth=1.5;endArrow=open;endFill=0;endSize=10;labelBackgroundColor=#FFFFFF;fontColor=#D97706;fontStyle=2;fontSize=11;" edge="1" parent="1" source="block" target="main">
+          <mxGeometry x="0.55" y="-12" width="0" height="0" relative="1" as="geometry">
+            <mxPoint x="0" y="0" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="legend" value="&lt;b&gt;Légende UML&lt;/b&gt;  —  &lt;font color='#2563EB'&gt;bleu : cas principal&lt;/font&gt;  •  &lt;font color='#16866A'&gt;vert : comportement inclus&lt;/font&gt;  •  &lt;font color='#D97706'&gt;orange : comportement conditionnel&lt;/font&gt;  •  &lt;font color='#7C3AED'&gt;violet : acteur ou système externe&lt;/font&gt;" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;fontColor=#475569;fontSize=12;" parent="1" vertex="1">
+          <mxGeometry x="250" y="1204" width="1420" height="50" relative="0" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

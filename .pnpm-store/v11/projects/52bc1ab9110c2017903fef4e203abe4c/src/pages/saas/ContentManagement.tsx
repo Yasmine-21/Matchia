@@ -12,7 +12,7 @@ import { contentService } from '../../services/contentService';
 import { storeService } from '../../services/storeService';
 import type { ContentDto, ContentStatus, StoreDto } from '../../types/apiTypes';
 import { resolveApiUrl } from '../../api/apiClient';
-import { Plus, Image as ImageIcon, Loader2, RefreshCcw, Sparkles, Store as StoreIcon, Pencil, Trash2, FileText, Eye, EyeOff } from 'lucide-react';
+import { Plus, Image as ImageIcon, Loader2, RefreshCcw, Store as StoreIcon, Pencil, Trash2, FileText, Eye, EyeOff } from 'lucide-react';
 
 const statusLabel: Record<ContentStatus, string> = {
   active: 'Actif',
@@ -405,16 +405,6 @@ export function ContentManagement() {
         size="lg"
       >
         <div className="space-y-5">
-          <div className="rounded-2xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-900">
-            <div className="flex items-center gap-2 font-semibold">
-              <Sparkles className="h-4 w-4" />
-              Contenu lié à un store
-            </div>
-            <p className="mt-1 text-orange-800">
-              Sélectionnez un store existant puis renseignez le titre, la description, l'image et le statut du contenu.
-            </p>
-          </div>
-
           {formError && (
             <div className="rounded-lg border border-destructive/20 bg-destructive/5 px-4 py-3 text-sm text-destructive">
               {formError}

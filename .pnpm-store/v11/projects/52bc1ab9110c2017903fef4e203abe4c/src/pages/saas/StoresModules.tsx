@@ -1,4 +1,5 @@
 
+import '../../styles/StoresModules.css';
 import { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
@@ -64,9 +65,14 @@ function getIconColor(index: number): string {
   return colorPalette[index % colorPalette.length];
 }
 
-function formatMonthlyPrice(price?: number | null): string {
+function formatAnnualStorePrice(price?: number | null): string {
   const value = typeof price === 'number' && Number.isFinite(price) ? price : 0;
-  return `${value} DT / mois`;
+  return `${value} DT / année`;
+}
+
+function formatAnnualModulePrice(price?: number | null): string {
+  const value = typeof price === 'number' && Number.isFinite(price) ? price : 0;
+  return `${value} DT / année`;
 }
 
 function parseRequiredPrice(value: string): number | null {
@@ -179,7 +185,7 @@ function FilterDropdown({
   }, []);
 
   return (
-    <div ref={filterRef} className="relative">
+    <div ref={filterRef} className="saas-stores-filter relative">
       <button
         type="button"
         onClick={() => setIsOpen((current) => !current)}
@@ -272,7 +278,7 @@ function AssignedModuleItem({
               <p className={`mt-1 text-xs font-semibold ${
                 isDisabled ? 'text-gray-500 dark:text-gray-400' : 'text-orange-600 dark:text-orange-400'
               }`}>
-                {formatMonthlyPrice(assignment.price)}
+                {formatAnnualModulePrice(assignment.price)}
                 <button
                   type="button"
                   onClick={() => onEditPrice(assignment)}
@@ -456,17 +462,17 @@ function StoreCard({
   const iconColor = getIconColor(index);
   
   return (
-    <Card className={`h-full flex flex-col ${store.status === 'inactive' ? 'opacity-80' : ''}`}>
-      <CardHeader className="flex-1">
+    <Card className={`saas-store-card !p-0 h-full flex flex-col ${store.status === 'inactive' ? 'opacity-80' : ''}`}>
+      <CardHeader className="saas-store-card__header flex-1">
         <div className="flex items-start justify-between mb-3">
           <div
-            className="w-14 h-14 rounded-xl flex items-center justify-center"
+            className="saas-store-card__icon w-14 h-14 rounded-xl flex items-center justify-center"
             style={{ backgroundColor: `${iconColor}20` }}
           >
             <Icon className="w-6 h-6" style={{ color: iconColor }} />
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant={store.status === 'active' ? 'success' : 'default'}>
+          <div className="saas-store-card__top-actions flex items-center gap-2">
+            <Badge className="saas-store-card__status" variant={store.status === 'active' ? 'success' : 'default'}>
               {store.status === 'active' ? 'Actif' : 'Inactif'}
             </Badge>
             <DropdownMenu
@@ -479,23 +485,23 @@ function StoreCard({
             </DropdownMenu>
           </div>
         </div>
-        <CardTitle className="capitalize">{store.name}</CardTitle>
-        <CardDescription>{store.description}</CardDescription>
+        <CardTitle className="saas-store-card__title capitalize">{store.name}</CardTitle>
+        <CardDescription className="saas-store-card__description">{store.description}</CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-4">
-        <div className="bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
+      <CardContent className="saas-store-card__content space-y-2">
+        <div className="saas-store-card__metric saas-store-card__metric--modules bg-gray-50 dark:bg-gray-800/50 rounded-lg p-3">
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Modules actifs</div>
           <p className="text-sm font-medium text-gray-900 dark:text-white">{store.modules}</p>
         </div>
-        <div className="bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
+        <div className="saas-store-card__metric saas-store-card__metric--price bg-orange-50 dark:bg-orange-900/20 rounded-lg p-3">
           <div className="text-xs text-gray-500 dark:text-gray-400 mb-1">Prix du store</div>
-          <p className="text-sm font-semibold text-orange-600 dark:text-orange-400">{formatMonthlyPrice(store.price)}</p>
+          <p className="text-sm font-semibold text-orange-600 dark:text-orange-400">{formatAnnualStorePrice(store.price)}</p>
         </div>
 
         <div className="flex gap-2">
           <Button
-            className={`flex-1 rounded-lg border border-gray-300 dark:border-gray-600 !bg-gray-100 dark:!bg-gray-800 !text-gray-600 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-gray-700 text-sm font-medium shadow-none ${
+            className={`saas-store-card__configure flex-1 rounded-lg border border-gray-300 dark:border-gray-600 !bg-gray-100 dark:!bg-gray-800 !text-gray-600 dark:!text-gray-300 hover:!bg-gray-200 dark:hover:!bg-gray-700 text-sm font-medium shadow-none ${
     store.status !== 'active' ? 'opacity-50 cursor-not-allowed' : ''
   }`}
             icon={<Edit className="w-4 h-4 !text-gray-500" />}
@@ -509,7 +515,7 @@ function StoreCard({
           <Button
             size="sm"
             variant="outline"
-            className={`flex-1 ${
+            className={`saas-store-card__toggle flex-1 ${
               store.status === 'active' 
                 ? 'border-red-500 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20'
                 : 'border-green-500 text-green-600 hover:bg-green-50 dark:hover:bg-green-900/20'
@@ -1454,16 +1460,13 @@ export function SaaSStoresModules() {
 
   //   5.4 — return JSX
   return (
-    <div className="space-y-6">
+    <div className="saas-stores-modules-page space-y-6">
       {/* Tabs header */}
-      <div className="border-b border-gray-200 dark:border-gray-700">
-        <div className="flex items-center justify-between mb-4">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Stores et Modules</h2>
-        </div>
-        <div className="flex gap-6">
+      <div className="saas-stores-modules-tabs border-b border-gray-200 dark:border-gray-700">
+        <div className="saas-stores-modules-tabs__list flex gap-6">
           <button
             onClick={() => setActiveTab('stores')}
-            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+            className={`saas-stores-modules-tab pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'stores'
                 ? 'border-orange-500 text-orange-600 dark:text-orange-400'
                 : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -1473,7 +1476,7 @@ export function SaaSStoresModules() {
           </button>
           <button
             onClick={() => setActiveTab('modules')}
-            className={`pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
+            className={`saas-stores-modules-tab pb-3 px-1 text-sm font-medium border-b-2 transition-colors ${
               activeTab === 'modules'
                 ? 'border-orange-500 text-orange-600 dark:text-orange-400'
                 : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
@@ -1494,9 +1497,9 @@ export function SaaSStoresModules() {
       {/* Stores tab */}
       {!loading && activeTab === 'stores' && (
         <>
-          <div className="mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+          <div className="saas-stores-modules-toolbar mb-6 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
             <div>
-              <p className="text-lg text-gray-500 dark:text-gray-400">
+              <p className="saas-stores-modules-toolbar__description text-lg text-gray-500 dark:text-gray-400">
                 Gerez les stores disponibles sur la plateforme
               </p>
             </div>
@@ -1511,7 +1514,7 @@ export function SaaSStoresModules() {
                 ]}
               />
               <Button onClick={() => setShowCreateStoreModal(true)} 
-               className="bg-primary hover:bg-primary-hover border-none text-white rounded-xl shadow-sm"
+               className="saas-stores-modules-create-button bg-primary hover:bg-primary-hover border-none text-white rounded-xl shadow-sm"
               >
                 <Plus className="w-4 h-4" />
                 Creer un Store
@@ -1519,7 +1522,7 @@ export function SaaSStoresModules() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
+          <div className="saas-stores-grid grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-stretch">
             {filteredStores.map((store, index) => (
               <StoreCard
                 key={store.id}
@@ -2019,7 +2022,7 @@ export function SaaSStoresModules() {
             <textarea rows={3} value={newStoreDescription} onChange={(e) => setNewStoreDescription(e.target.value)} placeholder="Description du store..." className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du store (DT / mois)</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du store (DT / année)</label>
             <input type="number" min="0" step="0.01" value={newStorePrice} onChange={(e) => setNewStorePrice(e.target.value)} placeholder="Ex: 120" className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div className="flex items-center gap-2">
@@ -2103,7 +2106,7 @@ export function SaaSStoresModules() {
             <textarea rows={3} value={editStoreDescription} onChange={(e) => setEditStoreDescription(e.target.value)} className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div>
-            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du store (DT / mois)</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du store (DT / année)</label>
             <input type="number" min="0" step="0.01" value={editStorePrice} onChange={(e) => setEditStorePrice(e.target.value)} placeholder="Ex: 120" className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-orange-500" />
           </div>
           <div className="flex items-center gap-2">
@@ -2233,7 +2236,7 @@ export function SaaSStoresModules() {
       >
         <div className="space-y-4">
           <div>
-            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du module (DT / mois)</label>
+            <label className="text-sm font-medium text-gray-900 dark:text-white mb-1.5 block">Prix du module (DT / année)</label>
             <input
               type="number"
               min="0"

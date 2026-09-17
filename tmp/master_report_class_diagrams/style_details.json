@@ -1,0 +1,339 @@
+{
+  "styles": {
+    "Normal": {
+      "type": "PARAGRAPH (1)",
+      "font_name": null,
+      "font_size_pt": null,
+      "bold": null,
+      "italic": null,
+      "color": null,
+      "alignment": null,
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "line_spacing": "None",
+      "keep_with_next": null,
+      "page_break_before": null
+    },
+    "Normal (Web)": {
+      "type": "PARAGRAPH (1)",
+      "font_name": "Times New Roman",
+      "font_size_pt": 12.0,
+      "bold": null,
+      "italic": null,
+      "color": null,
+      "alignment": null,
+      "space_before_pt": 5.0,
+      "space_after_pt": 5.0,
+      "line_spacing": "1.0",
+      "keep_with_next": null,
+      "page_break_before": null
+    },
+    "Heading 1": {
+      "type": "PARAGRAPH (1)",
+      "font_name": null,
+      "font_size_pt": 16.0,
+      "bold": null,
+      "italic": null,
+      "color": "2E74B5",
+      "alignment": null,
+      "space_before_pt": 12.0,
+      "space_after_pt": 0.0,
+      "line_spacing": "None",
+      "keep_with_next": true,
+      "page_break_before": null
+    },
+    "Heading 2": {
+      "type": "PARAGRAPH (1)",
+      "font_name": null,
+      "font_size_pt": 13.0,
+      "bold": null,
+      "italic": null,
+      "color": "2E74B5",
+      "alignment": null,
+      "space_before_pt": 2.0,
+      "space_after_pt": 0.0,
+      "line_spacing": "None",
+      "keep_with_next": true,
+      "page_break_before": null
+    },
+    "Caption": {
+      "type": "PARAGRAPH (1)",
+      "font_name": null,
+      "font_size_pt": 9.0,
+      "bold": null,
+      "italic": true,
+      "color": "44546A",
+      "alignment": null,
+      "space_before_pt": null,
+      "space_after_pt": 10.0,
+      "line_spacing": "1.0",
+      "keep_with_next": null,
+      "page_break_before": null
+    },
+    "isselectedend": {
+      "type": "PARAGRAPH (1)",
+      "font_name": "Times New Roman",
+      "font_size_pt": 12.0,
+      "bold": null,
+      "italic": null,
+      "color": null,
+      "alignment": null,
+      "space_before_pt": 5.0,
+      "space_after_pt": 5.0,
+      "line_spacing": "1.0",
+      "keep_with_next": null,
+      "page_break_before": null
+    },
+    "gjcqjg1a": {
+      "type": "PARAGRAPH (1)",
+      "font_name": "Times New Roman",
+      "font_size_pt": 12.0,
+      "bold": null,
+      "italic": null,
+      "color": null,
+      "alignment": null,
+      "space_before_pt": 5.0,
+      "space_after_pt": 5.0,
+      "line_spacing": "1.0",
+      "keep_with_next": null,
+      "page_break_before": null
+    }
+  },
+  "paragraph_samples": {
+    "338": {
+      "text": "Chapitre 3 : Architecture et Conception",
+      "style": "Heading 1",
+      "alignment": "CENTER (1)",
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "keep_with_next": null,
+      "page_break_before": null,
+      "runs": [
+        {
+          "text": "Chapitre 3 : Architecture et Conception",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 18.0
+        }
+      ]
+    },
+    "340": {
+      "text": "1. Introduction",
+      "style": "Heading 2",
+      "alignment": null,
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "keep_with_next": null,
+      "page_break_before": null,
+      "runs": [
+        {
+          "text": "1. Introduction",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 16.0
+        }
+      ]
+    },
+    "374": {
+      "text": "4. Environnement de développement et technologies utilisées",
+      "style": "Heading 2",
+      "alignment": null,
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "keep_with_next": null,
+      "page_break_before": null,
+      "runs": [
+        {
+          "text": "4",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 16.0
+        },
+        {
+          "text": ". Environnement de développement et technologies utilisées",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 16.0
+        }
+      ]
+    },
+    "375": {
+      "text": "  4.1. Environnement matériel ",
+      "style": "isselectedend",
+      "alignment": null,
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "keep_with_next": null,
+      "page_break_before": null,
+      "runs": [
+        {
+          "text": "  ",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        },
+        {
+          "text": "4",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        },
+        {
+          "text": ".1. ",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        },
+        {
+          "text": "Environnement matériel",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        },
+        {
+          "text": " ",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        }
+      ]
+    },
+    "379": {
+      "text": "  Tableau : Caractéristiques de l’environnement matériel",
+      "style": "Normal",
+      "alignment": null,
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "keep_with_next": null,
+      "page_break_before": null,
+      "runs": [
+        {
+          "text": "  Tableau : Caractéristiques de l’environnement matériel",
+          "bold": null,
+          "italic": null,
+          "font": null,
+          "size_pt": null
+        }
+      ]
+    },
+    "384": {
+      "text": "  4.3. Technologies utilisées",
+      "style": "isselectedend",
+      "alignment": null,
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "keep_with_next": null,
+      "page_break_before": null,
+      "runs": [
+        {
+          "text": "  ",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        },
+        {
+          "text": "4",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        },
+        {
+          "text": ".3. Technologies utilisées",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        }
+      ]
+    },
+    "387": {
+      "text": "5. Conclusion ",
+      "style": "isselectedend",
+      "alignment": null,
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "keep_with_next": null,
+      "page_break_before": null,
+      "runs": [
+        {
+          "text": "5. Conclusion",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        },
+        {
+          "text": " ",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 14.0
+        }
+      ]
+    },
+    "394": {
+      "text": "Chapitre 4 : Mise en œuvre de la plateforme SaaS et gestion du cycle de vie des marketplaces bancaires",
+      "style": "Heading 1",
+      "alignment": "CENTER (1)",
+      "space_before_pt": null,
+      "space_after_pt": null,
+      "keep_with_next": null,
+      "page_break_before": null,
+      "runs": [
+        {
+          "text": "Chapitre 4 : ",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 18.0
+        },
+        {
+          "text": "Mise en œuvre de la plateforme ",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 18.0
+        },
+        {
+          "text": "SaaS",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 18.0
+        },
+        {
+          "text": " et gestion du cycle de vie des ",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 18.0
+        },
+        {
+          "text": "marketplaces",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 18.0
+        },
+        {
+          "text": " bancaires",
+          "bold": true,
+          "italic": null,
+          "font": null,
+          "size_pt": 18.0
+        }
+      ]
+    }
+  }
+}

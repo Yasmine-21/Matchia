@@ -160,7 +160,7 @@ const RequestDetailSectionTitle = ({
     <div className={`flex h-10 w-10 items-center justify-center rounded-full bg-slate-50 ring-1 ring-slate-200 ${iconClassName}`}>
       {icon}
     </div>
-    <h3 className="text-base font-semibold text-slate-900">{title}</h3>
+    <h3 className="text-[15px] font-semibold text-slate-900">{title}</h3>
   </div>
 );
 
@@ -174,11 +174,11 @@ const RequestDetailRow = ({
   value?: React.ReactNode;
 }) => (
   <div className="grid grid-cols-[1fr] gap-2 sm:grid-cols-[180px_minmax(0,1fr)] sm:items-start">
-    <div className="flex items-center gap-2 text-sm text-slate-500">
+    <div className="flex items-center gap-2 text-[13px] text-slate-500">
       {icon ? <span className="text-slate-400">{icon}</span> : null}
       <span>{label}</span>
     </div>
-    <div className="min-w-0 text-sm font-medium text-slate-900 break-words">{value || '-'}</div>
+    <div className="min-w-0 break-words text-[13px] font-medium text-slate-900">{value || '-'}</div>
   </div>
 );
 
@@ -470,8 +470,8 @@ export function Requests() {
             <div className="flex flex-wrap items-start gap-3 border-b border-slate-100 pb-5 pr-10">
               <div className="min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-3">
-                  <h2 className="text-2xl font-semibold tracking-tight text-slate-900">Détails de la demande</h2>
-                  <Badge variant={statusVariant(selectedRequest.status)} className="rounded-full px-3 py-1 text-xs font-semibold shadow-sm">
+                  <h2 className="text-[22px] font-semibold tracking-tight text-slate-900">Détails de la demande</h2>
+                  <Badge variant={statusVariant(selectedRequest.status)} className="rounded-full px-3 py-1 text-[11px] font-semibold shadow-sm">
                     {statusLabel[selectedRequest.status]}
                   </Badge>
                 </div>
@@ -479,7 +479,7 @@ export function Requests() {
             </div>
 
             {selectedRequest.rejectionReason && (
-              <div className="rounded-[20px] border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-800">
+              <div className="rounded-[20px] border border-rose-200 bg-rose-50 px-4 py-3 text-[13px] text-rose-800">
                 <div className="font-semibold">Motif de rejet</div>
                 <div className="mt-1 leading-6">{selectedRequest.rejectionReason}</div>
               </div>
@@ -494,11 +494,11 @@ export function Requests() {
                   <RequestDetailRow icon={<CreditCard className="h-4 w-4" />} label="Montant" value={formatTnd(selectedRequest.totalMonthlyPrice ?? selectedRequest.totalAmount)} />
                   <RequestDetailRow icon={<UserRound className="h-4 w-4" />} label="Contact" value={selectedRequest.contactName || '-'} />
                   <div className="space-y-2 md:col-span-2">
-                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                    <div className="flex items-center gap-2 text-[13px] text-slate-500">
                       <span className="text-slate-400"><Globe className="h-4 w-4" /></span>
                       <span>Description</span>
                     </div>
-                    <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-600">
+                    <div className="rounded-xl bg-slate-50 px-4 py-3 text-[13px] leading-7 text-slate-600">
                       {getBankDescription(selectedRequest) || 'Demande de renouvellement envoyee par la banque.'}
                     </div>
                   </div>
@@ -511,8 +511,8 @@ export function Requests() {
                   <div className="mb-5 flex items-center gap-4">
                     <BankLogo logoUrl={selectedRequest.logoUrl} bankName={selectedRequest.bankName} size="lg" />
                     <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-500">Banque</p>
-                      <h4 className="mt-1 truncate text-2xl font-semibold text-slate-900">{selectedRequest.bankName || '-'}</h4>
+                      <p className="text-[13px] font-medium text-slate-500">Banque</p>
+                      <h4 className="mt-1 truncate text-[22px] font-semibold text-slate-900">{selectedRequest.bankName || '-'}</h4>
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -522,11 +522,11 @@ export function Requests() {
                     <RequestDetailRow icon={<Link2 className="h-4 w-4" />} label="Site web" value={selectedRequest.website || '-'} />
                     <RequestDetailRow icon={<CalendarDays className="h-4 w-4" />} label="Annee d'etablissement" value={selectedRequest.establishmentYear || '-'} />
                     <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <div className="flex items-center gap-2 text-[13px] text-slate-500">
                         <span className="text-slate-400"><Building2 className="h-4 w-4" /></span>
                         <span>Description banque</span>
                       </div>
-                      <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-600">
+                      <div className="rounded-xl bg-slate-50 px-4 py-3 text-[13px] leading-7 text-slate-600">
                         {getBankDescription(selectedRequest) || '-'}
                       </div>
                     </div>
@@ -549,22 +549,22 @@ export function Requests() {
                       <RequestDetailRow icon={<Link2 className="h-4 w-4" />} label="Slug" value={selectedRequest.marketplaceSlug || '-'} />
                       <RequestDetailRow icon={<Store className="h-4 w-4" />} label="Type" value={requestTypeLabel[selectedRequest.requestType]} />
                       <div className="space-y-2">
-                        <div className="flex items-center gap-2 text-sm text-slate-500">
+                        <div className="flex items-center gap-2 text-[13px] text-slate-500">
                           <span className="text-slate-400"><Globe className="h-4 w-4" /></span>
                           <span>Description</span>
                         </div>
-                        <div className="rounded-xl bg-slate-50 px-4 py-3 text-sm leading-7 text-slate-600">
+                        <div className="rounded-xl bg-slate-50 px-4 py-3 text-[13px] leading-7 text-slate-600">
                           {selectedRequest.marketplaceDescription || '-'}
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-3 pt-1">
                         <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2">
                           <span className="h-3.5 w-3.5 rounded-full ring-2 ring-white" style={{ backgroundColor: selectedRequest.primaryColor }} />
-                          <span className="text-sm font-medium text-slate-700">{selectedRequest.primaryColor}</span>
+                          <span className="text-[13px] font-medium text-slate-700">{selectedRequest.primaryColor}</span>
                         </div>
                         <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2">
                           <span className="h-3.5 w-3.5 rounded-full ring-2 ring-white" style={{ backgroundColor: selectedRequest.secondaryColor }} />
-                          <span className="text-sm font-medium text-slate-700">{selectedRequest.secondaryColor}</span>
+                          <span className="text-[13px] font-medium text-slate-700">{selectedRequest.secondaryColor}</span>
                         </div>
                       </div>
                     </div>
@@ -575,9 +575,9 @@ export function Requests() {
 
             <section className="rounded-[24px] border border-slate-200 bg-white p-5 shadow-[0_10px_30px_rgba(15,23,42,0.04)]">
               <RequestDetailSectionTitle icon={<Store className="h-5 w-5" />} title="Configuration sélectionnée" iconClassName="text-violet-500" />
-              <div className="space-y-3">
+              <div className="grid gap-3 lg:grid-cols-2">
                 {(selectedRequest.selectedStoreDetails || []).length === 0 ? (
-                  <p className="text-sm text-slate-500">Aucun detail de configuration disponible.</p>
+                  <p className="text-[13px] text-slate-500 lg:col-span-2">Aucun detail de configuration disponible.</p>
                 ) : selectedRequest.selectedStoreDetails?.map((store) => (
                   <div
                     key={store.id || store.storeId}
@@ -589,8 +589,8 @@ export function Requests() {
                           <Store className="h-6 w-6" />
                         </div>
                         <div className="min-w-0">
-                          <div className="truncate text-lg font-semibold text-slate-900">{store.storeName}</div>
-                          <p className="mt-1 text-sm leading-6 text-slate-500">{store.storeDescription || 'Store bancaire'}</p>
+                          <div className="truncate text-[17px] font-semibold text-slate-900">{store.storeName}</div>
+                          <p className="mt-1 text-[13px] leading-6 text-slate-500">{store.storeDescription || 'Store bancaire'}</p>
                         </div>
                       </div>
                       <Badge variant="secondary" className="rounded-full bg-emerald-100 px-3 py-1 text-emerald-700">
@@ -599,11 +599,11 @@ export function Requests() {
                     </div>
                     <div className="space-y-2">
                       {store.modules.length === 0 ? (
-                        <span className="text-sm text-slate-500">Aucun module choisi</span>
+                        <span className="text-[13px] text-slate-500">Aucun module choisi</span>
                       ) : store.modules.map((module) => (
                         <div
                           key={module.id || module.moduleId}
-                          className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 text-sm shadow-sm ring-1 ring-slate-100"
+                          className="flex items-center justify-between rounded-2xl bg-white px-4 py-3 text-[13px] shadow-sm ring-1 ring-slate-100"
                         >
                           <span className="flex min-w-0 items-center gap-2 text-slate-700">
                             <Package className="h-4 w-4 shrink-0 text-slate-400" />
@@ -621,10 +621,10 @@ export function Requests() {
             <div className="rounded-[24px] border border-orange-200 bg-gradient-to-r from-orange-50 to-amber-50 px-5 py-4">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                  <span className="block text-base font-semibold text-orange-600">Total mensuel</span>
-                  <span className="mt-1 block text-xs text-slate-500">Creee le {formatDate(selectedRequest.createdAt)}</span>
+                  <span className="block text-[15px] font-semibold text-orange-600">Total mensuel</span>
+                  <span className="mt-1 block text-[11px] text-slate-500">Creee le {formatDate(selectedRequest.createdAt)}</span>
                 </div>
-                <strong className="text-3xl font-bold text-orange-600">{formatTnd(getRequestTotal(selectedRequest))}</strong>
+                <strong className="text-[28px] font-bold text-orange-600">{formatTnd(getRequestTotal(selectedRequest))}</strong>
               </div>
             </div>
 
@@ -634,7 +634,7 @@ export function Requests() {
                   <Button
                     variant="success"
                     size="lg"
-                    className="h-14 rounded-2xl text-base font-semibold shadow-sm"
+                    className="h-14 rounded-2xl text-[15px] font-semibold shadow-sm"
                     icon={actionLoadingId === selectedRequest.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                     onClick={() => runAction(selectedRequest)}
                     disabled={actionLoadingId === selectedRequest.id}
@@ -645,7 +645,7 @@ export function Requests() {
                 <Button
                   variant="danger"
                   size="lg"
-                  className={`h-14 rounded-2xl text-base font-semibold shadow-sm ${selectedRequest.requestType !== 'subscription' ? '' : 'sm:col-span-2'}`}
+                  className={`h-14 rounded-2xl text-[15px] font-semibold shadow-sm ${selectedRequest.requestType !== 'subscription' ? '' : 'sm:col-span-2'}`}
                   icon={actionLoadingId === selectedRequest.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <X className="w-4 h-4" />}
                   onClick={() => openRejectModal(selectedRequest)}
                   disabled={actionLoadingId === selectedRequest.id}

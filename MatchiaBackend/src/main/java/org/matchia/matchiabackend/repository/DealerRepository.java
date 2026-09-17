@@ -15,4 +15,5 @@ public interface DealerRepository extends JpaRepository<Dealer, Long> {
     boolean existsByRegistrationNumberIgnoreCase(String registrationNumber);
     boolean existsByRegistrationNumberIgnoreCaseAndIdNot(String registrationNumber, Long id);
     boolean existsByEmailIgnoreCase(String email);
+    @EntityGraph(attributePaths = "store") Optional<Dealer> findByEmailIgnoreCase(String email);
 }

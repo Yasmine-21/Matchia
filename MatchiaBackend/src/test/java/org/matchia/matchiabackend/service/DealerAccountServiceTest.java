@@ -150,4 +150,27 @@ class DealerAccountServiceTest {
         assertThat(dealerAccountService.activePublicDealers()).singleElement().satisfies(view -> assertThat(view.companyName()).isEqualTo("Dealer"));
         assertThat(dealerAccountService.me(authentication).companyName()).isEqualTo("Dealer");
     }
+
+    @Test
+    void approvedRequestUsesCurrentDealerLogo() {
+        Store store = new Store();
+        store.setId(2L);
+        store.setName("Medical");
+
+        DealerAccountRequest request = new DealerAccountRequest();
+        request.setId(6L);
+        request.setEmail("pharmatec@example.com");
+        request.setStore(store);
+        request.setStatus(DealerRequestStatusEnum.APPROVED);
+        request.setLogoUrl("/uploads/dealers/logos/obsolete.png");
+        request.setDocumentUrls(List.of());
+
+        Dealer dealer = new Dealer();
+        dealer.setLogoUrl("/uploads/dealers/logos/current.png");
+        when(dealerRepository.findByEmailIgnoreCase("pharmatec@example.com")).thenReturn(Optional.of(dealer));
+
+        DealerDtos.AccountRequestView result = dealerAccountService.toRequestView(request);
+
+        assertThat(result.logoUrl()).isEqualTo("/uploads/dealers/logos/current.png");
+    }
 }

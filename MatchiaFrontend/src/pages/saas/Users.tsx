@@ -65,6 +65,7 @@ export function SaaSUsers() {
   const [editingUserId, setEditingUserId] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [roleFilter, setRoleFilter] = useState<string | 'all'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'active' | 'inactive'>('all');
   const [users, setUsers] = useState<UserDto[]>([]);
   const [banks, setBanks] = useState<Bank[]>([]);
   const [contactImageFile, setContactImageFile] = useState<File | null>(null);
@@ -297,8 +298,10 @@ export function SaaSUsers() {
       bankName.toLowerCase().includes(searchTerm.toLowerCase());
 
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
+    const matchesStatus =
+      statusFilter === 'all' || (user.status || 'inactive').toLowerCase() === statusFilter;
 
-    return matchesSearch && matchesRole;
+    return matchesSearch && matchesRole && matchesStatus;
   });
 
   return (
@@ -321,7 +324,7 @@ export function SaaSUsers() {
           <CardTitle className="text-lg">Filtres</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium mb-2">Rechercher par nom, email ou banque</label>
               <Input
@@ -343,6 +346,20 @@ export function SaaSUsers() {
                     {formatRoleLabel(role)}
                   </option>
                 ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-2">Statut</label>
+              <select
+                value={statusFilter}
+                onChange={(event) =>
+                  setStatusFilter(event.target.value as 'all' | 'active' | 'inactive')
+                }
+                className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+              >
+                <option value="all">Tous les statuts</option>
+                <option value="active">Actif</option>
+                <option value="inactive">Inactif</option>
               </select>
             </div>
           </div>

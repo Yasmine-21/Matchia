@@ -415,6 +415,7 @@ public class DealerPartnershipService {
     public DealerDtos.PartnershipView toView(DealerBankPartnership partnership) {
         return new DealerDtos.PartnershipView(partnership.getId(), accountService.toDealerView(partnership.getDealer()),
                 partnership.getBank().getId(), partnership.getBank().getName(), partnership.getBank().getLogoUrl(),
+                partnership.getBank().getEmail(), partnership.getBank().getPhone(),
                 partnership.getStore().getId(),
                 partnership.getStore().getName(), effectiveInitiator(partnership), partnership.getStatus(),
                 partnership.getMessage(), partnership.getRejectionReason(), partnership.getRequestDate(),

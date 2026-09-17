@@ -261,7 +261,6 @@ export function AuditLogs() {
                     <th className="text-left py-3 px-4 font-medium text-muted-foreground">Categorie</th>
                     <th className="text-left py-3 px-4 font-medium text-muted-foreground">Ressource</th>
                     <th className="text-left py-3 px-4 font-medium text-muted-foreground">Statut</th>
-                    <th className="text-left py-3 px-4 font-medium text-muted-foreground">IP</th>
                     <th className="text-right py-3 px-4 font-medium text-muted-foreground">Detail</th>
                   </tr>
                 </thead>
@@ -277,7 +276,6 @@ export function AuditLogs() {
                       <td className="py-3 px-4"><Badge variant={categoryVariant[log.category]}>{categoryLabel[log.category]}</Badge></td>
                       <td className="py-3 px-4 text-sm">{log.resourceType || '-'}{log.resourceId ? ` #${log.resourceId}` : ''}</td>
                       <td className="py-3 px-4"><Badge variant={statusVariant[log.status]}>{log.status}</Badge></td>
-                      <td className="py-3 px-4 text-sm text-muted-foreground">{log.ipAddress || 'N/A'}</td>
                       <td className="py-3 px-4 text-right">
                         <Button size="sm" variant="ghost" icon={<Eye className="w-4 h-4" />} onClick={(event) => { event.stopPropagation(); setSelectedLog(log); }}>
                           Voir

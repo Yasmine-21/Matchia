@@ -396,16 +396,7 @@ export function BankModules() {
                         )}
                       </div>
 
-                      {isBannerAssignment(assignment) && selectedStore && assignment.actif !== false && (
-                        <StoreBannerManager
-                          marketplaceStoreId={selectedStore.id}
-                          storeName={selectedStore.name}
-                          disabled={isSelectedStoreInactive}
-                          onSaved={refresh}
-                        />
-                      )}
-
-                      <div className="mt-4 flex justify-end">
+                      <div className="mt-4 flex shrink-0 justify-end xl:mt-0 xl:self-start">
                         <Button
                           size="sm"
                           variant={assignment.actif === false ? 'success' : 'danger'}
@@ -421,6 +412,15 @@ export function BankModules() {
                         </Button>
                       </div>
                       </div>
+
+                      {isBannerAssignment(assignment) && selectedStore && assignment.actif !== false && (
+                        <StoreBannerManager
+                          marketplaceStoreId={selectedStore.id}
+                          storeName={selectedStore.name}
+                          disabled={isSelectedStoreInactive}
+                          onSaved={refresh}
+                        />
+                      )}
                     </div>
                   ))}
                 </div>

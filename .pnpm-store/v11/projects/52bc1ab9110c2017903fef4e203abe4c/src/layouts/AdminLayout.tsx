@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import '../styles/SaaSDashboard.css';
 import { Outlet, useNavigate } from 'react-router';
 import { Bell, LogOut, Search, Settings, User } from 'lucide-react';
 import { AdminSidebar } from '../components/layout/AdminSidebar';
@@ -199,10 +200,10 @@ export function AdminLayout({ type }: AdminLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-background">
+    <div className={`admin-layout admin-layout--${type} flex h-screen bg-background`}>
       <AdminSidebar type={type} />
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
+        <header className="admin-layout__header h-16 border-b border-border bg-card flex items-center justify-between px-6">
           <div className="flex-1 max-w-xl">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
@@ -288,7 +289,7 @@ export function AdminLayout({ type }: AdminLayoutProps) {
             </div>
           </div>
         </header>
-        <main className="flex-1 overflow-auto w-full bg-slate-50/50 px-18 py-10">
+        <main className="admin-layout__main flex-1 overflow-auto w-full bg-slate-50/50 px-18 py-10">
           <Outlet />
         </main>
       </div>

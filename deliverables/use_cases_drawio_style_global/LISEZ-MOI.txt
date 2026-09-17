@@ -1,0 +1,16 @@
+DIAGRAMMES DE CAS D’UTILISATION DÉTAILLÉS — MATCHIA
+
+Le fichier Matchia_use_cases_detailles_style_diagramme_global.drawio contient les six diagrammes sous forme de pages.
+Le dossier diagrammes_individuels contient un fichier .drawio séparé pour chaque cas d’utilisation.
+Tous les objets, acteurs, libellés et connecteurs sont éditables dans diagrams.net / Draw.io.
+La charte reprend celle du diagramme global : fond blanc, acteurs gris, cas vert d’eau, cas principal bleu pâle, associations grises et dépendances UML turquoise.
+
+Ouverture : Fichier > Ouvrir depuis > Appareil, puis sélectionner le fichier .drawio.
+
+Ordre des pages :
+1. UC-01 — S’authentifier
+2. UC-02 — Déposer une demande de marketplace
+3. UC-03 — Traiter une demande et activer les services
+4. UC-04 — Inscrire et valider un concessionnaire
+5. UC-05 — Gérer et publier un produit concessionnaire
+6. UC-06 — Déposer et traiter une demande de financement

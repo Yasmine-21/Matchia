@@ -1,0 +1,378 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="6000" height="3387" viewBox="-10.00 -95.00 3975.00 2244.00">
+<rect x="-100000" y="-100000" width="200000" height="200000" fill="#FFFFFF"/>
+<defs>
+<linearGradient id="grad-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFF7D6"/><stop offset="100%" stop-color="#FFE599"/></linearGradient>
+<linearGradient id="grad-3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#E8F1FA"/></linearGradient>
+<linearGradient id="grad-4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#E8F1FA"/></linearGradient>
+<linearGradient id="grad-5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#E8F1FA"/></linearGradient>
+<linearGradient id="grad-6" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F4FAF1"/><stop offset="100%" stop-color="#D9EAD3"/></linearGradient>
+<linearGradient id="grad-7" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F4FAF1"/><stop offset="100%" stop-color="#D9EAD3"/></linearGradient>
+<linearGradient id="grad-8" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F4FAF1"/><stop offset="100%" stop-color="#D9EAD3"/></linearGradient>
+<linearGradient id="grad-9" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#F4FAF1"/><stop offset="100%" stop-color="#D9EAD3"/></linearGradient>
+<linearGradient id="grad-10" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FAF7FF"/><stop offset="100%" stop-color="#E4D9F5"/></linearGradient>
+<linearGradient id="grad-11" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FAFAFA"/><stop offset="100%" stop-color="#E0E0E0"/></linearGradient>
+<linearGradient id="grad-17" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#E8F1FA"/></linearGradient>
+</defs>
+<polyline points="1243.60,590.00 911.40,590.00 911.40,333.00 579.20,333.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="1406.40,590.00 1620.00,294.08 1730.00,294.08 1730.00,-35.92 986.00,208.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="2509.50,708.00 2509.50,1044.00 3076.50,1044.00 3076.50,1380.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="2371.20,1386.60 2930.60,1386.60 2930.60,1076.15 3490.00,1076.15" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<polyline points="2040.00,1382.24 2040.00,1088.69 1510.00,1088.69 1510.00,795.14" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<polyline points="2400.00,1386.60 2400.00,1016.88 2380.00,1016.88 2380.00,647.16" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<polyline points="1281.50,1470.00 1260.00,853.00" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<polyline points="1420.00,1614.55 1900.00,1614.55 1900.00,674.20 2380.00,674.20" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<polyline points="1379.00,1470.00 2257.50,1470.00 2257.50,373.00 3136.00,373.00" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<polyline points="60.00,1903.00 170.00,1903.00" fill="none" stroke="#44546A" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="60.00,1933.00 170.00,1933.00" fill="none" stroke="#44546A" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="60.00,1933.00 71.20,1938.88 82.40,1933.00 71.20,1927.12" fill="#44546A" stroke="#44546A" stroke-width="1.4"/>
+<polyline points="60.00,1963.00 170.00,1963.00" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<polyline points="690.00,705.35 915.00,705.35 915.00,708.35 1140.00,708.35" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="2380.00,511.96 1945.00,511.96 1945.00,700.46 1510.00,700.46" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="2683.40,370.00 2886.30,370.00 2886.30,373.00 3089.20,373.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="2750.00,555.90 3120.00,555.90 3120.00,880.46 3490.00,880.46" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="3910.00,957.55 3910.00,957.55 3910.00,1135.45 3910.00,1135.45" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="1124.80,1470.00 1124.80,1161.50 1436.00,1161.50 1436.00,853.00" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<rect x="1140.00" y="590.00" width="370.00" height="263.00" rx="0" fill="url(#grad-2)" stroke="#B45F06" stroke-width="2.80"/>
+<rect x="2380.00" y="370.00" width="370.00" height="338.00" rx="0" fill="url(#grad-3)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="3010.00" y="50.00" width="360.00" height="323.00" rx="0" fill="url(#grad-4)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="3490.00" y="750.00" width="420.00" height="593.00" rx="0" fill="url(#grad-5)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="320.00" y="-20.00" width="360.00" height="353.00" rx="0" fill="url(#grad-6)" stroke="#548235" stroke-width="2.00"/>
+<rect x="860.00" y="-40.00" width="360.00" height="248.00" rx="0" fill="url(#grad-7)" stroke="#548235" stroke-width="2.00"/>
+<rect x="80.00" y="1060.00" width="360.00" height="248.00" rx="0" fill="url(#grad-8)" stroke="#548235" stroke-width="2.00"/>
+<rect x="2940.00" y="1380.00" width="390.00" height="278.00" rx="0" fill="url(#grad-9)" stroke="#548235" stroke-width="2.00"/>
+<rect x="2040.00" y="1343.00" width="360.00" height="218.00" rx="0" fill="url(#grad-10)" stroke="#6D5CA5" stroke-width="2.00"/>
+<rect x="1010.00" y="1470.00" width="410.00" height="413.00" rx="0" fill="url(#grad-11)" stroke="#455A64" stroke-width="2.40"/>
+<rect x="330.00" y="560.00" width="360.00" height="323.00" rx="0" fill="url(#grad-17)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="720.00" y="720.00" width="60.00" height="30.00" rx="0" fill="none" stroke="none" stroke-width="1.30"/>
+<polygon points="80.0,1340.0 531.6,1340.0 550.0,1358.4 550.0,1455.0 80.0,1455.0" fill="#FFF2CC" stroke="#D6B656" stroke-width="1.50"/>
+<polyline points="531.6,1340.0 531.6,1358.4 550.0,1358.4" fill="none" stroke="#D6B656" stroke-width="1.50"/>
+<polygon points="1950.0,1680.0 2423.2,1680.0 2440.0,1696.8 2440.0,1785.0 1950.0,1785.0" fill="#FFF2CC" stroke="#D6B656" stroke-width="1.50"/>
+<polyline points="2423.2,1680.0 2423.2,1696.8 2440.0,1696.8" fill="none" stroke="#D6B656" stroke-width="1.50"/>
+<polygon points="350.0,1720.0 863.2,1720.0 880.0,1736.8 880.0,1825.0 350.0,1825.0" fill="#FFF2CC" stroke="#D6B656" stroke-width="1.50"/>
+<polyline points="863.2,1720.0 863.2,1736.8 880.0,1736.8" fill="none" stroke="#D6B656" stroke-width="1.50"/>
+<text x="1550.00" y="50.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="24.00" font-weight="700" font-style="normal" fill="#1F4E79">Authentification, vérifications, notifications et traçabilité</text>
+<text x="1550.00" y="95.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="400" font-style="normal" fill="#334155">Interfaces vérifiées: Login, mot de passe oublié, renouvellement de session, JoinPage, inscription client, centres de notifications et AuditLogs. Les traits pleins représentent les mappings JPA; les traits pointillés représentent des identifiants logiques sans clé étrangère.</text>
+<text x="1325.00" y="607.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#3D2B00">«entity»</text>
+<text x="1325.00" y="626.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#3D2B00">User</text>
+<line x1="1140.00" y1="639.00" x2="1510.00" y2="639.00" stroke="#B45F06" stroke-width="0.8"/>
+<text x="1149.00" y="657.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− id : Long {id, generated}</text>
+<text x="1149.00" y="671.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− bank : Bank [0..1]</text>
+<text x="1149.00" y="685.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− dealer : Dealer [0..1]</text>
+<text x="1149.00" y="699.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− fullName : String</text>
+<text x="1149.00" y="713.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− email : String</text>
+<text x="1149.00" y="728.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− phone : String</text>
+<text x="1149.00" y="742.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− address : String</text>
+<text x="1149.00" y="756.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− contactImageUrl : String</text>
+<text x="1149.00" y="770.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− birthDate : LocalDate</text>
+<text x="1149.00" y="784.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− role : RoleEnum</text>
+<text x="1149.00" y="799.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− status : UserStatusEnum</text>
+<text x="1149.00" y="813.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− password : String</text>
+<text x="1149.00" y="827.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#3D2B00">− createdAt : LocalDateTime {created}</text>
+<text x="2565.00" y="387.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="2565.00" y="406.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">Bank</text>
+<line x1="2380.00" y1="419.00" x2="2750.00" y2="419.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="2389.00" y="437.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="2389.00" y="451.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− marketplace : Marketplace [0..1]</text>
+<text x="2389.00" y="465.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− name : String</text>
+<text x="2389.00" y="479.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− slug : String</text>
+<text x="2389.00" y="493.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− email : String</text>
+<text x="2389.00" y="508.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− phone : String</text>
+<text x="2389.00" y="522.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− logoUrl : String</text>
+<text x="2389.00" y="536.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− country : String</text>
+<text x="2389.00" y="550.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− description : String</text>
+<text x="2389.00" y="564.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− websiteUrl : String</text>
+<text x="2389.00" y="579.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− establishedYear : Integer</text>
+<text x="2389.00" y="593.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : BankStatusEnum</text>
+<text x="2389.00" y="607.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− totalUsers : Integer</text>
+<text x="2389.00" y="621.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="2389.00" y="635.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {updated}</text>
+<text x="3190.00" y="67.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="3190.00" y="86.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">Marketplace</text>
+<line x1="3010.00" y1="99.00" x2="3370.00" y2="99.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="3019.00" y="117.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="3019.00" y="131.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bank : Bank [0..1] {unique}</text>
+<text x="3019.00" y="145.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− marketplaceStores : List&lt;MarketplaceStore&gt; [0..*]</text>
+<text x="3019.00" y="159.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− primaryColor : String</text>
+<text x="3019.00" y="173.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− secondaryColor : String</text>
+<text x="3019.00" y="188.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− homepageTitle : String</text>
+<text x="3019.00" y="202.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− welcomeText : String</text>
+<text x="3019.00" y="216.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− banniereUrl : String</text>
+<text x="3019.00" y="230.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− footerText : String</text>
+<text x="3019.00" y="244.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− logoImageUrl : String</text>
+<text x="3019.00" y="259.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− totalMonthlyPrice : BigDecimal</text>
+<text x="3019.00" y="273.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : MarketplaceStatusEnum</text>
+<text x="3019.00" y="287.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="3019.00" y="301.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">+ getBannerImageUrl(): String</text>
+<text x="3019.00" y="315.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">+ setBannerImageUrl(url: String): void</text>
+<text x="3700.00" y="767.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="3700.00" y="786.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">Request</text>
+<line x1="3490.00" y1="799.00" x2="3910.00" y2="799.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="3499.00" y="817.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="3499.00" y="831.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bank : Bank [0..1]</text>
+<text x="3499.00" y="845.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− requestType : RequestTypeEnum</text>
+<text x="3499.00" y="859.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : RequestStatusEnum</text>
+<text x="3499.00" y="873.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− priority : String</text>
+<text x="3499.00" y="888.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− rejectionReason : String</text>
+<text x="3499.00" y="902.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdBy : String</text>
+<text x="3499.00" y="916.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bankName : String</text>
+<text x="3499.00" y="930.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bankEmail : String</text>
+<text x="3499.00" y="944.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bankPhone : String</text>
+<text x="3499.00" y="959.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− logoUrl : String</text>
+<text x="3499.00" y="973.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− country : String</text>
+<text x="3499.00" y="987.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− website : String</text>
+<text x="3499.00" y="1001.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactName : String</text>
+<text x="3499.00" y="1015.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactEmail : String</text>
+<text x="3499.00" y="1030.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactPhone : String</text>
+<text x="3499.00" y="1044.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactImageUrl : String</text>
+<text x="3499.00" y="1058.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− description : String</text>
+<text x="3499.00" y="1072.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bankDescription : String</text>
+<text x="3499.00" y="1086.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− establishmentYear : Integer</text>
+<text x="3499.00" y="1101.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− marketplaceSlug : String</text>
+<text x="3499.00" y="1115.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− marketplaceDescription : String</text>
+<text x="3499.00" y="1129.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− primaryColor : String</text>
+<text x="3499.00" y="1143.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− secondaryColor : String</text>
+<text x="3499.00" y="1157.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− banniereUrl : String</text>
+<text x="3499.00" y="1172.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− selectedStores : String</text>
+<text x="3499.00" y="1186.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− selectedModules : String</text>
+<text x="3499.00" y="1200.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− totalAmount : Double</text>
+<text x="3499.00" y="1214.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− originalRequest : Request [0..1]</text>
+<text x="3499.00" y="1228.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− subscription : Subscription [0..1]</text>
+<text x="3499.00" y="1243.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− selectedStoreDetails : List&lt;RequestStoreSelection&gt; [0..*]</text>
+<text x="3499.00" y="1257.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− stores : List&lt;Store&gt; [0..*]</text>
+<text x="3499.00" y="1271.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− modules : List&lt;Module&gt; [0..*]</text>
+<text x="3499.00" y="1285.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="3499.00" y="1299.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {updated}</text>
+<text x="500.00" y="-3.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#17351F">«entity»</text>
+<text x="500.00" y="16.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#17351F">RefreshToken</text>
+<line x1="320.00" y1="29.00" x2="680.00" y2="29.00" stroke="#548235" stroke-width="0.8"/>
+<text x="329.00" y="47.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− id : Long {id, generated}</text>
+<text x="329.00" y="61.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− tokenHash : String {unique, required}</text>
+<text x="329.00" y="75.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− tokenId : String {unique, required}</text>
+<text x="329.00" y="89.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− tokenFamilyId : String {required}</text>
+<text x="329.00" y="103.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− user : User [1]</text>
+<text x="329.00" y="118.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− createdAt : Instant {required, created}</text>
+<text x="329.00" y="132.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− issuedAt : Instant {required}</text>
+<text x="329.00" y="146.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− expiresAt : Instant {required}</text>
+<text x="329.00" y="160.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− revokedAt : Instant</text>
+<text x="329.00" y="174.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− lastUsedAt : Instant</text>
+<text x="329.00" y="189.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− revokedReason : String</text>
+<text x="329.00" y="203.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− replacedByTokenHash : String</text>
+<text x="329.00" y="217.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− ipAddress : String</text>
+<text x="329.00" y="231.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− userAgent : String</text>
+<text x="329.00" y="245.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">+ isActive(): boolean</text>
+<text x="329.00" y="260.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">{contraintes}</text>
+<text x="329.00" y="274.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">unique(tokenHash)</text>
+<text x="329.00" y="288.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">unique(tokenId)</text>
+<text x="1040.00" y="-23.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#17351F">«entity»</text>
+<text x="1040.00" y="-4.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#17351F">PasswordResetToken</text>
+<line x1="860.00" y1="9.00" x2="1220.00" y2="9.00" stroke="#548235" stroke-width="0.8"/>
+<text x="869.00" y="27.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− id : Long {id, generated}</text>
+<text x="869.00" y="41.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− tokenHash : String {unique, required}</text>
+<text x="869.00" y="55.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− user : User [1]</text>
+<text x="869.00" y="69.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− createdAt : Instant {required, created}</text>
+<text x="869.00" y="83.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− expiresAt : Instant {required}</text>
+<text x="869.00" y="98.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− usedAt : Instant</text>
+<text x="869.00" y="112.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− ipAddress : String</text>
+<text x="869.00" y="126.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− userAgent : String</text>
+<text x="869.00" y="140.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">+ isUsable(): boolean</text>
+<text x="869.00" y="154.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">{contraintes}</text>
+<text x="869.00" y="169.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">unique(tokenHash)</text>
+<text x="260.00" y="1077.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#17351F">«entity»</text>
+<text x="260.00" y="1096.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#17351F">JoinEmailVerification</text>
+<line x1="80.00" y1="1109.00" x2="440.00" y2="1109.00" stroke="#548235" stroke-width="0.8"/>
+<text x="89.00" y="1127.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− id : Long {id, generated}</text>
+<text x="89.00" y="1141.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− email : String {required}</text>
+<text x="89.00" y="1155.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− codeHash : String {required}</text>
+<text x="89.00" y="1169.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− createdAt : Instant {required}</text>
+<text x="89.00" y="1183.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− expiresAt : Instant {required}</text>
+<text x="89.00" y="1198.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− invalidatedAt : Instant</text>
+<text x="89.00" y="1212.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− verifiedAt : Instant</text>
+<text x="89.00" y="1226.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− consumedAt : Instant</text>
+<text x="89.00" y="1240.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− verificationTokenHash : String {unique}</text>
+<text x="89.00" y="1254.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− verificationTokenExpiresAt : Instant</text>
+<text x="89.00" y="1269.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">{contraintes}</text>
+<text x="89.00" y="1283.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">unique(verificationTokenHash)</text>
+<text x="3135.00" y="1397.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#17351F">«entity»</text>
+<text x="3135.00" y="1416.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#17351F">ClientRegistrationVerification</text>
+<line x1="2940.00" y1="1429.00" x2="3330.00" y2="1429.00" stroke="#548235" stroke-width="0.8"/>
+<text x="2949.00" y="1447.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− id : Long {id, generated}</text>
+<text x="2949.00" y="1461.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− bank : Bank [1]</text>
+<text x="2949.00" y="1475.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− email : String {required}</text>
+<text x="2949.00" y="1489.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− fullName : String {required}</text>
+<text x="2949.00" y="1503.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− phone : String {required}</text>
+<text x="2949.00" y="1518.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− address : String {required}</text>
+<text x="2949.00" y="1532.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− birthDate : LocalDate {required}</text>
+<text x="2949.00" y="1546.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− contactImageUrl : String</text>
+<text x="2949.00" y="1560.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− passwordHash : String {required}</text>
+<text x="2949.00" y="1574.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− codeHash : String {required}</text>
+<text x="2949.00" y="1589.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− createdAt : Instant {required}</text>
+<text x="2949.00" y="1603.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− expiresAt : Instant {required}</text>
+<text x="2949.00" y="1617.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− invalidatedAt : Instant</text>
+<text x="2949.00" y="1631.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#17351F">− consumedAt : Instant</text>
+<text x="2220.00" y="1360.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#30204F">«entity»</text>
+<text x="2220.00" y="1379.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#30204F">Notification</text>
+<line x1="2040.00" y1="1392.00" x2="2400.00" y2="1392.00" stroke="#6D5CA5" stroke-width="0.8"/>
+<text x="2049.00" y="1410.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− id : Long {id, generated}</text>
+<text x="2049.00" y="1424.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− title : String {required}</text>
+<text x="2049.00" y="1438.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− message : String {required}</text>
+<text x="2049.00" y="1452.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− type : NotificationTypeEnum {required}</text>
+<text x="2049.00" y="1466.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− status : NotificationStatusEnum {required}</text>
+<text x="2049.00" y="1481.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− relatedRequestId : Long</text>
+<text x="2049.00" y="1495.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− recipientId : Long</text>
+<text x="2049.00" y="1509.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− recipientScope : NotificationRecipientScope</text>
+<text x="2049.00" y="1523.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− createdAt : LocalDateTime {required, created}</text>
+<text x="2049.00" y="1537.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#30204F">− readAt : LocalDateTime</text>
+<text x="1215.00" y="1487.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#263238">«entity»</text>
+<text x="1215.00" y="1506.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#263238">AuditLog</text>
+<line x1="1010.00" y1="1519.00" x2="1420.00" y2="1519.00" stroke="#455A64" stroke-width="0.8"/>
+<text x="1019.00" y="1537.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− id : Long {id, generated}</text>
+<text x="1019.00" y="1551.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− tenantId : String</text>
+<text x="1019.00" y="1565.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− actorId : String</text>
+<text x="1019.00" y="1579.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− actorName : String</text>
+<text x="1019.00" y="1593.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− actorEmail : String</text>
+<text x="1019.00" y="1608.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− actorRole : String</text>
+<text x="1019.00" y="1622.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− action : String {required}</text>
+<text x="1019.00" y="1636.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− category : AuditCategoryEnum {required}</text>
+<text x="1019.00" y="1650.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− resourceType : String</text>
+<text x="1019.00" y="1664.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− resourceId : String</text>
+<text x="1019.00" y="1679.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− status : AuditStatusEnum {required}</text>
+<text x="1019.00" y="1693.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− ipAddress : String</text>
+<text x="1019.00" y="1707.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− userAgent : String</text>
+<text x="1019.00" y="1721.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− diff : String</text>
+<text x="1019.00" y="1735.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− metadata : String</text>
+<text x="1019.00" y="1750.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− affectedUserId : String</text>
+<text x="1019.00" y="1764.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− affectedUserName : String</text>
+<text x="1019.00" y="1778.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− bankId : String</text>
+<text x="1019.00" y="1792.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− marketplaceId : String</text>
+<text x="1019.00" y="1806.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− emailRecipient : String</text>
+<text x="1019.00" y="1821.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− source : String</text>
+<text x="1019.00" y="1835.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− correlationId : String</text>
+<text x="1019.00" y="1849.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#263238">− createdAt : LocalDateTime {created}</text>
+<text x="75.00" y="1949.12" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="700" font-style="normal" fill="#334155">Légende — PK clé primaire · FK relation vers une entité · REL collection · ENUM type énuméré</text>
+<text x="195.00" y="1985.75" text-anchor="start" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">Association JPA</text>
+<text x="655.00" y="1985.75" text-anchor="start" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">Composition / cycle de vie</text>
+<text x="1115.00" y="1985.75" text-anchor="start" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">Référence logique sans FK</text>
+<text x="2995.00" y="2070.75" text-anchor="end" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#50657A">Diagramme vérifié par confrontation avec les entités JPA, repositories, services, contrôleurs et interfaces React. Chaque classe, note et connecteur reste modifiable dans draw.io / diagrams.net.</text>
+<text x="510.00" y="577.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="510.00" y="596.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">Dealer</text>
+<line x1="330.00" y1="609.00" x2="690.00" y2="609.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="339.00" y="627.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="339.00" y="641.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− companyName : String {required}</text>
+<text x="339.00" y="655.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− registrationNumber : String {required}</text>
+<text x="339.00" y="669.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− address : String {required}</text>
+<text x="339.00" y="683.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactPerson : String {required}</text>
+<text x="339.00" y="698.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− email : String {required}</text>
+<text x="339.00" y="712.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− phone : String {required}</text>
+<text x="339.00" y="726.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− website : String</text>
+<text x="339.00" y="740.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− logoUrl : String</text>
+<text x="339.00" y="754.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactPhotoUrl : String</text>
+<text x="339.00" y="769.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− store : Store [1]</text>
+<text x="339.00" y="783.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : DealerStatusEnum {required}</text>
+<text x="339.00" y="797.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="339.00" y="811.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {updated}</text>
+<text x="339.00" y="825.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">{contraintes}</text>
+<text x="339.00" y="840.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(registrationNumber)</text>
+<text x="339.00" y="854.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(email)</text>
+<text x="750.00" y="739.12" text-anchor="middle" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">Text</text>
+<text x="85.00" y="1361.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">«workflow sans FK»</text>
+<text x="85.00" y="1374.75" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">JoinEmailVerification est identifié uniquement par email et token. Il est</text>
+<text x="85.00" y="1388.50" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">consommé avant la création d’une Request; aucune association persistée ne</text>
+<text x="85.00" y="1402.25" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">relie les deux tables.</text>
+<text x="1955.00" y="1701.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">«workflow sans FK»</text>
+<text x="1955.00" y="1714.75" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">Après validation du code, ClientRegistrationVerification crée un User client.</text>
+<text x="1955.00" y="1728.50" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">La vérification ne conserve pas de user_id.</text>
+<text x="355.00" y="1741.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">«référence polymorphe»</text>
+<text x="355.00" y="1754.75" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">AuditLog.resourceType + resourceId peut viser plusieurs types d’entités. Il ne s’agit</text>
+<text x="355.00" y="1768.50" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#4A3A00">pas d’une clé étrangère vers Request.</text>
+<rect x="831.80" y="448.50" width="159.20" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="911.40" y="462.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">sessions de rafraîchissement</text>
+<rect x="1170.10" y="570.00" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1179.10" y="580.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="628.60" y="313.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="643.70" y="323.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1680.10" y="-37.92" width="99.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1730.00" y="-23.92" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">réinitialisations</text>
+<rect x="1076.52" y="153.37" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1091.62" y="163.37" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1462.46" y="479.87" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1471.46" y="489.87" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="2735.00" y="1031.00" width="116.00" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="2793.00" y="1045.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">inscriptions clients</text>
+<rect x="2500.50" y="774.73" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2509.50" y="784.73" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="3061.40" y="1273.27" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="3076.50" y="1283.27" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="2802.40" y="1218.38" width="256.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="2930.60" y="1232.38" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">relatedRequestId [REQUEST] «référence logique»</text>
+<rect x="2456.15" y="1366.60" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2471.25" y="1376.60" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="3374.85" y="1056.15" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="3389.95" y="1066.15" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="1668.40" y="1075.69" width="213.20" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1775.00" y="1089.69" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">recipientId [USER] «référence logique»</text>
+<rect x="2024.90" y="1284.04" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2040.00" y="1294.04" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1494.90" y="853.34" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1510.00" y="863.34" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="2283.40" y="1003.88" width="213.20" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="2390.00" y="1017.88" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">recipientId [BANK] «référence logique»</text>
+<rect x="2384.90" y="1313.44" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2400.00" y="1323.44" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="2364.90" y="680.32" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2380.00" y="690.32" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="1193.85" y="1148.50" width="153.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1270.75" y="1162.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">actorId «référence logique»</text>
+<rect x="1264.89" y="1406.81" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1279.99" y="1416.81" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1246.41" y="876.19" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1261.51" y="886.19" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="1825.80" y="1131.38" width="148.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1900.00" y="1145.38" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">bankId «référence logique»</text>
+<rect x="1537.92" y="1594.55" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1553.02" y="1604.55" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="2231.88" y="654.20" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2246.98" y="664.20" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="2164.40" y="908.50" width="186.20" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="2257.50" y="922.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">marketplaceId «référence logique»</text>
+<rect x="1563.68" y="1450.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1578.78" y="1460.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="2921.12" y="353.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2936.22" y="363.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="873.20" y="693.85" width="83.60" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="915.00" y="707.85" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">comptes dealer</text>
+<rect x="706.61" y="685.35" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="721.71" y="695.35" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="1093.19" y="688.35" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1108.29" y="698.35" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1903.20" y="593.21" width="83.60" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1945.00" y="607.21" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">comptes banque</text>
+<rect x="2290.81" y="491.96" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2305.91" y="501.96" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="1569.00" y="680.46" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1584.10" y="690.46" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="2852.60" y="358.50" width="67.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="2886.30" y="372.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">marketplace</text>
+<rect x="2696.92" y="350.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2712.02" y="360.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="3045.48" y="353.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="3060.58" y="363.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="3080.90" y="705.18" width="78.20" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="3120.00" y="719.18" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">demandes SaaS</text>
+<rect x="2809.42" y="535.90" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2824.52" y="545.90" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="3400.38" y="860.46" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="3415.48" y="870.46" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="3816.90" y="1033.50" width="186.20" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="3910.00" y="1047.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">originalRequest / renouvellements</text>
+<rect x="3894.90" y="950.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="3910.00" y="960.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="3894.90" y="1103.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="3910.00" y="1113.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1184.60" y="1148.50" width="191.60" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1280.40" y="1162.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">affectedUserId «référence logique»</text>
+<rect x="1109.70" y="1385.03" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1124.80" y="1395.03" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1420.90" y="897.97" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1436.00" y="907.97" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+</svg>

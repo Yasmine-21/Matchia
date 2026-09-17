@@ -1,0 +1,377 @@
+<mxfile host="app.diagrams.net" agent="Codex" compressed="false">
+  <diagram id="dealer-partnership" name="05 - Dealer &amp; contrats">
+    <mxGraphModel dx="9256" dy="5808" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="3600" pageHeight="2700" background="#FFFFFF" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="t2" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=24;fontStyle=1;fontColor=#1F4E79;align=center;" value="Concessionnaires, partenariats, contrats et publication produit" vertex="1">
+          <mxGeometry height="38" width="3510" x="45" y="18" as="geometry" />
+        </mxCell>
+        <mxCell id="t3" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=12;fontColor=#334155;align=center;" value="Modèle vérifié dans le backend et le frontend: inscription, compte dealer, catalogue, partenariat, versions contractuelles et validation de publication." vertex="1">
+          <mxGeometry height="42" width="3440" x="80" y="58" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-DealerAccountRequest" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#FFFFFF;gradientColor=#DCEEFF;strokeColor=#2F75B5;strokeWidth=1.8;shadow=0;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;DealerAccountRequest&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− companyName : String {required}&lt;br&gt;− registrationNumber : String {required}&lt;br&gt;− address : String {required}&lt;br&gt;− contactPerson : String {required}&lt;br&gt;− email : String {required}&lt;br&gt;− phone : String {required}&lt;br&gt;− website : String&lt;br&gt;− logoUrl : String&lt;br&gt;− contactPhotoUrl : String&lt;br&gt;− store : Store [1]&lt;br&gt;− documentUrls : List&amp;lt;String&amp;gt; [0..*] {required}&lt;br&gt;− status : DealerRequestStatusEnum {required}&lt;br&gt;− rejectionReason : String&lt;br&gt;− submittedAt : LocalDateTime {created}&lt;br&gt;− processedAt : LocalDateTime&lt;/div&gt;" vertex="1">
+          <mxGeometry height="308" width="390" x="1200" y="-1150" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-User" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#FFFFFF;gradientColor=#DCEEFF;strokeColor=#2F75B5;strokeWidth=1.8;shadow=0;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;User&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− bank : Bank [0..1]&lt;br&gt;− dealer : Dealer [0..1]&lt;br&gt;− fullName : String&lt;br&gt;− email : String&lt;br&gt;− phone : String&lt;br&gt;− address : String&lt;br&gt;− contactImageUrl : String&lt;br&gt;− birthDate : LocalDate&lt;br&gt;− role : RoleEnum&lt;br&gt;− status : UserStatusEnum&lt;br&gt;− password : String&lt;br&gt;− createdAt : LocalDateTime {created}&lt;/div&gt;" vertex="1">
+          <mxGeometry height="263" width="360" x="-910" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-Dealer" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#D9ECFF;gradientColor=#B7D8F5;strokeColor=#1F4E79;strokeWidth=2.6;shadow=1;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;Dealer&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− companyName : String {required}&lt;br&gt;− registrationNumber : String {required}&lt;br&gt;− address : String {required}&lt;br&gt;− contactPerson : String {required}&lt;br&gt;− email : String {required}&lt;br&gt;− phone : String {required}&lt;br&gt;− website : String&lt;br&gt;− logoUrl : String&lt;br&gt;− contactPhotoUrl : String&lt;br&gt;− store : Store [1]&lt;br&gt;− status : DealerStatusEnum {required}&lt;br&gt;− createdAt : LocalDateTime {created}&lt;br&gt;− updatedAt : LocalDateTime {updated}&lt;hr&gt;&lt;div style=&quot;font-size:9px;text-align:left&quot;&gt;&lt;b&gt;{contraintes}&lt;/b&gt;&lt;br&gt;unique(registrationNumber)&lt;br&gt;unique(email)&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="323" width="370" x="-870" y="730" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-Store" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#D9ECFF;gradientColor=#B7D8F5;strokeColor=#1F4E79;strokeWidth=2.6;shadow=1;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;Store&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− marketplaceStores : List&amp;lt;MarketplaceStore&amp;gt; [0..*]&lt;br&gt;− moduleStores : List&amp;lt;ModuleStore&amp;gt; [0..*]&lt;br&gt;− contents : List&amp;lt;Content&amp;gt; [0..*]&lt;br&gt;− marketplaceContents : List&amp;lt;MarketplaceContent&amp;gt; [0..*]&lt;br&gt;− name : String&lt;br&gt;− description : String&lt;br&gt;− icon : String&lt;br&gt;− banniereUrl : String&lt;br&gt;− price : BigDecimal&lt;br&gt;− status : StoreStatusEnum&lt;br&gt;− createdAt : LocalDateTime {created}&lt;/div&gt;" vertex="1">
+          <mxGeometry height="248" width="370" x="490" y="540" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-Bank" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#D9ECFF;gradientColor=#B7D8F5;strokeColor=#1F4E79;strokeWidth=2.6;shadow=1;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;Bank&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− marketplace : Marketplace [0..1]&lt;br&gt;− users : List&amp;lt;User&amp;gt; [0..*]&lt;br&gt;− requests : List&amp;lt;Request&amp;gt; [0..*]&lt;br&gt;− name : String&lt;br&gt;− slug : String&lt;br&gt;− email : String&lt;br&gt;− phone : String&lt;br&gt;− logoText : String&lt;br&gt;− logoUrl : String&lt;br&gt;− country : String&lt;br&gt;− description : String&lt;br&gt;− websiteUrl : String&lt;br&gt;− establishedYear : Integer&lt;br&gt;− status : BankStatusEnum&lt;br&gt;− totalUsers : Integer&lt;br&gt;− createdAt : LocalDateTime {created}&lt;br&gt;− updatedAt : LocalDateTime {updated}&lt;/div&gt;" vertex="1">
+          <mxGeometry height="338" width="370" x="1650" y="160" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-Marketplace" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#FFFFFF;gradientColor=#DCEEFF;strokeColor=#2F75B5;strokeWidth=1.8;shadow=0;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;Marketplace&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− bank : Bank [1] {unique}&lt;br&gt;− marketplaceStores : List&amp;lt;MarketplaceStore&amp;gt; [0..*]&lt;br&gt;− marketplaceContents : List&amp;lt;MarketplaceContent&amp;gt; [0..*]&lt;br&gt;− primaryColor : String&lt;br&gt;− secondaryColor : String&lt;br&gt;− homepageTitle : String&lt;br&gt;− welcomeText : String&lt;br&gt;− banniereUrl : String&lt;br&gt;− footerText : String&lt;br&gt;− logoImageUrl : String&lt;br&gt;− totalMonthlyPrice : BigDecimal&lt;br&gt;− status : MarketplaceStatusEnum&lt;br&gt;− createdAt : LocalDateTime {created}&lt;hr&gt;+ getBannerImageUrl(): String&lt;br&gt;+ setBannerImageUrl(url: String): void&lt;/div&gt;" vertex="1">
+          <mxGeometry height="323" width="390" x="2780" y="440" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-DealerProduct" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#D9ECFF;gradientColor=#B7D8F5;strokeColor=#1F4E79;strokeWidth=2.6;shadow=1;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;DealerProduct&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− dealer : Dealer [1]&lt;br&gt;− store : Store [1]&lt;br&gt;− name : String {required}&lt;br&gt;− description : String&lt;br&gt;− price : BigDecimal {required}&lt;br&gt;− imageUrl : String&lt;br&gt;− eligibilityConditions : String&lt;br&gt;− status : DealerProductStatusEnum {required}&lt;br&gt;− totalStock : Integer&lt;br&gt;− availableStock : Integer&lt;br&gt;− reservedStock : Integer&lt;br&gt;− parameterValues : List&amp;lt;DealerProductParameterValue&amp;gt; [0..*]&lt;br&gt;− documents : List&amp;lt;DealerProductDocument&amp;gt; [0..*]&lt;br&gt;− catalogImages : List&amp;lt;DealerProductCatalogImage&amp;gt; [0..*]&lt;br&gt;− createdAt : LocalDateTime {created}&lt;br&gt;− updatedAt : LocalDateTime {updated}&lt;/div&gt;" vertex="1">
+          <mxGeometry height="323" width="390" x="180" y="1800" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-DealerBankPartnership" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#D9ECFF;gradientColor=#B7D8F5;strokeColor=#1F4E79;strokeWidth=2.6;shadow=1;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;DealerBankPartnership&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− dealer : Dealer [1]&lt;br&gt;− bank : Bank [1]&lt;br&gt;− store : Store [1]&lt;br&gt;− status : DealerPartnershipStatusEnum {required}&lt;br&gt;− initiatedBy : PartnershipInitiatorEnum&lt;br&gt;− message : String&lt;br&gt;− rejectionReason : String&lt;br&gt;− requestDate : LocalDateTime {created}&lt;br&gt;− processingDate : LocalDateTime&lt;br&gt;− approvedAt : LocalDateTime&lt;br&gt;− rejectedAt : LocalDateTime&lt;br&gt;− updatedAt : LocalDateTime {updated}&lt;hr&gt;&lt;div style=&quot;font-size:9px;text-align:left&quot;&gt;&lt;b&gt;{contraintes}&lt;/b&gt;&lt;br&gt;unique(dealer, bank, store)&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="293" width="400" x="980" y="1450" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-PartnershipContract" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#FFFFFF;gradientColor=#DCEEFF;strokeColor=#2F75B5;strokeWidth=1.8;shadow=0;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;PartnershipContract&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− contractNumber : String {unique, required}&lt;br&gt;− partnership : DealerBankPartnership [1]&lt;br&gt;− versionNumber : Integer {required}&lt;br&gt;− templateVersion : String {required}&lt;br&gt;− status : PartnershipContractStatusEnum {required}&lt;br&gt;− startDate : LocalDate&lt;br&gt;− endDate : LocalDate&lt;br&gt;− billingModel : PartnershipBillingModelEnum {required}&lt;br&gt;− commissionApplicable : Boolean {required}&lt;br&gt;− commissionType : PartnershipCommissionTypeEnum&lt;br&gt;− commissionValue : BigDecimal&lt;br&gt;− contractTerms : String&lt;br&gt;− terminationConditions : String&lt;br&gt;− specificConditions : String&lt;br&gt;− renderedHtml : String&lt;br&gt;− generatedDocumentPath : String&lt;br&gt;− dealerAcceptedAt : LocalDateTime&lt;br&gt;− bankAcceptedAt : LocalDateTime&lt;br&gt;− sentAt : LocalDateTime&lt;br&gt;− rejectionReason : String&lt;br&gt;− createdAt : LocalDateTime {required, created}&lt;br&gt;− updatedAt : LocalDateTime {required, updated}&lt;hr&gt;&lt;div style=&quot;font-size:9px;text-align:left&quot;&gt;&lt;b&gt;{contraintes}&lt;/b&gt;&lt;br&gt;unique(partnership, versionNumber)&lt;br&gt;unique(contractNumber)&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="449" width="420" x="2430" y="1570" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-ProductPublicationRequest" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#D9ECFF;gradientColor=#B7D8F5;strokeColor=#1F4E79;strokeWidth=2.6;shadow=1;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;ProductPublicationRequest&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− product : DealerProduct [1]&lt;br&gt;− dealer : Dealer [1]&lt;br&gt;− partnership : DealerBankPartnership [1]&lt;br&gt;− bank : Bank [1]&lt;br&gt;− marketplace : Marketplace [1]&lt;br&gt;− store : Store [1]&lt;br&gt;− status : ProductPublicationStatusEnum {required}&lt;br&gt;− rejectionReason : String&lt;br&gt;− active : Boolean {required}&lt;br&gt;− submittedAt : LocalDateTime {created}&lt;br&gt;− processedAt : LocalDateTime&lt;hr&gt;&lt;div style=&quot;font-size:9px;text-align:left&quot;&gt;&lt;b&gt;{contraintes}&lt;/b&gt;&lt;br&gt;unique(product, bank, store)&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="278" width="420" x="3070" y="1050" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-ProductParameterDefinition" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#FFFFFF;gradientColor=#DCEEFF;strokeColor=#2F75B5;strokeWidth=1.8;shadow=0;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;ProductParameterDefinition&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− store : Store [1]&lt;br&gt;− name : String {required}&lt;br&gt;− createdAt : LocalDateTime {created}&lt;br&gt;− updatedAt : LocalDateTime {updated}&lt;hr&gt;&lt;div style=&quot;font-size:9px;text-align:left&quot;&gt;&lt;b&gt;{contraintes}&lt;/b&gt;&lt;br&gt;unique(store, name)&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="173" width="400" x="-1090" y="1390" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-DealerProductParameterValue" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#FFFFFF;gradientColor=#DCEEFF;strokeColor=#2F75B5;strokeWidth=1.8;shadow=0;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;DealerProductParameterValue&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− product : DealerProduct [1]&lt;br&gt;− parameterDefinition : ProductParameterDefinition [1]&lt;br&gt;− value : String&lt;hr&gt;&lt;div style=&quot;font-size:9px;text-align:left&quot;&gt;&lt;b&gt;{contraintes}&lt;/b&gt;&lt;br&gt;unique(product, parameterDefinition)&lt;/div&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="158" width="410" x="-510" y="2050" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-DealerProductDocument" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#FFFFFF;gradientColor=#DCEEFF;strokeColor=#2F75B5;strokeWidth=1.8;shadow=0;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;DealerProductDocument&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− product : DealerProduct [1]&lt;br&gt;− documentType : String {required}&lt;br&gt;− fileName : String {required}&lt;br&gt;− filePath : String {required}&lt;br&gt;− publicDocument : boolean {required}&lt;br&gt;− uploadedAt : LocalDateTime {created}&lt;/div&gt;" vertex="1">
+          <mxGeometry height="173" width="400" x="-400" y="2425" as="geometry" />
+        </mxCell>
+        <mxCell id="entity-DealerProductCatalogImage" parent="1" style="rounded=0;whiteSpace=wrap;html=1;align=left;verticalAlign=top;spacing=9;fontFamily=Arial;fontSize=11;fontColor=#172B4D;fillColor=#FFFFFF;gradientColor=#DCEEFF;strokeColor=#2F75B5;strokeWidth=1.8;shadow=0;gradientDirection=south;" value="&lt;div style=&quot;text-align:center&quot;&gt;&lt;span style=&quot;font-size:10px&quot;&gt;«entity»&lt;/span&gt;&lt;br&gt;&lt;b&gt;DealerProductCatalogImage&lt;/b&gt;&lt;/div&gt;&lt;hr&gt;&lt;div style=&quot;text-align:left&quot;&gt;− id : Long {id, generated}&lt;br&gt;− product : DealerProduct [1]&lt;br&gt;− imageUrl : String {required}&lt;br&gt;− displayOrder : Integer {required}&lt;br&gt;− createdAt : LocalDateTime {created}&lt;/div&gt;" vertex="1">
+          <mxGeometry height="143" width="410" x="490" y="2446" as="geometry" />
+        </mxCell>
+        <mxCell id="e4" edge="1" parent="1" source="entity-Bank" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=diamond;startFill=1;startSize=14;endArrow=none;exitX=1;exitY=0.373;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-Marketplace" value="possède">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l5" connectable="0" parent="e4" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l6" connectable="0" parent="e4" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..1" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e7" edge="1" parent="1" source="entity-Bank" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.627;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-User" value="utilisateurs">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l8" connectable="0" parent="e7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l9" connectable="0" parent="e7" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e10" edge="1" parent="1" source="entity-Dealer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.373;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-User" value="comptes dealer">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l11" connectable="0" parent="e10" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l12" connectable="0" parent="e10" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e13" edge="1" parent="1" source="entity-Store" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0.272;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-ProductParameterDefinition" value="définit le schéma">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l14" connectable="0" parent="e13" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l15" connectable="0" parent="e13" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e16" edge="1" parent="1" source="entity-Store" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=1;entryY=0.272;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-Dealer" value="spécialité">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l17" connectable="0" parent="e16" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l18" connectable="0" parent="e16" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e19" edge="1" parent="1" source="entity-Store" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0.5;exitY=0;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerAccountRequest" value="inscriptions">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l20" connectable="0" parent="e19" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l21" connectable="0" parent="e19" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e22" edge="1" parent="1" source="entity-Dealer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=1;exitY=0.424;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerBankPartnership" value="partenariats">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l23" connectable="0" parent="e22" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l24" connectable="0" parent="e22" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e25" edge="1" parent="1" source="entity-Bank" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0.373;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.627;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerBankPartnership" value="partenariats">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l26" connectable="0" parent="e25" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l27" connectable="0" parent="e25" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e28" edge="1" parent="1" source="entity-Store" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0.576;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.373;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerBankPartnership" value="périmètre">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l29" connectable="0" parent="e28" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l30" connectable="0" parent="e28" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e31" edge="1" parent="1" source="entity-DealerBankPartnership" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=diamond;startFill=1;startSize=14;endArrow=none;exitX=1;exitY=0.627;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.627;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-PartnershipContract" value="versions contrat">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l32" connectable="0" parent="e31" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l33" connectable="0" parent="e31" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e43" edge="1" parent="1" source="entity-Dealer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.373;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerProduct" value="catalogue">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l44" connectable="0" parent="e43" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l45" connectable="0" parent="e43" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e46" edge="1" parent="1" source="entity-Store" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0.424;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.627;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerProduct" value="catégorie">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l47" connectable="0" parent="e46" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l48" connectable="0" parent="e46" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e49" edge="1" parent="1" source="entity-DealerProduct" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=diamond;startFill=1;startSize=14;endArrow=none;exitX=0.373;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerProductParameterValue" value="caractéristiques">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l50" connectable="0" parent="e49" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l51" connectable="0" parent="e49" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e52" edge="1" parent="1" source="entity-ProductParameterDefinition" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerProductParameterValue" value="définition">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l53" connectable="0" parent="e52" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l54" connectable="0" parent="e52" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e55" edge="1" parent="1" source="entity-DealerProduct" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=diamond;startFill=1;startSize=14;endArrow=none;exitX=0.627;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerProductDocument" value="documents">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l56" connectable="0" parent="e55" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l57" connectable="0" parent="e55" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e58" edge="1" parent="1" source="entity-DealerProduct" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=diamond;startFill=1;startSize=14;endArrow=none;exitX=1;exitY=0.627;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-DealerProductCatalogImage" value="galerie">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l59" connectable="0" parent="e58" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l60" connectable="0" parent="e58" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e61" edge="1" parent="1" source="entity-DealerProduct" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=1;exitY=0.373;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.753;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-ProductPublicationRequest" value="demandes publication">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l62" connectable="0" parent="e61" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l63" connectable="0" parent="e61" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e64" edge="1" parent="1" source="entity-Dealer" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=1;exitY=0.576;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.373;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-ProductPublicationRequest" value="soumet">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l65" connectable="0" parent="e64" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l66" connectable="0" parent="e64" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e67" edge="1" parent="1" source="entity-DealerBankPartnership" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=1;exitY=0.373;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.627;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-ProductPublicationRequest" value="autorise">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l68" connectable="0" parent="e67" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l69" connectable="0" parent="e67" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e70" edge="1" parent="1" source="entity-Bank" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=1;exitY=0.627;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-ProductPublicationRequest" value="valide">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l71" connectable="0" parent="e70" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l72" connectable="0" parent="e70" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e73" edge="1" parent="1" source="entity-Marketplace" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=0.5;exitY=1;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-ProductPublicationRequest" value="publie dans">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l74" connectable="0" parent="e73" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l75" connectable="0" parent="e73" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="e76" edge="1" parent="1" source="entity-Store" style="edgeStyle=orthogonalEdgeStyle;rounded=1;orthogonalLoop=1;jettySize=auto;html=1;strokeColor=#2F75B5;strokeWidth=2;startArrow=none;endArrow=none;exitX=1;exitY=0.5;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0;entryY=0.247;entryDx=0;entryDy=0;entryPerimeter=0;fontFamily=Arial;fontSize=10;fontColor=#334155;labelBackgroundColor=#FFFFFF;" target="entity-ProductPublicationRequest" value="store cible">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="l77" connectable="0" parent="e76" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="1" vertex="1">
+          <mxGeometry relative="1" x="-0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="l78" connectable="0" parent="e76" style="edgeLabel;html=1;align=center;verticalAlign=middle;resizable=0;points=[];fontFamily=Arial;fontSize=10;fontStyle=1;labelBackgroundColor=#FFFFFF;" value="0..*" vertex="1">
+          <mxGeometry relative="1" x="0.86" as="geometry">
+            <mxPoint y="-11" as="offset" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t79" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=11;fontStyle=1;fontColor=#334155;" value="Légende — PK clé primaire · FK relation vers une entité · REL collection · ENUM type énuméré" vertex="1">
+          <mxGeometry height="28" width="1060" x="50" y="2555" as="geometry" />
+        </mxCell>
+        <mxCell id="legend80" edge="1" parent="1" style="strokeColor=#44546A;strokeWidth=2;endArrow=none;html=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="60" y="2603" as="sourcePoint" />
+            <mxPoint x="170" y="2603" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t81" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=10;fontColor=#334155;" value="Association JPA" vertex="1">
+          <mxGeometry height="24" width="270" x="185" y="2589" as="geometry" />
+        </mxCell>
+        <mxCell id="legend82" edge="1" parent="1" style="strokeColor=#44546A;strokeWidth=2;startArrow=diamond;startFill=1;endArrow=none;html=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="60" y="2633" as="sourcePoint" />
+            <mxPoint x="170" y="2633" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t83" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=10;fontColor=#334155;" value="Composition / cycle de vie" vertex="1">
+          <mxGeometry height="24" width="270" x="185" y="2619" as="geometry" />
+        </mxCell>
+        <mxCell id="legend84" edge="1" parent="1" style="strokeColor=#7F7F7F;strokeWidth=1.5;dashed=1;dashPattern=6 4;endArrow=none;html=1;" value="">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="60" y="2663" as="sourcePoint" />
+            <mxPoint x="170" y="2663" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="t85" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=10;fontColor=#334155;" value="Référence logique sans FK" vertex="1">
+          <mxGeometry height="24" width="270" x="185" y="2649" as="geometry" />
+        </mxCell>
+        <mxCell id="t86" parent="1" style="text;html=1;whiteSpace=wrap;align=left;verticalAlign=middle;fontFamily=Arial;fontSize=10;fontColor=#50657A;align=right;" value="Chaque classe et chaque connecteur reste modifiable dans draw.io / diagrams.net. Les cardinalités proviennent des mappings JPA; les traits pointillés indiquent des identifiants stockés sans association JPA." vertex="1">
+          <mxGeometry height="54" width="2880" x="660" y="2604" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

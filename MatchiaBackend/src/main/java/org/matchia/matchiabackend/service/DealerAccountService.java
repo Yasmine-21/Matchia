@@ -294,9 +294,16 @@ public class DealerAccountService {
         List<String> protectedDocuments = IntStream.range(0, request.getDocumentUrls().size())
                 .mapToObj(index -> "/api/saas/dealers/requests/" + request.getId() + "/documents/" + index)
                 .toList();
+        String logoUrl = request.getLogoUrl();
+        if (request.getStatus() == DealerRequestStatusEnum.APPROVED) {
+            Optional<Dealer> currentDealer = dealerRepository.findByEmailIgnoreCase(request.getEmail());
+            if (currentDealer.isPresent()) {
+                logoUrl = currentDealer.get().getLogoUrl();
+            }
+        }
         return new DealerDtos.AccountRequestView(request.getId(), request.getCompanyName(), request.getRegistrationNumber(),
                 request.getAddress(), request.getContactPerson(), request.getEmail(), request.getPhone(), request.getWebsite(),
-                request.getLogoUrl(),
+                logoUrl,
                 request.getContactPhotoUrl(),
                 request.getStore().getId(), request.getStore().getName(), protectedDocuments, request.getStatus(),
                 request.getRejectionReason(), request.getSubmittedAt(), request.getProcessedAt());

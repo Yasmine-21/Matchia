@@ -79,4 +79,29 @@ class EmailServiceTest {
         assertThat(emailService.sendFinancingDecisionEmail(financing)).isFalse();
         verify(auditLogger, org.mockito.Mockito.atLeast(9)).logSystemAsync(any(AuditLogRequest.class), eq("EMAIL_AUTOMATION"));
     }
+
+    @Test
+    void buildsBackOfficeCredentialsLinkOnTheTenantFrontendOrigin() {
+        Request request = new Request();
+        request.setMarketplaceSlug("zitouna");
+
+        ReflectionTestUtils.setField(emailService, "frontendUrl", "http://lvh.me:5173");
+        assertThat((String) ReflectionTestUtils.invokeMethod(emailService, "buildBackOfficeUrl", request))
+                .isEqualTo("http://zitouna.lvh.me:5173/connexion");
+
+        ReflectionTestUtils.setField(emailService, "frontendUrl", "https://matchia.tn");
+        assertThat((String) ReflectionTestUtils.invokeMethod(emailService, "buildBackOfficeUrl", request))
+                .isEqualTo("https://zitouna.matchia.tn/connexion");
+    }
+
+    @Test
+    void preservesResetPasswordLinkOnConfiguredFrontendOrigin() {
+        ReflectionTestUtils.setField(emailService, "frontendUrl", "http://lvh.me:5173");
+
+        assertThat((String) ReflectionTestUtils.invokeMethod(
+                emailService,
+                "sanitizeEmailActionUrl",
+                "http://lvh.me:5173/reinitialiser-mot-de-passe?token=secure-token"
+        )).isEqualTo("http://lvh.me:5173/reinitialiser-mot-de-passe?token=secure-token");
+    }
 }

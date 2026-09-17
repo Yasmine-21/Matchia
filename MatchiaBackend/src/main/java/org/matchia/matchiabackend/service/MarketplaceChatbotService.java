@@ -3,9 +3,10 @@ package org.matchia.matchiabackend.service;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.matchia.matchiabackend.dto.DealerDtos;
 import org.matchia.matchiabackend.dto.MarketplaceChatbotRequest;
 import org.matchia.matchiabackend.dto.MarketplaceChatbotResponse;
+import org.matchia.matchiabackend.entity.DealerProduct;
+import org.matchia.matchiabackend.entity.DealerProductParameterValue;
 import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.MarketplaceStore;
 import org.matchia.matchiabackend.entity.ModuleStore;
@@ -13,9 +14,13 @@ import org.matchia.matchiabackend.entity.ModuleStoreParameter;
 import org.matchia.matchiabackend.entity.Product;
 import org.matchia.matchiabackend.entity.ProductParameterValue;
 import org.matchia.matchiabackend.entity.enums.DealerPartnershipStatusEnum;
+import org.matchia.matchiabackend.entity.enums.DealerProductStatusEnum;
+import org.matchia.matchiabackend.entity.enums.DealerStatusEnum;
+import org.matchia.matchiabackend.entity.enums.ProductPublicationStatusEnum;
 import org.matchia.matchiabackend.repository.DealerBankPartnershipRepository;
 import org.matchia.matchiabackend.repository.MarketplaceStoreRepository;
 import org.matchia.matchiabackend.repository.ModuleStoreRepository;
+import org.matchia.matchiabackend.repository.ProductPublicationRequestRepository;
 import org.matchia.matchiabackend.repository.ProductRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -31,6 +36,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -48,19 +55,31 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 @Slf4j
 public class MarketplaceChatbotService {
-    private static final int MAX_PRODUCTS = 5;
+    private static final int MAX_PRODUCTS = 10;
+    private static final int MAX_PRODUCT_SPECIFICATIONS = 10;
+    private static final int MAX_COMPARISON_DETAILS = 8;
     private static final Pattern MAX_PRICE = Pattern.compile("(?:sous|moins de|under)\\s+([0-9][0-9 .,.]*)", Pattern.CASE_INSENSITIVE);
     private static final Pattern AMOUNT_WITH_CURRENCY = Pattern.compile("([0-9][0-9 .,.]*)\\s*(?:dt|tnd|dinar(?:s)?)", Pattern.CASE_INSENSITIVE);
+    private static final Pattern TOTAL_AMOUNT = Pattern.compile("(?:montant|prix|cout|coût|valeur|simulation\\s+de)\\s*(?:de|du|d['’])?\\s*([0-9][0-9 .,.]*)\\s*(?:dt|tnd|dinar(?:s)?)", Pattern.CASE_INSENSITIVE);
     private static final Pattern DURATION_MONTHS = Pattern.compile("(?:sur|pendant|duree|durée|de)\\s*(\\d{1,3})\\s*mois", Pattern.CASE_INSENSITIVE);
     private static final Pattern CONTRIBUTION_AMOUNT = Pattern.compile("(?:apport|avance)\\s*(?:de)?\\s*([0-9][0-9 .,.]*)", Pattern.CASE_INSENSITIVE);
-    private static final Set<String> STOP_WORDS = Set.of("quel", "quelle", "quels", "quelles", "produit", "produits", "avec", "pour", "dans", "vous", "avez", "show", "moi", "liste", "disponible", "disponibles", "store", "magasin", "compare", "comparer", "prix", "est", "sont", "the", "and", "des", "les", "une", "un", "du", "de", "la", "le", "under", "moins", "sous", "cherche", "chercher", "recherche", "voudrais", "veux", "souhaite", "propose", "proposez", "montre", "montrez", "donne", "donnez", "peux", "peut", "avoir", "connais", "connaitre", "information", "informations", "aide", "bonjour", "merci", "svp", "silvousplait");
+    private static final Set<String> STOP_WORDS = Set.of(
+            "quel", "quelle", "quels", "quelles", "produit", "produits", "avec", "pour", "dans", "vous", "avez",
+            "show", "moi", "liste", "catalogue", "disponible", "disponibles", "store", "magasin", "compare", "comparer",
+            "comparaison", "difference", "differences", "versus", "contre", "entre", "prix", "coute", "cout", "est", "sont",
+            "the", "and", "des", "les", "une", "un", "du", "de", "la", "le", "et", "ou", "under", "moins", "plus",
+            "cher", "chere", "meilleur", "meilleure", "cherche", "chercher", "recherche", "voudrais", "veux", "souhaite",
+            "propose", "proposez", "montre", "montrez", "donne", "donnez", "peux", "peut", "avoir", "connais", "connaitre",
+            "information", "informations", "detail", "details", "fiche", "description", "caracteristique", "caracteristiques",
+            "specification", "specifications", "simulation", "simuler", "mensualite", "credit", "financement", "apport", "avance",
+            "duree", "mois", "remboursement", "aide", "bonjour", "merci", "svp", "silvousplait");
 
     private final MarketplaceChatbotContextResolver contextResolver;
     private final MarketplaceStoreRepository marketplaceStoreRepository;
     private final ProductRepository productRepository;
     private final ModuleStoreRepository moduleStoreRepository;
     private final DealerBankPartnershipRepository partnershipRepository;
-    private final DealerProductService dealerProductService;
+    private final ProductPublicationRequestRepository publicationRepository;
     private final Map<String, ConversationMemory> conversations = new ConcurrentHashMap<>();
 
     @Transactional(readOnly = true)
@@ -68,6 +87,9 @@ public class MarketplaceChatbotService {
         String message = request == null || request.message() == null ? "" : request.message().trim();
         if (message.isBlank()) {
             return new MarketplaceChatbotResponse("Bonjour. Posez-moi une question sur les produits, les stores ou les options de financement de cette marketplace.", "GENERAL_MARKETPLACE_HELP");
+        }
+        if (isGreeting(message)) {
+            return new MarketplaceChatbotResponse("Bonjour, comment puis-je vous aider ?", "GREETING");
         }
         if (containsSensitiveRequest(message)) {
             return new MarketplaceChatbotResponse("Je ne peux pas acceder aux donnees privees, aux comptes, aux identifiants ou aux informations d'une autre marketplace.", "REFUSED");
@@ -84,7 +106,7 @@ public class MarketplaceChatbotService {
             case FINANCING_PARAMETERS, SIMULATION -> new MarketplaceChatbotResponse(financingAnswer(marketplace, store, message, intent, memory), intent.name());
             case PRODUCT_COMPARISON -> new MarketplaceChatbotResponse(comparisonAnswer(marketplace, store, message, memory), intent.name());
             case DEALER_INFORMATION -> new MarketplaceChatbotResponse(dealerAnswer(marketplace, store, message), intent.name());
-            case PRODUCT_AVAILABILITY, PRODUCT_DETAILS, PRODUCT_SEARCH -> new MarketplaceChatbotResponse(productAnswer(marketplace, store, message, intent, memory), intent.name());
+            case PRODUCT_AVAILABILITY, PRODUCT_PRICE, PRODUCT_DETAILS, PRODUCT_SEARCH -> new MarketplaceChatbotResponse(productAnswer(marketplace, store, message, intent, memory), intent.name());
             case GENERAL_MARKETPLACE_HELP -> new MarketplaceChatbotResponse(generalAnswer(marketplace, store), intent.name());
         };
     }
@@ -133,14 +155,38 @@ public class MarketplaceChatbotService {
                 + ".";
         if (intent == Intent.FINANCING_PARAMETERS) return conditions;
 
-        SimulationInput input = simulationInput(message, publicProducts(marketplace, store), memory, configuration);
+        List<PublicProduct> products = publicProducts(marketplace, store);
+        List<PublicProduct> selectedProducts = requestedProducts(products, message, memory);
+        BigDecimal explicitAmount = financingAmountInMessage(message);
+        if (selectedProducts.size() > 1 && explicitAmount == null) {
+            memory.products = selectedProducts;
+            return "Plusieurs produits correspondent à votre demande : "
+                    + selectedProducts.stream().limit(5).map(PublicProduct::name).reduce((left, right) -> left + ", " + right).orElse("")
+                    + ". Précisez le produit à simuler.";
+        }
+
+        PublicProduct selectedProduct = selectedProducts.size() == 1 ? selectedProducts.get(0) : null;
+        SimulationInput input = simulationInput(message, selectedProduct, explicitAmount, configuration);
         if (input.amount == null) {
             return conditions + " Pour calculer une mensualité, indiquez un produit ou un montant, par exemple : « simulation de 20 000 DT sur 36 mois » .";
         }
+        if (input.contribution.compareTo(input.amount) >= 0) {
+            return "L'apport doit être inférieur au prix ou au montant à financer de " + money(input.amount) + ".";
+        }
+        if (selectedProduct != null) memory.products = List.of(selectedProduct);
         SimulationEstimate estimate = estimate(input, configuration);
-        String result = "Estimation indicative pour " + money(input.amount) + " sur " + input.durationMonths + " mois"
+        String subject = selectedProduct == null
+                ? "un montant de " + money(input.amount)
+                : selectedProduct.name + " au prix de " + money(input.amount);
+        String result = "Estimation indicative pour " + subject + " sur " + input.durationMonths + " mois"
                 + " : apport " + money(estimate.contribution) + ", montant financé " + money(estimate.financedAmount)
                 + ", mensualité estimée " + money(estimate.monthlyPayment) + ".";
+        if (input.contributionAdjusted) {
+            result += " L'apport indiqué était inférieur au minimum ; l'apport minimum de " + money(input.minimumContribution) + " a été appliqué.";
+        }
+        if (input.durationAdjusted) {
+            result += " La durée demandée a été ajustée à " + input.durationMonths + " mois selon les limites du simulateur.";
+        }
         if (estimate.fees.signum() > 0) result += " Frais de dossier : " + money(estimate.fees) + (configuration.feesFinanced ? " (inclus dans le financement)." : " (à régler séparément).");
         if (configuration.maximumFinancingAmount != null && estimate.requestedAmount.compareTo(configuration.maximumFinancingAmount) > 0) {
             result += " Attention : le montant demandé dépasse le plafond configuré de " + money(configuration.maximumFinancingAmount) + ".";
@@ -150,14 +196,26 @@ public class MarketplaceChatbotService {
 
     private String productAnswer(Marketplace marketplace, MarketplaceStore store, String message, Intent intent, ConversationMemory memory) {
         if (store == null) return "Choisissez un store pour rechercher ses produits disponibles.";
-        List<PublicProduct> matches = matchingProducts(publicProducts(marketplace, store), message);
+        List<PublicProduct> allProducts = publicProducts(marketplace, store);
+        List<PublicProduct> matches = requestedProducts(allProducts, message, memory);
         if (matches.isEmpty()) return "Je n'ai trouve aucun produit correspondant actuellement disponible dans cette marketplace.";
         memory.products = matches;
         if (intent == Intent.PRODUCT_AVAILABILITY && matches.size() == 1) {
             PublicProduct product = matches.get(0);
-            return product.name + " : " + product.availability + ".";
+            return availabilityDetails(product);
         }
-        return formatProducts(matches, intent == Intent.PRODUCT_DETAILS);
+        if (intent == Intent.PRODUCT_PRICE && matches.size() == 1) {
+            PublicProduct product = matches.get(0);
+            return product.name + " : " + money(product.price) + ".";
+        }
+        if (intent == Intent.PRODUCT_DETAILS) {
+            if (matches.size() == 1) return formatProductCharacteristics(matches.get(0));
+            return "Plusieurs produits correspondent à votre demande : "
+                    + matches.stream().limit(5).map(PublicProduct::name).reduce((left, right) -> left + ", " + right).orElse("")
+                    + ". Précisez le nom du produit pour obtenir sa fiche complète.";
+        }
+        boolean unfilteredList = searchTerms(message).isEmpty() && maximumPrice(message) == null;
+        return formatProductList(matches, unfilteredList ? allProducts.size() : matches.size());
     }
 
     private String dealerAnswer(Marketplace marketplace, MarketplaceStore store, String message) {
@@ -181,14 +239,16 @@ public class MarketplaceChatbotService {
                 .anyMatch(assignment -> assignment.getModule() != null && active(assignment.getEnabled(), assignment.getVisible())
                         && normalize(assignment.getModule().getName()).contains("compar"));
         if (!comparatorActive) return "Le comparateur n'est pas actif pour ce store.";
-        List<PublicProduct> matches = matchingProducts(publicProducts(marketplace, store), message);
-        if (matches.size() < 2 && referencesPreviousProducts(message)) matches = memory.products;
+        List<PublicProduct> matches = requestedProducts(publicProducts(marketplace, store), message, memory);
         if (matches.size() < 2) return "J'ai besoin de deux produits publies dans ce store pour lancer une comparaison.";
         PublicProduct first = matches.get(0);
         PublicProduct second = matches.get(1);
+        memory.products = List.of(first, second);
         List<String> differences = comparisonDetails(first, second);
         String answer = "Comparaison de " + first.name + " (" + money(first.price) + ") et " + second.name + " (" + money(second.price) + ").";
         if (!differences.isEmpty()) answer += " Différences relevées : " + String.join(" ; ", differences) + ".";
+        String conclusion = comparisonConclusion(first, second);
+        if (!conclusion.isBlank()) answer += " " + conclusion;
         return answer + " Ouvrez le comparateur pour visualiser toutes les caractéristiques côte à côte.";
     }
 
@@ -202,20 +262,29 @@ public class MarketplaceChatbotService {
         productRepository.findByBank_IdOrderByCreatedAtDesc(marketplace.getBank().getId()).stream()
                 .filter(product -> product.getStore() != null && product.getStore().getId().equals(store.getStore().getId()))
                 .map(this::fromBankProduct).forEach(products::add);
-        dealerProductService.publicProducts(marketplace.getBank().getSlug(), store.getStore().getId()).stream()
-                .map(this::fromDealerProduct).forEach(products::add);
+        publicationRepository.findByMarketplaceIdAndStoreIdAndStatusAndActiveTrue(
+                        marketplace.getId(), store.getStore().getId(), ProductPublicationStatusEnum.APPROVED).stream()
+                .filter(publication -> publication.getPartnership() != null
+                        && publication.getPartnership().getStatus() == DealerPartnershipStatusEnum.ACTIVE)
+                .filter(publication -> publication.getProduct() != null
+                        && publication.getProduct().getStatus() == DealerProductStatusEnum.ACTIVE)
+                .filter(publication -> publication.getDealer() != null
+                        && publication.getDealer().getStatus() == DealerStatusEnum.ACTIVE)
+                .map(publication -> fromDealerProduct(publication.getProduct()))
+                .forEach(products::add);
         return products;
     }
 
     private PublicProduct fromBankProduct(Product product) {
-        return new PublicProduct(product.getName(), product.getDescription(), product.getPrice(), null, "Disponible", specifications(product.getParameterValues()));
+        return new PublicProduct(product.getName(), product.getDescription(), product.getPrice(), null,
+                "Disponible", null, specifications(product.getParameterValues()));
     }
 
-    private PublicProduct fromDealerProduct(DealerDtos.ProductView product) {
-        String availability = product.availableStock() == null ? "Disponibilite a confirmer" : product.availableStock() <= 0 ? "Rupture de stock" : product.availableStock() <= 3 ? "Disponibilite limitee" : "Disponible";
-        List<Specification> specifications = product.parameterValues() == null ? List.of() : product.parameterValues().stream()
-                .map(value -> new Specification(value.name(), value.value())).toList();
-        return new PublicProduct(product.name(), product.description(), product.price(), product.dealerName(), availability, specifications);
+    private PublicProduct fromDealerProduct(DealerProduct product) {
+        String availability = product.getAvailableStock() == null ? "Disponibilite a confirmer" : product.getAvailableStock() <= 0 ? "Rupture de stock" : product.getAvailableStock() <= 3 ? "Disponibilite limitee" : "Disponible";
+        String dealerName = product.getDealer() == null ? null : product.getDealer().getCompanyName();
+        return new PublicProduct(product.getName(), product.getDescription(), product.getPrice(), dealerName,
+                availability, product.getAvailableStock(), dealerSpecifications(product.getParameterValues()));
     }
 
     private List<Specification> specifications(Collection<ProductParameterValue> values) {
@@ -224,24 +293,59 @@ public class MarketplaceChatbotService {
                 .map(value -> new Specification(value.getParameterDefinition().getName(), value.getValue())).toList();
     }
 
+    private List<Specification> dealerSpecifications(Collection<DealerProductParameterValue> values) {
+        if (values == null) return List.of();
+        return values.stream().filter(value -> value != null && value.getParameterDefinition() != null)
+                .map(value -> new Specification(value.getParameterDefinition().getName(), value.getValue())).toList();
+    }
+
     private List<PublicProduct> matchingProducts(List<PublicProduct> products, String message) {
         BigDecimal maximumPrice = maximumPrice(message);
         Set<String> terms = searchTerms(message);
+        Comparator<PublicProduct> ordering = Comparator
+                .comparingInt((PublicProduct product) -> score(product, terms)).reversed()
+                .thenComparing(product -> product.price, Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(product -> product.name, String.CASE_INSENSITIVE_ORDER);
+        String normalized = normalize(message);
+        if (containsAny(normalized, "moins cher", "plus abordable", "prix bas")) {
+            ordering = Comparator.comparing((PublicProduct product) -> product.price, Comparator.nullsLast(Comparator.naturalOrder()))
+                    .thenComparing(product -> product.name, String.CASE_INSENSITIVE_ORDER);
+        } else if (containsAny(normalized, "plus cher", "prix eleve")) {
+            ordering = Comparator.comparing((PublicProduct product) -> product.price, Comparator.nullsLast(Comparator.reverseOrder()))
+                    .thenComparing(product -> product.name, String.CASE_INSENSITIVE_ORDER);
+        }
         return products.stream()
                 .filter(product -> maximumPrice == null || product.price == null || product.price.compareTo(maximumPrice) <= 0)
                 .filter(product -> terms.isEmpty() || score(product, terms) > 0)
-                .sorted(Comparator.comparingInt((PublicProduct product) -> score(product, terms)).reversed().thenComparing(product -> product.name))
+                .sorted(ordering)
                 .limit(MAX_PRODUCTS).toList();
+    }
+
+    private List<PublicProduct> requestedProducts(List<PublicProduct> products, String message, ConversationMemory memory) {
+        List<PublicProduct> previous = previousProducts(message, memory);
+        if (!previous.isEmpty()) return previous;
+        return matchingProducts(products, message);
     }
 
     private int score(PublicProduct product, Set<String> terms) {
         if (terms.isEmpty()) return 1;
-        String searchable = normalize(product.name + " " + product.description + " " + product.specifications.stream().map(spec -> spec.name + " " + spec.value).reduce("", (left, right) -> left + " " + right));
+        String normalizedName = normalize(product.name);
+        String normalizedDescription = normalize(product.description);
+        String normalizedDealer = normalize(product.dealerName);
+        String normalizedSpecifications = normalize(product.specifications.stream()
+                .map(spec -> spec.name + " " + spec.value).reduce("", (left, right) -> left + " " + right));
+        String searchable = String.join(" ", normalizedName, normalizedDescription, normalizedDealer, normalizedSpecifications);
         Set<String> searchableTerms = new HashSet<>(List.of(searchable.split("\\s+")));
         int score = 0;
         for (String term : terms) {
-            if (searchable.contains(term)) {
+            if (normalizedName.contains(term)) {
+                score += 8;
+            } else if (normalizedDescription.contains(term)) {
                 score += 3;
+            } else if (normalizedSpecifications.contains(term)) {
+                score += 2;
+            } else if (normalizedDealer.contains(term)) {
+                score += 1;
             } else if (searchableTerms.stream().anyMatch(candidate -> fuzzyTokenMatches(term, candidate))) {
                 score += 1;
             }
@@ -268,43 +372,86 @@ public class MarketplaceChatbotService {
         } catch (NumberFormatException ignored) { return null; }
     }
 
-    private String formatProducts(List<PublicProduct> products, boolean includeSpecifications) {
-        StringBuilder answer = new StringBuilder("Voici les produits disponibles : ");
+    private String formatProductList(List<PublicProduct> products, int totalProducts) {
+        StringBuilder answer = new StringBuilder("Produits disponibles (" + totalProducts + ") : ");
         for (int index = 0; index < products.size(); index++) {
             PublicProduct product = products.get(index);
             if (index > 0) answer.append(" ; ");
             answer.append(product.name).append(" — ").append(money(product.price)).append(" (").append(product.availability).append(")");
-            if (includeSpecifications && !product.specifications.isEmpty()) {
-                answer.append(" : ").append(product.specifications.stream().limit(6)
-                        .map(spec -> spec.name + " " + spec.value).reduce((left, right) -> left + ", " + right).orElse(""));
-            }
         }
+        if (totalProducts > products.size()) answer.append(". Affichage des ").append(products.size()).append(" premiers produits");
         return answer.append('.').toString();
     }
 
+    private String formatProductCharacteristics(PublicProduct product) {
+        StringBuilder answer = new StringBuilder("Détails de ").append(product.name).append(". Prix : ").append(money(product.price)).append('.');
+        if (product.dealerName != null && !product.dealerName.isBlank()) {
+            answer.append(" Concessionnaire : ").append(product.dealerName).append('.');
+        }
+        if (product.description != null && !product.description.isBlank()) {
+            answer.append(" Description : ").append(product.description.trim()).append('.');
+        }
+        if (product.specifications == null || product.specifications.isEmpty()) {
+            return answer.append(" Aucune caractéristique détaillée n'est renseignée.").toString();
+        }
+        return answer.append(" Caractéristiques : ")
+                .append(product.specifications.stream().limit(MAX_PRODUCT_SPECIFICATIONS)
+                .map(specification -> specification.name + " : " + specification.value)
+                .reduce((left, right) -> left + " ; " + right).orElse(""))
+                .append('.').toString();
+    }
+
+    private String availabilityDetails(PublicProduct product) {
+        String answer = product.name + " : " + product.availability;
+        if (product.availableStock != null) answer += " (" + product.availableStock + " unité(s) en stock)";
+        if (product.dealerName != null && !product.dealerName.isBlank()) answer += ", proposé par " + product.dealerName;
+        return answer + ".";
+    }
+
     private List<String> comparisonDetails(PublicProduct first, PublicProduct second) {
-        Map<String, String> firstSpecifications = specificationMap(first.specifications);
-        Map<String, String> secondSpecifications = specificationMap(second.specifications);
+        Map<String, Specification> firstSpecifications = specificationMap(first.specifications);
+        Map<String, Specification> secondSpecifications = specificationMap(second.specifications);
         List<String> details = new ArrayList<>();
         if (first.price != null && second.price != null && first.price.compareTo(second.price) != 0) {
             details.add("prix : " + money(first.price) + " contre " + money(second.price));
         }
-        for (Map.Entry<String, String> entry : firstSpecifications.entrySet()) {
-            String other = secondSpecifications.get(entry.getKey());
-            if (other != null && !normalize(other).equals(normalize(entry.getValue()))) {
-                details.add(entry.getKey() + " : " + entry.getValue() + " contre " + other);
+        if (!normalize(first.availability).equals(normalize(second.availability))) {
+            details.add("disponibilité : " + first.availability + " contre " + second.availability);
+        }
+        if (first.dealerName != null && second.dealerName != null && !normalize(first.dealerName).equals(normalize(second.dealerName))) {
+            details.add("concessionnaire : " + first.dealerName + " contre " + second.dealerName);
+        }
+
+        Set<String> specificationKeys = new LinkedHashSet<>();
+        specificationKeys.addAll(firstSpecifications.keySet());
+        specificationKeys.addAll(secondSpecifications.keySet());
+        for (String key : specificationKeys) {
+            Specification firstValue = firstSpecifications.get(key);
+            Specification secondValue = secondSpecifications.get(key);
+            String left = firstValue == null ? "non communiqué" : firstValue.value;
+            String right = secondValue == null ? "non communiqué" : secondValue.value;
+            if (!normalize(left).equals(normalize(right))) {
+                String label = firstValue != null ? firstValue.name : secondValue.name;
+                details.add(label + " : " + left + " contre " + right);
             }
-            if (details.size() == 5) break;
+            if (details.size() == MAX_COMPARISON_DETAILS) break;
         }
         return details;
     }
 
-    private Map<String, String> specificationMap(List<Specification> specifications) {
-        Map<String, String> values = new java.util.LinkedHashMap<>();
+    private String comparisonConclusion(PublicProduct first, PublicProduct second) {
+        if (first.price == null || second.price == null || first.price.compareTo(second.price) == 0) return "";
+        PublicProduct cheaper = first.price.compareTo(second.price) < 0 ? first : second;
+        BigDecimal difference = first.price.subtract(second.price).abs();
+        return cheaper.name + " est le moins cher, avec un écart de " + money(difference) + ". Le meilleur choix dépend ensuite des caractéristiques recherchées.";
+    }
+
+    private Map<String, Specification> specificationMap(List<Specification> specifications) {
+        Map<String, Specification> values = new LinkedHashMap<>();
         if (specifications == null) return values;
         for (Specification specification : specifications) {
             if (specification == null || specification.name == null || specification.value == null) continue;
-            values.putIfAbsent(normalize(specification.name), specification.value);
+            values.putIfAbsent(normalize(specification.name), specification);
         }
         return values;
     }
@@ -318,7 +465,10 @@ public class MarketplaceChatbotService {
         List<ModuleStoreParameter> parameters = simulator.getParameters() == null ? List.of() : simulator.getParameters();
         BigDecimal annualRate = parameterNumber(parameters, "annualinterestrate", "interestrate", "tauxinteret", "taux");
         BigDecimal minContributionRate = parameterNumber(parameters, "minimumcontributionrate", "minimumcontributionpercentage", "contributionminpercentage", "apportminpourcentage");
-        BigDecimal minContributionAmount = parameterNumber(parameters, "minimumcontributionamount", "contributionminamount", "apportminmontant", "apportmin");
+        BigDecimal minContributionAmount = parameterNumber(parameters, "minimumcontributionamount", "contributionminamount", "apportminmontant", "apportminpropre");
+        if (minContributionAmount == null) {
+            minContributionAmount = parameterNumberExact(parameters, "apportmin", "minimumcontribution");
+        }
         BigDecimal minDuration = parameterNumber(parameters, "mindurationmonths", "minimumdurationmonths", "minimumduration", "dureeminimum", "dureemin");
         BigDecimal maxDuration = parameterNumber(parameters, "maxdurationmonths", "maximumdurationmonths", "maximumduration", "dureemaximum", "dureemax");
         BigDecimal feeAmount = parameterNumber(parameters, "filefeeamount", "filefeesamount", "fraisdossiermontant", "processingfeeamount");
@@ -343,6 +493,24 @@ public class MarketplaceChatbotService {
 
     private BigDecimal parameterNumber(List<ModuleStoreParameter> parameters, String... aliases) {
         String value = parameterText(parameters, aliases);
+        return decimalParameter(value);
+    }
+
+    private BigDecimal parameterNumberExact(List<ModuleStoreParameter> parameters, String... aliases) {
+        for (ModuleStoreParameter parameter : parameters) {
+            if (parameter == null) continue;
+            String code = normalize(parameter.getCode()).replace(" ", "");
+            String name = normalize(parameter.getName()).replace(" ", "");
+            for (String alias : aliases) {
+                if ((code.equals(alias) || name.equals(alias)) && parameter.getValue() != null && !parameter.getValue().isBlank()) {
+                    return decimalParameter(parameter.getValue());
+                }
+            }
+        }
+        return null;
+    }
+
+    private BigDecimal decimalParameter(String value) {
         if (value == null || value.isBlank()) return null;
         try {
             String cleaned = value.trim().replaceAll("\\s", "").replaceAll("[^0-9,.-]", "");
@@ -363,18 +531,19 @@ public class MarketplaceChatbotService {
         return null;
     }
 
-    private SimulationInput simulationInput(String message, List<PublicProduct> products, ConversationMemory memory, FinancingConfiguration configuration) {
-        List<PublicProduct> matches = matchingProducts(products, message);
-        if (matches.isEmpty() && referencesPreviousProducts(message)) matches = memory.products;
-        BigDecimal amount = amountInMessage(message);
-        if (amount == null && matches.size() == 1) amount = matches.get(0).price;
-        int duration = integerInMessage(DURATION_MONTHS, message, configuration.minDurationMonths);
-        duration = Math.min(Math.max(duration, configuration.minDurationMonths), configuration.maxDurationMonths);
-        BigDecimal contribution = amountInMatcher(CONTRIBUTION_AMOUNT, message);
-        if (contribution == null && amount != null) contribution = configuration.minContributionAmount == null
+    private SimulationInput simulationInput(String message, PublicProduct product, BigDecimal explicitAmount, FinancingConfiguration configuration) {
+        BigDecimal amount = product != null && product.price != null ? product.price : explicitAmount;
+        int requestedDuration = integerInMessage(DURATION_MONTHS, message, configuration.minDurationMonths);
+        int duration = Math.min(Math.max(requestedDuration, configuration.minDurationMonths), configuration.maxDurationMonths);
+        BigDecimal providedContribution = amountInMatcher(CONTRIBUTION_AMOUNT, message);
+        BigDecimal minimumContribution = amount == null ? BigDecimal.ZERO : configuration.minContributionAmount == null
                 ? amount.multiply(configuration.minContributionRate).divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP)
                 : configuration.minContributionAmount;
-        return new SimulationInput(amount, duration, contribution == null ? BigDecimal.ZERO : contribution.max(BigDecimal.ZERO));
+        BigDecimal contribution = providedContribution == null ? minimumContribution : providedContribution.max(BigDecimal.ZERO);
+        boolean contributionAdjusted = providedContribution != null && providedContribution.compareTo(minimumContribution) < 0;
+        if (contributionAdjusted) contribution = minimumContribution;
+        return new SimulationInput(amount, duration, contribution, minimumContribution,
+                requestedDuration != duration, contributionAdjusted);
     }
 
     private SimulationEstimate estimate(SimulationInput input, FinancingConfiguration configuration) {
@@ -389,9 +558,17 @@ public class MarketplaceChatbotService {
         return new SimulationEstimate(requestedAmount, input.contribution, fees, financedAmount, BigDecimal.valueOf(payment).setScale(2, RoundingMode.HALF_UP));
     }
 
-    private BigDecimal amountInMessage(String message) {
-        Matcher matcher = AMOUNT_WITH_CURRENCY.matcher(message);
-        return matcher.find() ? parseAmount(matcher.group(1)) : null;
+    private BigDecimal financingAmountInMessage(String message) {
+        Matcher total = TOTAL_AMOUNT.matcher(message);
+        if (total.find()) return parseAmount(total.group(1));
+
+        BigDecimal contribution = amountInMatcher(CONTRIBUTION_AMOUNT, message);
+        Matcher amount = AMOUNT_WITH_CURRENCY.matcher(message);
+        while (amount.find()) {
+            BigDecimal candidate = parseAmount(amount.group(1));
+            if (candidate != null && (contribution == null || candidate.compareTo(contribution) != 0)) return candidate;
+        }
+        return null;
     }
 
     private BigDecimal amountInMatcher(Pattern pattern, String message) {
@@ -422,6 +599,12 @@ public class MarketplaceChatbotService {
         return List.of("password", "motdepasse", "token", "jwt", "utilisateur", "users", "financingrequest", "demandedefinancement", "basededonnees", "database", "autrebanque", "allbanks").stream().anyMatch(normalized::contains);
     }
 
+    private boolean isGreeting(String message) {
+        String normalized = normalize(message);
+        return Set.of("bonjour", "salut", "hello", "bonsoir", "coucou", "bonjour chatbot", "salut chatbot")
+                .contains(normalized);
+    }
+
     private ConversationMemory conversationFor(String conversationId, Marketplace marketplace, MarketplaceStore store) {
         if (conversationId == null || !conversationId.matches("[A-Za-z0-9_-]{8,100}")) return ConversationMemory.empty();
         String key = marketplace.getId() + ":" + (store == null ? "general" : store.getId()) + ":" + conversationId;
@@ -431,19 +614,36 @@ public class MarketplaceChatbotService {
 
     private boolean referencesPreviousProducts(String message) {
         String normalized = normalize(message);
-        return containsAny(normalized, "premier", "deuxpremier", "first", "these", "ceuxci");
+        return containsAny(normalized, "premier", "deuxieme", "second", "dernier", "ce produit", "celui ci",
+                "ces produits", "les deux", "precedent", "first", "second", "these", "ceux ci");
+    }
+
+    private List<PublicProduct> previousProducts(String message, ConversationMemory memory) {
+        if (!referencesPreviousProducts(message) || memory == null || memory.products == null || memory.products.isEmpty()) return List.of();
+        String normalized = normalize(message);
+        if (containsAny(normalized, "les deux", "ces produits", "ceux ci", "deux premier")) {
+            return memory.products.stream().limit(2).toList();
+        }
+        if (containsAny(normalized, "deuxieme", "second") && memory.products.size() > 1) {
+            return List.of(memory.products.get(1));
+        }
+        if (containsAny(normalized, "dernier") && !memory.products.isEmpty()) {
+            return List.of(memory.products.get(memory.products.size() - 1));
+        }
+        return List.of(memory.products.get(0));
     }
 
     private Intent intentOf(String message) {
         String normalized = normalize(message);
-        if (containsAnyFuzzy(normalized, "comparer", "comparaison", "meilleur", "moins cher")) return Intent.PRODUCT_COMPARISON;
-        if (containsAnyFuzzy(normalized, "simuler", "simulation", "mensualite", "remboursement", "duree")) return Intent.SIMULATION;
+        if (containsAnyFuzzy(normalized, "comparer", "comparaison", "difference", "versus", "meilleur", "moins cher")) return Intent.PRODUCT_COMPARISON;
+        if (containsAnyFuzzy(normalized, "simuler", "simulation", "mensualite", "remboursement", "duree", "credit", "combien par mois", "echeance")) return Intent.SIMULATION;
         if (containsAnyFuzzy(normalized, "taux", "apport", "frais", "financement")) return Intent.FINANCING_PARAMETERS;
         if (containsAnyFuzzy(normalized, "concessionnaire", "dealer", "vendeur", "propose par", "fournit")) return Intent.DEALER_INFORMATION;
         if (containsAnyFuzzy(normalized, "stock", "disponibilite", "rupture")) return Intent.PRODUCT_AVAILABILITY;
-        if (containsAnyFuzzy(normalized, "caracteristique", "specification", "ram", "batterie", "surface", "transmission", "marque", "modele", "detail")) return Intent.PRODUCT_DETAILS;
+        if (containsAnyFuzzy(normalized, "prix", "coute")) return Intent.PRODUCT_PRICE;
+        if (containsAnyFuzzy(normalized, "caracteristique", "specification", "ram", "batterie", "surface", "transmission", "marque", "modele", "detail", "fiche")) return Intent.PRODUCT_DETAILS;
         if (containsAnyFuzzy(normalized, "store", "magasin", "marketplace", "banque", "service")) return Intent.STORE_INFORMATION;
-        if (containsAnyFuzzy(normalized, "produit", "telephone", "voiture", "vehicule", "mobile", "medical", "immobilier", "appartement", "maison")) return Intent.PRODUCT_SEARCH;
+        if (containsAnyFuzzy(normalized, "produit", "liste", "catalogue", "disponible", "telephone", "voiture", "vehicule", "mobile", "medical", "immobilier", "appartement", "maison")) return Intent.PRODUCT_SEARCH;
         return Intent.GENERAL_MARKETPLACE_HELP;
     }
 
@@ -487,13 +687,15 @@ public class MarketplaceChatbotService {
     private String normalize(String value) { return value == null ? "" : java.text.Normalizer.normalize(value, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "").toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]+", " ").trim(); }
     private String money(BigDecimal amount) { return amount == null ? "prix non communique" : NumberFormat.getNumberInstance(Locale.FRANCE).format(amount) + " DT"; }
 
-    private enum Intent { PRODUCT_SEARCH, PRODUCT_DETAILS, PRODUCT_AVAILABILITY, PRODUCT_COMPARISON, DEALER_INFORMATION, BANK_INFORMATION, STORE_INFORMATION, FINANCING_PARAMETERS, SIMULATION, GENERAL_MARKETPLACE_HELP }
+    private enum Intent { PRODUCT_SEARCH, PRODUCT_PRICE, PRODUCT_DETAILS, PRODUCT_AVAILABILITY, PRODUCT_COMPARISON, DEALER_INFORMATION, BANK_INFORMATION, STORE_INFORMATION, FINANCING_PARAMETERS, SIMULATION, GENERAL_MARKETPLACE_HELP }
     private record Specification(String name, String value) { }
-    private record PublicProduct(String name, String description, BigDecimal price, String dealerName, String availability, List<Specification> specifications) { }
+    private record PublicProduct(String name, String description, BigDecimal price, String dealerName,
+                                 String availability, Integer availableStock, List<Specification> specifications) { }
     private record FinancingConfiguration(BigDecimal annualRate, BigDecimal minContributionRate, BigDecimal minContributionAmount,
                                           int minDurationMonths, int maxDurationMonths, BigDecimal maximumFinancingAmount,
                                           BigDecimal feeAmount, BigDecimal feePercentage, boolean feesFinanced) { }
-    private record SimulationInput(BigDecimal amount, int durationMonths, BigDecimal contribution) { }
+    private record SimulationInput(BigDecimal amount, int durationMonths, BigDecimal contribution,
+                                   BigDecimal minimumContribution, boolean durationAdjusted, boolean contributionAdjusted) { }
     private record SimulationEstimate(BigDecimal requestedAmount, BigDecimal contribution, BigDecimal fees,
                                       BigDecimal financedAmount, BigDecimal monthlyPayment) { }
     private static final class ConversationMemory {

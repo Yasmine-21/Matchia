@@ -891,7 +891,7 @@ export function MarketplaceStore() {
   const storeBannerUrl = customStoreBannerUrl || (isBannerActive
     ? resolveApiUrl(store?.banniereUrl || store?.banniere_url)
     : '');
-  const storeHeroOverlay = `linear-gradient(135deg, ${hexToRgba(branding.primary_color, 0.84)} 0%, ${hexToRgba(branding.secondary_color, 0.78)} 100%)`;
+  const hasStoreBannerImage = Boolean(storeBannerUrl);
   const activeStoreSlug = store?.slug || normalizeSlug(storeSlug);
   const canSimulate = modules.some(isSimulatorModule);
   const canCompare = modules.some(isComparatorModule);
@@ -1011,9 +1011,9 @@ export function MarketplaceStore() {
       <section
         className={`relative flex items-center ${BANNER_FRAME_CLASS} bg-slate-100`}
         style={
-          !hasCustomStoreBanner && storeBannerUrl
+          !hasCustomStoreBanner && hasStoreBannerImage
             ? BANNER_BACKGROUND_STYLE(storeBannerUrl)
-            : !hasCustomStoreBanner
+            : !hasStoreBannerImage
               ? { background: `linear-gradient(135deg, ${branding.primary_color}, ${branding.secondary_color})` }
               : undefined
         }
@@ -1032,8 +1032,7 @@ export function MarketplaceStore() {
             <button type="button" aria-label="Bannière suivante" onClick={() => moveBanner(1)} className="absolute right-3 z-10 rounded-full bg-black/30 p-1.5 text-white transition hover:bg-black/50 sm:right-5"><ChevronRight className="h-5 w-5" /></button>
           </>
         )}
-        {!hasCustomStoreBanner && <div className="absolute inset-0" style={{ background: storeHeroOverlay }} />}
-        {!hasCustomStoreBanner && (
+        {!hasStoreBannerImage && (
         <div className="relative mx-auto flex h-full w-full max-w-7xl items-center px-4 text-white sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -1055,14 +1054,6 @@ export function MarketplaceStore() {
 
       <section className="py-16">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-12 max-w-5xl">
-            <p className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-400">Contenus du store</p>
-            <h2 className="mt-3 font-serif text-4xl font-semibold tracking-tight text-slate-900 sm:text-5xl">
-              Contenus liés à {storeLabel}
-            </h2>
-            
-          </div>
-
           <div className="relative">
             <ModuleSidebar
               modules={modules}

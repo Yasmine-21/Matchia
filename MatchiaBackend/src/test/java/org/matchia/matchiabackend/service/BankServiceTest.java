@@ -79,7 +79,7 @@ public class BankServiceTest {
         Bank bank = createBankEntity();
         BankDto dto = createBankDto();
 
-        when(bankRepository.findAll()).thenReturn(List.of(bank));
+        when(bankRepository.findAllByOrderByCreatedAtDesc()).thenReturn(List.of(bank));
         when(bankMapper.toDto(bank)).thenReturn(dto);
         when(marketplaceStoreRepository.countByMarketplace_Bank_Id(1L)).thenReturn(5L);
         

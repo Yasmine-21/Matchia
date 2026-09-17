@@ -1,0 +1,197 @@
+@reference "./index.css";
+
+.saas-stores-modules-page {
+  color: #102d62;
+}
+
+.saas-stores-modules-tabs {
+  margin-bottom: 0;
+  border-color: #dce9fa;
+}
+
+.saas-stores-modules-tabs__list {
+  gap: 1.75rem;
+}
+
+.saas-stores-modules-tab {
+  min-width: 44px;
+  color: #5e759b;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.saas-stores-modules-toolbar {
+  margin-top: 1rem;
+}
+
+.saas-stores-modules-toolbar__description {
+  margin: 0;
+  color: #5271a2 !important;
+  font-size: 1.125rem !important;
+  font-weight: 400;
+}
+
+.saas-stores-filter > button {
+  height: 2.35rem;
+  min-width: 214px;
+  border-color: #dce8fa;
+  border-radius: 10px;
+  color: #183967;
+  box-shadow: 0 5px 14px rgba(37, 82, 153, 0.08);
+}
+
+.saas-stores-filter > button svg {
+  color: #315f9f;
+}
+
+.saas-stores-modules-create-button {
+  min-height: 2.35rem;
+  border-radius: 10px !important;
+  background: #146bf2 !important;
+  box-shadow: 0 6px 14px rgba(20, 107, 242, 0.24) !important;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.saas-stores-grid {
+  gap: 1rem;
+}
+
+.saas-store-card {
+  min-height: 305px;
+  overflow: hidden;
+  border: 1px solid #e0eaf8 !important;
+  border-radius: 14px !important;
+  background: #fff !important;
+  box-shadow: 0 10px 22px rgba(54, 95, 160, 0.08) !important;
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+
+.saas-store-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(54, 95, 160, 0.13) !important;
+}
+
+.saas-store-card__header {
+  margin-bottom: 0 !important;
+  padding: 1rem 1.25rem 0.55rem;
+}
+
+.saas-store-card__icon {
+  width: 3rem;
+  height: 3rem;
+  border-radius: 12px;
+}
+
+.saas-store-card__icon svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.saas-store-card__top-actions > div > button {
+  padding: 0.25rem;
+  color: #315f9f;
+}
+
+.saas-store-card__status {
+  min-width: 45px;
+  justify-content: center;
+  padding: 0.25rem 0.55rem;
+  color: #0a9d6d !important;
+  background: #e4f8f1 !important;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.saas-store-card__title {
+  margin: 0;
+  color: #122b5d !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+}
+
+.saas-store-card__description {
+  display: -webkit-box;
+  min-height: 37px;
+  margin: 0.3rem 0 0 !important;
+  overflow: hidden;
+  color: #55739e !important;
+  font-size: 0.875rem !important;
+  font-weight: 400;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.saas-store-card__content {
+  padding: 0.55rem 1.25rem 1rem;
+}
+
+.saas-store-card__metric {
+  min-height: 50px;
+  padding: 0.6rem 1rem !important;
+  border-radius: 10px;
+}
+
+.saas-store-card__metric--modules {
+  background: #f1f6fd !important;
+}
+
+.saas-store-card__metric--price {
+  background: #fff6ec !important;
+}
+
+.saas-store-card__metric > div {
+  margin-bottom: 0.1rem !important;
+  color: #54719a !important;
+  font-size: 0.75rem !important;
+  font-weight: 400;
+}
+
+.saas-store-card__metric > p {
+  color: #122b5d !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+.saas-store-card__metric--price > p {
+  color: #ff5c19 !important;
+}
+
+.saas-store-card__configure,
+.saas-store-card__toggle {
+  min-height: 2.35rem;
+  border-radius: 9px !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
+
+.saas-store-card__configure {
+  border-color: #d7e5f8 !important;
+  color: #153466 !important;
+  background: #f7fbff !important;
+}
+
+.saas-store-card__configure:hover:not(:disabled) {
+  background: #edf5ff !important;
+}
+
+.saas-store-card__toggle {
+  border-color: #ff4e5c !important;
+  color: #ff3f50 !important;
+  background: #fff !important;
+}
+
+.saas-store-card__toggle:hover:not(:disabled) {
+  background: #fff1f2 !important;
+}
+
+@media (max-width: 767px) {
+  .saas-stores-modules-toolbar__description {
+    font-size: 0.9375rem !important;
+  }
+
+  .saas-stores-filter > button {
+    min-width: min(214px, 100%);
+  }
+}

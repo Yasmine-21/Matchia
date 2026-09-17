@@ -53,7 +53,8 @@ public final class DealerDtos {
     public record BankOption(Long bankId, String bankName, String bankLogoUrl, Long marketplaceId, String bankSlug,
                              List<StoreOption> stores) {}
     public record StoreOption(Long storeId, String storeName, String description) {}
-    public record PartnershipView(Long id, DealerView dealer, Long bankId, String bankName, String bankLogoUrl, Long storeId,
+    public record PartnershipView(Long id, DealerView dealer, Long bankId, String bankName, String bankLogoUrl,
+                                  String bankEmail, String bankPhone, Long storeId,
                                   String storeName, PartnershipInitiatorEnum initiatedBy,
                                   DealerPartnershipStatusEnum status, String message, String rejectionReason,
                                   LocalDateTime requestDate, LocalDateTime processingDate,

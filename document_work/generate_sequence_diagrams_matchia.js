@@ -4,7 +4,9 @@ const fs = require("fs");
 const path = require("path");
 const sharp = require("sharp");
 
-const OUT = path.join(__dirname, "diagrammes_sequence_matchia");
+const OUT = process.env.SEQUENCE_DIAGRAMS_OUT
+  ? path.resolve(process.env.SEQUENCE_DIAGRAMS_OUT)
+  : path.join(__dirname, "diagrammes_sequence_matchia");
 fs.mkdirSync(OUT, { recursive: true });
 
 const COLORS = {
@@ -54,78 +56,92 @@ const diagrams = [
     id: "SD-02_creation_demande_marketplace",
     title: "Création d’une demande de marketplace bancaire",
     participants: [
-      ["Demandeur banque", "actor"], ["Portail public", "boundary"], ["API SaaS", "control"],
+      ["Demandeur banque", "actor"], ["Portail public", "boundary"],
+      ["JoinEmailVerification Controller", "control"], ["JoinRequestController", "control"],
       ["Service E-mail", "external"], ["PostgreSQL", "entity"],
     ],
     messages: [
       [0,1,"Renseigner banque et futur administrateur"],
-      [1,2,"Demander un code de vérification"],
-      [2,3,"Envoyer le code à usage unique"],
-      [3,0,"Code de vérification", "return"],
+      [1,2,"POST /api/join-requests/email-verification/send"],
+      [2,5,"Enregistrer le code haché et son expiration"],
+      [5,2,"Vérification créée", "return"],
+      [2,4,"Envoyer le code à usage unique"],
+      [4,0,"Code de vérification", "return"],
       [0,1,"Saisir le code reçu"],
-      [1,2,"Vérifier le code"],
-      [2,1,"Code refusé / expiré", "return"],
-      [2,4,"Marquer l’e-mail comme vérifié"],
-      [4,2,"Confirmation", "return"],
+      [1,2,"POST /api/join-requests/email-verification/verify"],
+      [2,5,"Charger la vérification active"],
+      [5,2,"Code haché et expiration", "return"],
+      [2,2,"Vérifier le code et sa validité"],
+      [2,1,"Code refusé ou expiré", "return"],
+      [2,5,"Marquer l’e-mail comme vérifié"],
+      [5,2,"Jeton de soumission", "return"],
+      [2,1,"Retourner le jeton de vérification", "return"],
       [0,1,"Configurer slug, thème, stores et modules"],
       [0,1,"Valider le récapitulatif"],
-      [1,2,"POST /marketplace-requests"],
-      [2,2,"Valider unicité, offre et sélections"],
-      [2,1,"Afficher les champs à corriger", "return"],
-      [2,4,"Créer la demande EN_ATTENTE"],
-      [4,2,"Référence de la demande", "return"],
-      [2,3,"Notifier le demandeur et l’Admin SaaS"],
-      [2,1,"Confirmation et référence", "return"],
+      [1,3,"POST /api/join-requests"],
+      [3,3,"Mapper et valider la demande"],
+      [3,5,"Consommer le jeton de vérification"],
+      [5,3,"Jeton consommé", "return"],
+      [3,1,"Afficher les champs à corriger", "return"],
+      [3,5,"Créer la demande avec le statut pending"],
+      [5,3,"Référence de la demande", "return"],
+      [3,4,"Envoyer la confirmation au demandeur"],
+      [4,0,"Confirmation par e-mail", "return"],
+      [3,1,"201 Created avec la référence", "return"],
       [1,0,"Afficher la confirmation", "return"],
     ],
     fragments: [
-      {kind:"alt", start:6, end:8, label:"[code invalide]", separators:[{at:7,label:"[code valide]"}]},
-      {kind:"alt", start:13, end:18, label:"[données invalides]", separators:[{at:14,label:"[données valides]"}]},
+      {kind:"alt", start:11, end:14, label:"[code invalide ou expiré]", separators:[{at:12,label:"[code valide]"}]},
+      {kind:"alt", start:21, end:27, label:"[données ou jeton invalides]", separators:[{at:22,label:"[demande valide]"}]},
     ],
-    activations: [[1,0,18],[2,1,17],[3,2,3],[4,7,15]],
+    activations: [[1,0,27],[2,1,14],[3,17,26],[4,4,5],[4,24,25],[5,2,23]],
   },
   {
     id: "SD-03_traitement_demande_stripe",
     title: "Traitement d’une demande, paiement Stripe et activation",
     participants: [
-      ["Admin SaaS", "actor"], ["Back-office", "boundary"], ["API SaaS", "control"],
-      ["Stripe", "external"], ["Service E-mail", "external"], ["PostgreSQL", "entity"], ["Futur Admin Banque", "actor"],
+      ["Admin SaaS", "actor"], ["Back-office", "boundary"],
+      ["JoinRequest Controller", "control"], ["PaymentController", "control"],
+      ["Stripe", "external"], ["Service E-mail", "external"], ["PostgreSQL", "entity"],
+      ["Futur Admin Banque", "actor"],
     ],
     messages: [
       [0,1,"Consulter la demande"],
-      [1,2,"GET /requests/{id}"],
-      [2,5,"Charger demande et sélections"],
-      [5,2,"Dossier complet", "return"],
+      [1,2,"Consulter le détail de la demande"],
+      [2,6,"Charger la demande et les sélections"],
+      [6,2,"Dossier complet", "return"],
       [2,1,"Afficher le détail", "return"],
-      [0,1,"Approuver ou rejeter"],
-      [1,2,"PATCH décision + motif"],
-      [2,5,"Enregistrer le rejet"],
-      [2,4,"Envoyer le motif de rejet"],
-      [4,6,"Notification de rejet", "return"],
-      [2,5,"Préparer banque, marketplace et abonnement"],
-      [2,3,"Créer une Checkout Session"],
-      [3,2,"URL de paiement", "return"],
-      [2,5,"Enregistrer PAIEMENT_EN_ATTENTE"],
-      [2,4,"Envoyer le lien Stripe"],
-      [4,6,"Instructions de paiement", "return"],
-      [6,3,"Régler la Checkout Session"],
-      [3,2,"Webhook checkout.session.completed"],
-      [2,3,"Vérifier signature et statut"],
-      [3,2,"Paiement échoué ou en attente", "return"],
-      [2,5,"Conserver les ressources INACTIVES"],
-      [2,4,"Notifier l’échec ou l’attente"],
-      [4,6,"Paiement non confirmé", "return"],
-      [3,2,"Paiement confirmé", "return"],
-      [2,5,"Activer tenant, marketplace, abonnement et compte"],
-      [5,2,"Activation confirmée", "return"],
-      [2,4,"Envoyer les accès au Back-office Banque"],
-      [4,6,"Identifiants de première connexion", "return"],
+      [0,1,"Approuver ou rejeter la demande"],
+      [1,2,"Soumettre la décision et le motif"],
+      [2,6,"Enregistrer le rejet et son motif"],
+      [2,5,"Envoyer le motif de rejet"],
+      [5,7,"Notifier le rejet", "return"],
+      [2,6,"Créer la banque, la marketplace et le compte inactifs"],
+      [2,6,"Approuver la demande et initialiser le paiement"],
+      [6,2,"Lien de paiement créé", "return"],
+      [2,5,"Envoyer le lien de paiement"],
+      [5,7,"Recevoir les instructions de paiement", "return"],
+      [7,3,"Demander l’initialisation du paiement"],
+      [3,4,"Créer le PaymentIntent Stripe"],
+      [4,3,"Retourner le client secret et l’identifiant", "return"],
+      [3,6,"Enregistrer le paiement avec le statut pending"],
+      [3,7,"Fournir le formulaire de paiement sécurisé", "return"],
+      [7,4,"Saisir et confirmer le paiement"],
+      [4,7,"Retourner le résultat du paiement", "return"],
+      [7,3,"Confirmer le résultat du paiement"],
+      [3,4,"Vérifier le statut du paiement"],
+      [4,3,"Retourner le statut Stripe", "return"],
+      [3,7,"Signaler un paiement échoué ou en attente", "return"],
+      [3,6,"Activer banque, marketplace, abonnement et compte"],
+      [6,3,"Activation confirmée", "return"],
+      [3,5,"Envoyer les accès au Back-office Banque"],
+      [5,7,"Transmettre les identifiants de première connexion", "return"],
     ],
     fragments: [
-      {kind:"alt", start:7, end:27, label:"[demande rejetée]", separators:[{at:10,label:"[demande approuvée]"}]},
-      {kind:"alt", start:17, end:27, label:"[paiement échoué ou en attente]", separators:[{at:23,label:"[paiement confirmé]"}]},
+      {kind:"alt", start:7, end:29, label:"[demande rejetée]", separators:[{at:10,label:"[demande approuvée]"}]},
+      {kind:"alt", start:25, end:29, label:"[paiement échoué ou en attente]", separators:[{at:26,label:"[paiement confirmé]"}]},
     ],
-    activations: [[1,0,6],[2,1,27],[5,2,25],[3,11,23],[4,8,27]],
+    activations: [[1,0,6],[2,1,14],[3,15,28],[4,16,24],[5,8,9],[5,13,14],[5,28,29],[6,2,27]],
   },
   {
     id: "SD-04_inscription_concessionnaire",
@@ -436,35 +452,66 @@ function makeSvg(d) {
 function drawioPage(d, g) {
   let cells = `<mxCell id="0"/><mxCell id="1" parent="0"/>`;
   let id=2;
-  const add=(value,style,x,y,w,h,vertex=true)=>{
+  const addVertex=(value,style,x,y,w,h)=>{
     const cid=id++;
-    cells += `<mxCell id="${cid}" value="${esc(value)}" style="${style}" ${vertex?'vertex="1"':'edge="1"'} parent="1"><mxGeometry ${vertex?`x="${x}" y="${y}" width="${w}" height="${h}"`:'relative="1"'} as="geometry"/></mxCell>`;
+    cells += `<mxCell id="${cid}" value="${esc(value)}" style="${style}" vertex="1" parent="1"><mxGeometry x="${x}" y="${y}" width="${w}" height="${h}" as="geometry"/></mxCell>`;
     return cid;
   };
-  add(d.title,"text;html=1;align=center;verticalAlign=middle;fontSize=24;fontStyle=1;fontColor=#1F4E79;",250,18,1300,42);
-  const pids=[];
-  d.participants.forEach((p,i)=>{
-    const ext=p[1]==="external";
-    const val=`«${p[1]}»<br><b>${p[0]}</b>`;
-    pids.push(add(val,`rounded=1;whiteSpace=wrap;html=1;fillColor=${ext?'#FFF1E8':'#EAF3FB'};strokeColor=${ext?'#C55A11':'#2F75B5'};strokeWidth=2;fontColor=#17324D;fontSize=13;`,g.centers[i]-g.boxW/2,g.boxY,g.boxW,g.boxH));
-    add("","shape=line;html=1;strokeColor=#68839E;dashed=1;dashPattern=8 8;",g.centers[i],g.boxY+g.boxH,1,g.lifelineBottom-(g.boxY+g.boxH));
-  });
+
+  const addPointEdge=(value,style,x1,y1,x2,y2,points=[])=>{
+    const cid=id++;
+    const route=points.length ? `<Array as="points">${points.map(([x,y])=>`<mxPoint x="${x}" y="${y}"/>`).join("")}</Array>` : "";
+    cells += `<mxCell id="${cid}" value="${esc(value)}" style="${style}" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="${x1}" y="${y1}" as="sourcePoint"/><mxPoint x="${x2}" y="${y2}" as="targetPoint"/>${route}</mxGeometry></mxCell>`;
+    return cid;
+  };
+
+  addVertex(d.title,"text;html=1;align=center;verticalAlign=middle;fontSize=26;fontStyle=1;fontColor=#1F4E79;",250,18,1300,44);
+
+  // Combined fragments are composed from native editable rectangles, labels and
+  // dashed separators. This avoids the clipped labels produced by umlFrame.
   for (const f of d.fragments||[]) {
     const y1=g.msg[f.start].y-48, y2=g.msg[f.end].y+34;
-    add(`${f.kind}  ${f.label}`,"shape=umlFrame;whiteSpace=wrap;html=1;fillColor=#FFF8DF;fillOpacity=25;strokeColor=#68839E;fontColor=#17324D;fontSize=12;align=left;verticalAlign=top;spacingTop=4;",45,y1,1710,y2-y1);
+    addVertex("","rounded=0;whiteSpace=wrap;html=1;fillColor=#FFF8DF;fillOpacity=18;strokeColor=#68839E;strokeWidth=2;",45,y1,1710,y2-y1);
+    addVertex(f.kind,"rounded=0;whiteSpace=wrap;html=1;fillColor=#EAF3FB;strokeColor=#68839E;strokeWidth=1;fontColor=#1F4E79;fontSize=14;fontStyle=1;align=center;verticalAlign=middle;",45,y1,92,32);
+    addVertex(f.label,"text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=2;fontColor=#5C6F82;",148,y1,540,32);
+    for (const sep of f.separators||[]) {
+      const sy=g.msg[sep.at].y-44;
+      addPointEdge("","edgeStyle=none;html=1;strokeColor=#68839E;strokeWidth=1;dashed=1;dashPattern=10 7;startArrow=none;endArrow=none;",45,sy,1755,sy);
+      addVertex(sep.label,"text;html=1;align=left;verticalAlign=middle;fontSize=13;fontStyle=2;fontColor=#5C6F82;labelBackgroundColor=#FFFDF5;",60,sy+2,520,28);
+    }
   }
+
+  // Real edge cells are used for lifelines. A line-shaped vertex is horizontal
+  // in diagrams.net and was the reason the earlier editable files looked empty.
+  d.participants.forEach((p,i)=>{
+    addPointEdge("","edgeStyle=none;html=1;strokeColor=#68839E;strokeWidth=2;dashed=1;dashPattern=8 8;startArrow=none;endArrow=none;",g.centers[i],g.boxY+g.boxH,g.centers[i],g.lifelineBottom);
+  });
+
+  // Activation bars are independent editable UML elements.
+  for (const a of d.activations||[]) {
+    const x=g.centers[a[0]], y1=g.msg[a[1]].y-13, y2=g.msg[a[2]].y+24;
+    addVertex("","rounded=0;whiteSpace=wrap;html=1;fillColor=#EAF3FB;strokeColor=#2F75B5;strokeWidth=1;",x-8,y1,16,y2-y1);
+  }
+
   d.messages.forEach((m,i)=>{
     const [from,to,label,type]=m;
     if(from===to){
-      const eid=id++;
       const x=g.centers[from], y=g.msg[i].y;
-      cells += `<mxCell id="${eid}" value="${esc(label)}" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1F4E79;strokeWidth=2;endArrow=block;endFill=1;fontColor=#17324D;fontSize=12;" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="${x}" y="${y}" as="sourcePoint"/><mxPoint x="${x}" y="${y+35}" as="targetPoint"/><Array as="points"><mxPoint x="${x+86}" y="${y}"/><mxPoint x="${x+86}" y="${y+35}"/></Array></mxGeometry></mxCell>`;
+      addPointEdge(label,"edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;strokeColor=#1F4E79;strokeWidth=2;endArrow=block;endFill=1;fontColor=#17324D;fontSize=13;fontStyle=1;labelBackgroundColor=#FFFFFF;",x,y,x,y+35,[[x+86,y],[x+86,y+35]]);
     } else {
-      const style=`edgeStyle=none;html=1;strokeColor=${type==='return'?'#68839E':'#1F4E79'};strokeWidth=2;${type==='return'?'dashed=1;endArrow=open;endFill=0;':'endArrow=block;endFill=1;'}fontColor=#17324D;fontSize=12;`;
-      const eid=id++;
-      cells += `<mxCell id="${eid}" value="${esc(label)}" style="${style}" edge="1" parent="1"><mxGeometry relative="1" as="geometry"><mxPoint x="${g.centers[from]}" y="${g.msg[i].y}" as="sourcePoint"/><mxPoint x="${g.centers[to]}" y="${g.msg[i].y}" as="targetPoint"/></mxGeometry></mxCell>`;
+      const style=`edgeStyle=none;html=1;strokeColor=${type==='return'?'#68839E':'#1F4E79'};strokeWidth=2;${type==='return'?'dashed=1;dashPattern=10 7;endArrow=open;endFill=0;':'endArrow=block;endFill=1;'}fontColor=#17324D;fontSize=13;labelBackgroundColor=#FFFFFF;`;
+      addPointEdge(label,style,g.centers[from],g.msg[i].y,g.centers[to],g.msg[i].y);
     }
   });
+
+  // Participant headers are added last so that no fragment or lifeline can
+  // visually cover them when the file is opened directly in diagrams.net.
+  d.participants.forEach((p,i)=>{
+    const ext=p[1]==="external";
+    const val=`«${p[1]}»<br><b>${p[0]}</b>`;
+    addVertex(val,`rounded=1;whiteSpace=wrap;html=1;fillColor=${ext?'#FFF1E8':'#EAF3FB'};strokeColor=${ext?'#C55A11':'#2F75B5'};strokeWidth=2;fontColor=#17324D;fontSize=14;`,g.centers[i]-g.boxW/2,g.boxY,g.boxW,g.boxH);
+  });
+
   return `<diagram id="${esc(d.id.replace(/_/g,"-"))}" name="${esc(d.id)}"><mxGraphModel dx="1800" dy="${g.H}" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1800" pageHeight="${g.H}" math="0" shadow="0"><root>${cells}</root></mxGraphModel></diagram>`;
 }
 
@@ -477,11 +524,11 @@ async function main() {
     fs.writeFileSync(svgPath,svg,"utf8");
     await sharp(Buffer.from(svg)).png().toFile(pngPath);
     pages.push(drawioPage(d,geom));
-    const one=`<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" modified="2026-09-05T00:00:00.000Z" agent="Codex" version="24.7.17" type="device" compressed="false">${drawioPage(d,geom)}</mxfile>`;
+    const one=`<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" modified="2026-09-11T00:00:00.000Z" agent="Codex" version="24.7.17" type="device" compressed="false">${drawioPage(d,geom)}</mxfile>`;
     fs.writeFileSync(path.join(OUT,`${d.id}.drawio`),one,"utf8");
     console.log(`${d.id}: ${geom.W}x${geom.H}`);
   }
-  fs.writeFileSync(path.join(OUT,"Diagrammes_sequence_Matchia.drawio"),`<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" modified="2026-09-05T00:00:00.000Z" agent="Codex" version="24.7.17" type="device" compressed="false">${pages.join("")}</mxfile>`,"utf8");
+  fs.writeFileSync(path.join(OUT,"Diagrammes_sequence_Matchia.drawio"),`<?xml version="1.0" encoding="UTF-8"?><mxfile host="app.diagrams.net" modified="2026-09-11T00:00:00.000Z" agent="Codex" version="24.7.17" type="device" compressed="false">${pages.join("")}</mxfile>`,"utf8");
 }
 
 main().catch((e)=>{console.error(e);process.exit(1);});

@@ -19,6 +19,16 @@ class AiIntentServiceTest {
     }
 
     @Test
+    void extractsUpcomingSubscriptionWindow() {
+        AiIntentService.Analysis analysis = service.analyze(
+                "Quels abonnements vont expirer dans les 7 prochains jours ?");
+
+        assertThat(analysis.intent()).isEqualTo(AiIntentService.Intent.SUBSCRIPTIONS);
+        assertThat(analysis.upcomingDays()).isEqualTo(7);
+        assertThat(analysis.buildSqlGuidance()).contains("CURRENT_DATE + 7 days");
+    }
+
+    @Test
     void recognizesEveryDomainAndFallsBackToGeneral() {
         assertThat(service.analyze("abonnement").intent()).isEqualTo(AiIntentService.Intent.SUBSCRIPTIONS);
         assertThat(service.analyze("demande").intent()).isEqualTo(AiIntentService.Intent.REQUESTS);
@@ -28,5 +38,30 @@ class AiIntentServiceTest {
         assertThat(service.analyze("module").intent()).isEqualTo(AiIntentService.Intent.MODULES);
         assertThat(service.analyze("banque").intent()).isEqualTo(AiIntentService.Intent.BANKS);
         assertThat(service.analyze(null).intent()).isEqualTo(AiIntentService.Intent.GENERAL);
+    }
+
+    @Test
+    void answersGreetingsHelpAndThanksWithoutRequestingBusinessData() {
+        assertThat(service.conversationalReply("Bonjour !")).isEqualTo("Bonjour, comment puis-je vous aider ?");
+        assertThat(service.conversationalReply("Hello")).isEqualTo("Bonjour, comment puis-je vous aider ?");
+        assertThat(service.conversationalReply("Tu peux m'aider ?")).contains("Posez-moi une question précise");
+        assertThat(service.conversationalReply("tu peux me aider")).contains("informations autorisées");
+        assertThat(service.conversationalReply("Merci beaucoup")).contains("Avec plaisir");
+    }
+
+    @Test
+    void doesNotInterceptGreetingsThatContainADataQuestion() {
+        assertThat(service.conversationalReply("Bonjour, combien de banques sont actives ?")).isNull();
+        assertThat(service.conversationalReply("Peux-tu m'aider à trouver les paiements récents ?")).isNull();
+    }
+
+    @Test
+    void refusesConfidentialCredentialQuestions() {
+        assertThat(service.confidentialRequestReply(
+                "Pour user Hajer Boukhari concessionnaire, quel est le mot de passe de son compte ?"))
+                .isEqualTo("Je ne peux pas répondre, les données sont confidentielles.");
+        assertThat(service.confidentialRequestReply("Donne-moi sa clé API et son token d'accès"))
+                .isEqualTo("Je ne peux pas répondre, les données sont confidentielles.");
+        assertThat(service.confidentialRequestReply("Combien de banques sont actives ?")).isNull();
     }
 }

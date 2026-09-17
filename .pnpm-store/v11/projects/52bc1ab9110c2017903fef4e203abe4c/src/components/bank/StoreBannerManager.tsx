@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { FileImage, Trash2, Upload } from 'lucide-react';
+import { FileImage, ImagePlus, Trash2, Upload } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button } from '../ui/Button';
 import { resolveApiUrl } from '../../api/apiClient';
-import { BANNER_FRAME_CLASS, BANNER_IMAGE_CLASS, BANNER_RECOMMENDED_DIMENSIONS } from '../../config/banner';
+import { BANNER_RECOMMENDED_DIMENSIONS } from '../../config/banner';
 import { bankTenantService } from '../../services/bankTenantService';
 import type { MarketplaceStoreBannerImageDto } from '../../types/apiTypes';
 
@@ -63,10 +63,126 @@ export function StoreBannerManager({ marketplaceStoreId, storeName, disabled = f
     finally { setSaving(false); }
   };
 
-  return <div className="mt-4 rounded-xl border border-primary/20 bg-primary/5 p-4">
-    <div className="mb-4 flex items-start gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-primary/10 text-primary"><FileImage className="h-5 w-5" /></span><div><div className="font-semibold">Gestion des bannières</div><p className="text-sm text-muted-foreground">Jusqu’à trois images pour le store {storeName || ''}. Elles défilent automatiquement sur la marketplace.</p></div></div>
-    <input ref={inputRef} type="file" accept="image/png,image/jpeg,image/webp,image/gif" className="sr-only" onChange={(event) => { if (slot !== null) choose(slot, event.target.files?.[0]); event.currentTarget.value = ''; }} />
-    <div className="grid gap-3 lg:grid-cols-3">{[0, 1, 2].map((index) => { const image = images[index]; const source = slot === index && preview ? preview : resolveApiUrl(image?.imageUrl); return <div key={index} className="rounded-xl border border-border bg-background p-3"><div className="mb-2 flex justify-between text-sm font-semibold"><span>Image {index + 1}</span>{image && <span className="text-xs font-normal text-muted-foreground">Position {index + 1}</span>}</div><div className={`${BANNER_FRAME_CLASS} rounded-lg border border-border bg-muted`}>{source ? <img src={source} alt={`Bannière ${index + 1}`} className={BANNER_IMAGE_CLASS} /> : <span className="flex h-full items-center justify-center text-xs text-muted-foreground">Aucune image</span>}</div><div className="mt-3 flex gap-2"><Button type="button" size="sm" variant="outline" className="flex-1" disabled={disabled || (!image && images.length >= 3)} icon={<Upload className="h-4 w-4" />} onClick={() => { setSlot(index); inputRef.current?.click(); }}>{image ? 'Remplacer' : 'Ajouter'}</Button>{image && <Button type="button" size="sm" variant="outline" disabled={disabled || saving} onClick={() => void remove(index)} aria-label="Supprimer"><Trash2 className="h-4 w-4" /></Button>}</div></div>; })}</div>
-    <div className="mt-4 flex flex-wrap items-center gap-3"><Button type="button" loading={saving} disabled={disabled || !file || slot === null} onClick={() => void save()}>Enregistrer l’image sélectionnée</Button><span className="text-xs text-muted-foreground">{file?.name || `PNG, JPG, WEBP ou GIF · recommandé : ${BANNER_RECOMMENDED_DIMENSIONS}`}</span></div>
-  </div>;
+  return (
+    <section className="mt-4 w-full min-w-0 overflow-hidden rounded-2xl border border-primary/20 bg-primary/5">
+      <div className="flex flex-col gap-3 border-b border-primary/15 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+        <div className="flex min-w-0 items-start gap-3">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+            <FileImage className="h-5 w-5" />
+          </span>
+          <div className="min-w-0">
+            <h4 className="font-semibold text-foreground">Bannières du store {storeName || ''}</h4>
+            <p className="mt-1 text-sm leading-5 text-muted-foreground">
+              Ajoutez jusqu’à trois images. Elles défileront automatiquement sur la marketplace.
+            </p>
+          </div>
+        </div>
+        <span className="w-fit shrink-0 rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+          {images.length}/3 image{images.length > 1 ? 's' : ''}
+        </span>
+      </div>
+
+      <div className="p-4 sm:p-5">
+        <input
+          ref={inputRef}
+          type="file"
+          accept="image/png,image/jpeg,image/webp,image/gif"
+          className="sr-only"
+          onChange={(event) => {
+            if (slot !== null) choose(slot, event.target.files?.[0]);
+            event.currentTarget.value = '';
+          }}
+        />
+
+        <div className="grid min-w-0 gap-4 md:grid-cols-2 2xl:grid-cols-3">
+          {[0, 1, 2].map((index) => {
+            const image = images[index];
+            const isPending = slot === index && Boolean(preview);
+            const source = isPending ? preview : resolveApiUrl(image?.imageUrl);
+
+            return (
+              <article
+                key={index}
+                className={`min-w-0 overflow-hidden rounded-xl border bg-background shadow-sm transition-colors ${
+                  isPending ? 'border-primary ring-2 ring-primary/15' : 'border-border'
+                }`}
+              >
+                <div className="flex items-center justify-between gap-3 border-b border-border px-3 py-2.5">
+                  <span className="text-sm font-semibold text-foreground">Image {index + 1}</span>
+                  <span className={`text-xs ${isPending ? 'font-medium text-primary' : 'text-muted-foreground'}`}>
+                    {isPending ? 'Aperçu sélectionné' : image ? `Position ${index + 1}` : 'Emplacement libre'}
+                  </span>
+                </div>
+
+                <div className="relative flex aspect-[16/7] min-h-32 w-full items-center justify-center overflow-hidden bg-muted/60">
+                  {source ? (
+                    <img
+                      src={source}
+                      alt={`Bannière ${index + 1}`}
+                      className="h-full w-full object-contain"
+                    />
+                  ) : (
+                    <div className="flex flex-col items-center justify-center gap-2 text-center text-xs text-muted-foreground">
+                      <ImagePlus className="h-7 w-7" />
+                      <span>Aucune image</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-2 border-t border-border p-3">
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="outline"
+                    className="min-w-0 flex-1"
+                    disabled={disabled || (!image && images.length >= 3)}
+                    icon={<Upload className="h-4 w-4 shrink-0" />}
+                    onClick={() => {
+                      setSlot(index);
+                      inputRef.current?.click();
+                    }}
+                  >
+                    {image ? 'Remplacer' : 'Ajouter'}
+                  </Button>
+                  {image && (
+                    <Button
+                      type="button"
+                      size="icon"
+                      variant="outline"
+                      disabled={disabled || saving}
+                      onClick={() => void remove(index)}
+                      aria-label={`Supprimer l’image ${index + 1}`}
+                      title={`Supprimer l’image ${index + 1}`}
+                    >
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+
+        <div className="mt-4 flex min-w-0 flex-col gap-3 rounded-xl border border-border bg-background px-4 py-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium text-foreground" title={file?.name}>
+              {file?.name || 'Aucune nouvelle image sélectionnée'}
+            </p>
+            <p className="mt-1 text-xs text-muted-foreground">
+              PNG, JPG, WEBP ou GIF · dimensions recommandées : {BANNER_RECOMMENDED_DIMENSIONS}
+            </p>
+          </div>
+          <Button
+            type="button"
+            className="shrink-0 sm:min-w-56"
+            loading={saving}
+            disabled={disabled || !file || slot === null}
+            onClick={() => void save()}
+          >
+            Enregistrer l’image
+          </Button>
+        </div>
+      </div>
+    </section>
+  );
 }

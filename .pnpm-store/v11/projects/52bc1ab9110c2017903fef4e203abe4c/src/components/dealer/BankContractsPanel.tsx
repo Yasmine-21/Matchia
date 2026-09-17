@@ -64,11 +64,10 @@ export function BankContractsPanel({ contracts, onChanged }: { contracts: Partne
         <Card key={contract.id} className="flex h-full flex-col p-6">
           <div className="flex items-start justify-between gap-4">
             <div><div className="text-xs font-semibold uppercase tracking-widest text-primary">{contract.contractNumber}</div>
-              <h3 className="mt-2 text-xl font-semibold">{contract.dealerName}</h3><p className="text-sm text-muted-foreground">{contract.storeName} · Version {contract.versionNumber}</p></div>
+              <h3 className="mt-2 text-xl font-semibold">Partenariat avec {contract.dealerName}</h3><p className="text-sm text-muted-foreground">{contract.storeName} · Version {contract.versionNumber}</p></div>
             <Badge variant={badge(contract.status)}>{labels[contract.status]}</Badge>
           </div>
           <div className="mt-5 grid grid-cols-2 gap-3">
-            <Info label="Modele" value="Gratuit - 0 TND" />
             <Info label="Commission" value={contract.commissionApplicable ? `${contract.commissionValue} ${contract.commissionType === 'PERCENTAGE' ? '%' : 'TND'}` : 'Aucune'} />
             <Info label="Debut" value={contract.startDate || '-'} />
             <Info label="Fin" value={contract.endDate || '-'} />
@@ -86,7 +85,7 @@ export function BankContractsPanel({ contracts, onChanged }: { contracts: Partne
         </Card>
       ))}
     </div>
-    <Modal isOpen={Boolean(editing)} onClose={() => setEditing(null)} title="Configurer le contrat gratuit" size="lg">
+    <Modal isOpen={Boolean(editing)} onClose={() => setEditing(null)} title="Configurer le contrat" size="lg">
       {editing && <ContractForm contract={editing} busy={busy === 'save'} onSubmit={save} onCancel={() => setEditing(null)} />}
     </Modal>
     <Modal isOpen={Boolean(terminating)} onClose={() => setTerminating(null)} title="Resilier le contrat" size="sm">
@@ -99,7 +98,6 @@ export function BankContractsPanel({ contracts, onChanged }: { contracts: Partne
 function ContractForm({ contract, busy, onSubmit, onCancel }: { contract: PartnershipContract; busy: boolean; onSubmit: (event: FormEvent<HTMLFormElement>) => void; onCancel: () => void }) {
   const [commission, setCommission] = useState(contract.commissionApplicable);
   return <form onSubmit={onSubmit} className="space-y-5">
-    <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800"><strong>Partenariat gratuit :</strong> aucun paiement, abonnement ou frais d'activation.</div>
     <div className="grid gap-4 sm:grid-cols-2"><Field label="Date de debut"><input required type="date" name="startDate" defaultValue={contract.startDate || today()} className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring" /></Field><Field label="Date de fin"><input required type="date" name="endDate" defaultValue={contract.endDate || nextYear()} className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring" /></Field></div>
     <label className="flex items-center gap-3 rounded-xl border border-border p-4 text-sm font-medium"><input type="checkbox" name="commissionApplicable" checked={commission} onChange={(event) => setCommission(event.target.checked)} /> Commission commerciale informative</label>
     {commission && <div className="grid gap-4 sm:grid-cols-2"><Field label="Type"><select required name="commissionType" defaultValue={contract.commissionType || 'PERCENTAGE'} className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring"><option value="PERCENTAGE">Pourcentage</option><option value="FIXED_AMOUNT">Montant fixe</option></select></Field><Field label="Valeur"><input required min="0" step="0.01" type="number" name="commissionValue" defaultValue={contract.commissionValue ?? ''} className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring" /></Field></div>}

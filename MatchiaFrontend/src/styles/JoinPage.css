@@ -296,6 +296,17 @@
   display: grid;
   gap: 1rem;
   align-items: start;
+  font-family: inherit;
+}
+
+.join-finalization-grid button,
+.join-finalization-grid h3,
+.join-finalization-grid h4,
+.join-finalization-grid span,
+.join-finalization-grid strong,
+.join-finalization-grid small,
+.join-finalization-grid b {
+  font-family: inherit;
 }
 
 .join-finalization-main {
@@ -417,7 +428,7 @@
   margin-bottom: 0.15rem;
   color: #64748b;
   font-size: 0.99rem;
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .join-final-detail-row strong {
@@ -425,6 +436,7 @@
   overflow-wrap: anywhere;
   color: #172033;
   font-size: 0.99rem;
+  font-weight: 400;
   line-height: 1.45;
 }
 
@@ -599,6 +611,12 @@
 .join-final-cost-module {
   padding-left: 0.75rem;
   color: #64748b;
+}
+
+.join-final-store-cost {
+  margin-top: 0.35rem;
+  color: #172033;
+  font-weight: 700;
 }
 
 .join-final-total-row {

@@ -1,0 +1,35 @@
+DIAGRAMMES UML MATCHIA - FICHIERS DRAW.IO EDITABLES
+
+Ce dossier contient les diagrammes d'activite et de sequence correspondant au rapport
+"Master Report - diagrammes UML complets avec sequences".
+
+FICHIERS MULTIPAGES
+- Matchia_diagrammes_activite_editables.drawio : 6 pages, dans l'ordre du rapport.
+- Matchia_diagrammes_sequence_editables.drawio : 9 pages, dans l'ordre du rapport.
+
+DIAGRAMMES D'ACTIVITE
+1. Authentification et contexte d'acces
+2. Creation d'une demande de marketplace bancaire
+3. Traitement d'une demande et paiement Stripe
+4. Renouvellement ou extension d'un abonnement
+5. Parcours metier du Concessionnaire
+6. Parcours Client et demande de financement
+
+DIAGRAMMES DE SEQUENCE
+1. Authentification et contexte multi-tenant
+2. Creation d'une demande de marketplace bancaire
+3. Approbation, paiement Stripe et activation
+4. Inscription et validation d'un concessionnaire
+5. Gestion et publication multi-banque d'un produit
+6. Inscription et activation du compte Client
+7. Constitution et traitement d'une demande de financement
+8. Assistant SaaS Text-to-SQL securise
+9. Chatbot public d'une marketplace bancaire
+
+OUVERTURE DANS DRAW.IO
+1. Ouvrir https://app.diagrams.net/
+2. Choisir Fichier > Ouvrir depuis > Appareil.
+3. Selectionner un fichier .drawio de ce dossier.
+
+Tous les objets, textes, connecteurs, fragments UML et formes restent modifiables.
+Les apercus PNG sont fournis uniquement pour faciliter l'identification des diagrammes.

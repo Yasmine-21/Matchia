@@ -36,6 +36,10 @@ public class User {
     private String contactImageUrl;
     private LocalDate birthDate;
 
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
+
     @Enumerated(EnumType.STRING)
     private RoleEnum role;
 

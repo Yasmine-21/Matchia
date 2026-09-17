@@ -1,12 +1,10 @@
-import '../../styles/SaaSDashboard.css';
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Line, LineChart } from 'recharts';
-import { AlertTriangle, Building2, CalendarDays, FileText, Loader2, LogOut, Store, Users } from 'lucide-react';
+import { AlertTriangle, Bell, Building2, CalendarDays, FileText, Loader2, LogOut, MoreHorizontal, Store, Users } from 'lucide-react';
 
 import { Badge } from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { useApp } from '../../context/AppContext';
 import { authService } from '../../services/authService';
@@ -152,21 +150,21 @@ export function SaaSDashboard() {
 
   return (
     <div className="saas-dashboard-container">
-      <div className="saas-dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="saas-dashboard-header">
         <div>
-          <h1 className="saas-dashboard-title">Tableau de bord </h1>
-
+          <h1 className="saas-dashboard-title">Tableau de bord</h1>
+          <p className="saas-dashboard-subtitle">Vue d’ensemble de votre activité Matchia</p>
         </div>
-        <Button variant="outline" onClick={handleLogout} className="flex items-center gap-2">
+        <Button variant="outline" onClick={handleLogout} className="saas-dashboard-signout">
           <LogOut className="w-4 h-4" />
           Déconnexion
         </Button>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4 mb-6">
-        {stats.map((stat, index) => (
+        {stats.map((stat) => (
           <KpiCard
-            key={index}
+            key={stat.label}
             label={stat.label}
             value={stat.value}
             icon={stat.icon}
@@ -177,13 +175,17 @@ export function SaaSDashboard() {
       </div>
 
       <div className="saas-charts-grid">
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenu mensuel</CardTitle>
-            <CardDescription>Revenu total mensuel en TND</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+        <section className="saas-panel saas-chart-panel">
+          <div className="saas-panel-heading">
+            <div className="saas-panel-heading__icon saas-panel-heading__icon--blue"><FileText className="h-5 w-5" /></div>
+            <div>
+              <h2>Revenu mensuel</h2>
+              <p>Revenu total mensuel en TND</p>
+            </div>
+            <MoreHorizontal className="saas-panel-menu" />
+          </div>
+          <div className="saas-chart">
+            <ResponsiveContainer width="100%" height={250}>
               <LineChart data={monthlyRevenueData}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="month" stroke="#64748b"  />
@@ -196,16 +198,20 @@ export function SaaSDashboard() {
                 <Line type="monotone" dataKey="revenue" name="Revenu total" stroke="#2563eb" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Marketplaces par store</CardTitle>
-            <CardDescription>Nombre de marketplaces utilisant chaque store</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
+        <section className="saas-panel saas-chart-panel">
+          <div className="saas-panel-heading">
+            <div className="saas-panel-heading__icon saas-panel-heading__icon--orange"><Store className="h-5 w-5" /></div>
+            <div>
+              <h2>Marketplaces par store</h2>
+              <p>Nombre de marketplaces utilisant chaque store</p>
+            </div>
+            <MoreHorizontal className="saas-panel-menu" />
+          </div>
+          <div className="saas-chart">
+            <ResponsiveContainer width="100%" height={250}>
               <BarChart data={marketplaceCountsByStore}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="name" stroke="#64748b" />
@@ -214,24 +220,25 @@ export function SaaSDashboard() {
                 <Bar dataKey="marketplaces" name="Marketplaces" fill="#f97316" />
               </BarChart>
             </ResponsiveContainer>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
       </div>
 
       <div className="saas-lists-grid">
-        <Card>
-          <CardHeader>
-            <CardTitle>Alertes</CardTitle>
-
-          </CardHeader>
-          <CardContent>
-            <div className="saas-list-container">
+        <section className="saas-panel saas-list-panel">
+          <div className="saas-panel-heading">
+            <div className="saas-panel-heading__icon saas-panel-heading__icon--blue"><Bell className="h-5 w-5" /></div>
+            <h2>Alertes</h2>
+            <MoreHorizontal className="saas-panel-menu" />
+          </div>
+          <div className="saas-list-container">
               {isLoadingData ? (
                 <div className="flex justify-center p-4"><Loader2 className="animate-spin" /></div>
               ) : subscriptionAlerts.length === 0 ? (
-                <p className="p-4 text-center text-sm text-muted-foreground">
-                  Aucun abonnement n’expire prochainement.
-                </p>
+                <div className="saas-empty-alerts">
+                  <span><Bell className="h-7 w-7" /></span>
+                  <p>Aucun abonnement n’expire prochainement.</p>
+                </div>
               ) : (
                 subscriptionAlerts.map((alert) => {
                   const isUrgent = alert.alertLevel === 'Urgent';
@@ -262,18 +269,17 @@ export function SaaSDashboard() {
                   );
                 })
               )}
-            </div>
-          </CardContent>
-        </Card>
+          </div>
+        </section>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Demandes en attente</CardTitle>
-
-          </CardHeader>
-          <CardContent>
-            <div className="saas-list-container">
-              {pendingRequests.map((request) => (
+        <section className="saas-panel saas-list-panel">
+          <div className="saas-panel-heading">
+            <div className="saas-panel-heading__icon saas-panel-heading__icon--blue"><FileText className="h-5 w-5" /></div>
+            <h2>Demandes en attente</h2>
+            <MoreHorizontal className="saas-panel-menu" />
+          </div>
+          <div className="saas-list-container">
+            {pendingRequests.map((request) => (
                 <div key={request.id} className="saas-request-item">
                   <div className="saas-request-header">
                     <div className="saas-bank-name">
@@ -286,10 +292,9 @@ export function SaaSDashboard() {
                     Créée le {new Date(request.createdAt || '').toLocaleDateString('fr-FR')}
                   </div>
                 </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+            ))}
+          </div>
+        </section>
       </div>
     </div>
   );

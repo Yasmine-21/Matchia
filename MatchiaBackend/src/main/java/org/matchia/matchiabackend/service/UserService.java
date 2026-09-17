@@ -29,7 +29,7 @@ public class UserService {
      * excluded so their personal data never leaves their bank scope.
      */
     public List<User> findAllForSaasBackoffice() {
-        return userRepository.findByRoleNotOrderByCreatedAtAsc(org.matchia.matchiabackend.entity.enums.RoleEnum.CLIENT);
+        return userRepository.findByRoleNotOrderByCreatedAtDesc(org.matchia.matchiabackend.entity.enums.RoleEnum.CLIENT);
     }
 
     /**
@@ -37,7 +37,7 @@ public class UserService {
      * authenticated administrator, never from a request header or request body.
      */
     public List<User> findAllForBankBackoffice(Long bankId) {
-        return userRepository.findByBank_IdOrderByCreatedAtAsc(bankId);
+        return userRepository.findByBank_IdOrderByCreatedAtDesc(bankId);
     }
 
     public Optional<User> findDetailedForSaasBackoffice(Long id) {

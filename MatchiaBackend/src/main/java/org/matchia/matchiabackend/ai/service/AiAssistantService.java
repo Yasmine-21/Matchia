@@ -38,13 +38,27 @@ public class AiAssistantService {
             );
         }
 
+        String confidentialRequestReply = aiIntentService.confidentialRequestReply(question);
+        if (confidentialRequestReply != null) {
+            return new AiAskResponse(confidentialRequestReply, "SECURITY_REFUSAL");
+        }
+
+        String conversationalReply = aiIntentService.conversationalReply(question);
+        if (conversationalReply != null) {
+            return new AiAskResponse(conversationalReply, "CONVERSATION");
+        }
+
         try {
             AiIntentService.Analysis analysis = aiIntentService.analyze(question);
             DatabaseSchemaService.AllowedSchema allowedSchema = databaseSchemaService.loadAllowedSchema();
             SemanticDatabaseMapService.SemanticMap semanticMap = semanticDatabaseMapService.analyze(question, allowedSchema);
             String initialGuidance = semanticMap.promptContext() + "\n\n" + analysis.buildSqlGuidance()
                     + "\n" + semanticMap.initialGuidance();
-            String generatedSql = geminiService.generateSql(question, initialGuidance, allowedSchema.schemaText());
+            String generatedSql = buildUpcomingSubscriptionsSql(analysis, allowedSchema);
+            boolean deterministicQuery = generatedSql != null;
+            if (!deterministicQuery) {
+                generatedSql = geminiService.generateSql(question, initialGuidance, allowedSchema.schemaText());
+            }
             log.info("AI assistant question received: {}", abbreviate(question, 500));
             log.debug("AI assistant dynamic schema preview: {}", abbreviate(allowedSchema.schemaText(), 2000));
             log.debug("AI assistant intent detected: {}", analysis.intent());
@@ -66,7 +80,8 @@ public class AiAssistantService {
             }
 
             java.util.Set<String> usedTables = new java.util.LinkedHashSet<>(semanticMap.referencedTables(previousSql));
-            for (int retryNumber = 1; (queryResult == null || queryResult.isEmpty()) && retryNumber <= semanticMap.retryBudget(); retryNumber++) {
+            for (int retryNumber = 1; !deterministicQuery && (queryResult == null || queryResult.isEmpty())
+                    && retryNumber <= semanticMap.retryBudget(); retryNumber++) {
                 String alternativeGuidance = semanticMap.alternativeGuidance(usedTables);
                 if (alternativeGuidance == null) {
                     break;
@@ -141,6 +156,35 @@ public class AiAssistantService {
                 + "\n- N'affiche jamais les champs techniques ou les identifiants internes."
                 + "\n- Si plusieurs enregistrements existent, restitue-les tous de manière claire."
                 + "\n- Si le JSON est vide, indique qu'aucune donnée correspondante n'a été trouvée.";
+    }
+
+    private String buildUpcomingSubscriptionsSql(
+            AiIntentService.Analysis analysis,
+            DatabaseSchemaService.AllowedSchema schema
+    ) {
+        if (analysis.intent() != AiIntentService.Intent.SUBSCRIPTIONS || analysis.upcomingDays() == null) {
+            return null;
+        }
+        if (!hasColumns(schema, "subscription", "marketplace_id", "expiration_date")
+                || !hasColumns(schema, "marketplace", "id", "bank_id")
+                || !hasColumns(schema, "bank", "id", "name")
+                || !schema.hasForeignKey("subscription", "marketplace_id", "marketplace", "id")
+                || !schema.hasForeignKey("marketplace", "bank_id", "bank", "id")) {
+            return null;
+        }
+        return "SELECT b.name AS bank_name, s.expiration_date AS expiration_date, "
+                + "(s.expiration_date - CURRENT_DATE) AS days_remaining "
+                + "FROM subscription s "
+                + "JOIN marketplace m ON s.marketplace_id = m.id "
+                + "JOIN bank b ON m.bank_id = b.id "
+                + "WHERE s.expiration_date >= CURRENT_DATE "
+                + "AND s.expiration_date <= CURRENT_DATE + " + analysis.upcomingDays() + " "
+                + "ORDER BY s.expiration_date ASC LIMIT 50";
+    }
+
+    private boolean hasColumns(DatabaseSchemaService.AllowedSchema schema, String table, String... columns) {
+        java.util.Set<String> allowedColumns = schema.tables().get(table);
+        return allowedColumns != null && java.util.Arrays.stream(columns).allMatch(allowedColumns::contains);
     }
 
     private String abbreviate(String value, int maxLength) {

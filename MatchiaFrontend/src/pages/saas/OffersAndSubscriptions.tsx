@@ -234,34 +234,34 @@ export function OffersAndSubscriptions() {
           <div className="px-6 py-10 text-sm text-muted-foreground">Aucun abonnement paye disponible.</div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-accent/50">
+            <table className="w-full bg-white">
+              <thead className="bg-[#eaf3ff]">
                 <tr>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">Banque</th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-[#5f779b]">Banque</th>
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-[#5f779b]">
                     Marketplace
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-[#5f779b]">
                     Montant payé
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-[#5f779b]">
                     Date de paiement
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-[#5f779b]">
                     Expiration
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-[#5f779b]">
                     Jours restants
                   </th>
-                  <th className="px-6 py-3 text-left text-sm font-semibold text-muted-foreground">
+                  <th className="px-6 py-3 text-left text-sm font-semibold text-[#5f779b]">
                     Statut
                   </th>
-                  <th className="px-6 py-3 text-center text-sm font-semibold text-muted-foreground">
+                  <th className="px-6 py-3 text-center text-sm font-semibold text-[#5f779b]">
                     Actions
                   </th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-border">
+              <tbody className="divide-y divide-border bg-white">
                 {subscriptions.map((subscription) => {
                   const daysRemaining = subscription.daysRemaining ?? null;
                   const progressPercent = getAnnualTermProgress(subscription.expirationDate, daysRemaining);

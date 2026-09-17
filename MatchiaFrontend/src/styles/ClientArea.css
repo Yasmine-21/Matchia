@@ -105,7 +105,15 @@
     font-weight: 800;
 }
 
-.client-body { display: grid; grid-template-columns: 244px minmax(0, 1fr); gap: 42px; padding: 18px 24px 38px; }
+.client-body {
+    display: grid;
+    width: 100%;
+    max-width: 1600px;
+    grid-template-columns: 244px minmax(0, 1fr);
+    gap: 32px;
+    margin: 0 auto;
+    padding: 26px 28px 38px;
+}
 
 .client-sidebar {
     position: sticky;
@@ -139,9 +147,17 @@
 .client-logout:hover { background: #fff1f3; }
 .client-logout svg { width: 19px; height: 19px; }
 
-.client-main { min-width: 0; max-width: 1500px; padding-top: 10px; }
+.client-main { width: 100%; min-width: 0; max-width: 1460px; padding-top: 4px; }
 .client-page { display: grid; gap: 26px; }
-.client-page-heading h1 { margin: 0; color: #14213d; font-size: clamp(27px, 2.5vw, 32px); font-weight: 800; letter-spacing: -.04em; }
+.client-page-heading h1 {
+    margin: 0;
+    color: #071e53;
+    font-family: inherit;
+    font-size: clamp(28px, 2.5vw, 32px);
+    font-weight: 700;
+    letter-spacing: normal;
+    line-height: 1.5;
+}
 .client-page-heading p { margin: 7px 0 0; color: #71809a; font-size: 14px; font-weight: 500; }
 
 .client-stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 18px; }
@@ -320,7 +336,7 @@
 .client-back-link { display: inline-flex; width: fit-content; align-items: center; gap: 7px; color: var(--client-primary, #7c3aed); font-size: 12px; font-weight: 800; }
 .client-back-link svg { width: 16px; height: 16px; }
 .client-detail-title-row { display: flex; align-items: center; gap: 16px; }
-.client-detail-title-row h1 { margin: 0; color: #14213d; font-size: clamp(25px, 2.4vw, 30px); font-weight: 800; letter-spacing: -.035em; }
+.client-detail-title-row h1 { margin: 0; color: #071e53; font-family: inherit; font-size: clamp(26px, 2.4vw, 30px); font-weight: 700; letter-spacing: normal; line-height: 1.5; }
 .client-detail-title-row .client-status-badge { gap: 6px; padding: 7px 12px; }
 .client-detail-title-row .client-status-badge svg { width: 15px; height: 15px; }
 .client-detail-heading > p { margin: 0; color: #73819a; font-size: 13px; font-weight: 600; }

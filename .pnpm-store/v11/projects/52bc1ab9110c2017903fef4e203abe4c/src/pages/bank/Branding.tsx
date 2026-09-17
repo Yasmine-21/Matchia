@@ -259,7 +259,7 @@ function ColorPickerPanel({ label, value, onChange, helperText, error }: ColorPi
       </div>
 
       <div className="branding-picker-hue-row">
-        <span className="branding-picker-hue-dot" style={{ backgroundColor: squareColor }} aria-hidden="true" />
+        <span className="branding-picker-hue-dot" style={{ backgroundColor: selectedColor }} aria-hidden="true" />
         <input
           type="range"
           min={0}

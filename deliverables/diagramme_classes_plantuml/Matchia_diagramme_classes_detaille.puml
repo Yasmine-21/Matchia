@@ -1,0 +1,3082 @@
+' ============================================================================
+' MATCHIA — DIAGRAMMES DE CLASSES UML DÉTAILLÉS
+' Généré depuis les entités et énumérations JPA du backend.
+' Date de génération : 2026-09-14T09:23:00.884Z
+' Contenu vérifié : 39 entités, 27 énumérations, 75 relations.
+' Le fichier comporte 7 blocs @startuml indépendants et entièrement éditables.
+' ============================================================================
+@startuml Matchia_01_Global_Detaille
+title MATCHIA — Diagramme de classes global détaillé
+caption Modèle métier JPA, cardinalités UML, contraintes et références logiques
+
+' Palette bleu clair à fort contraste, adaptée à l'impression et à l'écran.
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam roundcorner 6
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam defaultFontColor #172B4D
+skinparam ArrowColor #2F75B5
+skinparam ArrowFontColor #172B4D
+skinparam ArrowThickness 1.5
+skinparam ClassBackgroundColor #EAF4FF
+skinparam ClassBorderColor #2F75B5
+skinparam ClassFontColor #172B4D
+skinparam ClassHeaderBackgroundColor #CFE8FF
+skinparam ClassAttributeFontColor #172B4D
+skinparam ClassStereotypeFontColor #1F4E79
+skinparam EnumBackgroundColor #F3F0FF
+skinparam EnumBorderColor #7A6FB0
+skinparam EnumFontColor #2D2857
+skinparam PackageBackgroundColor #F8FBFF
+skinparam PackageBorderColor #6B93B8
+skinparam PackageFontColor #1F4E79
+skinparam NoteBackgroundColor #FFF9DB
+skinparam NoteBorderColor #C9A227
+hide circle
+hide empty methods
+left to right direction
+
+legend left
+  |= Symbole |= Signification |
+  | <<PK>> | Clé primaire |
+  | <<FK>> | Relation vers une entité |
+  | <<REL>> | Collection d’entités |
+  | <<ENUM>> | Attribut énuméré |
+  | *-- | Composition / cycle de vie dépendant |
+  | -- | Association structurelle |
+  | ..> | Référence logique sans contrainte FK |
+endlegend
+
+
+package "Noyau SaaS, tenant et abonnement" as package_core #EAF3FB {
+' Interfaces/front : SaaS, banque, public
+class Bank <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [0..1] <<FK>>
+  - users : List<User> [0..*] <<REL>>
+  - requests : List<Request> [0..*] <<REL>>
+  - name : String
+  - slug : String
+  - email : String
+  - phone : String
+  - logoText : String
+  - logoUrl : String
+  - country : String
+  - description : String
+  - websiteUrl : String
+  - establishedYear : Integer
+  - status : BankStatusEnum <<ENUM>>
+  - totalUsers : Integer
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : paiement et revenus
+class Payment <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - request : Request [1] <<FK>>
+  - subscription : Subscription [0..1] <<FK>>
+  - renewalRequest : Request [0..1] <<FK>>
+  - stripeSessionId : String {unique}
+  - stripePaymentIntentId : String
+  - amount : BigDecimal {required}
+  - currency : String {required}
+  - status : PaymentStatusEnum {required} <<ENUM>>
+  - paymentType : PaymentTypeEnum {required} <<ENUM>>
+  - renewedPayment : Payment [0..1] <<FK>>
+  - checkoutUrl : String
+  - bankName : String
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  - paidAt : LocalDateTime
+}
+
+' Interfaces/front : adhésion, demandes, renouvellement
+class Request <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [0..1] <<FK>>
+  - requestType : RequestTypeEnum <<ENUM>>
+  - status : RequestStatusEnum <<ENUM>>
+  - priority : String
+  - rejectionReason : String
+  - createdBy : String
+  - bankName : String
+  - bankEmail : String
+  - bankPhone : String
+  - logoUrl : String
+  - country : String
+  - website : String
+  - contactName : String
+  - contactEmail : String
+  - contactPhone : String
+  - contactImageUrl : String
+  - description : String
+  - bankDescription : String
+  - establishmentYear : Integer
+  - marketplaceSlug : String
+  - marketplaceDescription : String
+  - primaryColor : String
+  - secondaryColor : String
+  - banniereUrl : String
+  - selectedStores : String
+  - selectedModules : String
+  - totalAmount : Double
+  - originalRequest : Request [0..1] <<FK>>
+  - subscription : Subscription [0..1] <<FK>>
+  - selectedStoreDetails : List<RequestStoreSelection> [0..*] <<REL>>
+  - stores : List<Store> [0..*] <<REL>>
+  - modules : List<Module> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : récapitulatif de demande
+class RequestModuleSelection <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - requestStore : RequestStoreSelection [1] <<FK>>
+  - moduleId : Long
+  - moduleName : String
+  - moduleDescription : String
+  - modulePrice : BigDecimal
+  - parameters : String
+}
+
+' Interfaces/front : récapitulatif de demande
+class RequestStoreSelection <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - request : Request [1] <<FK>>
+  - storeId : Long
+  - storeName : String
+  - storeDescription : String
+  - storePrice : BigDecimal
+  - modules : List<RequestModuleSelection> [0..*] <<REL>>
+}
+
+' Interfaces/front : offres et abonnement
+class Subscription <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - request : Request [1] {unique} <<FK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - status : SubscriptionStatusEnum {required} <<ENUM>>
+  - startDate : LocalDate
+  - expirationDate : LocalDate
+  - renewalReminderSentAt : LocalDateTime
+  - durationMonths : Integer {required}
+  - payments : List<Payment> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(request)}
+}
+
+' Interfaces/front : auth, SaaS, banque, client
+class User <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [0..1] <<FK>>
+  - dealer : Dealer [0..1] <<FK>>
+  - fullName : String
+  - email : String
+  - phone : String
+  - address : String
+  - contactImageUrl : String
+  - birthDate : LocalDate
+  - role : RoleEnum <<ENUM>>
+  - status : UserStatusEnum <<ENUM>>
+  - password : String
+  - createdAt : LocalDateTime {created}
+}
+}
+
+package "Catalogue, stores et marketplace" as package_catalog #E2F0D9 {
+' Interfaces/front : contenus SaaS
+class Content <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - store : Store [1] <<FK>>
+  - title : String {required}
+  - description : String
+  - imageUrl : String
+  - status : ContentStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : visibilité par marketplace
+class ContentVisibility <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - content : Content [1] <<FK>>
+  - visible : Boolean {required}
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(marketplace, content)}
+}
+
+' Interfaces/front : branding et portail public
+class Marketplace <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] {unique} <<FK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - primaryColor : String
+  - secondaryColor : String
+  - homepageTitle : String
+  - welcomeText : String
+  - banniereUrl : String
+  - footerText : String
+  - logoImageUrl : String
+  - totalMonthlyPrice : BigDecimal
+  - status : MarketplaceStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  .. Opérations métier ..
+  + getBannerImageUrl(): String
+  + setBannerImageUrl(url: String): void
+}
+
+' Interfaces/front : contenus propres à une banque
+class MarketplaceContent <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - store : Store [0..1] <<FK>>
+  - title : String {required}
+  - description : String
+  - imageUrl : String
+  - status : ContentStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : matrice et stores assignés
+class MarketplaceStore <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - marketplaceStoreModules : List<MarketplaceStoreModule> [0..*] <<REL>>
+  - enabled : Boolean
+  - visible : Boolean
+  - bannerImageUrl : String
+  - bannerImages : List<MarketplaceStoreBanner> [0..*] <<REL>>
+  .. Contraintes ..
+  {field} {unique(marketplace, store)}
+}
+
+' Interfaces/front : carrousel du store
+class MarketplaceStoreBanner <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStore : MarketplaceStore [1] <<FK>>
+  - imageUrl : String {required}
+  - displayOrder : Integer {required}
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : modules visibles
+class MarketplaceStoreModule <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStore : MarketplaceStore [1] <<FK>>
+  - module : Module [1] <<FK>>
+  - enabled : Boolean
+  - visible : Boolean
+  .. Contraintes ..
+  {field} {unique(marketplaceStore, module)}
+}
+
+' Interfaces/front : catalogue fonctionnel
+class Module <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStoreModules : List<MarketplaceStoreModule> [0..*] <<REL>>
+  - moduleStores : List<ModuleStore> [0..*] <<REL>>
+  - name : String
+  - description : String
+  - icon : String
+  - category : String
+  - price : BigDecimal
+  - status : ModuleStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : affectation store/module
+class ModuleStore <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - store : Store [1] <<FK>>
+  - module : Module [1] <<FK>>
+  - parameters : List<ModuleStoreParameter> [0..*] <<REL>>
+  - actif : Boolean
+  - ordre : Integer
+  - price : BigDecimal
+}
+
+' Interfaces/front : paramétrage des modules
+class ModuleStoreParameter <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - moduleStore : ModuleStore [1] <<FK>>
+  - name : String
+  - code : String
+  - type : String
+  - required : Boolean
+  - value : String
+  - options : String
+}
+
+' Interfaces/front : produits banque historiques
+class Product <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - description : String
+  - price : BigDecimal
+  - imageUrl : String
+  - parameterValues : List<ProductParameterValue> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : schéma de produit
+class ProductParameterDefinition <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(store, name)}
+}
+
+' Interfaces/front : valeurs produit
+class ProductParameterValue <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : Product [1] <<FK>>
+  - parameterDefinition : ProductParameterDefinition [1] <<FK>>
+  - value : String
+  .. Contraintes ..
+  {field} {unique(product, parameterDefinition)}
+}
+
+' Interfaces/front : catalogue et navigation
+class Store <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - moduleStores : List<ModuleStore> [0..*] <<REL>>
+  - contents : List<Content> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - name : String
+  - description : String
+  - icon : String
+  - banniereUrl : String
+  - price : BigDecimal
+  - status : StoreStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+}
+}
+
+package "Concessionnaires et partenariats" as package_dealer #FCE4D6 {
+' Interfaces/front : annuaire et espace concessionnaire
+class Dealer <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - companyName : String {required}
+  - registrationNumber : String {required}
+  - address : String {required}
+  - contactPerson : String {required}
+  - email : String {required}
+  - phone : String {required}
+  - website : String
+  - logoUrl : String
+  - contactPhotoUrl : String
+  - store : Store [1] <<FK>>
+  - status : DealerStatusEnum {required} <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(registrationNumber)}
+  {field} {unique(email)}
+}
+
+' Interfaces/front : inscription concessionnaire
+class DealerAccountRequest <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - companyName : String {required}
+  - registrationNumber : String {required}
+  - address : String {required}
+  - contactPerson : String {required}
+  - email : String {required}
+  - phone : String {required}
+  - website : String
+  - logoUrl : String
+  - contactPhotoUrl : String
+  - store : Store [1] <<FK>>
+  - documentUrls : List<String> [0..*] {required}
+  - status : DealerRequestStatusEnum {required} <<ENUM>>
+  - rejectionReason : String
+  - submittedAt : LocalDateTime {created}
+  - processedAt : LocalDateTime
+}
+
+' Interfaces/front : partenariats banque/dealer
+class DealerBankPartnership <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - dealer : Dealer [1] <<FK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - status : DealerPartnershipStatusEnum {required} <<ENUM>>
+  - initiatedBy : PartnershipInitiatorEnum <<ENUM>>
+  - message : String
+  - rejectionReason : String
+  - requestDate : LocalDateTime {created}
+  - processingDate : LocalDateTime
+  - approvedAt : LocalDateTime
+  - rejectedAt : LocalDateTime
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(dealer, bank, store)}
+}
+
+' Interfaces/front : catalogue concessionnaire
+class DealerProduct <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - dealer : Dealer [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - description : String
+  - price : BigDecimal {required}
+  - imageUrl : String
+  - eligibilityConditions : String
+  - status : DealerProductStatusEnum {required} <<ENUM>>
+  - totalStock : Integer
+  - availableStock : Integer
+  - reservedStock : Integer
+  - parameterValues : List<DealerProductParameterValue> [0..*] <<REL>>
+  - documents : List<DealerProductDocument> [0..*] <<REL>>
+  - catalogImages : List<DealerProductCatalogImage> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : galerie produit
+class DealerProductCatalogImage <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : DealerProduct [1] <<FK>>
+  - imageUrl : String {required}
+  - displayOrder : Integer {required}
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : documents produit
+class DealerProductDocument <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : DealerProduct [1] <<FK>>
+  - documentType : String {required}
+  - fileName : String {required}
+  - filePath : String {required}
+  - publicDocument : boolean {required}
+  - uploadedAt : LocalDateTime {created}
+}
+
+' Interfaces/front : caractéristiques produit
+class DealerProductParameterValue <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : DealerProduct [1] <<FK>>
+  - parameterDefinition : ProductParameterDefinition [1] <<FK>>
+  - value : String
+  .. Contraintes ..
+  {field} {unique(product, parameterDefinition)}
+}
+
+' Interfaces/front : contrats et prévisualisation PDF
+class PartnershipContract <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - contractNumber : String {unique, required}
+  - partnership : DealerBankPartnership [1] <<FK>>
+  - versionNumber : Integer {required}
+  - templateVersion : String {required}
+  - dealer : Dealer [1] <<FK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - status : PartnershipContractStatusEnum {required} <<ENUM>>
+  - startDate : LocalDate
+  - endDate : LocalDate
+  - billingModel : PartnershipBillingModelEnum {required} <<ENUM>>
+  - commissionApplicable : Boolean {required}
+  - commissionType : PartnershipCommissionTypeEnum <<ENUM>>
+  - commissionValue : BigDecimal
+  - contractTerms : String
+  - terminationConditions : String
+  - specificConditions : String
+  - renderedHtml : String
+  - generatedDocumentPath : String
+  - dealerAcceptedAt : LocalDateTime
+  - bankAcceptedAt : LocalDateTime
+  - sentAt : LocalDateTime
+  - rejectionReason : String
+  - createdAt : LocalDateTime {required, created}
+  - updatedAt : LocalDateTime {required, updated}
+  .. Contraintes ..
+  {field} {unique(partnership, versionNumber)}
+  {field} {unique(contractNumber)}
+}
+
+' Interfaces/front : validation de publication
+class ProductPublicationRequest <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : DealerProduct [1] <<FK>>
+  - dealer : Dealer [1] <<FK>>
+  - partnership : DealerBankPartnership [1] <<FK>>
+  - bank : Bank [1] <<FK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - status : ProductPublicationStatusEnum {required} <<ENUM>>
+  - rejectionReason : String
+  - active : Boolean {required}
+  - submittedAt : LocalDateTime {created}
+  - processedAt : LocalDateTime
+  .. Contraintes ..
+  {field} {unique(product, bank, store)}
+}
+}
+
+package "Financement client" as package_finance #E4DFEC {
+' Interfaces/front : simulateur et dossiers client
+class FinancingRequest <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - version : Long {version}
+  - reference : String {unique, required}
+  - client : User [1] <<FK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - product : Product [0..1] <<FK>>
+  - dealerProduct : DealerProduct [0..1] <<FK>>
+  - status : FinancingRequestStatusEnum {required} <<ENUM>>
+  - requestedAmount : BigDecimal
+  - monthlyPayment : BigDecimal
+  - downPayment : BigDecimal
+  - durationMonths : Integer
+  - annualRate : BigDecimal
+  - simulationData : String
+  - processingComment : String
+  - rejectionReason : String
+  - processedAt : LocalDateTime
+  - processedBy : User [0..1] <<FK>>
+  - stockReserved : Boolean {required}
+  - createdAt : LocalDateTime {required, created}
+  - updatedAt : LocalDateTime {required, updated}
+  - documents : List<FinancingRequestDocument> [0..*] <<REL>>
+}
+
+' Interfaces/front : pièces du dossier
+class FinancingRequestDocument <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - financingRequest : FinancingRequest [1] <<FK>>
+  - documentType : String {required}
+  - originalFilename : String {required}
+  - storedFilename : String {unique, required}
+  - contentType : String
+  - fileSize : Long
+  - uploadedAt : LocalDateTime {required, created}
+  .. Contraintes ..
+  {field} {unique(financingRequest, documentType)}
+  {field} {unique(storedFilename)}
+}
+
+' Interfaces/front : pièces exigées
+class RequiredFinancingDocument <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - documentType : String {required}
+  - label : String {required}
+  - required : boolean {required}
+  - active : boolean {required}
+  .. Contraintes ..
+  {field} {unique(bank, store, documentType)}
+}
+}
+
+package "Sécurité, notifications et audit" as package_security #FFF2CC {
+' Interfaces/front : audit SaaS et export
+class AuditLog <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - tenantId : String
+  - actorId : String
+  - actorName : String
+  - actorEmail : String
+  - actorRole : String
+  - action : String {required}
+  - category : AuditCategoryEnum {required} <<ENUM>>
+  - resourceType : String
+  - resourceId : String
+  - status : AuditStatusEnum {required} <<ENUM>>
+  - ipAddress : String
+  - userAgent : String
+  - diff : String
+  - metadata : String
+  - affectedUserId : String
+  - affectedUserName : String
+  - bankId : String
+  - marketplaceId : String
+  - emailRecipient : String
+  - source : String
+  - correlationId : String
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : vérification inscription client
+class ClientRegistrationVerification <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] <<FK>>
+  - email : String {required}
+  - fullName : String {required}
+  - phone : String {required}
+  - address : String {required}
+  - birthDate : LocalDate {required}
+  - contactImageUrl : String
+  - passwordHash : String {required}
+  - codeHash : String {required}
+  - createdAt : Instant {required}
+  - expiresAt : Instant {required}
+  - invalidatedAt : Instant
+  - consumedAt : Instant
+}
+
+' Interfaces/front : vérification adhésion banque
+class JoinEmailVerification <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - email : String {required}
+  - codeHash : String {required}
+  - createdAt : Instant {required}
+  - expiresAt : Instant {required}
+  - invalidatedAt : Instant
+  - verifiedAt : Instant
+  - consumedAt : Instant
+  - verificationTokenHash : String {unique}
+  - verificationTokenExpiresAt : Instant
+  .. Contraintes ..
+  {field} {unique(verificationTokenHash)}
+}
+
+' Interfaces/front : panneaux de notifications
+class Notification <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - title : String {required}
+  - message : String {required}
+  - type : NotificationTypeEnum {required} <<ENUM>>
+  - status : NotificationStatusEnum {required} <<ENUM>>
+  - relatedRequestId : Long
+  - recipientId : Long
+  - recipientScope : NotificationRecipientScope <<ENUM>>
+  - createdAt : LocalDateTime {required, created}
+  - readAt : LocalDateTime
+}
+
+' Interfaces/front : mot de passe oublié
+class PasswordResetToken <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - tokenHash : String {unique, required}
+  - user : User [1] <<FK>>
+  - createdAt : Instant {required, created}
+  - expiresAt : Instant {required}
+  - usedAt : Instant
+  - ipAddress : String
+  - userAgent : String
+  .. Opérations métier ..
+  + isUsable(): boolean
+  .. Contraintes ..
+  {field} {unique(tokenHash)}
+}
+
+' Interfaces/front : session persistante
+class RefreshToken <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - tokenHash : String {unique, required}
+  - tokenId : String {unique, required}
+  - tokenFamilyId : String {required}
+  - user : User [1] <<FK>>
+  - createdAt : Instant {required, created}
+  - issuedAt : Instant {required}
+  - expiresAt : Instant {required}
+  - revokedAt : Instant
+  - lastUsedAt : Instant
+  - revokedReason : String
+  - replacedByTokenHash : String
+  - ipAddress : String
+  - userAgent : String
+  .. Opérations métier ..
+  + isActive(): boolean
+  .. Contraintes ..
+  {field} {unique(tokenHash)}
+  {field} {unique(tokenId)}
+}
+}
+
+package "Énumérations métier" as package_enums #F8F6FF {
+enum AuditCategoryEnum <<enumeration>> {
+  core
+  security
+  data_config
+  billing
+}
+
+enum AuditStatusEnum <<enumeration>> {
+  success
+  failure
+}
+
+enum BankStatusEnum <<enumeration>> {
+  pending
+  inactive
+  rejected
+  active
+  suspended
+}
+
+enum ContentStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum DealerPartnershipStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  WAITING_CONTRACT
+  ACTIVE
+  REJECTED
+  SUSPENDED
+  TERMINATED
+}
+
+enum DealerProductStatusEnum <<enumeration>> {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum DealerRequestStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DealerStatusEnum <<enumeration>> {
+  PENDING
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum FinancingRequestStatusEnum <<enumeration>> {
+  DRAFT
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum MarketplaceStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum ModuleStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum NotificationRecipientScope <<enumeration>> {
+  BANK
+  USER
+}
+
+enum NotificationStatusEnum <<enumeration>> {
+  UNREAD
+  READ
+}
+
+enum NotificationTypeEnum <<enumeration>> {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  PAYMENT_SUCCESS
+}
+
+enum PartnershipBillingModelEnum <<enumeration>> {
+  FREE
+}
+
+enum PartnershipCommissionTypeEnum <<enumeration>> {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum PartnershipContractStatusEnum <<enumeration>> {
+  DRAFT
+  PENDING_ACCEPTANCE
+  ACTIVE
+  SUPERSEDED
+  EXPIRED
+  TERMINATED
+  CANCELLED
+}
+
+enum PartnershipInitiatorEnum <<enumeration>> {
+  DEALER
+  BANK
+}
+
+enum PaymentStatusEnum <<enumeration>> {
+  pending
+  paid
+  cancelled
+  failed
+}
+
+enum PaymentTypeEnum <<enumeration>> {
+  INITIAL
+  RENEWAL
+}
+
+enum ProductPublicationStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  REJECTED
+  INACTIVE
+}
+
+enum RequestStatusEnum <<enumeration>> {
+  pending
+  approved
+  rejected
+}
+
+enum RequestTypeEnum <<enumeration>> {
+  join
+  store
+  module
+  subscription
+  renewal
+}
+
+enum RoleEnum <<enumeration>> {
+  ADMIN_SAAS
+  ADMIN_BANK
+  DEALER_ADMIN
+  CLIENT
+}
+
+enum StoreStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum SubscriptionStatusEnum <<enumeration>> {
+  PENDING_PAYMENT
+  ACTIVE
+  EXPIRED
+  PENDING_RENEWAL
+  CANCELLED
+}
+
+enum UserStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+}
+
+' Associations métier et multiplicités UML
+
+Bank "1" *-- "0..1" Marketplace : possède
+Bank "0..1" -- "0..*" User : utilisateurs
+Dealer "0..1" -- "0..*" User : comptes dealer
+Bank "0..1" -- "0..*" Request : demandes
+Request "1" *-- "0..*" RequestStoreSelection : snapshot stores
+RequestStoreSelection "1" *-- "0..*" RequestModuleSelection : snapshot modules
+Request "0..*" -- "0..*" Store : sélection active (request_store)
+Request "0..*" -- "0..*" Module : sélection agrégée (request_module)
+RequestStoreSelection "0..*" ..> "0..1" Store : storeId <<référence logique>>
+RequestModuleSelection "0..*" ..> "0..1" Module : moduleId <<référence logique>>
+Request "0..1" -- "0..*" Request : originale / renouvellements
+Request "1" -- "0..1" Subscription : crée abonnement
+Subscription "0..1" -- "0..*" Request : demandes de renouvellement
+Marketplace "1" -- "0..*" Subscription : abonnements
+Request "1" -- "0..*" Payment : paiements
+Subscription "0..1" -- "0..*" Payment : historique
+Request "0..1" -- "0..*" Payment : autorise renouvellement
+Payment "0..1" -- "0..*" Payment : paiement renouvelé
+Marketplace "1" *-- "0..*" MarketplaceStore : stores affectés
+Store "1" -- "0..*" MarketplaceStore : affectations
+MarketplaceStore "1" *-- "0..*" MarketplaceStoreBanner : carrousel
+MarketplaceStore "1" *-- "0..*" MarketplaceStoreModule : modules visibles
+Module "1" -- "0..*" MarketplaceStoreModule : affectations
+Store "1" -- "0..*" ModuleStore : configuration modules
+Module "1" -- "0..*" ModuleStore : configuration stores
+ModuleStore "1" *-- "0..*" ModuleStoreParameter : paramètres
+Store "1" *-- "0..*" Content : contenus catalogue
+Marketplace "1" -- "0..*" ContentVisibility : règles de visibilité
+Content "1" -- "0..*" ContentVisibility : visibilités
+Marketplace "1" *-- "0..*" MarketplaceContent : contenus personnalisés
+Store "0..1" -- "0..*" MarketplaceContent : cible store
+Bank "1" -- "0..*" Product : produits banque
+Store "1" -- "0..*" Product : type de produit
+Product "1" *-- "0..*" ProductParameterValue : valeurs
+Store "1" -- "0..*" ProductParameterDefinition : définit le schéma
+ProductParameterDefinition "1" -- "0..*" ProductParameterValue : instancie
+Store "1" -- "0..*" Dealer : spécialité
+Store "1" -- "0..*" DealerAccountRequest : inscriptions
+Dealer "1" -- "0..*" DealerBankPartnership : partenariats
+Bank "1" -- "0..*" DealerBankPartnership : partenariats
+Store "1" -- "0..*" DealerBankPartnership : périmètre
+DealerBankPartnership "1" *-- "0..*" PartnershipContract : versions contrat
+Dealer "1" -- "0..*" PartnershipContract : contractant
+Bank "1" -- "0..*" PartnershipContract : contractant
+Store "1" -- "0..*" PartnershipContract : objet du contrat
+Dealer "1" -- "0..*" DealerProduct : catalogue
+Store "1" -- "0..*" DealerProduct : catégorie
+DealerProduct "1" *-- "0..*" DealerProductParameterValue : caractéristiques
+ProductParameterDefinition "1" -- "0..*" DealerProductParameterValue : définition
+DealerProduct "1" *-- "0..*" DealerProductDocument : documents
+DealerProduct "1" *-- "0..*" DealerProductCatalogImage : galerie
+DealerProduct "1" -- "0..*" ProductPublicationRequest : demandes publication
+Dealer "1" -- "0..*" ProductPublicationRequest : soumet
+DealerBankPartnership "1" -- "0..*" ProductPublicationRequest : autorise
+Bank "1" -- "0..*" ProductPublicationRequest : valide
+Marketplace "1" -- "0..*" ProductPublicationRequest : publie dans
+Store "1" -- "0..*" ProductPublicationRequest : store cible
+User "1" -- "0..*" FinancingRequest : client
+Bank "1" -- "0..*" FinancingRequest : traite
+Store "1" -- "0..*" FinancingRequest : type financement
+Product "0..1" -- "0..*" FinancingRequest : produit banque
+DealerProduct "0..1" -- "0..*" FinancingRequest : produit dealer
+User "0..1" -- "0..*" FinancingRequest : processedBy
+FinancingRequest "1" *-- "0..*" FinancingRequestDocument : pièces jointes
+Bank "1" -- "0..*" RequiredFinancingDocument : exigences
+Store "1" -- "0..*" RequiredFinancingDocument : exigences
+User "1" *-- "0..*" RefreshToken : sessions
+User "1" *-- "0..*" PasswordResetToken : réinitialisations
+Bank "1" -- "0..*" ClientRegistrationVerification : inscriptions clients
+Notification "0..*" ..> "0..1" Request : relatedRequestId <<référence logique>>
+Notification "0..*" ..> "0..1" User : recipientId [USER] <<référence logique>>
+Notification "0..*" ..> "0..1" Bank : recipientId [BANK] <<référence logique>>
+AuditLog "0..*" ..> "0..1" User : actorId / affectedUserId <<référence logique>>
+AuditLog "0..*" ..> "0..1" Bank : bankId <<référence logique>>
+AuditLog "0..*" ..> "0..1" Marketplace : marketplaceId <<référence logique>>
+
+' Dépendances de typage vers les énumérations
+
+AuditLog ..> AuditCategoryEnum : utilise
+AuditLog ..> AuditStatusEnum : utilise
+Bank ..> BankStatusEnum : utilise
+Content ..> ContentStatusEnum : utilise
+Dealer ..> DealerStatusEnum : utilise
+DealerAccountRequest ..> DealerRequestStatusEnum : utilise
+DealerBankPartnership ..> DealerPartnershipStatusEnum : utilise
+DealerBankPartnership ..> PartnershipInitiatorEnum : utilise
+DealerProduct ..> DealerProductStatusEnum : utilise
+FinancingRequest ..> FinancingRequestStatusEnum : utilise
+Marketplace ..> MarketplaceStatusEnum : utilise
+MarketplaceContent ..> ContentStatusEnum : utilise
+Module ..> ModuleStatusEnum : utilise
+Notification ..> NotificationRecipientScope : utilise
+Notification ..> NotificationStatusEnum : utilise
+Notification ..> NotificationTypeEnum : utilise
+PartnershipContract ..> PartnershipBillingModelEnum : utilise
+PartnershipContract ..> PartnershipCommissionTypeEnum : utilise
+PartnershipContract ..> PartnershipContractStatusEnum : utilise
+Payment ..> PaymentStatusEnum : utilise
+Payment ..> PaymentTypeEnum : utilise
+ProductPublicationRequest ..> ProductPublicationStatusEnum : utilise
+Request ..> RequestStatusEnum : utilise
+Request ..> RequestTypeEnum : utilise
+Store ..> StoreStatusEnum : utilise
+Subscription ..> SubscriptionStatusEnum : utilise
+User ..> RoleEnum : utilise
+User ..> UserStatusEnum : utilise
+
+@enduml
+
+
+@startuml Matchia_02_Noyau_SaaS_Abonnement
+title MATCHIA — Noyau SaaS, demandes, abonnement et paiement
+caption Adhésion banque, sélection des services, souscription et paiements
+
+' Palette bleu clair à fort contraste, adaptée à l'impression et à l'écran.
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam roundcorner 6
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam defaultFontColor #172B4D
+skinparam ArrowColor #2F75B5
+skinparam ArrowFontColor #172B4D
+skinparam ArrowThickness 1.5
+skinparam ClassBackgroundColor #EAF4FF
+skinparam ClassBorderColor #2F75B5
+skinparam ClassFontColor #172B4D
+skinparam ClassHeaderBackgroundColor #CFE8FF
+skinparam ClassAttributeFontColor #172B4D
+skinparam ClassStereotypeFontColor #1F4E79
+skinparam EnumBackgroundColor #F3F0FF
+skinparam EnumBorderColor #7A6FB0
+skinparam EnumFontColor #2D2857
+skinparam PackageBackgroundColor #F8FBFF
+skinparam PackageBorderColor #6B93B8
+skinparam PackageFontColor #1F4E79
+skinparam NoteBackgroundColor #FFF9DB
+skinparam NoteBorderColor #C9A227
+hide circle
+hide empty methods
+left to right direction
+
+legend left
+  |= Symbole |= Signification |
+  | <<PK>> | Clé primaire |
+  | <<FK>> | Relation vers une entité |
+  | <<REL>> | Collection d’entités |
+  | <<ENUM>> | Attribut énuméré |
+  | *-- | Composition / cycle de vie dépendant |
+  | -- | Association structurelle |
+  | ..> | Référence logique sans contrainte FK |
+endlegend
+
+
+' Interfaces/front : SaaS, banque, public
+class Bank <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [0..1] <<FK>>
+  - users : List<User> [0..*] <<REL>>
+  - requests : List<Request> [0..*] <<REL>>
+  - name : String
+  - slug : String
+  - email : String
+  - phone : String
+  - logoText : String
+  - logoUrl : String
+  - country : String
+  - description : String
+  - websiteUrl : String
+  - establishedYear : Integer
+  - status : BankStatusEnum <<ENUM>>
+  - totalUsers : Integer
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : auth, SaaS, banque, client
+class User <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [0..1] <<FK>>
+  - dealer : Dealer [0..1] <<FK>>
+  - fullName : String
+  - email : String
+  - phone : String
+  - address : String
+  - contactImageUrl : String
+  - birthDate : LocalDate
+  - role : RoleEnum <<ENUM>>
+  - status : UserStatusEnum <<ENUM>>
+  - password : String
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : branding et portail public
+class Marketplace <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] {unique} <<FK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - primaryColor : String
+  - secondaryColor : String
+  - homepageTitle : String
+  - welcomeText : String
+  - banniereUrl : String
+  - footerText : String
+  - logoImageUrl : String
+  - totalMonthlyPrice : BigDecimal
+  - status : MarketplaceStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  .. Opérations métier ..
+  + getBannerImageUrl(): String
+  + setBannerImageUrl(url: String): void
+}
+
+' Interfaces/front : adhésion, demandes, renouvellement
+class Request <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [0..1] <<FK>>
+  - requestType : RequestTypeEnum <<ENUM>>
+  - status : RequestStatusEnum <<ENUM>>
+  - priority : String
+  - rejectionReason : String
+  - createdBy : String
+  - bankName : String
+  - bankEmail : String
+  - bankPhone : String
+  - logoUrl : String
+  - country : String
+  - website : String
+  - contactName : String
+  - contactEmail : String
+  - contactPhone : String
+  - contactImageUrl : String
+  - description : String
+  - bankDescription : String
+  - establishmentYear : Integer
+  - marketplaceSlug : String
+  - marketplaceDescription : String
+  - primaryColor : String
+  - secondaryColor : String
+  - banniereUrl : String
+  - selectedStores : String
+  - selectedModules : String
+  - totalAmount : Double
+  - originalRequest : Request [0..1] <<FK>>
+  - subscription : Subscription [0..1] <<FK>>
+  - selectedStoreDetails : List<RequestStoreSelection> [0..*] <<REL>>
+  - stores : List<Store> [0..*] <<REL>>
+  - modules : List<Module> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : récapitulatif de demande
+class RequestStoreSelection <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - request : Request [1] <<FK>>
+  - storeId : Long
+  - storeName : String
+  - storeDescription : String
+  - storePrice : BigDecimal
+  - modules : List<RequestModuleSelection> [0..*] <<REL>>
+}
+
+' Interfaces/front : récapitulatif de demande
+class RequestModuleSelection <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - requestStore : RequestStoreSelection [1] <<FK>>
+  - moduleId : Long
+  - moduleName : String
+  - moduleDescription : String
+  - modulePrice : BigDecimal
+  - parameters : String
+}
+
+' Interfaces/front : catalogue et navigation
+class Store <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - moduleStores : List<ModuleStore> [0..*] <<REL>>
+  - contents : List<Content> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - name : String
+  - description : String
+  - icon : String
+  - banniereUrl : String
+  - price : BigDecimal
+  - status : StoreStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : catalogue fonctionnel
+class Module <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStoreModules : List<MarketplaceStoreModule> [0..*] <<REL>>
+  - moduleStores : List<ModuleStore> [0..*] <<REL>>
+  - name : String
+  - description : String
+  - icon : String
+  - category : String
+  - price : BigDecimal
+  - status : ModuleStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : offres et abonnement
+class Subscription <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - request : Request [1] {unique} <<FK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - status : SubscriptionStatusEnum {required} <<ENUM>>
+  - startDate : LocalDate
+  - expirationDate : LocalDate
+  - renewalReminderSentAt : LocalDateTime
+  - durationMonths : Integer {required}
+  - payments : List<Payment> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(request)}
+}
+
+' Interfaces/front : paiement et revenus
+class Payment <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - request : Request [1] <<FK>>
+  - subscription : Subscription [0..1] <<FK>>
+  - renewalRequest : Request [0..1] <<FK>>
+  - stripeSessionId : String {unique}
+  - stripePaymentIntentId : String
+  - amount : BigDecimal {required}
+  - currency : String {required}
+  - status : PaymentStatusEnum {required} <<ENUM>>
+  - paymentType : PaymentTypeEnum {required} <<ENUM>>
+  - renewedPayment : Payment [0..1] <<FK>>
+  - checkoutUrl : String
+  - bankName : String
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  - paidAt : LocalDateTime
+}
+
+' Interfaces/front : panneaux de notifications
+class Notification <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - title : String {required}
+  - message : String {required}
+  - type : NotificationTypeEnum {required} <<ENUM>>
+  - status : NotificationStatusEnum {required} <<ENUM>>
+  - relatedRequestId : Long
+  - recipientId : Long
+  - recipientScope : NotificationRecipientScope <<ENUM>>
+  - createdAt : LocalDateTime {required, created}
+  - readAt : LocalDateTime
+}
+
+' Interfaces/front : audit SaaS et export
+class AuditLog <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - tenantId : String
+  - actorId : String
+  - actorName : String
+  - actorEmail : String
+  - actorRole : String
+  - action : String {required}
+  - category : AuditCategoryEnum {required} <<ENUM>>
+  - resourceType : String
+  - resourceId : String
+  - status : AuditStatusEnum {required} <<ENUM>>
+  - ipAddress : String
+  - userAgent : String
+  - diff : String
+  - metadata : String
+  - affectedUserId : String
+  - affectedUserName : String
+  - bankId : String
+  - marketplaceId : String
+  - emailRecipient : String
+  - source : String
+  - correlationId : String
+  - createdAt : LocalDateTime {created}
+}
+
+package "Énumérations métier" as package_enums #F8F6FF {
+enum AuditCategoryEnum <<enumeration>> {
+  core
+  security
+  data_config
+  billing
+}
+
+enum AuditStatusEnum <<enumeration>> {
+  success
+  failure
+}
+
+enum BankStatusEnum <<enumeration>> {
+  pending
+  inactive
+  rejected
+  active
+  suspended
+}
+
+enum MarketplaceStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum ModuleStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum NotificationRecipientScope <<enumeration>> {
+  BANK
+  USER
+}
+
+enum NotificationStatusEnum <<enumeration>> {
+  UNREAD
+  READ
+}
+
+enum NotificationTypeEnum <<enumeration>> {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  PAYMENT_SUCCESS
+}
+
+enum PaymentStatusEnum <<enumeration>> {
+  pending
+  paid
+  cancelled
+  failed
+}
+
+enum PaymentTypeEnum <<enumeration>> {
+  INITIAL
+  RENEWAL
+}
+
+enum RequestStatusEnum <<enumeration>> {
+  pending
+  approved
+  rejected
+}
+
+enum RequestTypeEnum <<enumeration>> {
+  join
+  store
+  module
+  subscription
+  renewal
+}
+
+enum RoleEnum <<enumeration>> {
+  ADMIN_SAAS
+  ADMIN_BANK
+  DEALER_ADMIN
+  CLIENT
+}
+
+enum StoreStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum SubscriptionStatusEnum <<enumeration>> {
+  PENDING_PAYMENT
+  ACTIVE
+  EXPIRED
+  PENDING_RENEWAL
+  CANCELLED
+}
+
+enum UserStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+}
+
+' Associations métier et multiplicités UML
+
+Bank "1" *-- "0..1" Marketplace : possède
+Bank "0..1" -- "0..*" User : utilisateurs
+Bank "0..1" -- "0..*" Request : demandes
+Request "1" *-- "0..*" RequestStoreSelection : snapshot stores
+RequestStoreSelection "1" *-- "0..*" RequestModuleSelection : snapshot modules
+Request "0..*" -- "0..*" Store : sélection active (request_store)
+Request "0..*" -- "0..*" Module : sélection agrégée (request_module)
+RequestStoreSelection "0..*" ..> "0..1" Store : storeId <<référence logique>>
+RequestModuleSelection "0..*" ..> "0..1" Module : moduleId <<référence logique>>
+Request "0..1" -- "0..*" Request : originale / renouvellements
+Request "1" -- "0..1" Subscription : crée abonnement
+Subscription "0..1" -- "0..*" Request : demandes de renouvellement
+Marketplace "1" -- "0..*" Subscription : abonnements
+Request "1" -- "0..*" Payment : paiements
+Subscription "0..1" -- "0..*" Payment : historique
+Request "0..1" -- "0..*" Payment : autorise renouvellement
+Payment "0..1" -- "0..*" Payment : paiement renouvelé
+Notification "0..*" ..> "0..1" Request : relatedRequestId <<référence logique>>
+Notification "0..*" ..> "0..1" User : recipientId [USER] <<référence logique>>
+Notification "0..*" ..> "0..1" Bank : recipientId [BANK] <<référence logique>>
+AuditLog "0..*" ..> "0..1" User : actorId / affectedUserId <<référence logique>>
+AuditLog "0..*" ..> "0..1" Bank : bankId <<référence logique>>
+AuditLog "0..*" ..> "0..1" Marketplace : marketplaceId <<référence logique>>
+
+' Dépendances de typage vers les énumérations
+
+AuditLog ..> AuditCategoryEnum : utilise
+AuditLog ..> AuditStatusEnum : utilise
+Bank ..> BankStatusEnum : utilise
+Marketplace ..> MarketplaceStatusEnum : utilise
+Module ..> ModuleStatusEnum : utilise
+Notification ..> NotificationRecipientScope : utilise
+Notification ..> NotificationStatusEnum : utilise
+Notification ..> NotificationTypeEnum : utilise
+Payment ..> PaymentStatusEnum : utilise
+Payment ..> PaymentTypeEnum : utilise
+Request ..> RequestStatusEnum : utilise
+Request ..> RequestTypeEnum : utilise
+Store ..> StoreStatusEnum : utilise
+Subscription ..> SubscriptionStatusEnum : utilise
+User ..> RoleEnum : utilise
+User ..> UserStatusEnum : utilise
+
+@enduml
+
+
+@startuml Matchia_03_Catalogue_Marketplace
+title MATCHIA — Catalogue, stores, modules et marketplace
+caption Catalogue central, affectations et personnalisation des marketplaces
+
+' Palette bleu clair à fort contraste, adaptée à l'impression et à l'écran.
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam roundcorner 6
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam defaultFontColor #172B4D
+skinparam ArrowColor #2F75B5
+skinparam ArrowFontColor #172B4D
+skinparam ArrowThickness 1.5
+skinparam ClassBackgroundColor #EAF4FF
+skinparam ClassBorderColor #2F75B5
+skinparam ClassFontColor #172B4D
+skinparam ClassHeaderBackgroundColor #CFE8FF
+skinparam ClassAttributeFontColor #172B4D
+skinparam ClassStereotypeFontColor #1F4E79
+skinparam EnumBackgroundColor #F3F0FF
+skinparam EnumBorderColor #7A6FB0
+skinparam EnumFontColor #2D2857
+skinparam PackageBackgroundColor #F8FBFF
+skinparam PackageBorderColor #6B93B8
+skinparam PackageFontColor #1F4E79
+skinparam NoteBackgroundColor #FFF9DB
+skinparam NoteBorderColor #C9A227
+hide circle
+hide empty methods
+left to right direction
+
+legend left
+  |= Symbole |= Signification |
+  | <<PK>> | Clé primaire |
+  | <<FK>> | Relation vers une entité |
+  | <<REL>> | Collection d’entités |
+  | <<ENUM>> | Attribut énuméré |
+  | *-- | Composition / cycle de vie dépendant |
+  | -- | Association structurelle |
+  | ..> | Référence logique sans contrainte FK |
+endlegend
+
+
+' Interfaces/front : SaaS, banque, public
+class Bank <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [0..1] <<FK>>
+  - users : List<User> [0..*] <<REL>>
+  - requests : List<Request> [0..*] <<REL>>
+  - name : String
+  - slug : String
+  - email : String
+  - phone : String
+  - logoText : String
+  - logoUrl : String
+  - country : String
+  - description : String
+  - websiteUrl : String
+  - establishedYear : Integer
+  - status : BankStatusEnum <<ENUM>>
+  - totalUsers : Integer
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : branding et portail public
+class Marketplace <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] {unique} <<FK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - primaryColor : String
+  - secondaryColor : String
+  - homepageTitle : String
+  - welcomeText : String
+  - banniereUrl : String
+  - footerText : String
+  - logoImageUrl : String
+  - totalMonthlyPrice : BigDecimal
+  - status : MarketplaceStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  .. Opérations métier ..
+  + getBannerImageUrl(): String
+  + setBannerImageUrl(url: String): void
+}
+
+' Interfaces/front : matrice et stores assignés
+class MarketplaceStore <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - marketplaceStoreModules : List<MarketplaceStoreModule> [0..*] <<REL>>
+  - enabled : Boolean
+  - visible : Boolean
+  - bannerImageUrl : String
+  - bannerImages : List<MarketplaceStoreBanner> [0..*] <<REL>>
+  .. Contraintes ..
+  {field} {unique(marketplace, store)}
+}
+
+' Interfaces/front : carrousel du store
+class MarketplaceStoreBanner <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStore : MarketplaceStore [1] <<FK>>
+  - imageUrl : String {required}
+  - displayOrder : Integer {required}
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : modules visibles
+class MarketplaceStoreModule <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStore : MarketplaceStore [1] <<FK>>
+  - module : Module [1] <<FK>>
+  - enabled : Boolean
+  - visible : Boolean
+  .. Contraintes ..
+  {field} {unique(marketplaceStore, module)}
+}
+
+' Interfaces/front : catalogue et navigation
+class Store <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - moduleStores : List<ModuleStore> [0..*] <<REL>>
+  - contents : List<Content> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - name : String
+  - description : String
+  - icon : String
+  - banniereUrl : String
+  - price : BigDecimal
+  - status : StoreStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : catalogue fonctionnel
+class Module <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStoreModules : List<MarketplaceStoreModule> [0..*] <<REL>>
+  - moduleStores : List<ModuleStore> [0..*] <<REL>>
+  - name : String
+  - description : String
+  - icon : String
+  - category : String
+  - price : BigDecimal
+  - status : ModuleStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : affectation store/module
+class ModuleStore <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - store : Store [1] <<FK>>
+  - module : Module [1] <<FK>>
+  - parameters : List<ModuleStoreParameter> [0..*] <<REL>>
+  - actif : Boolean
+  - ordre : Integer
+  - price : BigDecimal
+}
+
+' Interfaces/front : paramétrage des modules
+class ModuleStoreParameter <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - moduleStore : ModuleStore [1] <<FK>>
+  - name : String
+  - code : String
+  - type : String
+  - required : Boolean
+  - value : String
+  - options : String
+}
+
+' Interfaces/front : contenus SaaS
+class Content <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - store : Store [1] <<FK>>
+  - title : String {required}
+  - description : String
+  - imageUrl : String
+  - status : ContentStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : visibilité par marketplace
+class ContentVisibility <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - content : Content [1] <<FK>>
+  - visible : Boolean {required}
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(marketplace, content)}
+}
+
+' Interfaces/front : contenus propres à une banque
+class MarketplaceContent <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - store : Store [0..1] <<FK>>
+  - title : String {required}
+  - description : String
+  - imageUrl : String
+  - status : ContentStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : produits banque historiques
+class Product <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - description : String
+  - price : BigDecimal
+  - imageUrl : String
+  - parameterValues : List<ProductParameterValue> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : schéma de produit
+class ProductParameterDefinition <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(store, name)}
+}
+
+' Interfaces/front : valeurs produit
+class ProductParameterValue <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : Product [1] <<FK>>
+  - parameterDefinition : ProductParameterDefinition [1] <<FK>>
+  - value : String
+  .. Contraintes ..
+  {field} {unique(product, parameterDefinition)}
+}
+
+package "Énumérations métier" as package_enums #F8F6FF {
+enum BankStatusEnum <<enumeration>> {
+  pending
+  inactive
+  rejected
+  active
+  suspended
+}
+
+enum ContentStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum MarketplaceStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum ModuleStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum StoreStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+}
+
+' Associations métier et multiplicités UML
+
+Bank "1" *-- "0..1" Marketplace : possède
+Marketplace "1" *-- "0..*" MarketplaceStore : stores affectés
+Store "1" -- "0..*" MarketplaceStore : affectations
+MarketplaceStore "1" *-- "0..*" MarketplaceStoreBanner : carrousel
+MarketplaceStore "1" *-- "0..*" MarketplaceStoreModule : modules visibles
+Module "1" -- "0..*" MarketplaceStoreModule : affectations
+Store "1" -- "0..*" ModuleStore : configuration modules
+Module "1" -- "0..*" ModuleStore : configuration stores
+ModuleStore "1" *-- "0..*" ModuleStoreParameter : paramètres
+Store "1" *-- "0..*" Content : contenus catalogue
+Marketplace "1" -- "0..*" ContentVisibility : règles de visibilité
+Content "1" -- "0..*" ContentVisibility : visibilités
+Marketplace "1" *-- "0..*" MarketplaceContent : contenus personnalisés
+Store "0..1" -- "0..*" MarketplaceContent : cible store
+Bank "1" -- "0..*" Product : produits banque
+Store "1" -- "0..*" Product : type de produit
+Product "1" *-- "0..*" ProductParameterValue : valeurs
+Store "1" -- "0..*" ProductParameterDefinition : définit le schéma
+ProductParameterDefinition "1" -- "0..*" ProductParameterValue : instancie
+
+' Dépendances de typage vers les énumérations
+
+Bank ..> BankStatusEnum : utilise
+Content ..> ContentStatusEnum : utilise
+Marketplace ..> MarketplaceStatusEnum : utilise
+MarketplaceContent ..> ContentStatusEnum : utilise
+Module ..> ModuleStatusEnum : utilise
+Store ..> StoreStatusEnum : utilise
+
+@enduml
+
+
+@startuml Matchia_04_Dealer_Contrats
+title MATCHIA — Concessionnaires, partenariats et contrats
+caption Inscription dealer, catalogue, contractualisation et publication produit
+
+' Palette bleu clair à fort contraste, adaptée à l'impression et à l'écran.
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam roundcorner 6
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam defaultFontColor #172B4D
+skinparam ArrowColor #2F75B5
+skinparam ArrowFontColor #172B4D
+skinparam ArrowThickness 1.5
+skinparam ClassBackgroundColor #EAF4FF
+skinparam ClassBorderColor #2F75B5
+skinparam ClassFontColor #172B4D
+skinparam ClassHeaderBackgroundColor #CFE8FF
+skinparam ClassAttributeFontColor #172B4D
+skinparam ClassStereotypeFontColor #1F4E79
+skinparam EnumBackgroundColor #F3F0FF
+skinparam EnumBorderColor #7A6FB0
+skinparam EnumFontColor #2D2857
+skinparam PackageBackgroundColor #F8FBFF
+skinparam PackageBorderColor #6B93B8
+skinparam PackageFontColor #1F4E79
+skinparam NoteBackgroundColor #FFF9DB
+skinparam NoteBorderColor #C9A227
+hide circle
+hide empty methods
+left to right direction
+
+legend left
+  |= Symbole |= Signification |
+  | <<PK>> | Clé primaire |
+  | <<FK>> | Relation vers une entité |
+  | <<REL>> | Collection d’entités |
+  | <<ENUM>> | Attribut énuméré |
+  | *-- | Composition / cycle de vie dépendant |
+  | -- | Association structurelle |
+  | ..> | Référence logique sans contrainte FK |
+endlegend
+
+
+' Interfaces/front : inscription concessionnaire
+class DealerAccountRequest <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - companyName : String {required}
+  - registrationNumber : String {required}
+  - address : String {required}
+  - contactPerson : String {required}
+  - email : String {required}
+  - phone : String {required}
+  - website : String
+  - logoUrl : String
+  - contactPhotoUrl : String
+  - store : Store [1] <<FK>>
+  - documentUrls : List<String> [0..*] {required}
+  - status : DealerRequestStatusEnum {required} <<ENUM>>
+  - rejectionReason : String
+  - submittedAt : LocalDateTime {created}
+  - processedAt : LocalDateTime
+}
+
+' Interfaces/front : auth, SaaS, banque, client
+class User <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [0..1] <<FK>>
+  - dealer : Dealer [0..1] <<FK>>
+  - fullName : String
+  - email : String
+  - phone : String
+  - address : String
+  - contactImageUrl : String
+  - birthDate : LocalDate
+  - role : RoleEnum <<ENUM>>
+  - status : UserStatusEnum <<ENUM>>
+  - password : String
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : annuaire et espace concessionnaire
+class Dealer <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - companyName : String {required}
+  - registrationNumber : String {required}
+  - address : String {required}
+  - contactPerson : String {required}
+  - email : String {required}
+  - phone : String {required}
+  - website : String
+  - logoUrl : String
+  - contactPhotoUrl : String
+  - store : Store [1] <<FK>>
+  - status : DealerStatusEnum {required} <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(registrationNumber)}
+  {field} {unique(email)}
+}
+
+' Interfaces/front : catalogue et navigation
+class Store <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - moduleStores : List<ModuleStore> [0..*] <<REL>>
+  - contents : List<Content> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - name : String
+  - description : String
+  - icon : String
+  - banniereUrl : String
+  - price : BigDecimal
+  - status : StoreStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : SaaS, banque, public
+class Bank <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [0..1] <<FK>>
+  - users : List<User> [0..*] <<REL>>
+  - requests : List<Request> [0..*] <<REL>>
+  - name : String
+  - slug : String
+  - email : String
+  - phone : String
+  - logoText : String
+  - logoUrl : String
+  - country : String
+  - description : String
+  - websiteUrl : String
+  - establishedYear : Integer
+  - status : BankStatusEnum <<ENUM>>
+  - totalUsers : Integer
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : branding et portail public
+class Marketplace <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] {unique} <<FK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - primaryColor : String
+  - secondaryColor : String
+  - homepageTitle : String
+  - welcomeText : String
+  - banniereUrl : String
+  - footerText : String
+  - logoImageUrl : String
+  - totalMonthlyPrice : BigDecimal
+  - status : MarketplaceStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  .. Opérations métier ..
+  + getBannerImageUrl(): String
+  + setBannerImageUrl(url: String): void
+}
+
+' Interfaces/front : partenariats banque/dealer
+class DealerBankPartnership <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - dealer : Dealer [1] <<FK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - status : DealerPartnershipStatusEnum {required} <<ENUM>>
+  - initiatedBy : PartnershipInitiatorEnum <<ENUM>>
+  - message : String
+  - rejectionReason : String
+  - requestDate : LocalDateTime {created}
+  - processingDate : LocalDateTime
+  - approvedAt : LocalDateTime
+  - rejectedAt : LocalDateTime
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(dealer, bank, store)}
+}
+
+' Interfaces/front : contrats et prévisualisation PDF
+class PartnershipContract <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - contractNumber : String {unique, required}
+  - partnership : DealerBankPartnership [1] <<FK>>
+  - versionNumber : Integer {required}
+  - templateVersion : String {required}
+  - dealer : Dealer [1] <<FK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - status : PartnershipContractStatusEnum {required} <<ENUM>>
+  - startDate : LocalDate
+  - endDate : LocalDate
+  - billingModel : PartnershipBillingModelEnum {required} <<ENUM>>
+  - commissionApplicable : Boolean {required}
+  - commissionType : PartnershipCommissionTypeEnum <<ENUM>>
+  - commissionValue : BigDecimal
+  - contractTerms : String
+  - terminationConditions : String
+  - specificConditions : String
+  - renderedHtml : String
+  - generatedDocumentPath : String
+  - dealerAcceptedAt : LocalDateTime
+  - bankAcceptedAt : LocalDateTime
+  - sentAt : LocalDateTime
+  - rejectionReason : String
+  - createdAt : LocalDateTime {required, created}
+  - updatedAt : LocalDateTime {required, updated}
+  .. Contraintes ..
+  {field} {unique(partnership, versionNumber)}
+  {field} {unique(contractNumber)}
+}
+
+' Interfaces/front : catalogue concessionnaire
+class DealerProduct <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - dealer : Dealer [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - description : String
+  - price : BigDecimal {required}
+  - imageUrl : String
+  - eligibilityConditions : String
+  - status : DealerProductStatusEnum {required} <<ENUM>>
+  - totalStock : Integer
+  - availableStock : Integer
+  - reservedStock : Integer
+  - parameterValues : List<DealerProductParameterValue> [0..*] <<REL>>
+  - documents : List<DealerProductDocument> [0..*] <<REL>>
+  - catalogImages : List<DealerProductCatalogImage> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : caractéristiques produit
+class DealerProductParameterValue <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : DealerProduct [1] <<FK>>
+  - parameterDefinition : ProductParameterDefinition [1] <<FK>>
+  - value : String
+  .. Contraintes ..
+  {field} {unique(product, parameterDefinition)}
+}
+
+' Interfaces/front : documents produit
+class DealerProductDocument <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : DealerProduct [1] <<FK>>
+  - documentType : String {required}
+  - fileName : String {required}
+  - filePath : String {required}
+  - publicDocument : boolean {required}
+  - uploadedAt : LocalDateTime {created}
+}
+
+' Interfaces/front : galerie produit
+class DealerProductCatalogImage <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : DealerProduct [1] <<FK>>
+  - imageUrl : String {required}
+  - displayOrder : Integer {required}
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : schéma de produit
+class ProductParameterDefinition <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(store, name)}
+}
+
+' Interfaces/front : validation de publication
+class ProductPublicationRequest <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - product : DealerProduct [1] <<FK>>
+  - dealer : Dealer [1] <<FK>>
+  - partnership : DealerBankPartnership [1] <<FK>>
+  - bank : Bank [1] <<FK>>
+  - marketplace : Marketplace [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - status : ProductPublicationStatusEnum {required} <<ENUM>>
+  - rejectionReason : String
+  - active : Boolean {required}
+  - submittedAt : LocalDateTime {created}
+  - processedAt : LocalDateTime
+  .. Contraintes ..
+  {field} {unique(product, bank, store)}
+}
+
+package "Énumérations métier" as package_enums #F8F6FF {
+enum BankStatusEnum <<enumeration>> {
+  pending
+  inactive
+  rejected
+  active
+  suspended
+}
+
+enum DealerPartnershipStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  WAITING_CONTRACT
+  ACTIVE
+  REJECTED
+  SUSPENDED
+  TERMINATED
+}
+
+enum DealerProductStatusEnum <<enumeration>> {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum DealerRequestStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DealerStatusEnum <<enumeration>> {
+  PENDING
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum MarketplaceStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum PartnershipBillingModelEnum <<enumeration>> {
+  FREE
+}
+
+enum PartnershipCommissionTypeEnum <<enumeration>> {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum PartnershipContractStatusEnum <<enumeration>> {
+  DRAFT
+  PENDING_ACCEPTANCE
+  ACTIVE
+  SUPERSEDED
+  EXPIRED
+  TERMINATED
+  CANCELLED
+}
+
+enum PartnershipInitiatorEnum <<enumeration>> {
+  DEALER
+  BANK
+}
+
+enum ProductPublicationStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  REJECTED
+  INACTIVE
+}
+
+enum RoleEnum <<enumeration>> {
+  ADMIN_SAAS
+  ADMIN_BANK
+  DEALER_ADMIN
+  CLIENT
+}
+
+enum StoreStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum UserStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+}
+
+' Associations métier et multiplicités UML
+
+Bank "1" *-- "0..1" Marketplace : possède
+Bank "0..1" -- "0..*" User : utilisateurs
+Dealer "0..1" -- "0..*" User : comptes dealer
+Store "1" -- "0..*" ProductParameterDefinition : définit le schéma
+Store "1" -- "0..*" Dealer : spécialité
+Store "1" -- "0..*" DealerAccountRequest : inscriptions
+Dealer "1" -- "0..*" DealerBankPartnership : partenariats
+Bank "1" -- "0..*" DealerBankPartnership : partenariats
+Store "1" -- "0..*" DealerBankPartnership : périmètre
+DealerBankPartnership "1" *-- "0..*" PartnershipContract : versions contrat
+Dealer "1" -- "0..*" PartnershipContract : contractant
+Bank "1" -- "0..*" PartnershipContract : contractant
+Store "1" -- "0..*" PartnershipContract : objet du contrat
+Dealer "1" -- "0..*" DealerProduct : catalogue
+Store "1" -- "0..*" DealerProduct : catégorie
+DealerProduct "1" *-- "0..*" DealerProductParameterValue : caractéristiques
+ProductParameterDefinition "1" -- "0..*" DealerProductParameterValue : définition
+DealerProduct "1" *-- "0..*" DealerProductDocument : documents
+DealerProduct "1" *-- "0..*" DealerProductCatalogImage : galerie
+DealerProduct "1" -- "0..*" ProductPublicationRequest : demandes publication
+Dealer "1" -- "0..*" ProductPublicationRequest : soumet
+DealerBankPartnership "1" -- "0..*" ProductPublicationRequest : autorise
+Bank "1" -- "0..*" ProductPublicationRequest : valide
+Marketplace "1" -- "0..*" ProductPublicationRequest : publie dans
+Store "1" -- "0..*" ProductPublicationRequest : store cible
+
+' Dépendances de typage vers les énumérations
+
+Bank ..> BankStatusEnum : utilise
+Dealer ..> DealerStatusEnum : utilise
+DealerAccountRequest ..> DealerRequestStatusEnum : utilise
+DealerBankPartnership ..> DealerPartnershipStatusEnum : utilise
+DealerBankPartnership ..> PartnershipInitiatorEnum : utilise
+DealerProduct ..> DealerProductStatusEnum : utilise
+Marketplace ..> MarketplaceStatusEnum : utilise
+PartnershipContract ..> PartnershipBillingModelEnum : utilise
+PartnershipContract ..> PartnershipCommissionTypeEnum : utilise
+PartnershipContract ..> PartnershipContractStatusEnum : utilise
+ProductPublicationRequest ..> ProductPublicationStatusEnum : utilise
+Store ..> StoreStatusEnum : utilise
+User ..> RoleEnum : utilise
+User ..> UserStatusEnum : utilise
+
+@enduml
+
+
+@startuml Matchia_05_Financement_Client
+title MATCHIA — Financement client
+caption Simulation, dépôt, pièces justificatives et traitement bancaire
+
+' Palette bleu clair à fort contraste, adaptée à l'impression et à l'écran.
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam roundcorner 6
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam defaultFontColor #172B4D
+skinparam ArrowColor #2F75B5
+skinparam ArrowFontColor #172B4D
+skinparam ArrowThickness 1.5
+skinparam ClassBackgroundColor #EAF4FF
+skinparam ClassBorderColor #2F75B5
+skinparam ClassFontColor #172B4D
+skinparam ClassHeaderBackgroundColor #CFE8FF
+skinparam ClassAttributeFontColor #172B4D
+skinparam ClassStereotypeFontColor #1F4E79
+skinparam EnumBackgroundColor #F3F0FF
+skinparam EnumBorderColor #7A6FB0
+skinparam EnumFontColor #2D2857
+skinparam PackageBackgroundColor #F8FBFF
+skinparam PackageBorderColor #6B93B8
+skinparam PackageFontColor #1F4E79
+skinparam NoteBackgroundColor #FFF9DB
+skinparam NoteBorderColor #C9A227
+hide circle
+hide empty methods
+left to right direction
+
+legend left
+  |= Symbole |= Signification |
+  | <<PK>> | Clé primaire |
+  | <<FK>> | Relation vers une entité |
+  | <<REL>> | Collection d’entités |
+  | <<ENUM>> | Attribut énuméré |
+  | *-- | Composition / cycle de vie dépendant |
+  | -- | Association structurelle |
+  | ..> | Référence logique sans contrainte FK |
+endlegend
+
+
+' Interfaces/front : auth, SaaS, banque, client
+class User <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [0..1] <<FK>>
+  - dealer : Dealer [0..1] <<FK>>
+  - fullName : String
+  - email : String
+  - phone : String
+  - address : String
+  - contactImageUrl : String
+  - birthDate : LocalDate
+  - role : RoleEnum <<ENUM>>
+  - status : UserStatusEnum <<ENUM>>
+  - password : String
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : SaaS, banque, public
+class Bank <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [0..1] <<FK>>
+  - users : List<User> [0..*] <<REL>>
+  - requests : List<Request> [0..*] <<REL>>
+  - name : String
+  - slug : String
+  - email : String
+  - phone : String
+  - logoText : String
+  - logoUrl : String
+  - country : String
+  - description : String
+  - websiteUrl : String
+  - establishedYear : Integer
+  - status : BankStatusEnum <<ENUM>>
+  - totalUsers : Integer
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : catalogue et navigation
+class Store <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - moduleStores : List<ModuleStore> [0..*] <<REL>>
+  - contents : List<Content> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - name : String
+  - description : String
+  - icon : String
+  - banniereUrl : String
+  - price : BigDecimal
+  - status : StoreStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : produits banque historiques
+class Product <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - description : String
+  - price : BigDecimal
+  - imageUrl : String
+  - parameterValues : List<ProductParameterValue> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : catalogue concessionnaire
+class DealerProduct <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - dealer : Dealer [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - name : String {required}
+  - description : String
+  - price : BigDecimal {required}
+  - imageUrl : String
+  - eligibilityConditions : String
+  - status : DealerProductStatusEnum {required} <<ENUM>>
+  - totalStock : Integer
+  - availableStock : Integer
+  - reservedStock : Integer
+  - parameterValues : List<DealerProductParameterValue> [0..*] <<REL>>
+  - documents : List<DealerProductDocument> [0..*] <<REL>>
+  - catalogImages : List<DealerProductCatalogImage> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : simulateur et dossiers client
+class FinancingRequest <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - version : Long {version}
+  - reference : String {unique, required}
+  - client : User [1] <<FK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - product : Product [0..1] <<FK>>
+  - dealerProduct : DealerProduct [0..1] <<FK>>
+  - status : FinancingRequestStatusEnum {required} <<ENUM>>
+  - requestedAmount : BigDecimal
+  - monthlyPayment : BigDecimal
+  - downPayment : BigDecimal
+  - durationMonths : Integer
+  - annualRate : BigDecimal
+  - simulationData : String
+  - processingComment : String
+  - rejectionReason : String
+  - processedAt : LocalDateTime
+  - processedBy : User [0..1] <<FK>>
+  - stockReserved : Boolean {required}
+  - createdAt : LocalDateTime {required, created}
+  - updatedAt : LocalDateTime {required, updated}
+  - documents : List<FinancingRequestDocument> [0..*] <<REL>>
+}
+
+' Interfaces/front : pièces du dossier
+class FinancingRequestDocument <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - financingRequest : FinancingRequest [1] <<FK>>
+  - documentType : String {required}
+  - originalFilename : String {required}
+  - storedFilename : String {unique, required}
+  - contentType : String
+  - fileSize : Long
+  - uploadedAt : LocalDateTime {required, created}
+  .. Contraintes ..
+  {field} {unique(financingRequest, documentType)}
+  {field} {unique(storedFilename)}
+}
+
+' Interfaces/front : pièces exigées
+class RequiredFinancingDocument <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] <<FK>>
+  - store : Store [1] <<FK>>
+  - documentType : String {required}
+  - label : String {required}
+  - required : boolean {required}
+  - active : boolean {required}
+  .. Contraintes ..
+  {field} {unique(bank, store, documentType)}
+}
+
+' Interfaces/front : panneaux de notifications
+class Notification <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - title : String {required}
+  - message : String {required}
+  - type : NotificationTypeEnum {required} <<ENUM>>
+  - status : NotificationStatusEnum {required} <<ENUM>>
+  - relatedRequestId : Long
+  - recipientId : Long
+  - recipientScope : NotificationRecipientScope <<ENUM>>
+  - createdAt : LocalDateTime {required, created}
+  - readAt : LocalDateTime
+}
+
+package "Énumérations métier" as package_enums #F8F6FF {
+enum BankStatusEnum <<enumeration>> {
+  pending
+  inactive
+  rejected
+  active
+  suspended
+}
+
+enum DealerProductStatusEnum <<enumeration>> {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum FinancingRequestStatusEnum <<enumeration>> {
+  DRAFT
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum NotificationRecipientScope <<enumeration>> {
+  BANK
+  USER
+}
+
+enum NotificationStatusEnum <<enumeration>> {
+  UNREAD
+  READ
+}
+
+enum NotificationTypeEnum <<enumeration>> {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  PAYMENT_SUCCESS
+}
+
+enum RoleEnum <<enumeration>> {
+  ADMIN_SAAS
+  ADMIN_BANK
+  DEALER_ADMIN
+  CLIENT
+}
+
+enum StoreStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum UserStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+}
+
+' Associations métier et multiplicités UML
+
+Bank "0..1" -- "0..*" User : utilisateurs
+Bank "1" -- "0..*" Product : produits banque
+Store "1" -- "0..*" Product : type de produit
+Store "1" -- "0..*" DealerProduct : catégorie
+User "1" -- "0..*" FinancingRequest : client
+Bank "1" -- "0..*" FinancingRequest : traite
+Store "1" -- "0..*" FinancingRequest : type financement
+Product "0..1" -- "0..*" FinancingRequest : produit banque
+DealerProduct "0..1" -- "0..*" FinancingRequest : produit dealer
+User "0..1" -- "0..*" FinancingRequest : processedBy
+FinancingRequest "1" *-- "0..*" FinancingRequestDocument : pièces jointes
+Bank "1" -- "0..*" RequiredFinancingDocument : exigences
+Store "1" -- "0..*" RequiredFinancingDocument : exigences
+Notification "0..*" ..> "0..1" User : recipientId [USER] <<référence logique>>
+Notification "0..*" ..> "0..1" Bank : recipientId [BANK] <<référence logique>>
+
+' Dépendances de typage vers les énumérations
+
+Bank ..> BankStatusEnum : utilise
+DealerProduct ..> DealerProductStatusEnum : utilise
+FinancingRequest ..> FinancingRequestStatusEnum : utilise
+Notification ..> NotificationRecipientScope : utilise
+Notification ..> NotificationStatusEnum : utilise
+Notification ..> NotificationTypeEnum : utilise
+Store ..> StoreStatusEnum : utilise
+User ..> RoleEnum : utilise
+User ..> UserStatusEnum : utilise
+
+@enduml
+
+
+@startuml Matchia_06_Securite_Audit
+title MATCHIA — Sécurité, notifications et audit
+caption Sessions, vérifications, réinitialisation, notifications et traçabilité
+
+' Palette bleu clair à fort contraste, adaptée à l'impression et à l'écran.
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam roundcorner 6
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam defaultFontColor #172B4D
+skinparam ArrowColor #2F75B5
+skinparam ArrowFontColor #172B4D
+skinparam ArrowThickness 1.5
+skinparam ClassBackgroundColor #EAF4FF
+skinparam ClassBorderColor #2F75B5
+skinparam ClassFontColor #172B4D
+skinparam ClassHeaderBackgroundColor #CFE8FF
+skinparam ClassAttributeFontColor #172B4D
+skinparam ClassStereotypeFontColor #1F4E79
+skinparam EnumBackgroundColor #F3F0FF
+skinparam EnumBorderColor #7A6FB0
+skinparam EnumFontColor #2D2857
+skinparam PackageBackgroundColor #F8FBFF
+skinparam PackageBorderColor #6B93B8
+skinparam PackageFontColor #1F4E79
+skinparam NoteBackgroundColor #FFF9DB
+skinparam NoteBorderColor #C9A227
+hide circle
+hide empty methods
+left to right direction
+
+legend left
+  |= Symbole |= Signification |
+  | <<PK>> | Clé primaire |
+  | <<FK>> | Relation vers une entité |
+  | <<REL>> | Collection d’entités |
+  | <<ENUM>> | Attribut énuméré |
+  | *-- | Composition / cycle de vie dépendant |
+  | -- | Association structurelle |
+  | ..> | Référence logique sans contrainte FK |
+endlegend
+
+
+' Interfaces/front : auth, SaaS, banque, client
+class User <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [0..1] <<FK>>
+  - dealer : Dealer [0..1] <<FK>>
+  - fullName : String
+  - email : String
+  - phone : String
+  - address : String
+  - contactImageUrl : String
+  - birthDate : LocalDate
+  - role : RoleEnum <<ENUM>>
+  - status : UserStatusEnum <<ENUM>>
+  - password : String
+  - createdAt : LocalDateTime {created}
+}
+
+' Interfaces/front : SaaS, banque, public
+class Bank <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - marketplace : Marketplace [0..1] <<FK>>
+  - users : List<User> [0..*] <<REL>>
+  - requests : List<Request> [0..*] <<REL>>
+  - name : String
+  - slug : String
+  - email : String
+  - phone : String
+  - logoText : String
+  - logoUrl : String
+  - country : String
+  - description : String
+  - websiteUrl : String
+  - establishedYear : Integer
+  - status : BankStatusEnum <<ENUM>>
+  - totalUsers : Integer
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : annuaire et espace concessionnaire
+class Dealer <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - companyName : String {required}
+  - registrationNumber : String {required}
+  - address : String {required}
+  - contactPerson : String {required}
+  - email : String {required}
+  - phone : String {required}
+  - website : String
+  - logoUrl : String
+  - contactPhotoUrl : String
+  - store : Store [1] <<FK>>
+  - status : DealerStatusEnum {required} <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+  .. Contraintes ..
+  {field} {unique(registrationNumber)}
+  {field} {unique(email)}
+}
+
+' Interfaces/front : branding et portail public
+class Marketplace <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] {unique} <<FK>>
+  - marketplaceStores : List<MarketplaceStore> [0..*] <<REL>>
+  - marketplaceContents : List<MarketplaceContent> [0..*] <<REL>>
+  - primaryColor : String
+  - secondaryColor : String
+  - homepageTitle : String
+  - welcomeText : String
+  - banniereUrl : String
+  - footerText : String
+  - logoImageUrl : String
+  - totalMonthlyPrice : BigDecimal
+  - status : MarketplaceStatusEnum <<ENUM>>
+  - createdAt : LocalDateTime {created}
+  .. Opérations métier ..
+  + getBannerImageUrl(): String
+  + setBannerImageUrl(url: String): void
+}
+
+' Interfaces/front : adhésion, demandes, renouvellement
+class Request <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [0..1] <<FK>>
+  - requestType : RequestTypeEnum <<ENUM>>
+  - status : RequestStatusEnum <<ENUM>>
+  - priority : String
+  - rejectionReason : String
+  - createdBy : String
+  - bankName : String
+  - bankEmail : String
+  - bankPhone : String
+  - logoUrl : String
+  - country : String
+  - website : String
+  - contactName : String
+  - contactEmail : String
+  - contactPhone : String
+  - contactImageUrl : String
+  - description : String
+  - bankDescription : String
+  - establishmentYear : Integer
+  - marketplaceSlug : String
+  - marketplaceDescription : String
+  - primaryColor : String
+  - secondaryColor : String
+  - banniereUrl : String
+  - selectedStores : String
+  - selectedModules : String
+  - totalAmount : Double
+  - originalRequest : Request [0..1] <<FK>>
+  - subscription : Subscription [0..1] <<FK>>
+  - selectedStoreDetails : List<RequestStoreSelection> [0..*] <<REL>>
+  - stores : List<Store> [0..*] <<REL>>
+  - modules : List<Module> [0..*] <<REL>>
+  - createdAt : LocalDateTime {created}
+  - updatedAt : LocalDateTime {updated}
+}
+
+' Interfaces/front : session persistante
+class RefreshToken <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - tokenHash : String {unique, required}
+  - tokenId : String {unique, required}
+  - tokenFamilyId : String {required}
+  - user : User [1] <<FK>>
+  - createdAt : Instant {required, created}
+  - issuedAt : Instant {required}
+  - expiresAt : Instant {required}
+  - revokedAt : Instant
+  - lastUsedAt : Instant
+  - revokedReason : String
+  - replacedByTokenHash : String
+  - ipAddress : String
+  - userAgent : String
+  .. Opérations métier ..
+  + isActive(): boolean
+  .. Contraintes ..
+  {field} {unique(tokenHash)}
+  {field} {unique(tokenId)}
+}
+
+' Interfaces/front : mot de passe oublié
+class PasswordResetToken <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - tokenHash : String {unique, required}
+  - user : User [1] <<FK>>
+  - createdAt : Instant {required, created}
+  - expiresAt : Instant {required}
+  - usedAt : Instant
+  - ipAddress : String
+  - userAgent : String
+  .. Opérations métier ..
+  + isUsable(): boolean
+  .. Contraintes ..
+  {field} {unique(tokenHash)}
+}
+
+' Interfaces/front : vérification adhésion banque
+class JoinEmailVerification <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - email : String {required}
+  - codeHash : String {required}
+  - createdAt : Instant {required}
+  - expiresAt : Instant {required}
+  - invalidatedAt : Instant
+  - verifiedAt : Instant
+  - consumedAt : Instant
+  - verificationTokenHash : String {unique}
+  - verificationTokenExpiresAt : Instant
+  .. Contraintes ..
+  {field} {unique(verificationTokenHash)}
+}
+
+' Interfaces/front : vérification inscription client
+class ClientRegistrationVerification <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - bank : Bank [1] <<FK>>
+  - email : String {required}
+  - fullName : String {required}
+  - phone : String {required}
+  - address : String {required}
+  - birthDate : LocalDate {required}
+  - contactImageUrl : String
+  - passwordHash : String {required}
+  - codeHash : String {required}
+  - createdAt : Instant {required}
+  - expiresAt : Instant {required}
+  - invalidatedAt : Instant
+  - consumedAt : Instant
+}
+
+' Interfaces/front : panneaux de notifications
+class Notification <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - title : String {required}
+  - message : String {required}
+  - type : NotificationTypeEnum {required} <<ENUM>>
+  - status : NotificationStatusEnum {required} <<ENUM>>
+  - relatedRequestId : Long
+  - recipientId : Long
+  - recipientScope : NotificationRecipientScope <<ENUM>>
+  - createdAt : LocalDateTime {required, created}
+  - readAt : LocalDateTime
+}
+
+' Interfaces/front : audit SaaS et export
+class AuditLog <<entity>> {
+  - id : Long {id, generated} <<PK>>
+  - tenantId : String
+  - actorId : String
+  - actorName : String
+  - actorEmail : String
+  - actorRole : String
+  - action : String {required}
+  - category : AuditCategoryEnum {required} <<ENUM>>
+  - resourceType : String
+  - resourceId : String
+  - status : AuditStatusEnum {required} <<ENUM>>
+  - ipAddress : String
+  - userAgent : String
+  - diff : String
+  - metadata : String
+  - affectedUserId : String
+  - affectedUserName : String
+  - bankId : String
+  - marketplaceId : String
+  - emailRecipient : String
+  - source : String
+  - correlationId : String
+  - createdAt : LocalDateTime {created}
+}
+
+package "Énumérations métier" as package_enums #F8F6FF {
+enum AuditCategoryEnum <<enumeration>> {
+  core
+  security
+  data_config
+  billing
+}
+
+enum AuditStatusEnum <<enumeration>> {
+  success
+  failure
+}
+
+enum BankStatusEnum <<enumeration>> {
+  pending
+  inactive
+  rejected
+  active
+  suspended
+}
+
+enum DealerStatusEnum <<enumeration>> {
+  PENDING
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum MarketplaceStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum NotificationRecipientScope <<enumeration>> {
+  BANK
+  USER
+}
+
+enum NotificationStatusEnum <<enumeration>> {
+  UNREAD
+  READ
+}
+
+enum NotificationTypeEnum <<enumeration>> {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  PAYMENT_SUCCESS
+}
+
+enum RequestStatusEnum <<enumeration>> {
+  pending
+  approved
+  rejected
+}
+
+enum RequestTypeEnum <<enumeration>> {
+  join
+  store
+  module
+  subscription
+  renewal
+}
+
+enum RoleEnum <<enumeration>> {
+  ADMIN_SAAS
+  ADMIN_BANK
+  DEALER_ADMIN
+  CLIENT
+}
+
+enum UserStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+}
+
+' Associations métier et multiplicités UML
+
+Bank "1" *-- "0..1" Marketplace : possède
+Bank "0..1" -- "0..*" User : utilisateurs
+Dealer "0..1" -- "0..*" User : comptes dealer
+Bank "0..1" -- "0..*" Request : demandes
+Request "0..1" -- "0..*" Request : originale / renouvellements
+User "1" *-- "0..*" RefreshToken : sessions
+User "1" *-- "0..*" PasswordResetToken : réinitialisations
+Bank "1" -- "0..*" ClientRegistrationVerification : inscriptions clients
+Notification "0..*" ..> "0..1" Request : relatedRequestId <<référence logique>>
+Notification "0..*" ..> "0..1" User : recipientId [USER] <<référence logique>>
+Notification "0..*" ..> "0..1" Bank : recipientId [BANK] <<référence logique>>
+AuditLog "0..*" ..> "0..1" User : actorId / affectedUserId <<référence logique>>
+AuditLog "0..*" ..> "0..1" Bank : bankId <<référence logique>>
+AuditLog "0..*" ..> "0..1" Marketplace : marketplaceId <<référence logique>>
+
+' Dépendances de typage vers les énumérations
+
+AuditLog ..> AuditCategoryEnum : utilise
+AuditLog ..> AuditStatusEnum : utilise
+Bank ..> BankStatusEnum : utilise
+Dealer ..> DealerStatusEnum : utilise
+Marketplace ..> MarketplaceStatusEnum : utilise
+Notification ..> NotificationRecipientScope : utilise
+Notification ..> NotificationStatusEnum : utilise
+Notification ..> NotificationTypeEnum : utilise
+Request ..> RequestStatusEnum : utilise
+Request ..> RequestTypeEnum : utilise
+User ..> RoleEnum : utilise
+User ..> UserStatusEnum : utilise
+
+@enduml
+
+
+@startuml Matchia_07_Enumerations
+title MATCHIA — Énumérations métier
+caption Valeurs exactes utilisées par les entités JPA
+
+' Palette bleu clair à fort contraste, adaptée à l'impression et à l'écran.
+skinparam backgroundColor #FFFFFF
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+skinparam roundcorner 6
+skinparam dpi 150
+skinparam defaultFontName Arial
+skinparam defaultFontColor #172B4D
+skinparam ArrowColor #2F75B5
+skinparam ArrowFontColor #172B4D
+skinparam ArrowThickness 1.5
+skinparam ClassBackgroundColor #EAF4FF
+skinparam ClassBorderColor #2F75B5
+skinparam ClassFontColor #172B4D
+skinparam ClassHeaderBackgroundColor #CFE8FF
+skinparam ClassAttributeFontColor #172B4D
+skinparam ClassStereotypeFontColor #1F4E79
+skinparam EnumBackgroundColor #F3F0FF
+skinparam EnumBorderColor #7A6FB0
+skinparam EnumFontColor #2D2857
+skinparam PackageBackgroundColor #F8FBFF
+skinparam PackageBorderColor #6B93B8
+skinparam PackageFontColor #1F4E79
+skinparam NoteBackgroundColor #FFF9DB
+skinparam NoteBorderColor #C9A227
+hide circle
+hide empty methods
+left to right direction
+
+legend left
+  |= Symbole |= Signification |
+  | <<PK>> | Clé primaire |
+  | <<FK>> | Relation vers une entité |
+  | <<REL>> | Collection d’entités |
+  | <<ENUM>> | Attribut énuméré |
+  | *-- | Composition / cycle de vie dépendant |
+  | -- | Association structurelle |
+  | ..> | Référence logique sans contrainte FK |
+endlegend
+
+
+package "Énumérations métier" as package_enums #F8F6FF {
+enum AuditCategoryEnum <<enumeration>> {
+  core
+  security
+  data_config
+  billing
+}
+
+enum AuditStatusEnum <<enumeration>> {
+  success
+  failure
+}
+
+enum BankStatusEnum <<enumeration>> {
+  pending
+  inactive
+  rejected
+  active
+  suspended
+}
+
+enum ContentStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum DealerPartnershipStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  WAITING_CONTRACT
+  ACTIVE
+  REJECTED
+  SUSPENDED
+  TERMINATED
+}
+
+enum DealerProductStatusEnum <<enumeration>> {
+  DRAFT
+  ACTIVE
+  INACTIVE
+}
+
+enum DealerRequestStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum DealerStatusEnum <<enumeration>> {
+  PENDING
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+  REJECTED
+}
+
+enum FinancingRequestStatusEnum <<enumeration>> {
+  DRAFT
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+enum MarketplaceStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum ModuleStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum NotificationRecipientScope <<enumeration>> {
+  BANK
+  USER
+}
+
+enum NotificationStatusEnum <<enumeration>> {
+  UNREAD
+  READ
+}
+
+enum NotificationTypeEnum <<enumeration>> {
+  INFO
+  SUCCESS
+  WARNING
+  ERROR
+  PAYMENT_SUCCESS
+}
+
+enum PartnershipBillingModelEnum <<enumeration>> {
+  FREE
+}
+
+enum PartnershipCommissionTypeEnum <<enumeration>> {
+  PERCENTAGE
+  FIXED_AMOUNT
+}
+
+enum PartnershipContractStatusEnum <<enumeration>> {
+  DRAFT
+  PENDING_ACCEPTANCE
+  ACTIVE
+  SUPERSEDED
+  EXPIRED
+  TERMINATED
+  CANCELLED
+}
+
+enum PartnershipInitiatorEnum <<enumeration>> {
+  DEALER
+  BANK
+}
+
+enum PaymentStatusEnum <<enumeration>> {
+  pending
+  paid
+  cancelled
+  failed
+}
+
+enum PaymentTypeEnum <<enumeration>> {
+  INITIAL
+  RENEWAL
+}
+
+enum ProductPublicationStatusEnum <<enumeration>> {
+  PENDING
+  APPROVED
+  REJECTED
+  INACTIVE
+}
+
+enum RequestStatusEnum <<enumeration>> {
+  pending
+  approved
+  rejected
+}
+
+enum RequestTypeEnum <<enumeration>> {
+  join
+  store
+  module
+  subscription
+  renewal
+}
+
+enum RoleEnum <<enumeration>> {
+  ADMIN_SAAS
+  ADMIN_BANK
+  DEALER_ADMIN
+  CLIENT
+}
+
+enum StoreStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+
+enum SubscriptionStatusEnum <<enumeration>> {
+  PENDING_PAYMENT
+  ACTIVE
+  EXPIRED
+  PENDING_RENEWAL
+  CANCELLED
+}
+
+enum UserStatusEnum <<enumeration>> {
+  active
+  inactive
+}
+}
+
+@enduml

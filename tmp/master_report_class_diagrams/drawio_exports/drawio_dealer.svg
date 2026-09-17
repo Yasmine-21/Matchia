@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="6000" height="4963" viewBox="-1145.00 -1205.00 4755.00 3933.00">
+<rect x="-100000" y="-100000" width="200000" height="200000" fill="#FFFFFF"/>
+<defs>
+<linearGradient id="grad-2" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DCEEFF"/></linearGradient>
+<linearGradient id="grad-3" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DCEEFF"/></linearGradient>
+<linearGradient id="grad-4" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D9ECFF"/><stop offset="100%" stop-color="#B7D8F5"/></linearGradient>
+<linearGradient id="grad-5" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D9ECFF"/><stop offset="100%" stop-color="#B7D8F5"/></linearGradient>
+<linearGradient id="grad-6" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D9ECFF"/><stop offset="100%" stop-color="#B7D8F5"/></linearGradient>
+<linearGradient id="grad-7" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DCEEFF"/></linearGradient>
+<linearGradient id="grad-8" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D9ECFF"/><stop offset="100%" stop-color="#B7D8F5"/></linearGradient>
+<linearGradient id="grad-9" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D9ECFF"/><stop offset="100%" stop-color="#B7D8F5"/></linearGradient>
+<linearGradient id="grad-10" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DCEEFF"/></linearGradient>
+<linearGradient id="grad-11" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#D9ECFF"/><stop offset="100%" stop-color="#B7D8F5"/></linearGradient>
+<linearGradient id="grad-12" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DCEEFF"/></linearGradient>
+<linearGradient id="grad-13" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DCEEFF"/></linearGradient>
+<linearGradient id="grad-14" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DCEEFF"/></linearGradient>
+<linearGradient id="grad-15" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#FFFFFF"/><stop offset="100%" stop-color="#DCEEFF"/></linearGradient>
+</defs>
+<polyline points="2020.00,286.07 2400.00,286.07 2400.00,601.50 2780.00,601.50" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="2020.00,286.07 2031.20,291.95 2042.40,286.07 2031.20,280.19" fill="#2F75B5" stroke="#2F75B5" stroke-width="1.4"/>
+<polyline points="1650.00,329.00 550.00,329.00 550.00,334.90 -550.00,334.90" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="-870.00,891.50 -710.00,891.50 -710.00,268.10 -550.00,268.10" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="590.64,788.00 -149.68,788.00 -149.68,1390.00 -890.00,1390.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="490.00,664.00 -5.00,664.00 -5.00,817.86 -500.00,817.86" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="675.00,540.00 675.00,-151.00 1395.00,-151.00 1395.00,-842.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="-500.00,866.95 240.00,866.95 240.00,1596.50 980.00,1596.50" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="1788.01,498.00 1788.01,974.00 1230.80,974.00 1230.80,1450.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="703.12,788.00 703.12,1119.00 1129.20,1119.00 1129.20,1450.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="1380.00,1633.71 1905.00,1633.71 1905.00,1851.52 2430.00,1851.52" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="1380.00,1633.71 1391.20,1639.59 1402.40,1633.71 1391.20,1627.83" fill="#2F75B5" stroke="#2F75B5" stroke-width="1.4"/>
+<polyline points="-685.00,1053.00 -685.00,1426.50 325.47,1426.50 325.47,1800.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="646.88,788.00 646.88,1294.00 424.53,1294.00 424.53,1800.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="325.47,2123.00 325.47,2086.50 -305.00,2086.50 -305.00,2050.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="325.47,2123.00 331.35,2111.80 325.47,2100.60 319.59,2111.80" fill="#2F75B5" stroke="#2F75B5" stroke-width="1.4"/>
+<polyline points="-690.00,1476.50 -600.00,1476.50 -600.00,2129.00 -510.00,2129.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="424.53,2123.00 424.53,2274.00 -200.00,2274.00 -200.00,2425.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="424.53,2123.00 418.65,2134.20 424.53,2145.40 430.41,2134.20" fill="#2F75B5" stroke="#2F75B5" stroke-width="1.4"/>
+<polyline points="570.00,2002.52 530.00,2002.52 530.00,2517.50 490.00,2517.50" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="570.00,2002.52 558.80,1996.64 547.60,2002.52 558.80,2008.40" fill="#2F75B5" stroke="#2F75B5" stroke-width="1.4"/>
+<polyline points="570.00,1920.48 1820.00,1920.48 1820.00,1259.33 3070.00,1259.33" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="-500.00,916.05 1285.00,916.05 1285.00,1153.69 3070.00,1153.69" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="1380.00,1559.29 2225.00,1559.29 2225.00,1224.31 3070.00,1224.31" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="2020.00,371.93 2545.00,371.93 2545.00,1189.00 3070.00,1189.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="2975.00,763.00 2975.00,906.50 3280.00,906.50 3280.00,1050.00" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="860.00,664.00 1965.00,664.00 1965.00,1118.67 3070.00,1118.67" fill="none" stroke="#2F75B5" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="60.00,2603.00 170.00,2603.00" fill="none" stroke="#44546A" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polyline points="60.00,2633.00 170.00,2633.00" fill="none" stroke="#44546A" stroke-width="2.00" stroke-linejoin="round" stroke-linecap="round"/>
+<polygon points="60.00,2633.00 71.20,2638.88 82.40,2633.00 71.20,2627.12" fill="#44546A" stroke="#44546A" stroke-width="1.4"/>
+<polyline points="60.00,2663.00 170.00,2663.00" fill="none" stroke="#7F7F7F" stroke-width="1.50" stroke-linejoin="round" stroke-linecap="round" stroke-dasharray="6 4"/>
+<rect x="1200.00" y="-1150.00" width="390.00" height="308.00" rx="0" fill="url(#grad-2)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="-910.00" y="170.00" width="360.00" height="263.00" rx="0" fill="url(#grad-3)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="-870.00" y="730.00" width="370.00" height="323.00" rx="0" fill="url(#grad-4)" stroke="#1F4E79" stroke-width="2.60"/>
+<rect x="490.00" y="540.00" width="370.00" height="248.00" rx="0" fill="url(#grad-5)" stroke="#1F4E79" stroke-width="2.60"/>
+<rect x="1650.00" y="160.00" width="370.00" height="338.00" rx="0" fill="url(#grad-6)" stroke="#1F4E79" stroke-width="2.60"/>
+<rect x="2780.00" y="440.00" width="390.00" height="323.00" rx="0" fill="url(#grad-7)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="180.00" y="1800.00" width="390.00" height="323.00" rx="0" fill="url(#grad-8)" stroke="#1F4E79" stroke-width="2.60"/>
+<rect x="980.00" y="1450.00" width="400.00" height="293.00" rx="0" fill="url(#grad-9)" stroke="#1F4E79" stroke-width="2.60"/>
+<rect x="2430.00" y="1570.00" width="420.00" height="449.00" rx="0" fill="url(#grad-10)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="3070.00" y="1050.00" width="420.00" height="278.00" rx="0" fill="url(#grad-11)" stroke="#1F4E79" stroke-width="2.60"/>
+<rect x="-1090.00" y="1390.00" width="400.00" height="173.00" rx="0" fill="url(#grad-12)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="-510.00" y="2050.00" width="410.00" height="158.00" rx="0" fill="url(#grad-13)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="-400.00" y="2425.00" width="400.00" height="173.00" rx="0" fill="url(#grad-14)" stroke="#2F75B5" stroke-width="1.80"/>
+<rect x="490.00" y="2446.00" width="410.00" height="143.00" rx="0" fill="url(#grad-15)" stroke="#2F75B5" stroke-width="1.80"/>
+<text x="1800.00" y="46.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="24.00" font-weight="700" font-style="normal" fill="#1F4E79">Concessionnaires, partenariats, contrats et publication produit</text>
+<text x="1800.00" y="83.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="400" font-style="normal" fill="#334155">Modèle vérifié dans le backend et le frontend: inscription, compte dealer, catalogue, partenariat, versions contractuelles et validation de publication.</text>
+<text x="1395.00" y="-1133.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="1395.00" y="-1114.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">DealerAccountRequest</text>
+<line x1="1200.00" y1="-1101.00" x2="1590.00" y2="-1101.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="1209.00" y="-1083.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="1209.00" y="-1068.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− companyName : String {required}</text>
+<text x="1209.00" y="-1054.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− registrationNumber : String {required}</text>
+<text x="1209.00" y="-1040.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− address : String {required}</text>
+<text x="1209.00" y="-1026.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactPerson : String {required}</text>
+<text x="1209.00" y="-1012.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− email : String {required}</text>
+<text x="1209.00" y="-997.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− phone : String {required}</text>
+<text x="1209.00" y="-983.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− website : String</text>
+<text x="1209.00" y="-969.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− logoUrl : String</text>
+<text x="1209.00" y="-955.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactPhotoUrl : String</text>
+<text x="1209.00" y="-941.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− store : Store [1]</text>
+<text x="1209.00" y="-926.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− documentUrls : List&lt;String&gt; [0..*] {required}</text>
+<text x="1209.00" y="-912.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : DealerRequestStatusEnum {required}</text>
+<text x="1209.00" y="-898.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− rejectionReason : String</text>
+<text x="1209.00" y="-884.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− submittedAt : LocalDateTime {created}</text>
+<text x="1209.00" y="-870.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− processedAt : LocalDateTime</text>
+<text x="-730.00" y="187.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="-730.00" y="206.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">User</text>
+<line x1="-910.00" y1="219.00" x2="-550.00" y2="219.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="-901.00" y="237.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="-901.00" y="251.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bank : Bank [0..1]</text>
+<text x="-901.00" y="265.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− dealer : Dealer [0..1]</text>
+<text x="-901.00" y="279.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− fullName : String</text>
+<text x="-901.00" y="293.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− email : String</text>
+<text x="-901.00" y="308.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− phone : String</text>
+<text x="-901.00" y="322.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− address : String</text>
+<text x="-901.00" y="336.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactImageUrl : String</text>
+<text x="-901.00" y="350.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− birthDate : LocalDate</text>
+<text x="-901.00" y="364.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− role : RoleEnum</text>
+<text x="-901.00" y="379.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : UserStatusEnum</text>
+<text x="-901.00" y="393.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− password : String</text>
+<text x="-901.00" y="407.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="-685.00" y="747.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="-685.00" y="766.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">Dealer</text>
+<line x1="-870.00" y1="779.00" x2="-500.00" y2="779.00" stroke="#1F4E79" stroke-width="0.8"/>
+<text x="-861.00" y="797.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="-861.00" y="811.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− companyName : String {required}</text>
+<text x="-861.00" y="825.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− registrationNumber : String {required}</text>
+<text x="-861.00" y="839.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− address : String {required}</text>
+<text x="-861.00" y="853.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactPerson : String {required}</text>
+<text x="-861.00" y="868.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− email : String {required}</text>
+<text x="-861.00" y="882.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− phone : String {required}</text>
+<text x="-861.00" y="896.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− website : String</text>
+<text x="-861.00" y="910.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− logoUrl : String</text>
+<text x="-861.00" y="924.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contactPhotoUrl : String</text>
+<text x="-861.00" y="939.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− store : Store [1]</text>
+<text x="-861.00" y="953.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : DealerStatusEnum {required}</text>
+<text x="-861.00" y="967.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="-861.00" y="981.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {updated}</text>
+<text x="-861.00" y="995.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">{contraintes}</text>
+<text x="-861.00" y="1010.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(registrationNumber)</text>
+<text x="-861.00" y="1024.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(email)</text>
+<text x="675.00" y="557.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="675.00" y="576.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">Store</text>
+<line x1="490.00" y1="589.00" x2="860.00" y2="589.00" stroke="#1F4E79" stroke-width="0.8"/>
+<text x="499.00" y="607.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="499.00" y="621.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− marketplaceStores : List&lt;MarketplaceStore&gt; [0..*]</text>
+<text x="499.00" y="635.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− moduleStores : List&lt;ModuleStore&gt; [0..*]</text>
+<text x="499.00" y="649.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− name : String</text>
+<text x="499.00" y="663.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− description : String</text>
+<text x="499.00" y="678.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− icon : String</text>
+<text x="499.00" y="692.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− banniereUrl : String</text>
+<text x="499.00" y="706.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− price : BigDecimal</text>
+<text x="499.00" y="720.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : StoreStatusEnum</text>
+<text x="499.00" y="734.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="1835.00" y="177.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="1835.00" y="196.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">Bank</text>
+<line x1="1650.00" y1="209.00" x2="2020.00" y2="209.00" stroke="#1F4E79" stroke-width="0.8"/>
+<text x="1659.00" y="227.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="1659.00" y="241.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− marketplace : Marketplace [0..1]</text>
+<text x="1659.00" y="255.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− name : String</text>
+<text x="1659.00" y="269.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− slug : String</text>
+<text x="1659.00" y="283.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− email : String</text>
+<text x="1659.00" y="298.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− phone : String</text>
+<text x="1659.00" y="312.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− logoUrl : String</text>
+<text x="1659.00" y="326.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− country : String</text>
+<text x="1659.00" y="340.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− description : String</text>
+<text x="1659.00" y="354.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− websiteUrl : String</text>
+<text x="1659.00" y="369.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− establishedYear : Integer</text>
+<text x="1659.00" y="383.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : BankStatusEnum</text>
+<text x="1659.00" y="397.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− totalUsers : Integer</text>
+<text x="1659.00" y="411.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="1659.00" y="425.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {updated}</text>
+<text x="2975.00" y="457.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="2975.00" y="476.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">Marketplace</text>
+<line x1="2780.00" y1="489.00" x2="3170.00" y2="489.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="2789.00" y="507.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="2789.00" y="521.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bank : Bank [1] {unique}</text>
+<text x="2789.00" y="535.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− marketplaceStores : List&lt;MarketplaceStore&gt; [0..*]</text>
+<text x="2789.00" y="549.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− primaryColor : String</text>
+<text x="2789.00" y="563.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− secondaryColor : String</text>
+<text x="2789.00" y="578.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− homepageTitle : String</text>
+<text x="2789.00" y="592.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− welcomeText : String</text>
+<text x="2789.00" y="606.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− banniereUrl : String</text>
+<text x="2789.00" y="620.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− footerText : String</text>
+<text x="2789.00" y="634.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− logoImageUrl : String</text>
+<text x="2789.00" y="649.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− totalMonthlyPrice : BigDecimal</text>
+<text x="2789.00" y="663.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : MarketplaceStatusEnum</text>
+<text x="2789.00" y="677.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="2789.00" y="691.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">+ getBannerImageUrl(): String</text>
+<text x="2789.00" y="705.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">+ setBannerImageUrl(url: String): void</text>
+<text x="375.00" y="1817.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="375.00" y="1836.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">DealerProduct</text>
+<line x1="180.00" y1="1849.00" x2="570.00" y2="1849.00" stroke="#1F4E79" stroke-width="0.8"/>
+<text x="189.00" y="1867.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="189.00" y="1881.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− dealer : Dealer [1]</text>
+<text x="189.00" y="1895.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− store : Store [1]</text>
+<text x="189.00" y="1909.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− name : String {required}</text>
+<text x="189.00" y="1923.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− description : String</text>
+<text x="189.00" y="1938.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− price : BigDecimal {required}</text>
+<text x="189.00" y="1952.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− imageUrl : String</text>
+<text x="189.00" y="1966.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− eligibilityConditions : String</text>
+<text x="189.00" y="1980.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : DealerProductStatusEnum {required}</text>
+<text x="189.00" y="1994.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− totalStock : Integer</text>
+<text x="189.00" y="2009.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− availableStock : Integer</text>
+<text x="189.00" y="2023.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− reservedStock : Integer</text>
+<text x="189.00" y="2037.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− parameterValues : List&lt;DealerProductParameterValue&gt; [0..*]</text>
+<text x="189.00" y="2051.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− documents : List&lt;DealerProductDocument&gt; [0..*]</text>
+<text x="189.00" y="2065.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− catalogImages : List&lt;DealerProductCatalogImage&gt; [0..*]</text>
+<text x="189.00" y="2080.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="189.00" y="2094.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {updated}</text>
+<text x="1180.00" y="1467.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="1180.00" y="1486.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">DealerBankPartnership</text>
+<line x1="980.00" y1="1499.00" x2="1380.00" y2="1499.00" stroke="#1F4E79" stroke-width="0.8"/>
+<text x="989.00" y="1517.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="989.00" y="1531.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− dealer : Dealer [1]</text>
+<text x="989.00" y="1545.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bank : Bank [1]</text>
+<text x="989.00" y="1559.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− store : Store [1]</text>
+<text x="989.00" y="1573.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : DealerPartnershipStatusEnum {required}</text>
+<text x="989.00" y="1588.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− initiatedBy : PartnershipInitiatorEnum</text>
+<text x="989.00" y="1602.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− message : String</text>
+<text x="989.00" y="1616.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− rejectionReason : String</text>
+<text x="989.00" y="1630.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− requestDate : LocalDateTime {created}</text>
+<text x="989.00" y="1644.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− processingDate : LocalDateTime</text>
+<text x="989.00" y="1659.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− approvedAt : LocalDateTime</text>
+<text x="989.00" y="1673.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− rejectedAt : LocalDateTime</text>
+<text x="989.00" y="1687.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {updated}</text>
+<text x="989.00" y="1701.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">{contraintes}</text>
+<text x="989.00" y="1715.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(dealer, bank, store)</text>
+<text x="2640.00" y="1587.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="2640.00" y="1606.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">PartnershipContract</text>
+<line x1="2430.00" y1="1619.00" x2="2850.00" y2="1619.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="2439.00" y="1637.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="2439.00" y="1651.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contractNumber : String {unique, required}</text>
+<text x="2439.00" y="1665.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− partnership : DealerBankPartnership [1]</text>
+<text x="2439.00" y="1679.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− versionNumber : Integer {required}</text>
+<text x="2439.00" y="1693.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− templateVersion : String {required}</text>
+<text x="2439.00" y="1708.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : PartnershipContractStatusEnum {required}</text>
+<text x="2439.00" y="1722.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− startDate : LocalDate</text>
+<text x="2439.00" y="1736.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− endDate : LocalDate</text>
+<text x="2439.00" y="1750.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− billingModel : PartnershipBillingModelEnum {required}</text>
+<text x="2439.00" y="1764.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− commissionApplicable : Boolean {required}</text>
+<text x="2439.00" y="1779.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− commissionType : PartnershipCommissionTypeEnum</text>
+<text x="2439.00" y="1793.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− commissionValue : BigDecimal</text>
+<text x="2439.00" y="1807.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− contractTerms : String</text>
+<text x="2439.00" y="1821.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− terminationConditions : String</text>
+<text x="2439.00" y="1835.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− specificConditions : String</text>
+<text x="2439.00" y="1850.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− renderedHtml : String</text>
+<text x="2439.00" y="1864.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− generatedDocumentPath : String</text>
+<text x="2439.00" y="1878.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− dealerAcceptedAt : LocalDateTime</text>
+<text x="2439.00" y="1892.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bankAcceptedAt : LocalDateTime</text>
+<text x="2439.00" y="1906.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− sentAt : LocalDateTime</text>
+<text x="2439.00" y="1921.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− rejectionReason : String</text>
+<text x="2439.00" y="1935.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {required, created}</text>
+<text x="2439.00" y="1949.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {required, updated}</text>
+<text x="2439.00" y="1963.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">{contraintes}</text>
+<text x="2439.00" y="1977.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(partnership, versionNumber)</text>
+<text x="2439.00" y="1992.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(contractNumber)</text>
+<text x="3280.00" y="1067.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="3280.00" y="1086.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">ProductPublicationRequest</text>
+<line x1="3070.00" y1="1099.00" x2="3490.00" y2="1099.00" stroke="#1F4E79" stroke-width="0.8"/>
+<text x="3079.00" y="1117.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="3079.00" y="1131.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− product : DealerProduct [1]</text>
+<text x="3079.00" y="1145.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− dealer : Dealer [1]</text>
+<text x="3079.00" y="1159.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− partnership : DealerBankPartnership [1]</text>
+<text x="3079.00" y="1173.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− bank : Bank [1]</text>
+<text x="3079.00" y="1188.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− marketplace : Marketplace [1]</text>
+<text x="3079.00" y="1202.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− store : Store [1]</text>
+<text x="3079.00" y="1216.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− status : ProductPublicationStatusEnum {required}</text>
+<text x="3079.00" y="1230.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− rejectionReason : String</text>
+<text x="3079.00" y="1244.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− active : Boolean {required}</text>
+<text x="3079.00" y="1259.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− submittedAt : LocalDateTime {created}</text>
+<text x="3079.00" y="1273.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− processedAt : LocalDateTime</text>
+<text x="3079.00" y="1287.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">{contraintes}</text>
+<text x="3079.00" y="1301.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(product, bank, store)</text>
+<text x="-890.00" y="1407.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="-890.00" y="1426.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">ProductParameterDefinition</text>
+<line x1="-1090.00" y1="1439.00" x2="-690.00" y2="1439.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="-1081.00" y="1457.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="-1081.00" y="1471.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− store : Store [1]</text>
+<text x="-1081.00" y="1485.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− name : String {required}</text>
+<text x="-1081.00" y="1499.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="-1081.00" y="1513.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− updatedAt : LocalDateTime {updated}</text>
+<text x="-1081.00" y="1528.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">{contraintes}</text>
+<text x="-1081.00" y="1542.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(store, name)</text>
+<text x="-305.00" y="2067.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="-305.00" y="2086.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">DealerProductParameterValue</text>
+<line x1="-510.00" y1="2099.00" x2="-100.00" y2="2099.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="-501.00" y="2117.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="-501.00" y="2131.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− product : DealerProduct [1]</text>
+<text x="-501.00" y="2145.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− parameterDefinition : ProductParameterDefinition [1]</text>
+<text x="-501.00" y="2159.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− value : String</text>
+<text x="-501.00" y="2173.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">{contraintes}</text>
+<text x="-501.00" y="2188.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">unique(product, parameterDefinition)</text>
+<text x="-200.00" y="2442.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="-200.00" y="2461.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">DealerProductDocument</text>
+<line x1="-400.00" y1="2474.00" x2="0.00" y2="2474.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="-391.00" y="2492.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="-391.00" y="2506.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− product : DealerProduct [1]</text>
+<text x="-391.00" y="2520.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− documentType : String {required}</text>
+<text x="-391.00" y="2534.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− fileName : String {required}</text>
+<text x="-391.00" y="2548.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− filePath : String {required}</text>
+<text x="-391.00" y="2563.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− publicDocument : boolean {required}</text>
+<text x="-391.00" y="2577.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− uploadedAt : LocalDateTime {created}</text>
+<text x="695.00" y="2463.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#172B4D">«entity»</text>
+<text x="695.00" y="2482.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="12.00" font-weight="700" font-style="normal" fill="#172B4D">DealerProductCatalogImage</text>
+<line x1="490.00" y1="2495.00" x2="900.00" y2="2495.00" stroke="#2F75B5" stroke-width="0.8"/>
+<text x="499.00" y="2513.00" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− id : Long {id, generated}</text>
+<text x="499.00" y="2527.20" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− product : DealerProduct [1]</text>
+<text x="499.00" y="2541.40" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− imageUrl : String {required}</text>
+<text x="499.00" y="2555.60" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− displayOrder : Integer {required}</text>
+<text x="499.00" y="2569.80" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="400" font-style="normal" fill="#172B4D">− createdAt : LocalDateTime {created}</text>
+<text x="55.00" y="2573.12" text-anchor="start" font-family="Arial, sans-serif" font-size="11.00" font-weight="700" font-style="normal" fill="#334155">Légende — PK clé primaire · FK relation vers une entité · REL collection · ENUM type énuméré</text>
+<text x="190.00" y="2604.75" text-anchor="start" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">Association JPA</text>
+<text x="190.00" y="2634.75" text-anchor="start" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">Composition / cycle de vie</text>
+<text x="190.00" y="2664.75" text-anchor="start" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">Référence logique sans FK</text>
+<text x="3535.00" y="2634.75" text-anchor="end" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#50657A">Chaque classe et chaque connecteur reste modifiable dans draw.io / diagrams.net. Les cardinalités proviennent des mappings JPA; les traits pointillés indiquent des identifiants stockés sans association JPA.</text>
+<rect x="2377.10" y="430.79" width="45.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="2400.00" y="444.79" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">possède</text>
+<rect x="2086.28" y="266.07" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2095.28" y="276.07" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="2689.62" y="581.50" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2704.72" y="591.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="513.60" y="318.95" width="72.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="550.00" y="332.95" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">utilisateurs</text>
+<rect x="1480.49" y="309.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1495.59" y="319.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="-410.69" y="314.90" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-395.59" y="324.90" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="-751.80" y="566.80" width="83.60" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="-710.00" y="580.80" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">comptes dealer</text>
+<rect x="-819.06" y="871.50" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-803.96" y="881.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..1</text>
+<rect x="-631.14" y="248.10" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-616.04" y="258.10" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="-199.58" y="1076.00" width="99.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="-149.68" y="1090.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">définit le schéma</text>
+<rect x="435.86" y="768.00" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="444.86" y="778.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="-759.32" y="1370.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-744.22" y="1380.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="-36.00" y="727.93" width="62.00" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="-5.00" y="741.93" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">spécialité</text>
+<rect x="400.93" y="644.00" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="409.93" y="654.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="-435.03" y="797.86" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-419.93" y="807.86" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="998.60" y="-164.00" width="72.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1035.00" y="-150.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">inscriptions</text>
+<rect x="666.00" y="372.86" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="675.00" y="382.86" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="1379.90" y="-714.86" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1395.00" y="-704.86" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="203.60" y="1218.73" width="72.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="240.00" y="1232.73" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">partenariats</text>
+<rect x="-354.33" y="846.95" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-345.33" y="856.95" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="810.23" y="1576.50" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="825.33" y="1586.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1473.00" y="961.00" width="72.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1509.40" y="975.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">partenariats</text>
+<rect x="1779.01" y="583.64" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1788.01" y="593.64" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="1215.70" y="1324.36" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1230.80" y="1334.36" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="887.86" y="1106.00" width="56.60" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="916.16" y="1120.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">périmètre</text>
+<rect x="694.12" y="844.17" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="703.12" y="854.17" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="1114.10" y="1353.83" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1129.20" y="1363.83" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1857.80" y="1729.62" width="94.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1905.00" y="1743.62" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">versions contrat</text>
+<rect x="1459.75" y="1613.71" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1468.75" y="1623.71" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="2326.15" y="1831.52" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2341.25" y="1841.52" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="-208.06" y="1413.50" width="56.60" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="-179.76" y="1427.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">catalogue</text>
+<rect x="-694.00" y="1156.02" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-685.00" y="1166.02" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="310.37" y="1656.98" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="325.47" y="1666.98" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="507.41" y="1281.00" width="56.60" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="535.71" y="1295.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">catégorie</text>
+<rect x="637.88" y="854.40" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="646.88" y="864.40" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="409.43" y="1693.60" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="424.53" y="1703.60" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="-36.96" y="2073.50" width="94.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="10.24" y="2087.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">caractéristiques</text>
+<rect x="303.73" y="2066.50" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="312.73" y="2076.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="-307.36" y="2066.50" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-292.26" y="2076.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="-631.00" y="1789.75" width="62.00" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="-600.00" y="1803.75" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">définition</text>
+<rect x="-640.73" y="1456.50" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-631.73" y="1466.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="-583.38" y="2109.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-568.28" y="2119.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="83.96" y="2261.00" width="56.60" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="112.26" y="2275.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">documents</text>
+<rect x="415.53" y="2167.86" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="424.53" y="2177.86" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="-215.10" y="2340.14" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-200.00" y="2350.14" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="507.10" y="2247.01" width="45.80" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="530.00" y="2261.01" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">galerie</text>
+<rect x="521.00" y="1984.17" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="530.00" y="1994.17" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="514.90" y="2495.85" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="530.00" y="2505.85" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1762.00" y="1576.91" width="116.00" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1820.00" y="1590.91" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">demandes publication</text>
+<rect x="782.28" y="1900.48" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="791.28" y="1910.48" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="2833.62" y="1239.33" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2848.72" y="1249.33" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1264.80" y="1021.87" width="40.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1285.00" y="1035.87" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">soumet</text>
+<rect x="-242.46" y="896.05" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="-233.46" y="906.05" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="2788.36" y="1133.69" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2803.46" y="1143.69" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="2199.40" y="1378.80" width="51.20" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="2225.00" y="1392.80" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">autorise</text>
+<rect x="1512.75" y="1539.29" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1521.75" y="1549.29" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="2913.15" y="1204.31" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2928.25" y="1214.31" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="2524.80" y="767.46" width="40.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="2545.00" y="781.46" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">valide</text>
+<rect x="2141.70" y="351.93" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2150.70" y="361.93" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="2924.20" y="1169.00" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2939.30" y="1179.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="3093.80" y="893.50" width="67.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="3127.50" y="907.50" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">publie dans</text>
+<rect x="2966.00" y="784.44" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2975.00" y="794.44" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="3264.90" y="988.56" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="3280.00" y="998.56" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+<rect x="1931.30" y="878.33" width="67.40" height="17.00" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1965.00" y="892.33" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="400" font-style="normal" fill="#334155">store cible</text>
+<rect x="1037.53" y="644.00" width="18.00" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="1046.53" y="654.00" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">1</text>
+<rect x="2868.37" y="1098.67" width="30.20" height="15.00" fill="#FFFFFF" fill-opacity="0.96"/>
+<text x="2883.47" y="1108.67" text-anchor="middle" font-family="Arial, sans-serif" font-size="10.00" font-weight="700" font-style="normal" fill="#172B4D">0..*</text>
+</svg>

@@ -1,0 +1,20 @@
+MATCHIA — DIAGRAMME DE CLASSES PLANTUML
+
+Fichier principal : Matchia_diagramme_classes_detaille.puml
+
+Le script contient 7 diagrammes indépendants :
+1. Vue globale détaillée
+2. Noyau SaaS et abonnement
+3. Catalogue et marketplace
+4. Dealer, partenariats et contrats
+5. Financement client
+6. Sécurité et audit
+7. Énumérations métier
+
+Inventaire : 39 entités, 27 énumérations et 75 relations métier.
+
+Le fichier est du texte UTF-8 : il est directement éditable dans PlantUML, IntelliJ,
+VS Code avec une extension PlantUML, ou tout éditeur compatible.
+
+La première vue est exhaustive. Les autres vues réutilisent exactement le même
+modèle, mais filtré par sous-domaine afin de faciliter la lecture et la présentation.

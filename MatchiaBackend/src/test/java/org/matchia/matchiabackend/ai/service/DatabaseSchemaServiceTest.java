@@ -36,4 +36,32 @@ class DatabaseSchemaServiceTest {
         when(jdbc.queryForList(anyString())).thenReturn(List.of(Map.of("table_name", "user", "column_name", "token", "data_type", "text")));
         assertThatThrownBy(() -> new DatabaseSchemaService(jdbc).loadAllowedSchema()).isInstanceOf(IllegalStateException.class);
     }
+
+    @Test
+    void hidesDescriptionsForStoresModulesAndMarketplaces() {
+        JdbcTemplate jdbc = mock(JdbcTemplate.class);
+        DatabaseSchemaService service = new DatabaseSchemaService(jdbc);
+        when(jdbc.queryForList(anyString())).thenReturn(
+                List.of(
+                        Map.of("table_name", "store", "column_name", "name", "data_type", "character varying"),
+                        Map.of("table_name", "store", "column_name", "description", "data_type", "character varying"),
+                        Map.of("table_name", "module", "column_name", "name", "data_type", "character varying"),
+                        Map.of("table_name", "module", "column_name", "description", "data_type", "character varying"),
+                        Map.of("table_name", "marketplace", "column_name", "status", "data_type", "character varying"),
+                        Map.of("table_name", "marketplace", "column_name", "description", "data_type", "character varying"),
+                        Map.of("table_name", "request", "column_name", "marketplace_description", "data_type", "character varying"),
+                        Map.of("table_name", "request_store_selection", "column_name", "store_description", "data_type", "character varying"),
+                        Map.of("table_name", "request_module_selection", "column_name", "module_description", "data_type", "character varying")
+                ),
+                List.of()
+        );
+
+        DatabaseSchemaService.AllowedSchema schema = service.loadAllowedSchema();
+
+        assertThat(schema.tables().get("store")).containsExactly("name");
+        assertThat(schema.tables().get("module")).containsExactly("name");
+        assertThat(schema.tables().get("marketplace")).containsExactly("status");
+        assertThat(schema.tables()).doesNotContainKeys("request", "request_store_selection", "request_module_selection");
+        assertThat(schema.schemaText()).doesNotContain("description");
+    }
 }

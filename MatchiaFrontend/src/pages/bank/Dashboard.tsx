@@ -1,18 +1,20 @@
 ﻿import '../../styles/BankDashboard.css';
 import { useEffect, useMemo, useState } from 'react';
+import { Link } from 'react-router';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '../../components/ui/Card';
-import { Store, Box, TrendingUp, Loader2, Users, FileText } from 'lucide-react';
-import { AreaChart, Area, Cell, Pie, PieChart, XAxis, YAxis, CartesianGrid } from 'recharts';
+import { Store, Box, TrendingUp, Loader2, Users, FileText, Clock3, ArrowRight } from 'lucide-react';
+import { Bar, BarChart, CartesianGrid, Cell, Pie, PieChart, XAxis, YAxis } from 'recharts';
 import { Badge } from '../../components/ui/Badge';
 import { useBankTenant } from '../../hooks/useBankTenant';
 import { bankTenantService } from '../../services/bankTenantService';
 import { requestService } from '../../services/requestService';
+import { financingRequestService, type FinancingSummary } from '../../services/financingRequestService';
 import type { MarketplacePublicDto, ModuleAssignment } from '../../types/apiTypes';
 import { KpiCard } from '../../components/ui/KpiCard';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '../../components/ui/chart';
 
 const COLORS = ['#2563eb', '#f97316', '#10b981', '#8b5cf6', '#ef4444'];
-const STORE_CHART_COLOR = '#f97316';
+const STORE_BAR_COLORS = ['#f26a2d', '#2f80d9', '#98dcc4', '#9564e8', '#f5ab3a'];
 
 const getStoreId = (store: { storeId?: number | null; id: number }) => store.storeId ?? store.id;
 
@@ -20,6 +22,7 @@ export function BankDashboard() {
   const { users, stores, modulesByStore, marketplace, isLoading, error } = useBankTenant();
   const [publicMarketplace, setPublicMarketplace] = useState<MarketplacePublicDto | null>(null);
   const [requestCount, setRequestCount] = useState(0);
+  const [pendingFinancingRequests, setPendingFinancingRequests] = useState<FinancingSummary[]>([]);
 
   const activeStores = useMemo(
     () => stores.filter((store) => store.visible !== false && store.enabled !== false),
@@ -90,6 +93,45 @@ export function BankDashboard() {
       mounted = false;
     };
   }, [marketplace?.bankId]);
+
+  useEffect(() => {
+    const storeIds = activeStores.map(getStoreId);
+
+    if (storeIds.length === 0) {
+      setPendingFinancingRequests([]);
+      return;
+    }
+
+    let mounted = true;
+
+    const loadPendingFinancingRequests = async () => {
+      try {
+        const responses = await Promise.all(
+          storeIds.map((storeId) => financingRequestService.bankRequests(storeId, 'PENDING')),
+        );
+        if (!mounted) return;
+
+        const requestsById = new Map<number, FinancingSummary>();
+        responses.flatMap((response) => response.data).forEach((request) => {
+          requestsById.set(request.id, request);
+        });
+        setPendingFinancingRequests(
+          Array.from(requestsById.values()).sort(
+            (left, right) => new Date(right.createdAt).getTime() - new Date(left.createdAt).getTime(),
+          ),
+        );
+      } catch (loadError) {
+        console.error('Failed to load pending financing requests for dashboard:', loadError);
+        if (mounted) setPendingFinancingRequests([]);
+      }
+    };
+
+    void loadPendingFinancingRequests();
+
+    return () => {
+      mounted = false;
+    };
+  }, [activeStores]);
 
   const visibleModulesByStore = useMemo(() => {
     return Object.entries(modulesByStore).reduce<Record<number, ModuleAssignment[]>>((acc, [storeIdString, assignments]) => {
@@ -191,10 +233,12 @@ export function BankDashboard() {
   const storeChartData = useMemo(
     () =>
       [...storeModuleCounts]
+        .filter((entry) => entry.visible)
         .sort((left, right) => right.modules - left.modules)
-        .map((entry) => ({
+        .map((entry, index) => ({
           ...entry,
           shortName: entry.name.length > 14 ? `${entry.name.slice(0, 13)}...` : entry.name,
+          color: STORE_BAR_COLORS[index % STORE_BAR_COLORS.length],
         })),
     [storeModuleCounts],
   );
@@ -230,6 +274,7 @@ export function BankDashboard() {
   ];
 
   const roleTop = roleChartData[0] || null;
+  const displayedPendingFinancingRequests = pendingFinancingRequests.slice(0, 4);
 
   if (isLoading) {
     return (
@@ -344,97 +389,35 @@ export function BankDashboard() {
           <CardHeader className="bank-chart-header">
             <div>
               <CardTitle>Modules par store</CardTitle>
-              <CardDescription>Comparaison visuelle des stores visibles</CardDescription>
+              <CardDescription>Nombre de modules</CardDescription>
             </div>
             <div className="bank-chart-badges">
               <span className="bank-chart-badge">{activeStores.length} actifs</span>
             </div>
           </CardHeader>
           <CardContent>
-            <ChartContainer
-              config={{
-                modules: {
-                  label: 'Modules visibles',
-                  color: STORE_CHART_COLOR,
-                },
-              }}
-              className="bank-chart-area-shell"
-            >
-              <AreaChart data={storeChartData} margin={{ top: 10, right: 16, left: 0, bottom: 0 }}>
-                <defs>
-                  <linearGradient id="storeModuleFill" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={STORE_CHART_COLOR} stopOpacity={0.35} />
-                    <stop offset="95%" stopColor={STORE_CHART_COLOR} stopOpacity={0.04} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid vertical={false} strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis
-                  dataKey="shortName"
-                  tickLine={false}
-                  axisLine={false}
-                  stroke="#64748b"
-                  interval={0}
-                  angle={-18}
-                  textAnchor="end"
-                  height={56}
-                />
-                <YAxis
-                  tickLine={false}
-                  axisLine={false}
-                  stroke="#64748b"
-                  allowDecimals={false}
-                />
-                <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
-                <Area
-                  type="monotone"
-                  dataKey="modules"
-                  stroke={STORE_CHART_COLOR}
-                  fill="url(#storeModuleFill)"
-                  strokeWidth={3}
-                />
-              </AreaChart>
-            </ChartContainer>
-          </CardContent>
-        </Card>
-      </div>
-      <div className="grid gap-6 lg:grid-cols-2 mb-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Stores assignes</CardTitle>
-            <CardDescription>Chaque store affiche le nombre de modules affectes a cette marketplace</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {stores.length === 0 ? (
-              <div className="text-sm text-muted-foreground">Aucun store assigne.</div>
+            {storeChartData.length === 0 ? (
+              <div className="py-10 text-sm text-muted-foreground">Aucun store visible.</div>
             ) : (
-              stores.map((store) => {
-                // `store.modules` is populated from the MarketplaceStoreModule
-                // relations of the current tenant marketplace. It must be used
-                // here instead of the global module-store assignments.
-                const modulesCount = (store.modules || []).length;
-
-                return (
-                  <div key={store.id} className="rounded-xl border border-border p-4">
-                    <div className="flex items-center justify-between gap-3">
-                      <div>
-                        <div className="font-medium">{store.name || `Store ${store.id}`}</div>
-                        <div className="text-sm text-muted-foreground">{store.description || 'Store marketplace'}</div>
-                      </div>
-                      <Badge variant={store.visible === false ? 'warning' : 'success'}>
-                        {store.visible === false ? 'Masque' : 'Visible'}
-                      </Badge>
-                    </div>
-                    <div className="mt-3 h-2 overflow-hidden rounded-full bg-muted">
-                      <div className="h-full bg-primary" style={{ width: `${Math.min(modulesCount * 20, 100)}%` }} />
-                    </div>
-                    <div className="mt-2 text-xs text-muted-foreground">{modulesCount} modules assignes</div>
-                  </div>
-                );
-              })
+              <ChartContainer
+                config={{ modules: { label: 'Modules' } }}
+                className="bank-chart-area-shell"
+              >
+                <BarChart data={storeChartData} margin={{ top: 10, right: 12, left: -18, bottom: 0 }}>
+                  <CartesianGrid vertical={false} stroke="#e5e7eb" />
+                  <XAxis dataKey="shortName" tickLine={false} axisLine={{ stroke: '#d1d5db' }} tickMargin={10} />
+                  <YAxis tickLine={false} axisLine={false} allowDecimals={false} domain={[0, 5]} ticks={[0, 1, 2, 3, 4, 5]} />
+                  <ChartTooltip content={<ChartTooltipContent indicator="dot" />} />
+                  <Bar dataKey="modules" radius={[4, 4, 0, 0]} maxBarSize={42}>
+                    {storeChartData.map((store) => <Cell key={store.name} fill={store.color} />)}
+                  </Bar>
+                </BarChart>
+              </ChartContainer>
             )}
           </CardContent>
         </Card>
-
+      </div>
+      <div className="mb-6 grid gap-6 lg:grid-cols-2">
         <Card>
           <CardHeader>
             <CardTitle>Modules les plus presents</CardTitle>
@@ -467,6 +450,57 @@ export function BankDashboard() {
                 ))
               )}
             </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-start justify-between gap-4">
+            <div>
+              <CardTitle>Demandes de financement en attente</CardTitle>
+              <CardDescription>Dossiers clients à traiter en priorité</CardDescription>
+            </div>
+            <Badge variant="warning">{pendingFinancingRequests.length} en attente</Badge>
+          </CardHeader>
+          <CardContent>
+            {displayedPendingFinancingRequests.length === 0 ? (
+              <div className="flex min-h-40 flex-col items-center justify-center gap-2 text-center text-sm text-muted-foreground">
+                <Clock3 className="h-6 w-6 text-warning" />
+                Aucune demande de financement en attente.
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {displayedPendingFinancingRequests.map((request) => (
+                  <Link
+                    key={request.id}
+                    to={`/bank/financing-requests/${request.id}`}
+                    className="group flex items-center gap-3 rounded-xl border border-border/70 bg-muted/20 p-3 transition-colors hover:border-primary/30 hover:bg-primary/5"
+                  >
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-warning/10 text-warning">
+                      <FileText className="h-4 w-4" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className="flex items-center justify-between gap-3">
+                        <span className="truncate text-sm font-semibold text-foreground">{request.clientName}</span>
+                        <span className="shrink-0 text-sm font-semibold text-foreground">
+                          {new Intl.NumberFormat('fr-TN', { maximumFractionDigits: 0 }).format(request.requestedAmount || 0)} DT
+                        </span>
+                      </span>
+                      <span className="mt-0.5 block truncate text-xs text-muted-foreground">
+                        {request.reference} · {request.productName} · {request.storeName}
+                      </span>
+                    </span>
+                    <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5 group-hover:text-primary" />
+                  </Link>
+                ))}
+                <Link
+                  to="/bank/financing-requests"
+                  className="inline-flex items-center gap-1.5 pt-1 text-sm font-semibold text-primary hover:underline"
+                >
+                  Voir toutes les demandes
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </div>
+            )}
           </CardContent>
         </Card>
       </div>

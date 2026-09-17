@@ -376,7 +376,7 @@ export function DealerManagement() {
       <Card className="p-0 shadow-sm">
         <div className="border-b border-border px-6 py-5">
           <h2 className="text-lg font-semibold text-foreground">
-            {tab === 'partnerships' ? 'Demandes de partenariat' : tab === 'contracts' ? 'Contrats de partenariat gratuits' : 'Produits proposes par les concessionnaires'}
+            {tab === 'partnerships' ? 'Demandes de partenariat' : tab === 'contracts' ? 'Contrats de partenariat' : 'Produits proposes par les concessionnaires'}
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
             {tab === 'partnerships'

@@ -1,6 +1,6 @@
 import '../../styles/JoinPage.css';
 import { BANNER_ASPECT_RATIO, BANNER_RECOMMENDED_DIMENSIONS } from '../../config/banner';
-import { type CSSProperties, type MouseEvent, useEffect, useMemo, useState } from 'react';
+import { type CSSProperties, type MouseEvent, useEffect, useMemo, useRef, useState } from 'react';
 import axios from 'axios';
 import { Button } from '../../components/ui/Button';
 import { Input } from '../../components/ui/Input';
@@ -145,6 +145,7 @@ export function JoinPage() {
   const [logoPreviewUrl, setLogoPreviewUrl] = useState('');
   const [contactImagePreviewUrl, setContactImagePreviewUrl] = useState('');
   const [bannierePreviewUrl, setBannierePreviewUrl] = useState('');
+  const previewUrlsRef = useRef({ logo: '', contactImage: '', banniere: '' });
   const [colorPickers, setColorPickers] = useState({
     primaryColor: { hue: 24, saturation: 0.91, value: 0.97 },
     secondaryColor: { hue: 221, saturation: 0.83, value: 0.92 },
@@ -178,13 +179,13 @@ export function JoinPage() {
 
   useEffect(() => {
     return () => {
-      [logoPreviewUrl, contactImagePreviewUrl, bannierePreviewUrl].forEach((url) => {
+      Object.values(previewUrlsRef.current).forEach((url) => {
         if (url) {
           URL.revokeObjectURL(url);
         }
       });
     };
-  }, [logoPreviewUrl, contactImagePreviewUrl, bannierePreviewUrl]);
+  }, []);
 
   useEffect(() => {
     if (resendCooldown <= 0) return;
@@ -549,8 +550,11 @@ export function JoinPage() {
       return;
     }
 
+    const previewUrl = URL.createObjectURL(file);
+    if (previewUrlsRef.current.logo) URL.revokeObjectURL(previewUrlsRef.current.logo);
+    previewUrlsRef.current.logo = previewUrl;
     setFormData((prev) => ({ ...prev, logo: file }));
-    setLogoPreviewUrl(URL.createObjectURL(file));
+    setLogoPreviewUrl(previewUrl);
     setFormErrors((prev) => ({ ...prev, logo: '' }));
   };
 
@@ -564,8 +568,11 @@ export function JoinPage() {
       return;
     }
 
+    const previewUrl = URL.createObjectURL(file);
+    if (previewUrlsRef.current.banniere) URL.revokeObjectURL(previewUrlsRef.current.banniere);
+    previewUrlsRef.current.banniere = previewUrl;
     setFormData((prev) => ({ ...prev, banniere: file }));
-    setBannierePreviewUrl(URL.createObjectURL(file));
+    setBannierePreviewUrl(previewUrl);
     setFormErrors((prev) => ({ ...prev, banniere: '' }));
   };
 
@@ -579,8 +586,11 @@ export function JoinPage() {
       return;
     }
 
+    const previewUrl = URL.createObjectURL(file);
+    if (previewUrlsRef.current.contactImage) URL.revokeObjectURL(previewUrlsRef.current.contactImage);
+    previewUrlsRef.current.contactImage = previewUrl;
     setFormData((prev) => ({ ...prev, contactImage: file }));
-    setContactImagePreviewUrl(URL.createObjectURL(file));
+    setContactImagePreviewUrl(previewUrl);
     setFormErrors((prev) => ({ ...prev, contactImage: '' }));
   };
 
@@ -890,6 +900,8 @@ export function JoinPage() {
                       variant="ghost"
                       className="mt-2"
                       onClick={() => {
+                        if (previewUrlsRef.current.logo) URL.revokeObjectURL(previewUrlsRef.current.logo);
+                        previewUrlsRef.current.logo = '';
                         setFormData((prev) => ({ ...prev, logo: null }));
                         setLogoPreviewUrl('');
                         setFormErrors((prev) => ({ ...prev, logo: '' }));
@@ -1005,6 +1017,8 @@ export function JoinPage() {
                       variant="ghost"
                       className="mt-2"
                       onClick={() => {
+                        if (previewUrlsRef.current.contactImage) URL.revokeObjectURL(previewUrlsRef.current.contactImage);
+                        previewUrlsRef.current.contactImage = '';
                         setFormData((prev) => ({ ...prev, contactImage: null }));
                         setContactImagePreviewUrl('');
                         setFormErrors((prev) => ({ ...prev, contactImage: '' }));
@@ -1231,6 +1245,8 @@ export function JoinPage() {
                       variant="ghost"
                       className="mt-2"
                       onClick={() => {
+                        if (previewUrlsRef.current.banniere) URL.revokeObjectURL(previewUrlsRef.current.banniere);
+                        previewUrlsRef.current.banniere = '';
                         setFormData((prev) => ({ ...prev, banniere: null }));
                         setBannierePreviewUrl('');
                         setFormErrors((prev) => ({ ...prev, banniere: '' }));
@@ -1413,49 +1429,18 @@ export function JoinPage() {
               </div>
 
               <Card className="join-final-config-card !p-0">
-                <div className="join-final-config-header"><h3>Configuration selectionnee</h3><span><ShieldCheck /></span></div>
-
-                <div className="join-final-config-section">
-                  <h4>Boutiques selectionnees</h4>
-                  <div className="join-final-config-list">
-                    {selectedStores.length === 0 ? <p className="join-final-empty">Aucune boutique selectionnee.</p> : selectedStores.map((store) => {
-                      const StoreContextIcon = getStoreContextIcon(store);
-                      return (
-                        <div key={store.id} className="join-final-config-item">
-                          <span className="join-final-config-icon"><StoreContextIcon /></span>
-                          <div className="join-final-config-copy"><strong>{store.name}</strong><small>{store.description || 'Store bancaire'}</small></div>
-                          <b>{formatTnd(getStorePrice(store))}</b>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <div className="join-final-config-section">
-                  <h4>Modules selectionnes</h4>
-                  <div className="join-final-config-list">
-                    {selectedStoreDetails.flatMap((store) => store.modules).length === 0 ? <p className="join-final-empty">Aucun module choisi.</p> : selectedStoreDetails.flatMap((store) => store.modules.map((module) => (
-                      <div key={`${store.storeId}-${module.moduleId}`} className="join-final-config-item">
-                        <span className="join-final-config-icon join-final-module-icon"><Wrench /></span>
-                        <div className="join-final-config-copy"><strong>{module.moduleName}</strong><small>{module.moduleDescription || `Module de ${store.storeName}`}</small></div>
-                        <b>{formatTnd(module.modulePrice)}</b>
-                      </div>
-                    )))}
-                  </div>
-                </div>
+                <div className="join-final-config-header"><h3>Récapitulatif des configurations sélectionnées et des coûts</h3><span><ShieldCheck /></span></div>
 
                 <div className="join-final-config-section join-final-costs">
-                  <h4>Recapitulatif des couts</h4>
-                  {selectedStoreDetails.map((store) => (
+                  {selectedStoreDetails.length === 0 ? <p className="join-final-empty">Aucune configuration sélectionnée.</p> : selectedStoreDetails.map((store) => (
                     <div key={`cost-store-${store.storeId}`}>
-                      <div className="join-final-cost-row"><span>{store.storeName}</span><strong>{formatTnd(store.storePrice)}</strong></div>
+                      <div className="join-final-cost-row join-final-store-cost"><span>{store.storeName}</span><strong>{formatTnd(store.storePrice)}</strong></div>
                       {store.modules.map((module) => (
                         <div key={`cost-module-${store.storeId}-${module.moduleId}`} className="join-final-cost-row join-final-cost-module"><span>{module.moduleName}</span><strong>{formatTnd(module.modulePrice)}</strong></div>
                       ))}
                     </div>
                   ))}
                   <div className="join-final-total-row"><span>Total mensuel</span><strong>{formatTnd(totalAmount)}</strong></div>
-                  
                 </div>
               </Card>
             </div>

@@ -1,0 +1,6 @@
+DIAGRAMMES DE CAS D’UTILISATION — ACTIONS DES UTILISATEURS UNIQUEMENT
+
+Ces diagrammes ne présentent que les actions réalisées ou déclenchées par des acteurs humains.
+Les traitements internes du système, les notifications automatiques, la création des sessions, les changements automatiques de statut et les services techniques externes ont été retirés.
+
+Le fichier multipage contient les six diagrammes. Chaque élément reste éditable dans Draw.io.

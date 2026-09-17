@@ -64,6 +64,10 @@ const paymentCountries = [
   { code: 'US', label: 'États-Unis' },
 ];
 
+// Le prestataire peut recevoir une autre devise, mais cette page publique est
+// volontairement affichée en dinars tunisiens pour la marketplace Matchia.
+const DISPLAY_CURRENCY = 'tnd';
+
 const formatAmount = (amount: number, currency: string) => {
   if (currency.toLowerCase() === 'tnd') {
     return `${new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 3 }).format(amount)} DT`;
@@ -491,7 +495,7 @@ export function PaymentDemoPage() {
   }, [amount, bankName, currency, searchParams]);
 
   const displayedAmount = paymentIntent?.amount ?? amount;
-  const displayedCurrency = paymentIntent?.currency || currency;
+  const displayedCurrency = DISPLAY_CURRENCY;
 
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-10">

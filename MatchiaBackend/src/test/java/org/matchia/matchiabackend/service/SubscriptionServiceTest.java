@@ -110,6 +110,48 @@ class SubscriptionServiceTest {
     }
 
     @Test
+    void getOverview_usesCurrentMarketplaceBankDataInsteadOfHistoricalPaymentData() {
+        Bank bank = new Bank();
+        bank.setName("Arab Tunisian Bank");
+        bank.setSlug("atb");
+        bank.setLogoUrl("/uploads/logos/atb.png");
+        Marketplace marketplace = new Marketplace();
+        marketplace.setBank(bank);
+
+        Request request = new Request();
+        request.setId(9L);
+        request.setBankName("test1234");
+        request.setMarketplaceSlug("test1234");
+        Subscription subscription = new Subscription();
+        subscription.setId(8L);
+        subscription.setMarketplace(marketplace);
+        subscription.setRequest(request);
+        subscription.setStatus(SubscriptionStatusEnum.ACTIVE);
+        subscription.setStartDate(LocalDate.now());
+        subscription.setExpirationDate(LocalDate.now().plusDays(365));
+
+        Payment payment = new Payment();
+        payment.setId(7L);
+        payment.setBankName("test1234");
+        payment.setStatus(PaymentStatusEnum.paid);
+        payment.setPaidAt(LocalDateTime.now());
+
+        when(subscriptionRepository.findByStartDateIsNotNullOrderByExpirationDateDesc()).thenReturn(List.of(subscription));
+        when(paymentRepository.findTopBySubscription_IdAndStatusOrderByPaidAtDesc(8L, PaymentStatusEnum.paid))
+                .thenReturn(Optional.of(payment));
+        when(paymentRepository.findTopBySubscription_IdAndStatusAndPaymentTypeOrderByCreatedAtDesc(
+                8L, PaymentStatusEnum.pending, PaymentTypeEnum.RENEWAL)).thenReturn(Optional.empty());
+
+        SubscriptionOverviewDto result = subscriptionService.getOverview();
+
+        assertThat(result.getSubscriptions()).singleElement().satisfies(dto -> {
+            assertThat(dto.getBankName()).isEqualTo("Arab Tunisian Bank");
+            assertThat(dto.getMarketplaceSlug()).isEqualTo("atb");
+            assertThat(dto.getBankLogoUrl()).isEqualTo("/uploads/logos/atb.png");
+        });
+    }
+
+    @Test
     void createsRenewalRequestAndCopiesCommercialContext() {
         Bank bank = new Bank(); bank.setId(8L);
         Marketplace marketplace = new Marketplace(); marketplace.setId(9L); bank.setMarketplace(marketplace);

@@ -47,6 +47,7 @@ const formatDate = (value?: string) => value
 export function DealerRequests() {
   const [requests, setRequests] = useState<DealerRequest[]>([]);
   const [selected, setSelected] = useState<DealerRequest | null>(null);
+  const [approvalTarget, setApprovalTarget] = useState<DealerRequest | null>(null);
   const [rejectTarget, setRejectTarget] = useState<DealerRequest | null>(null);
   const [rejectionReason, setRejectionReason] = useState('');
   const [search, setSearch] = useState('');
@@ -102,18 +103,23 @@ export function DealerRequests() {
   }, [status, storeId, from, to, page]);
 
   const approve = async (request: DealerRequest) => {
-    if (!window.confirm(`Approuver ${request.companyName} ?`)) return;
     setActionLoadingId(request.id);
     try {
       await dealerService.approveRequest(request.id);
       toast.success('Demande concessionnaire approuvee.');
       setSelected(null);
+      setApprovalTarget(null);
       await load();
     } catch (error) {
       toast.error(getErrorMessage(error, "L'approbation de la demande a echoue."));
     } finally {
       setActionLoadingId(null);
     }
+  };
+
+  const openApprovalModal = (request: DealerRequest) => {
+    setSelected(null);
+    setApprovalTarget(request);
   };
 
   const openRejectModal = (request: DealerRequest) => {
@@ -447,7 +453,7 @@ export function DealerRequests() {
                   size="lg"
                   icon={<CheckCircle2 className="h-5 w-5" />}
                   loading={actionLoadingId === selected.id}
-                  onClick={() => void approve(selected)}
+                  onClick={() => openApprovalModal(selected)}
                 >
                   Approuver
                 </Button>
@@ -455,6 +461,56 @@ export function DealerRequests() {
             )}
           </div>
         )}
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(approvalTarget)}
+        onClose={() => !actionLoadingId && setApprovalTarget(null)}
+        title="Approuver la demande"
+        size="sm"
+      >
+        <div className="space-y-5">
+          <div className="flex items-start gap-4 rounded-xl border border-emerald-100 bg-emerald-50/70 p-4">
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600">
+              <CheckCircle2 className="h-6 w-6" />
+            </span>
+            <div>
+              <p className="font-semibold text-emerald-950">Validation du partenariat</p>
+              <p className="mt-1 text-sm leading-5 text-emerald-800">
+                Le concessionnaire pourra ensuite collaborer avec les banques et publier ses produits selon les autorisations accordées.
+              </p>
+            </div>
+          </div>
+
+          <div className="rounded-xl border border-border bg-muted/20 p-4">
+            <p className="text-xs font-semibold uppercase tracking-[0.14em] text-muted-foreground">Concessionnaire</p>
+            <div className="mt-2 flex items-center gap-3">
+              {approvalTarget && <DealerLogo request={approvalTarget} />}
+              <div>
+                <p className="font-semibold text-foreground">{approvalTarget?.companyName}</p>
+                <p className="text-sm text-muted-foreground">{approvalTarget?.contactPerson}</p>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-sm leading-6 text-muted-foreground">
+            Confirmez-vous l’approbation de cette demande de concessionnaire ?
+          </p>
+
+          <div className="flex flex-col-reverse gap-3 pt-1 sm:flex-row sm:justify-end">
+            <Button variant="outline" disabled={Boolean(actionLoadingId)} onClick={() => setApprovalTarget(null)}>
+              Annuler
+            </Button>
+            <Button
+              variant="success"
+              icon={<CheckCircle2 className="h-4 w-4" />}
+              loading={actionLoadingId === approvalTarget?.id}
+              onClick={() => approvalTarget && void approve(approvalTarget)}
+            >
+              Confirmer l’approbation
+            </Button>
+          </div>
+        </div>
       </Modal>
 
       <Modal isOpen={Boolean(rejectTarget)} onClose={() => setRejectTarget(null)} title="Rejeter la demande" size="sm">

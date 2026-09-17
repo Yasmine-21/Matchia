@@ -8,6 +8,7 @@ import type { StoreDto } from '../../types/apiTypes';
 const fieldClass = 'mt-2 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition focus:border-blue-500 focus:ring-4 focus:ring-blue-100';
 const MAX_CONTACT_PHOTO_BYTES = 5 * 1024 * 1024;
 const CONTACT_PHOTO_TYPES = new Set(['image/png', 'image/jpeg']);
+const requiredMark = <span className="text-red-500" aria-hidden="true">*</span>;
 
 export function DealerRegistrationPage() {
   const [stores, setStores] = useState<StoreDto[]>([]);
@@ -97,11 +98,11 @@ export function DealerRegistrationPage() {
           <section className="p-7 sm:p-10">
             {error && <div className="mb-6 rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">{error}</div>}
             <div className="grid gap-5 sm:grid-cols-2">
-              <label className="text-sm font-semibold text-slate-700">Raison sociale *<input name="companyName" required className={fieldClass} /></label>
-              <label className="text-sm font-semibold text-slate-700">Numero d'immatriculation *<input name="registrationNumber" required className={fieldClass} /></label>
-              <label className="text-sm font-semibold text-slate-700">Adresse *<input name="address" required className={fieldClass} /></label>
+              <label className="text-sm font-semibold text-slate-700">Raison sociale {requiredMark}<input name="companyName" required className={fieldClass} /></label>
+              <label className="text-sm font-semibold text-slate-700">Numéro d'immatriculation {requiredMark}<input name="registrationNumber" required className={fieldClass} /></label>
+              <label className="text-sm font-semibold text-slate-700">Adresse {requiredMark}<input name="address" required className={fieldClass} /></label>
               <label className="text-sm font-semibold text-slate-700">
-                Site web *
+                Site web {requiredMark}
                 <input
                   name="website"
                   type="url"
@@ -113,10 +114,10 @@ export function DealerRegistrationPage() {
                   className={fieldClass}
                 />
               </label>
-              <label className="text-sm font-semibold text-slate-700">Personne de contact *<input name="contactPerson" required className={fieldClass} /></label>
-              <label className="text-sm font-semibold text-slate-700">Telephone *<input name="phone" required className={fieldClass} /></label>
-              <label className="text-sm font-semibold text-slate-700">E-mail *<input name="email" type="email" required className={fieldClass} /></label>
-              <label className="text-sm font-semibold text-slate-700">Categorie / store *<select name="storeId" required className={fieldClass}><option value="">Selectionner</option>{stores.map((store) => <option key={store.id} value={store.id}>{store.name}</option>)}</select></label>
+              <label className="text-sm font-semibold text-slate-700">Personne de contact {requiredMark}<input name="contactPerson" required className={fieldClass} /></label>
+              <label className="text-sm font-semibold text-slate-700">Telephone {requiredMark}<input name="phone" required className={fieldClass} /></label>
+              <label className="text-sm font-semibold text-slate-700">E-mail {requiredMark}<input name="email" type="email" required className={fieldClass} /></label>
+              <label className="text-sm font-semibold text-slate-700">Store {requiredMark}<select name="storeId" required className={fieldClass}><option value="">Selectionner</option>{stores.map((store) => <option key={store.id} value={store.id}>{store.name}</option>)}</select></label>
               <label className="text-sm font-semibold text-slate-700">
                 Photo de la personne de contact
                 <span className={`${fieldClass} flex cursor-pointer items-center gap-3`}>
@@ -141,8 +142,8 @@ export function DealerRegistrationPage() {
                   />
                 )}
               </label>
-              <label className="text-sm font-semibold text-slate-700">Logo *<span className={`${fieldClass} flex cursor-pointer items-center gap-3`}><Building2 className="h-5 w-5 text-blue-600" />{logo?.name || 'Choisir le logo'}<input type="file" accept="image/*" className="hidden" onChange={(e) => setLogo(e.target.files?.[0] || null)} /></span></label>
-              <label className="text-sm font-semibold text-slate-700">Documents justificatifs *<span className={`${fieldClass} flex cursor-pointer items-center gap-3`}><Upload className="h-5 w-5 text-orange-500" />{documents.length ? `${documents.length} fichier(s)` : 'Ajouter les documents'}<input type="file" multiple className="hidden" onChange={(e) => setDocuments(Array.from(e.target.files || []))} /></span></label>
+              <label className="text-sm font-semibold text-slate-700">Logo {requiredMark}<span className={`${fieldClass} flex cursor-pointer items-center gap-3`}><Building2 className="h-5 w-5 text-blue-600" />{logo?.name || 'Choisir le logo'}<input type="file" accept="image/*" className="hidden" onChange={(e) => setLogo(e.target.files?.[0] || null)} /></span></label>
+              <label className="text-sm font-semibold text-slate-700">Documents justificatifs {requiredMark}<span className={`${fieldClass} flex cursor-pointer items-center gap-3`}><Upload className="h-5 w-5 text-orange-500" />{documents.length ? `${documents.length} fichier(s)` : 'Ajouter les documents'}<input type="file" multiple className="hidden" onChange={(e) => setDocuments(Array.from(e.target.files || []))} /></span></label>
             </div>
             <button disabled={loading} className="mt-8 w-full rounded-xl bg-gradient-to-r from-blue-600 to-orange-500 px-5 py-3.5 font-bold text-white shadow-lg disabled:opacity-60">{loading ? 'Envoi en cours...' : 'Envoyer la demande'}</button>
           </section>

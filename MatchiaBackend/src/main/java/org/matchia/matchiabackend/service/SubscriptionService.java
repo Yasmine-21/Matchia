@@ -7,6 +7,7 @@ import org.matchia.matchiabackend.dto.PaidSubscriptionDto;
 import org.matchia.matchiabackend.dto.SubscriptionDto;
 import org.matchia.matchiabackend.dto.SubscriptionExpiryAlertDto;
 import org.matchia.matchiabackend.dto.SubscriptionOverviewDto;
+import org.matchia.matchiabackend.entity.Bank;
 import org.matchia.matchiabackend.entity.Marketplace;
 import org.matchia.matchiabackend.entity.MarketplaceStore;
 import org.matchia.matchiabackend.entity.Payment;
@@ -303,9 +304,9 @@ public class SubscriptionService {
                 subscription.getId(),
                 request != null ? request.getId() : null,
                 payment != null ? payment.getId() : null,
-                resolveBankName(payment, request),
-                resolveBankLogoUrl(request),
-                request != null ? request.getMarketplaceSlug() : null,
+                resolveBankName(subscription, payment, request),
+                resolveBankLogoUrl(subscription, request),
+                resolveMarketplaceSlug(subscription, request),
                 payment != null ? payment.getAmount() : null,
                 payment != null ? payment.getCurrency() : null,
                 payment != null ? payment.getPaidAt() : null,
@@ -325,8 +326,8 @@ public class SubscriptionService {
         long daysRemaining = ChronoUnit.DAYS.between(today, subscription.getExpirationDate());
         return new SubscriptionExpiryAlertDto(
                 subscription.getId(),
-                resolveBankName(payment, request),
-                request != null ? request.getMarketplaceSlug() : null,
+                resolveBankName(subscription, payment, request),
+                resolveMarketplaceSlug(subscription, request),
                 subscription.getExpirationDate(),
                 daysRemaining,
                 daysRemaining <= 3 ? "Urgent" : "Attention"
@@ -433,18 +434,40 @@ public class SubscriptionService {
         }
     }
 
-    private String resolveBankName(Payment payment, Request request) {
+    private String resolveBankName(Subscription subscription, Payment payment, Request request) {
+        Bank bank = resolveCurrentBank(subscription, request);
+        if (bank != null && hasText(bank.getName())) {
+            return bank.getName().trim();
+        }
         if (payment != null && hasText(payment.getBankName())) {
             return payment.getBankName().trim();
         }
         return request != null && hasText(request.getBankName()) ? request.getBankName().trim() : "Matchia";
     }
 
-    private String resolveBankLogoUrl(Request request) {
-        if (request != null && request.getBank() != null && hasText(request.getBank().getLogoUrl())) {
-            return request.getBank().getLogoUrl();
+    private String resolveBankLogoUrl(Subscription subscription, Request request) {
+        Bank bank = resolveCurrentBank(subscription, request);
+        if (bank != null && hasText(bank.getLogoUrl())) {
+            return bank.getLogoUrl();
         }
         return request != null ? request.getLogoUrl() : null;
+    }
+
+    private String resolveMarketplaceSlug(Subscription subscription, Request request) {
+        Bank bank = resolveCurrentBank(subscription, request);
+        if (bank != null && hasText(bank.getSlug())) {
+            return bank.getSlug().trim();
+        }
+        return request != null ? request.getMarketplaceSlug() : null;
+    }
+
+    private Bank resolveCurrentBank(Subscription subscription, Request request) {
+        if (subscription != null
+                && subscription.getMarketplace() != null
+                && subscription.getMarketplace().getBank() != null) {
+            return subscription.getMarketplace().getBank();
+        }
+        return request != null ? request.getBank() : null;
     }
 
     private void recalculateMarketplaceAccess(Marketplace marketplace) {

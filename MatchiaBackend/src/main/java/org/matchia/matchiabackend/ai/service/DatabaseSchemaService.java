@@ -26,6 +26,14 @@ public class DatabaseSchemaService {
     private static final Set<String> FORBIDDEN_TABLES = Set.of(
             "flyway_schema_history", "databasechangelog", "databasechangeloglock"
     );
+    private static final Map<String, Set<String>> HIDDEN_BUSINESS_COLUMNS = Map.of(
+            "store", Set.of("description"),
+            "module", Set.of("description"),
+            "marketplace", Set.of("description"),
+            "request_store_selection", Set.of("store_description"),
+            "request_module_selection", Set.of("module_description"),
+            "request", Set.of("marketplace_description")
+    );
     private static final String SCHEMA_SQL = """
             SELECT table_name, column_name, data_type
             FROM information_schema.columns
@@ -60,7 +68,8 @@ public class DatabaseSchemaService {
         for (Map<String, Object> row : rows) {
             String table = stringValue(row, "table_name");
             String column = stringValue(row, "column_name");
-            if (table == null || column == null || isForbiddenTable(table) || isSensitiveName(column)) {
+            if (table == null || column == null || isForbiddenTable(table) || isSensitiveName(column)
+                    || isHiddenBusinessColumn(table, column)) {
                 continue;
             }
             tables.computeIfAbsent(table, ignored -> new LinkedHashSet<>()).add(column);
@@ -121,6 +130,12 @@ public class DatabaseSchemaService {
     private boolean isForbiddenTable(String table) {
         String normalized = table.toLowerCase(Locale.ROOT);
         return FORBIDDEN_TABLES.contains(normalized) || normalized.startsWith("pg_") || isSensitiveName(normalized);
+    }
+
+    private boolean isHiddenBusinessColumn(String table, String column) {
+        String normalizedTable = table.toLowerCase(Locale.ROOT);
+        String normalizedColumn = column.toLowerCase(Locale.ROOT);
+        return HIDDEN_BUSINESS_COLUMNS.getOrDefault(normalizedTable, Set.of()).contains(normalizedColumn);
     }
 
     public boolean isSensitiveName(String identifier) {

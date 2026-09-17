@@ -43,13 +43,13 @@ public class UserServiceTest {
         User user = new User();
         user.setRole(RoleEnum.ADMIN_SAAS);
         
-        when(userRepository.findByRoleNotOrderByCreatedAtAsc(RoleEnum.CLIENT))
+        when(userRepository.findByRoleNotOrderByCreatedAtDesc(RoleEnum.CLIENT))
             .thenReturn(List.of(user));
 
         List<User> result = userService.findAllForSaasBackoffice();
 
         assertThat(result).hasSize(1);
-        verify(userRepository).findByRoleNotOrderByCreatedAtAsc(RoleEnum.CLIENT);
+        verify(userRepository).findByRoleNotOrderByCreatedAtDesc(RoleEnum.CLIENT);
     }
 
     @Test
@@ -57,13 +57,13 @@ public class UserServiceTest {
         User user = new User();
         user.setRole(RoleEnum.ADMIN_BANK);
         
-        when(userRepository.findByBank_IdOrderByCreatedAtAsc(1L))
+        when(userRepository.findByBank_IdOrderByCreatedAtDesc(1L))
             .thenReturn(List.of(user));
 
         List<User> result = userService.findAllForBankBackoffice(1L);
 
         assertThat(result).hasSize(1);
-        verify(userRepository).findByBank_IdOrderByCreatedAtAsc(1L);
+        verify(userRepository).findByBank_IdOrderByCreatedAtDesc(1L);
     }
 
     @Test

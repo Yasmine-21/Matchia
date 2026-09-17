@@ -1,0 +1,171 @@
+{
+  "input": "D:\\PFE - BRI Technology\\Rapport\\Master Report.docx",
+  "fonts_by_char_count": {
+    "Times New Roman": 8793,
+    "Calibri": 171
+  },
+  "direct_run_formatting_runs": 1975,
+  "direct_paragraph_formatting_paragraphs": 702,
+  "heading_like_paragraphs_not_heading_style": [
+    {
+      "para_index": 6,
+      "text": "MEMOIRE DE MASTER",
+      "style": "Normal"
+    },
+    {
+      "para_index": 7,
+      "text": "Pr\u00e9sent\u00e9 en vue de l\u2019obtention du\u00a0",
+      "style": "Normal"
+    },
+    {
+      "para_index": 8,
+      "text": "Dipl\u00f4me National de Mast\u00e8re Professionnel",
+      "style": "Normal"
+    },
+    {
+      "para_index": 9,
+      "text": "En Syst\u00e8me de T\u00e9l\u00e9communications et R\u00e9seaux",
+      "style": "Normal"
+    },
+    {
+      "para_index": 12,
+      "text": "Yasmine Mouakhar ",
+      "style": "Normal"
+    },
+    {
+      "para_index": 18,
+      "text": "BRI-Technology",
+      "style": "Normal"
+    },
+    {
+      "para_index": 25,
+      "text": "                                           Encadrant Acad\u00e9mique",
+      "style": "Normal"
+    },
+    {
+      "para_index": 42,
+      "text": "                                            Encadrant Professionnel",
+      "style": "Normal"
+    },
+    {
+      "para_index": 45,
+      "text": "Remerciements",
+      "style": "Normal"
+    },
+    {
+      "para_index": 56,
+      "text": "D\u00e9dicace",
+      "style": "Normal"
+    },
+    {
+      "para_index": 59,
+      "text": "A mes chers parents",
+      "style": "Normal"
+    },
+    {
+      "para_index": 63,
+      "text": "A mes chers fr\u00e8res",
+      "style": "Normal"
+    },
+    {
+      "para_index": 69,
+      "text": "Table des mati\u00e8res",
+      "style": "Normal"
+    },
+    {
+      "para_index": 97,
+      "text": "SaaS\u00a0: Software as a Service",
+      "style": "Normal"
+    },
+    {
+      "para_index": 101,
+      "text": "REST : Representational State Transfer",
+      "style": "Normal"
+    },
+    {
+      "para_index": 106,
+      "text": "NLP\u00a0: Natural Language Processing",
+      "style": "Normal"
+    },
+    {
+      "para_index": 107,
+      "text": "LLM\u00a0: Large Language Model ",
+      "style": "Normal"
+    },
+    {
+      "para_index": 123,
+      "text": "Introduction",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 125,
+      "text": "Pr\u00e9sentation de l\u2019organisme d\u2019accueil",
+      "style": "List Paragraph"
+    },
+    {
+      "para_index": 126,
+      "text": "BRI Technology",
+      "style": "List Paragraph"
+    }
+  ],
+  "examples": {
+    "direct_paragraph_formatting": [
+      {
+        "para_index": 1,
+        "text": "R\u00e9publique Tunisienne",
+        "style": "Normal"
+      },
+      {
+        "para_index": 2,
+        "text": "Minist\u00e8re de l\u2019Enseignement Sup\u00e9rieur et de la Recherche Scientifique",
+        "style": "Normal"
+      },
+      {
+        "para_index": 3,
+        "text": "Universit\u00e9 de Tunis El Manar",
+        "style": "Normal"
+      },
+      {
+        "para_index": 4,
+        "text": "                                               Facult\u00e9 des Sciences de Tunis",
+        "style": "Normal"
+      },
+      {
+        "para_index": 5,
+        "text": "",
+        "style": "Normal"
+      }
+    ],
+    "direct_run_formatting": [
+      {
+        "para_index": 1,
+        "run_text": "R\u00e9publique Tunisienne",
+        "style": "Normal"
+      },
+      {
+        "para_index": 2,
+        "run_text": "Minist\u00e8re de l\u2019Enseignement Sup\u00e9rieur et de la Recherche Scientifique",
+        "style": "Normal"
+      },
+      {
+        "para_index": 3,
+        "run_text": "Universit\u00e9 de Tunis El Manar",
+        "style": "Normal"
+      },
+      {
+        "para_index": 4,
+        "run_text": "                                               Facult\u00e9 des Sciences de Tunis",
+        "style": "Normal"
+      },
+      {
+        "para_index": 6,
+        "run_text": "MEMOIRE DE MASTER",
+        "style": "Normal"
+      }
+    ]
+  },
+  "notes": [
+    "Direct formatting is not always wrong, but it often causes inconsistent output when templates change.",
+    "Heading-like paragraphs not using Heading styles can break TOC and accessibility."
+  ]
+}

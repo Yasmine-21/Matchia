@@ -50,7 +50,7 @@ public class BankService {
     }
 
     public List<BankDto> getAllBanks() {
-        return bankRepository.findAll()
+        return bankRepository.findAllByOrderByCreatedAtDesc()
                 .stream()
                 .map(this::toDtoWithCounts)
                 .collect(Collectors.toList());

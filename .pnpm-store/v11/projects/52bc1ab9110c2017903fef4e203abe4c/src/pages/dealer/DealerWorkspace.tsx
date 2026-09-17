@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import { type FormEvent, useEffect, useRef, useState } from 'react';
 import axios from 'axios';
 import { toast } from 'sonner';
 import { CartesianGrid, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -61,7 +61,7 @@ const pageMeta: Record<Mode, { title: string; description: string }> = {
   },
   contracts: {
     title: 'Contrats de partenariat',
-    description: 'Consultez et acceptez les contrats gratuits proposes par vos banques partenaires.',
+    description: 'Consultez et acceptez les contrats proposes par vos banques partenaires.',
   },
   products: {
     title: 'Catalogue produits',
@@ -153,6 +153,8 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
   const [invitationToReject, setInvitationToReject] = useState<Partnership | null>(null);
   const [invitationRejectionReason, setInvitationRejectionReason] = useState('');
   const [productToSubmit, setProductToSubmit] = useState<DealerProduct | null>(null);
+  const [submissionPartnerships, setSubmissionPartnerships] = useState<Partnership[]>([]);
+  const [loadingSubmissionProductId, setLoadingSubmissionProductId] = useState<number | null>(null);
   const [selectedPartnershipId, setSelectedPartnershipId] = useState('');
   const [submittingProductId, setSubmittingProductId] = useState<number | null>(null);
   const [productForStock, setProductForStock] = useState<DealerProduct | null>(null);
@@ -191,11 +193,6 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
   useEffect(() => {
     void load();
   }, []);
-
-  const approvedPartnerships = useMemo(
-    () => partnerships.filter((item) => item.status === 'ACTIVE'),
-    [partnerships],
-  );
 
   const requestPartnership = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -314,13 +311,29 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
     }
   };
 
-  const openSubmission = (product: DealerProduct) => {
-    if (approvedPartnerships.length === 0) {
-      toast.error('Aucun partenariat approuve ne permet de soumettre ce produit.');
-      return;
+  const openSubmission = async (product: DealerProduct) => {
+    setLoadingSubmissionProductId(product.id);
+    try {
+      const response = await dealerService.dealerActivePartnerships();
+      const eligiblePartnerships = (response.data || []).filter(
+        (partnership) => partnership.storeId === product.storeId,
+      );
+
+      if (eligiblePartnerships.length === 0) {
+        toast.error(`Aucun partenariat actif n'est disponible pour le store ${product.storeName}.`);
+        return;
+      }
+
+      setSubmissionPartnerships(eligiblePartnerships);
+      setProductToSubmit(product);
+      setSelectedPartnershipId(
+        eligiblePartnerships.length === 1 ? String(eligiblePartnerships[0].id) : '',
+      );
+    } catch (error) {
+      toast.error(getErrorMessage(error, 'Impossible de charger les banques partenaires actives.'));
+    } finally {
+      setLoadingSubmissionProductId(null);
     }
-    setProductToSubmit(product);
-    setSelectedPartnershipId(approvedPartnerships.length === 1 ? String(approvedPartnerships[0].id) : '');
   };
 
   const openStockModal = (product: DealerProduct) => {
@@ -382,6 +395,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
       await dealerService.submitProduct(productToSubmit.id, Number(selectedPartnershipId));
       toast.success('Produit soumis a la banque.');
       setProductToSubmit(null);
+      setSubmissionPartnerships([]);
       setSelectedPartnershipId('');
       await load();
     } catch (error) {
@@ -404,7 +418,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
             <h1 className="text-3xl font-bold tracking-tight text-foreground">{meta.title}</h1>
             <p className="mt-2 text-muted-foreground">{meta.description}</p>
           </div>
-          {mode !== 'publications' && (
+          {mode !== 'publications' && mode !== 'products' && (
             <Button variant="outline" icon={<RefreshCcw className="h-4 w-4" />} loading={loading} onClick={() => void load()}>
               Actualiser
             </Button>
@@ -449,6 +463,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
           onView={setProductDetails}
           onAddStock={openStockModal}
           onSubmit={openSubmission}
+          loadingSubmissionProductId={loadingSubmissionProductId}
         />
       )}
       {mode === 'publications' && <Publications publications={publications} />}
@@ -502,7 +517,7 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
 
       <Modal
         isOpen={Boolean(productToSubmit)}
-        onClose={() => setProductToSubmit(null)}
+        onClose={() => { setProductToSubmit(null); setSubmissionPartnerships([]); }}
         title="Soumettre le produit"
         size="sm"
       >
@@ -519,13 +534,13 @@ export function DealerWorkspace({ mode }: { mode: Mode }) {
               className="h-11 w-full rounded-lg border border-input bg-input-background px-3 outline-none focus:ring-2 focus:ring-ring"
             >
               <option value="">Selectionnez un partenariat</option>
-              {approvedPartnerships.map((partnership) => (
+              {submissionPartnerships.map((partnership) => (
                 <option key={partnership.id} value={partnership.id}>{partnership.bankName} - {partnership.storeName}</option>
               ))}
             </select>
           </label>
           <div className="flex flex-col-reverse gap-3 sm:flex-row">
-            <Button variant="outline" className="flex-1" onClick={() => setProductToSubmit(null)}>Annuler</Button>
+            <Button variant="outline" className="flex-1" onClick={() => { setProductToSubmit(null); setSubmissionPartnerships([]); }}>Annuler</Button>
             <Button className="flex-1" icon={<Send className="h-4 w-4" />} loading={submittingProductId === productToSubmit?.id} onClick={() => void submitProduct()}>
               Soumettre
             </Button>
@@ -940,22 +955,24 @@ function PartnershipTable({ rows, tab, actionKey, onApprove, onReject, onCancel 
   onCancel: (id: number) => void;
 }) {
   const dateHeading = tab === 'active' ? 'Depuis le' : tab === 'received' ? 'Reçue le' : 'Envoyée le';
+  const showActions = tab !== 'active';
 
   return (
     <div className="overflow-x-auto p-4 sm:p-5">
-      <table className="w-full min-w-[720px] border-separate border-spacing-0 overflow-hidden rounded-xl border border-border">
+      <table className={`w-full ${showActions ? 'min-w-[960px]' : 'min-w-[760px]'} border-separate border-spacing-0 overflow-hidden rounded-xl border border-border`}>
         <thead className="bg-muted/45">
           <tr className="text-left">
-            <th className="w-[36%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banque</th>
-            <th className="w-[22%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{dateHeading}</th>
-            <th className="w-[18%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Statut</th>
-            <th className="w-[24%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>
+            <th className="w-[28%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Banque</th>
+            <th className="w-[30%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Contact</th>
+            <th className="w-[20%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">{dateHeading}</th>
+            <th className="w-[22%] px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Statut</th>
+            {showActions && <th className="px-5 py-3.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground">Actions</th>}
           </tr>
         </thead>
         <tbody className="divide-y divide-border bg-card">
           {rows.length === 0 ? (
             <tr>
-              <td colSpan={4} className="px-5 py-14 text-center text-sm text-muted-foreground">Aucun élément dans cette section.</td>
+              <td colSpan={showActions ? 5 : 4} className="px-5 py-14 text-center text-sm text-muted-foreground">Aucun élément dans cette section.</td>
             </tr>
           ) : rows.map((item) => {
             const logoUrl = item.bankLogoUrl ? resolveApiUrl(item.bankLogoUrl) : '';
@@ -976,9 +993,29 @@ function PartnershipTable({ rows, tab, actionKey, onApprove, onReject, onCancel 
                     <span className="font-semibold text-foreground">{item.bankName}</span>
                   </div>
                 </td>
+                <td className="px-5 py-4">
+                  <div className="space-y-1.5 text-sm">
+                    {item.bankEmail ? (
+                      <a href={`mailto:${item.bankEmail}`} className="flex items-center gap-2 text-foreground hover:text-primary">
+                        <Mail className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <span className="break-all">{item.bankEmail}</span>
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-2 text-muted-foreground"><Mail className="h-4 w-4 shrink-0" />-</div>
+                    )}
+                    {item.bankPhone ? (
+                      <a href={`tel:${item.bankPhone}`} className="flex items-center gap-2 text-foreground hover:text-primary">
+                        <Phone className="h-4 w-4 shrink-0 text-muted-foreground" />
+                        <span>{item.bankPhone}</span>
+                      </a>
+                    ) : (
+                      <div className="flex items-center gap-2 text-muted-foreground"><Phone className="h-4 w-4 shrink-0" />-</div>
+                    )}
+                  </div>
+                </td>
                 <td className="px-5 py-4 text-sm text-muted-foreground">{formatDate(displayedDate)}</td>
                 <td className="px-5 py-4"><Badge variant={statusMeta(item.status).variant}>{statusMeta(item.status).label}</Badge></td>
-                <td className="px-5 py-4">
+                {showActions && <td className="px-5 py-4">
                   {tab === 'received' && item.status === 'PENDING' ? (
                     <div className="flex flex-wrap gap-2">
                       <Button size="sm" variant="success" icon={<CheckCircle2 className="h-4 w-4" />} loading={actionKey === `approve-${item.id}`} disabled={Boolean(actionKey) && actionKey !== `approve-${item.id}`} onClick={() => onApprove(item.id)}>Accepter</Button>
@@ -989,7 +1026,7 @@ function PartnershipTable({ rows, tab, actionKey, onApprove, onReject, onCancel 
                   ) : (
                     <span className="text-sm text-muted-foreground">-</span>
                   )}
-                </td>
+                </td>}
               </tr>
             );
           })}
@@ -999,7 +1036,7 @@ function PartnershipTable({ rows, tab, actionKey, onApprove, onReject, onCancel 
   );
 }
 
-function Products({ products, publications, banks, onCreate, onEdit, onView, onAddStock, onSubmit }: {
+function Products({ products, publications, banks, onCreate, onEdit, onView, onAddStock, onSubmit, loadingSubmissionProductId }: {
   products: DealerProduct[];
   publications: Publication[];
   banks: BankOption[];
@@ -1008,6 +1045,7 @@ function Products({ products, publications, banks, onCreate, onEdit, onView, onA
   onView: (product: DealerProduct) => void;
   onAddStock: (product: DealerProduct) => void;
   onSubmit: (product: DealerProduct) => void;
+  loadingSubmissionProductId: number | null;
 }) {
   return (
     <>
@@ -1053,7 +1091,15 @@ function Products({ products, publications, banks, onCreate, onEdit, onView, onA
                   <Button variant="outline" icon={<Eye className="h-4 w-4" />} onClick={() => onView(product)}>Détails</Button>
                   <Button variant="outline" icon={<Edit3 className="h-4 w-4" />} onClick={() => onEdit(product)}>Modifier</Button>
                   <Button variant="secondary" icon={<Plus className="h-4 w-4" />} onClick={() => onAddStock(product)}>Ajouter stock</Button>
-                  <Button variant="secondary" icon={<Send className="h-4 w-4" />} disabled={product.status !== 'ACTIVE' || product.availableStock === 0} onClick={() => onSubmit(product)}>Soumettre</Button>
+                  <Button
+                    variant="secondary"
+                    icon={<Send className="h-4 w-4" />}
+                    loading={loadingSubmissionProductId === product.id}
+                    disabled={product.status !== 'ACTIVE' || product.availableStock === 0}
+                    onClick={() => onSubmit(product)}
+                  >
+                    Soumettre
+                  </Button>
                 </div>
                 {activePublications.length > 0 && (
                   <div className="mt-3 space-y-2 border-t border-border pt-3">
